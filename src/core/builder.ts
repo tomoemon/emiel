@@ -1,5 +1,4 @@
-import { Acceptable, Comparable, Rule, RuleEntry } from "./rule";
-import { setDefault } from "../utils/map";
+import { Acceptable, Comparable, Rule } from "./rule";
 import { buildKanaNode } from "./kana_graph_builder";
 import { StrokeNode, buildStrokeNode } from "./stroke_graph_builder";
 
