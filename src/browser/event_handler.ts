@@ -1,25 +1,43 @@
-import { InputKeyStroke, KeyEventType } from "../impl/stroke";
+import { KeyboardState } from "../core/keyboard_state";
+import { InputKeyEvent, InputKeyStroke, KeyEventType } from "../impl/stroke";
 import { VirtualKey, VirtualKeys } from "../impl/virtual_key";
 
 /**
  * @param target Window object のようなものを受け取る
  * @param handler キー入力を受け取るハンドラ
+ * @returns イベントハンドラを解除する関数を返す
  */
-export function listen(
+export function activate(
   target: EventTarget,
-  handler: (evt: InputKeyStroke) => void
+  handler: (evt: InputKeyEvent) => void
 ) {
-  const now = new Date();
-  target.addEventListener("keydown", (evt) => {
-    handler(
-      toInputKeyStrokeFromKeyboardEvent("keydown", evt as KeyboardEvent, now)
+  const keyboardState = new KeyboardState<VirtualKey>();
+  const keyDownEventHandler = (evt: Event) => {
+    const now = new Date();
+    const keyStroke = toInputKeyStrokeFromKeyboardEvent(
+      "keydown",
+      evt as KeyboardEvent,
+      now
     );
-  });
-  target.addEventListener("keyup", (evt) => {
-    handler(
-      toInputKeyStrokeFromKeyboardEvent("keyup", evt as KeyboardEvent, now)
+    keyboardState.keydown(keyStroke.key);
+    handler(new InputKeyEvent(keyStroke, keyboardState));
+  };
+  const keyUpEventHandler = (evt: Event) => {
+    const now = new Date();
+    const keyStroke = toInputKeyStrokeFromKeyboardEvent(
+      "keyup",
+      evt as KeyboardEvent,
+      now
     );
-  });
+    keyboardState.keyup(keyStroke.key);
+    handler(new InputKeyEvent(keyStroke, keyboardState));
+  };
+  target.addEventListener("keydown", keyDownEventHandler);
+  target.addEventListener("keyup", keyUpEventHandler);
+  return () => {
+    target.removeEventListener("keydown", keyDownEventHandler);
+    target.removeEventListener("keyup", keyUpEventHandler);
+  };
 }
 
 function toInputKeyStrokeFromKeyboardEvent(

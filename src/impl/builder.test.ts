@@ -1,7 +1,8 @@
-import { buildKanaNode, buildStrokeNode } from "../core/builder";
 import { prettyPrint } from "@base2/pretty-print-object";
 import { loadFromGoogleImeText } from "./google_ime_config_loader";
 import { test } from "vitest";
+import { buildKanaNode } from "../core/kana_graph_builder";
+import { buildStrokeNode } from "../core/stroke_graph_builder";
 
 function showNextNode(node: any) {
   return console.log(

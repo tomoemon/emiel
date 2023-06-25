@@ -37,8 +37,8 @@ export class AcceptableCodeStroke
   implements Comparable<AcceptableCodeStroke>, Acceptable<InputKeyEvent>
 {
   constructor(readonly keys: VirtualKey[], readonly modifier: Modifier) {}
-  accept(_: InputKeyEvent): boolean {
-    return true;
+  accept(evt: InputKeyEvent): boolean {
+    return evt.input.key === this.keys[0];
   }
   equals(other: AcceptableCodeStroke): boolean {
     return (

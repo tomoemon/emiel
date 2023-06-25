@@ -8,6 +8,7 @@ export class ShortestStrokeGuide<U, T extends Comparable<T> & Acceptable<U>> {
     const result: T[] = [];
     while (node.nextEdges.length > 0) {
       result.push(node.nextEdges[0].input);
+      node = node.nextEdges[0].next;
     }
     return result;
   }

@@ -1,5 +1,5 @@
-import { StrokeNode } from "./builder";
 import { Acceptable, Comparable } from "./rule";
+import { StrokeNode } from "./stroke_graph_builder";
 
 export const InputResultTypes = {
   // 現在入力可能ないずれのパターンにもマッチしない
@@ -30,6 +30,9 @@ export class Automaton<U, T extends Comparable<T> & Acceptable<U>> {
   getCurrentNode(): StrokeNode<U, T> {
     return this.currentNode;
   }
+  get succeededInputs(): U[] {
+    return this.succeededStack.map((v) => v.input);
+  }
   /**
    * 1 stroke 分の入力を戻す
    */
@@ -49,14 +52,15 @@ export class Automaton<U, T extends Comparable<T> & Acceptable<U>> {
     const acceptedEdges = this.currentNode.nextEdges.filter((edge) =>
       edge.input.accept(stroke)
     );
+    console.log(acceptedEdges);
     if (acceptedEdges.length > 0) {
       this.succeededStack.push({
         input: stroke,
         lastNode: this.currentNode,
       });
-      const nextStrokeNode = acceptedEdges[0].next;
-      if (lastKanaIndex < nextStrokeNode.kanaIndex) {
-        if (nextStrokeNode.nextEdges.length === 0) {
+      this.currentNode = acceptedEdges[0].next;
+      if (lastKanaIndex < this.currentNode.kanaIndex) {
+        if (this.currentNode.nextEdges.length === 0) {
           return InputResultTypes.Finished;
         }
         return InputResultTypes.KanaSucceeded;
