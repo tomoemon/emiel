@@ -1,12 +1,9 @@
 import { Acceptable, Comparable, Rule, RuleEntry } from "./rule";
-import * as automaton from "./automaton";
 import { setDefault } from "../utils/map";
 
 // kanaText の特定の位置に対応する Node
 // build 中にのみ使用する
-class KanaNode<U, T extends Comparable<T> & Acceptable<U>>
-  implements automaton.KanaNode<U, T>
-{
+class KanaNode<U, T extends Comparable<T> & Acceptable<U>> {
   constructor(
     readonly startIndex: number,
     readonly nextEdges: KanaEdge<U, T>[],
@@ -41,9 +38,7 @@ class KanaNode<U, T extends Comparable<T> & Acceptable<U>>
 
 // KanaNode間をつなぐ辺
 // build 中にのみ使用する
-class KanaEdge<U, T extends Comparable<T> & Acceptable<U>>
-  implements automaton.KanaEdge<U, T>
-{
+class KanaEdge<U, T extends Comparable<T> & Acceptable<U>> {
   constructor(
     readonly entries: RuleEntry<U, T>[],
     readonly next: KanaNode<U, T>,
@@ -167,7 +162,7 @@ function eraseInvalidEdges<U, T extends Comparable<T> & Acceptable<U>>(
   }
 }
 
-class StrokeNode<U, T extends Comparable<T> & Acceptable<U>> {
+export class StrokeNode<U, T extends Comparable<T> & Acceptable<U>> {
   private cost: number = 0; // このノードから打ち切るまでの最短ストローク数
   constructor(
     readonly kanaIndex: number, // 今入力しようとしている KanaNode
@@ -187,7 +182,7 @@ class StrokeNode<U, T extends Comparable<T> & Acceptable<U>> {
   }
 }
 
-class StrokeEdge<U, T extends Comparable<T> & Acceptable<U>> {
+export class StrokeEdge<U, T extends Comparable<T> & Acceptable<U>> {
   constructor(
     readonly input: T,
     readonly previous: StrokeNode<U, T>,
@@ -251,5 +246,12 @@ export function buildStrokeNode<U, T extends Comparable<T> & Acceptable<U>>(
     nextSearchingKanaNodes.clear();
     // console.log( "next", searchingKanaNodes.map((n) => n.startIndex));
   }
+
+  // 各かなに対応する StrokeNode から次へ遷移する時、低コストなものを先頭に並べる
+  // これにより、nextEdges[0] でたどる経路が最小コストの経路であることを保証できる
+  kanaStrokeNodeMap.forEach((strokeNode) => {
+    strokeNode.nextEdges.sort((a, b) => a.next.getCost() - b.next.getCost());
+  });
+
   return kanaStrokeNodeMap.get(0) as StrokeNode<U, T>;
 }
