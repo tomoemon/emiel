@@ -27,6 +27,9 @@ export class Automaton<U, T extends Comparable<T> & Acceptable<U>> {
   reset(): void {
     this.currentNode = this.startNode;
   }
+  getCurrentNode(): StrokeNode<U, T> {
+    return this.currentNode;
+  }
   /**
    * 1 stroke 分の入力を戻す
    */
