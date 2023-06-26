@@ -1,15 +1,11 @@
-import { Rule, RuleEntry } from "../core/rule";
-import {
-  AcceptableCodeStroke,
-  InputKeyEvent,
-  NullModifier,
-  OrModifier,
-} from "./stroke";
-import { VirtualKeys } from "./virtual_key";
+import { NullModifier, OrModifier, Rule, RuleEntry } from "../core/rule";
+import { AcceptableCodeStroke, InputKeyEvent } from "./stroke";
+import { VirtualKey, VirtualKeys } from "./virtual_key";
 
 export function loadFromGoogleImeText(
+  name: string,
   text: string
-): Rule<InputKeyEvent, AcceptableCodeStroke> {
+): Rule<InputKeyEvent, AcceptableCodeStroke, VirtualKey> {
   /*
 		a	あ	
 		ta	た	
@@ -40,7 +36,9 @@ export function loadFromGoogleImeText(
     );
     entries.push(new RuleEntry(input, output, nextInput));
   }
-  return new Rule(entries);
+  return new Rule(name, entries, [
+    new OrModifier<VirtualKey>([VirtualKeys.ShiftLeft, VirtualKeys.ShiftRight]),
+  ]);
 }
 
 export function toKeyCodeStrokeFromKeyChar(key: string): AcceptableCodeStroke {

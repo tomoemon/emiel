@@ -32,7 +32,9 @@ function showPreviousNode(node: any) {
 }
 
 test("load google ime empty rule", () => {
-  const rule = loadFromGoogleImeText(`
+  const rule = loadFromGoogleImeText(
+    "test-rule",
+    `
 a	あ
 i	い
 u	う
@@ -41,7 +43,8 @@ o	お
 tt	っ	t
 ta	た
 ltu	っ
-`);
+`
+  );
   // console.log(rule);
   const [_, endKanaNode] = buildKanaNode(rule, "おった");
   const startStrokeNode = buildStrokeNode(endKanaNode);
@@ -50,10 +53,13 @@ ltu	っ
 });
 
 test("erase invalid connection test", () => {
-  const rule = loadFromGoogleImeText(`
+  const rule = loadFromGoogleImeText(
+    "test-rule",
+    `
 a	あ
 x	あいうえ
-`);
+`
+  );
   console.log(prettyPrint(rule, { indent: "    " }));
   /*
   function clearPrevious(node: KanaNode) {

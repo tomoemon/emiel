@@ -68,6 +68,24 @@ tt/っ/t のような次の入力を持つエントリを定義すると
 っっっっっっっっっっっっった
 のように無限に連なる文字列を t の連続で打てるようになるので、事前にルールを展開することはできなさそう
 */
-export class Rule<U, T extends Comparable<T> & Acceptable<U>> {
-  constructor(readonly entries: RuleEntry<U, T>[]) {}
+export class Rule<U, T extends Comparable<T> & Acceptable<U>, M> {
+  constructor(
+    readonly name: string,
+    readonly entries: RuleEntry<U, T>[],
+    readonly modifiers: Modifier<M>[] // ルールの中で使用されうる modifier の一覧
+  ) {}
+}
+
+export type Modifier<T> = OrModifier<T> | AndModifier<T> | NullModifier<T>;
+
+export class NullModifier<T> {
+  constructor(readonly modifiers: T[] = [], readonly type: "null" = "null") {}
+}
+
+export class OrModifier<T> {
+  constructor(readonly modifiers: T[], readonly type: "or" = "or") {}
+}
+
+export class AndModifier<T> {
+  constructor(readonly modifiers: T[], readonly type: "and" = "and") {}
 }

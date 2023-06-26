@@ -3,12 +3,12 @@ import { VirtualKeys } from "./virtual_key";
 import { expect, test } from "vitest";
 
 test("load google ime empty rule", () => {
-  const rule = loadFromGoogleImeText(``);
+  const rule = loadFromGoogleImeText("test-rule", ``);
   expect(rule.entries.length).toBe(0);
 });
 
 test("load google ime single rule", () => {
-  const rule = loadFromGoogleImeText(`a	あ`);
+  const rule = loadFromGoogleImeText("test-rule", `a	あ`);
   const entries = rule.entries;
   expect(entries.length).toBe(1);
   expect(entries[0].input[0].keys).toEqual([VirtualKeys.A]);
@@ -17,7 +17,7 @@ test("load google ime single rule", () => {
 });
 
 test("load google ime next rule", () => {
-  const rule = loadFromGoogleImeText(`tt	っ	t`);
+  const rule = loadFromGoogleImeText("test-rule", `tt	っ	t`);
   const entries = rule.entries;
   expect(entries.length).toBe(1);
   expect(entries[0].input.length).toBe(2);
@@ -30,6 +30,7 @@ test("load google ime next rule", () => {
 
 test("load google ime double rule", () => {
   const rule = loadFromGoogleImeText(
+    "test-rule",
     `a	あ
 i	い
 `

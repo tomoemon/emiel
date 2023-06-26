@@ -90,8 +90,8 @@ export class KanaEdge<U, T extends Comparable<T> & Acceptable<U>> {
 	 ya            tti
 	 ya           cchi
 */
-export function buildKanaNode<U, T extends Comparable<T> & Acceptable<U>>(
-  rule: Rule<U, T>,
+export function buildKanaNode<U, T extends Comparable<T> & Acceptable<U>, M>(
+  rule: Rule<U, T, M>,
   kanaText: string
 ): [KanaNode<U, T>, KanaNode<U, T>] {
   // かなテキスト1文字1文字に対応する KanaNode を作成する
