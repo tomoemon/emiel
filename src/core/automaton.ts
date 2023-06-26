@@ -1,19 +1,39 @@
 import { Acceptable, Comparable } from "./rule";
 import { StrokeNode } from "./stroke_graph_builder";
 
-export const InputResultTypes = {
-  // 現在入力可能ないずれのパターンにもマッチしない
-  Failed: 1, // 1 << 0
-  // 1つ以上の入力可能な Entry にマッチした
-  KeySucceeded: 2, // 1 << 1
-  // 1つ以上のかなの入力を進めた
-  KanaSucceeded: 6, // 1 << 1 | 1 << 2
-  // 入力全体を完了した
-  Finished: 14, // 1 << 1 | 1 << 2 | 1 << 3
-} as const;
+export class InputResult {
+  constructor(
+    private readonly type:
+      | "failed"
+      | "key_succeeded"
+      | "kana_succeeded"
+      | "finished"
+  ) {}
+  toString(): string {
+    return this.type;
+  }
+  isFailed(): boolean {
+    return this.type === "failed";
+  }
+  isKeySucceeded(): boolean {
+    return (
+      this.type === "key_succeeded" ||
+      this.type === "kana_succeeded" ||
+      this.type === "finished"
+    );
+  }
+  isKanaSucceeded(): boolean {
+    return this.type === "kana_succeeded" || this.type === "finished";
+  }
+  isFinished(): boolean {
+    return this.type === "finished";
+  }
+}
 
-export type InputResultType =
-  (typeof InputResultTypes)[keyof typeof InputResultTypes];
+const inputResultFailed = new InputResult("failed");
+const inputResultKeySucceeded = new InputResult("key_succeeded");
+const inputResultKanaSucceeded = new InputResult("kana_succeeded");
+const inputResultFinished = new InputResult("finished");
 
 export class Automaton<U, T extends Comparable<T> & Acceptable<U>> {
   private currentNode: StrokeNode<U, T>;
@@ -47,7 +67,7 @@ export class Automaton<U, T extends Comparable<T> & Acceptable<U>> {
   get finished(): boolean {
     return this.currentNode.nextEdges.length === 0;
   }
-  input(stroke: U): InputResultType {
+  input(stroke: U): InputResult {
     const lastKanaIndex = this.currentNode.kanaIndex;
     const acceptedEdges = this.currentNode.nextEdges.filter((edge) =>
       edge.input.accept(stroke)
@@ -61,18 +81,18 @@ export class Automaton<U, T extends Comparable<T> & Acceptable<U>> {
       this.currentNode = acceptedEdges[0].next;
       if (lastKanaIndex < this.currentNode.kanaIndex) {
         if (this.currentNode.nextEdges.length === 0) {
-          return InputResultTypes.Finished;
+          return inputResultFinished;
         }
-        return InputResultTypes.KanaSucceeded;
+        return inputResultKanaSucceeded;
       }
-      return InputResultTypes.KeySucceeded;
+      return inputResultKeySucceeded;
     }
-    return InputResultTypes.Failed;
+    return inputResultFailed;
   }
 }
 
 export class SelectorInputResult<T> {
-  constructor(readonly type: InputResultType, readonly automaton: T) {}
+  constructor(readonly type: InputResult, readonly automaton: T) {}
 }
 
 export class Selector<U, T extends Comparable<T> & Acceptable<U>> {
@@ -88,9 +108,9 @@ export class Selector<U, T extends Comparable<T> & Acceptable<U>> {
     for (let automaton of this.activeAutomatons) {
       const type = automaton.input(stroke);
       result.push(new SelectorInputResult(type, automaton));
-      if (type !== InputResultTypes.Failed) {
+      if (type !== inputResultFailed) {
         succeeded = true;
-        if (type != InputResultTypes.Finished) {
+        if (type != inputResultFinished) {
           newActiveAutomatons.push(automaton);
         }
       }
