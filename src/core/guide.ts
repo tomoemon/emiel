@@ -1,8 +1,11 @@
 import { Automaton } from "./automaton";
-import { Acceptable, Comparable } from "./rule";
+import { Comparable, Matchable } from "./rule";
 
-export class ShortestStrokeGuide<U, T extends Comparable<T> & Acceptable<U>> {
-  constructor(readonly automaton: Automaton<U, T>) {}
+export class ShortestStrokeGuide<
+  T extends Comparable<T>,
+  U extends Matchable<T>
+> {
+  constructor(readonly automaton: Automaton<T, U>) {}
   get restStrokes(): T[] {
     let node = this.automaton.getCurrentNode();
     const result: T[] = [];

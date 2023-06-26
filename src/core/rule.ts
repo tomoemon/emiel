@@ -4,12 +4,9 @@
 export interface Comparable<T> {
   equals(other: Comparable<T>): boolean;
 }
-/**
- * U 型の値を受け取って、受け入れられるかどうかを判定するインターフェース
- * @param U キー入力イベントを表す型
- */
-export interface Acceptable<U> {
-  accept(input: U): boolean;
+
+export interface Matchable<T> {
+  match(other: T): boolean;
 }
 
 /**
@@ -20,7 +17,7 @@ export interface Acceptable<U> {
  * @property output 出力文字列
  * @property nextInput 次の入力として自動入力されるキー入力列
  */
-export class RuleEntry<U, T extends Comparable<T> & Acceptable<U>> {
+export class RuleEntry<T extends Comparable<T>> {
   constructor(
     readonly input: T[],
     readonly output: string,
@@ -68,10 +65,10 @@ tt/っ/t のような次の入力を持つエントリを定義すると
 っっっっっっっっっっっっった
 のように無限に連なる文字列を t の連続で打てるようになるので、事前にルールを展開することはできなさそう
 */
-export class Rule<U, T extends Comparable<T> & Acceptable<U>, M> {
+export class Rule<T extends Comparable<T>, M> {
   constructor(
     readonly name: string,
-    readonly entries: RuleEntry<U, T>[],
+    readonly entries: RuleEntry<T>[],
     readonly modifiers: Modifier<M>[] // ルールの中で使用されうる modifier の一覧
   ) {}
 }

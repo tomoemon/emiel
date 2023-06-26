@@ -1,11 +1,11 @@
 import { NullModifier, OrModifier, Rule, RuleEntry } from "../core/rule";
-import { AcceptableCodeStroke, InputKeyEvent } from "./stroke";
+import { AcceptableCodeStroke } from "./stroke";
 import { VirtualKey, VirtualKeys } from "./virtual_key";
 
 export function loadFromGoogleImeText(
   name: string,
   text: string
-): Rule<InputKeyEvent, AcceptableCodeStroke, VirtualKey> {
+): Rule<AcceptableCodeStroke, VirtualKey> {
   /*
 		a	あ	
 		ta	た	
@@ -14,7 +14,7 @@ export function loadFromGoogleImeText(
   text = text.replace(/\r\n/g, "\n");
   text = text.replace(/\r/g, "\n");
   const lines = text.split("\n");
-  const entries: RuleEntry<InputKeyEvent, AcceptableCodeStroke>[] = [];
+  const entries: RuleEntry<AcceptableCodeStroke>[] = [];
   for (let line of lines) {
     line = line.trim();
     if (line.length == 0) {

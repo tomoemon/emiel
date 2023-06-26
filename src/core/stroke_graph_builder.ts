@@ -1,13 +1,13 @@
 import { setDefault } from "../utils/map";
 import { KanaNode } from "./kana_graph_builder";
-import { Acceptable, Comparable } from "./rule";
+import { Comparable } from "./rule";
 
-export class StrokeNode<U, T extends Comparable<T> & Acceptable<U>> {
+export class StrokeNode<T extends Comparable<T>> {
   private cost: number = 0; // このノードから打ち切るまでの最短ストローク数
   constructor(
     readonly kanaIndex: number, // 今入力しようとしている KanaNode
-    readonly previousEdges: StrokeEdge<U, T>[],
-    readonly nextEdges: StrokeEdge<U, T>[]
+    readonly previousEdges: StrokeEdge<T>[],
+    readonly nextEdges: StrokeEdge<T>[]
   ) {}
   getCost(): number {
     return this.cost;
@@ -22,21 +22,21 @@ export class StrokeNode<U, T extends Comparable<T> & Acceptable<U>> {
   }
 }
 
-export class StrokeEdge<U, T extends Comparable<T> & Acceptable<U>> {
+export class StrokeEdge<T extends Comparable<T>> {
   constructor(
     readonly input: T,
-    readonly previous: StrokeNode<U, T>,
-    readonly next: StrokeNode<U, T>
+    readonly previous: StrokeNode<T>,
+    readonly next: StrokeNode<T>
   ) {}
 }
 
-export function buildStrokeNode<U, T extends Comparable<T> & Acceptable<U>>(
-  endKanaNode: KanaNode<U, T>
-): StrokeNode<U, T> {
+export function buildStrokeNode<T extends Comparable<T>>(
+  endKanaNode: KanaNode<T>
+): StrokeNode<T> {
   // KanaNode の index に対応する StrokeNode
-  const kanaStrokeNodeMap = new Map<number, StrokeNode<U, T>>();
+  const kanaStrokeNodeMap = new Map<number, StrokeNode<T>>();
   let searchingKanaNodes = [endKanaNode];
-  let nextSearchingKanaNodes = new Set<KanaNode<U, T>>();
+  let nextSearchingKanaNodes = new Set<KanaNode<T>>();
   while (searchingKanaNodes.length > 0) {
     searchingKanaNodes.forEach((kanaNode) => {
       // console.log("searching", kanaNode.startIndex);
@@ -45,12 +45,12 @@ export function buildStrokeNode<U, T extends Comparable<T> & Acceptable<U>>(
         const nextKanaStrokeNode = setDefault(
           kanaStrokeNodeMap,
           kanaNode.startIndex,
-          new StrokeNode<U, T>(kanaNode.startIndex, [], [])
+          new StrokeNode<T>(kanaNode.startIndex, [], [])
         );
         const previousKanaStrokeNode = setDefault(
           kanaStrokeNodeMap,
           edge.previous.startIndex,
-          new StrokeNode<U, T>(edge.previous.startIndex, [], [])
+          new StrokeNode<T>(edge.previous.startIndex, [], [])
         );
         const edgeInputs = edge.inputs;
         // このエッジを経由して前のかなノードに到達した場合のコスト
@@ -67,8 +67,8 @@ export function buildStrokeNode<U, T extends Comparable<T> & Acceptable<U>>(
             const nextStrokeNode =
               index === edgeInputs.length - 1
                 ? nextKanaStrokeNode
-                : new StrokeNode<U, T>(edgeInputs[index + 1].kanaIndex, [], []);
-            const strokeEdge = new StrokeEdge<U, T>(
+                : new StrokeNode<T>(edgeInputs[index + 1].kanaIndex, [], []);
+            const strokeEdge = new StrokeEdge<T>(
               input.input,
               previousStrokeNode,
               nextStrokeNode
@@ -93,5 +93,5 @@ export function buildStrokeNode<U, T extends Comparable<T> & Acceptable<U>>(
     strokeNode.nextEdges.sort((a, b) => a.next.getCost() - b.next.getCost());
   });
 
-  return kanaStrokeNodeMap.get(0) as StrokeNode<U, T>;
+  return kanaStrokeNodeMap.get(0) as StrokeNode<T>;
 }

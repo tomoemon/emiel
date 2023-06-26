@@ -1,18 +1,15 @@
 // kanaText の特定の位置に対応する Node
 
-import { Acceptable, Comparable, Rule, RuleEntry } from "./rule";
+import { Comparable, Rule, RuleEntry } from "./rule";
 
 // build 中にのみ使用する
-export class KanaNode<U, T extends Comparable<T> & Acceptable<U>> {
+export class KanaNode<T extends Comparable<T>> {
   constructor(
     readonly startIndex: number,
-    readonly nextEdges: KanaEdge<U, T>[],
-    readonly previousEdges: KanaEdge<U, T>[]
+    readonly nextEdges: KanaEdge<T>[],
+    readonly previousEdges: KanaEdge<T>[]
   ) {}
-  connectEdgesWithNextInput(
-    previousNode: KanaNode<U, T>,
-    entry: RuleEntry<U, T>
-  ) {
+  connectEdgesWithNextInput(previousNode: KanaNode<T>, entry: RuleEntry<T>) {
     this.nextEdges
       .filter((edge) => edge.canConnectWithNextInput(entry.nextInput))
       .forEach((edge) => {
@@ -27,7 +24,7 @@ export class KanaNode<U, T extends Comparable<T> & Acceptable<U>> {
         edge.next.previousEdges.push(newEdge);
       });
   }
-  clearNextEdgesTo(targetNode: KanaNode<U, T>) {
+  clearNextEdgesTo(targetNode: KanaNode<T>) {
     const newNodes = this.nextEdges.filter((edge) => edge.next !== targetNode);
     this.nextEdges.splice(0, this.nextEdges.length, ...newNodes);
   }
@@ -38,11 +35,11 @@ export class KanaNode<U, T extends Comparable<T> & Acceptable<U>> {
 
 // KanaNode間をつなぐ辺
 // build 中にのみ使用する
-export class KanaEdge<U, T extends Comparable<T> & Acceptable<U>> {
+export class KanaEdge<T extends Comparable<T>> {
   constructor(
-    readonly entries: RuleEntry<U, T>[],
-    readonly next: KanaNode<U, T>,
-    readonly previous: KanaNode<U, T>
+    readonly entries: RuleEntry<T>[],
+    readonly next: KanaNode<T>,
+    readonly previous: KanaNode<T>
   ) {}
 
   /**
@@ -90,13 +87,13 @@ export class KanaEdge<U, T extends Comparable<T> & Acceptable<U>> {
 	 ya            tti
 	 ya           cchi
 */
-export function buildKanaNode<U, T extends Comparable<T> & Acceptable<U>, M>(
-  rule: Rule<U, T, M>,
+export function buildKanaNode<T extends Comparable<T>, M>(
+  rule: Rule<T, M>,
   kanaText: string
-): [KanaNode<U, T>, KanaNode<U, T>] {
+): [KanaNode<T>, KanaNode<T>] {
   // かなテキスト1文字1文字に対応する KanaNode を作成する
-  const kanaNodes = [...kanaText].map((_, i) => new KanaNode<U, T>(i, [], []));
-  const endNode = new KanaNode<U, T>(kanaText.length, [], []); // 終端ノード
+  const kanaNodes = [...kanaText].map((_, i) => new KanaNode<T>(i, [], []));
+  const endNode = new KanaNode<T>(kanaText.length, [], []); // 終端ノード
   const kanaNodesWithEnd = [...kanaNodes, endNode];
   /*
   kanaText: あいうえお
@@ -147,9 +144,7 @@ startNode から遷移を始める場合は問題が起きない（「い」「�
 +------+            +------+
 +-------------------+
 */
-function eraseInvalidEdges<U, T extends Comparable<T> & Acceptable<U>>(
-  kanaNodes: KanaNode<U, T>[]
-) {
+function eraseInvalidEdges<T extends Comparable<T>>(kanaNodes: KanaNode<T>[]) {
   // 末尾の KanaNode から順にチェックし、次へ遷移できない KanaNode の場合は、
   // 前の KanaNode からその KanaNode に対する Edge を削除する
   for (let i = kanaNodes.length - 1; i > 0; i--) {

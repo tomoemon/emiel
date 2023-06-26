@@ -1,5 +1,5 @@
 import { KeyboardStateReader } from "../core/keyboard_state";
-import { Acceptable, Comparable, Modifier } from "../core/rule";
+import { Comparable, Matchable, Modifier } from "../core/rule";
 import { VirtualKey } from "./virtual_key";
 
 export type KeyEventType = "keyup" | "keydown";
@@ -12,23 +12,21 @@ export class InputKeyStroke {
   ) {}
 }
 
-export class InputKeyEvent {
+export class InputKeyEvent implements Matchable<AcceptableCodeStroke> {
   constructor(
     readonly input: InputKeyStroke,
     readonly keyboardState: KeyboardStateReader<VirtualKey>
   ) {}
+  match(other: AcceptableCodeStroke): boolean {
+    return this.input.key === other.keys[0];
+  }
 }
 
-export class AcceptableCodeStroke
-  implements Comparable<AcceptableCodeStroke>, Acceptable<InputKeyEvent>
-{
+export class AcceptableCodeStroke implements Comparable<AcceptableCodeStroke> {
   constructor(
     readonly keys: VirtualKey[],
     readonly modifier: Modifier<VirtualKey>
   ) {}
-  accept(evt: InputKeyEvent): boolean {
-    return evt.input.key === this.keys[0];
-  }
   equals(other: AcceptableCodeStroke): boolean {
     return (
       this.keys.length === other.keys.length &&
