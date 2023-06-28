@@ -1,8 +1,5 @@
+import { KeyboardLayout } from "../core/keyboard_layout";
 import { VirtualKey, VirtualKeys } from "./virtual_key";
-
-export interface KeyboardLayout<T> {
-  replaceKey(key: T): T;
-}
 
 export class DefaultKeyboard implements KeyboardLayout<VirtualKey> {
   replaceKey(virtualKey: VirtualKey): VirtualKey {

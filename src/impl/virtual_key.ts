@@ -1,6 +1,9 @@
 // ブラウザから渡される Keyboard Event とは直接関係のない仮想的なキー一覧
+
+import { Comparable } from "../core/rule";
+
 // Rule を json ファイル等で定義するときに使うキーはここで定義されている値を文字列として使う
-export const VirtualKeys = {
+const virtualKeys = {
   Escape: "Escape",
   F1: "F1",
   F2: "F2",
@@ -96,11 +99,32 @@ export const VirtualKeys = {
   NumpadMultiply: "NumpadMultiply",
 } as const;
 
-export type VirtualKey = (typeof VirtualKeys)[keyof typeof VirtualKeys];
+type virtualKey = (typeof virtualKeys)[keyof typeof virtualKeys];
+
+export class VirtualKey implements Comparable<VirtualKey> {
+  constructor(readonly key: virtualKey) {}
+  equals(other: VirtualKey): boolean {
+    return this.key === other.key;
+  }
+  toString(): string {
+    return this.key;
+  }
+}
+
+export const VirtualKeys = Object.fromEntries(
+  Object.entries(virtualKeys).map(([_, v]: [string, virtualKey]) => [
+    v,
+    new VirtualKey(v),
+  ])
+) as {
+  readonly [k in virtualKey]: VirtualKey;
+};
+
+// export type VirtualKey = (typeof VirtualKeys)[keyof typeof VirtualKeys];
 
 export function getKeyFromString(v: string): VirtualKey {
   if (v in VirtualKeys) {
-    return v as VirtualKey;
+    return VirtualKeys[v as virtualKey];
   }
   throw new Error(`invalid key: ${v}`);
 }

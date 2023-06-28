@@ -1,6 +1,5 @@
 import { ModifierGroup, NullModifier, Rule, RuleEntry } from "../core/rule";
 import { RuleStroke } from "../core/stroke";
-import { alphaNumericRule } from "./alpha_numeric_rule";
 import { VirtualKey, VirtualKeys } from "./virtual_key";
 
 const modifierGroupSet = {
@@ -22,53 +21,12 @@ const modifierGroupSet = {
   ]),
 };
 
-export function loadFromGoogleImeText(
-  name: string,
-  text: string
-): Rule<VirtualKey> {
-  /*
-		a	あ	
-		ta	た	
-		tt	っ	t
-		*/
-  text = text.replace(/\r\n/g, "\n");
-  text = text.replace(/\r/g, "\n");
-  const lines = text.split("\n");
+function build(): Rule<VirtualKey> {
   const entries: RuleEntry<VirtualKey>[] = [];
-  for (let line of lines) {
-    line = line.trim();
-    if (line.length == 0) {
-      continue;
-    }
-    const cols = line.split("\t");
-    if (cols.length < 2) {
-      continue;
-    }
-    if (cols.length < 3) {
-      cols.push("");
-    }
-    const input: RuleStroke<VirtualKey>[] = [...cols[0]].map((c) =>
-      toKeyCodeStrokeFromKeyChar(c)
-    );
-    const output = cols[1];
-    const nextInput: RuleStroke<VirtualKey>[] = [...cols[2]].map((c) =>
-      toKeyCodeStrokeFromKeyChar(c)
-    );
-    entries.push(new RuleEntry(input, output, nextInput));
-  }
-  return new Rule(name, entries, Object.values(modifierGroupSet)).merge(
-    alphaNumericRule
-  );
-}
-
-export function toKeyCodeStrokeFromKeyChar(
-  key: string
-): RuleStroke<VirtualKey> {
-  const keyInput = charToRuleStroke[key];
-  if (keyInput === undefined) {
-    throw new Error("invalid key: " + key);
-  }
-  return keyInput;
+  Object.entries(charToRuleStroke).forEach(([key, stroke]) => {
+    entries.push(new RuleEntry([stroke], key, []));
+  });
+  return new Rule("alpha_numeric", entries, Object.values(modifierGroupSet));
 }
 
 // Mac + JIS キーボード で取得した場合の code を前提にしている
@@ -187,3 +145,5 @@ const charToRuleStroke: { [key: string]: RuleStroke<VirtualKey> } = {
   "?": new RuleStroke<VirtualKey>([VirtualKeys.Slash], modifierGroupSet.shift),
   _: new RuleStroke<VirtualKey>([VirtualKeys.JpnRo], modifierGroupSet.shift),
 };
+
+export const alphaNumericRule = build();

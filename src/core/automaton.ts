@@ -1,9 +1,11 @@
-import { Comparable, Matchable } from "./rule";
-import { StrokeNode } from "./stroke_graph_builder";
+import { Comparable } from "./rule";
+import { InputEvent } from "./stroke";
+import { StrokeNode } from "./builder_stroke_graph";
 
 export class InputResult {
   constructor(
     private readonly type:
+      | "ignored"
       | "failed"
       | "key_succeeded"
       | "kana_succeeded"
@@ -11,6 +13,9 @@ export class InputResult {
   ) {}
   toString(): string {
     return this.type;
+  }
+  isIgnored(): boolean {
+    return this.type === "ignored";
   }
   isFailed(): boolean {
     return this.type === "failed";
@@ -30,64 +35,72 @@ export class InputResult {
   }
 }
 
+const inputResultIgnored = new InputResult("ignored");
 const inputResultFailed = new InputResult("failed");
 const inputResultKeySucceeded = new InputResult("key_succeeded");
 const inputResultKanaSucceeded = new InputResult("kana_succeeded");
 const inputResultFinished = new InputResult("finished");
 
-export class Automaton<T extends Comparable<T>, U extends Matchable<T>> {
-  private currentNode: StrokeNode<T>;
-  private succeededStack: { input: U; lastNode: StrokeNode<T> }[] = [];
+export class Automaton<T extends Comparable<T>> {
+  private _currentNode: StrokeNode<T>;
+  private succeededStack: { input: InputEvent<T>; lastNode: StrokeNode<T> }[] =
+    [];
   constructor(readonly startNode: StrokeNode<T>) {
-    this.currentNode = startNode;
+    this._currentNode = startNode;
   }
   /**
    * 入力状態をリセットする
    */
   reset(): void {
-    this.currentNode = this.startNode;
+    this._currentNode = this.startNode;
   }
-  getCurrentNode(): StrokeNode<T> {
-    return this.currentNode;
+  get currentNode(): StrokeNode<T> {
+    return this._currentNode;
   }
-  get succeededInputs(): U[] {
+  get succeededInputs(): InputEvent<T>[] {
     return this.succeededStack.map((v) => v.input);
   }
   /**
    * 1 stroke 分の入力を戻す
    */
   back(): void {
-    if (this.currentNode !== this.startNode) {
+    if (this._currentNode !== this.startNode) {
       const last = this.succeededStack.pop();
       if (last) {
-        this.currentNode = last.lastNode;
+        this._currentNode = last.lastNode;
       }
     }
   }
   get finished(): boolean {
-    return this.currentNode.nextEdges.length === 0;
+    return this._currentNode.nextEdges.length === 0;
   }
-  input(stroke: U): InputResult {
-    const lastKanaIndex = this.currentNode.kanaIndex;
-    const acceptedEdges = this.currentNode.nextEdges.filter((edge) =>
-      stroke.match(edge.input)
+  input(stroke: InputEvent<T>): InputResult {
+    const lastKanaIndex = this._currentNode.kanaIndex;
+    const acceptedEdges = this._currentNode.nextEdges.filter(
+      (edge) => stroke.match(edge) === "matched"
     );
     console.log(acceptedEdges);
     if (acceptedEdges.length > 0) {
       this.succeededStack.push({
         input: stroke,
-        lastNode: this.currentNode,
+        lastNode: this._currentNode,
       });
-      this.currentNode = acceptedEdges[0].next;
-      if (lastKanaIndex < this.currentNode.kanaIndex) {
-        if (this.currentNode.nextEdges.length === 0) {
+      this._currentNode = acceptedEdges[0].next;
+      if (lastKanaIndex < this._currentNode.kanaIndex) {
+        if (this._currentNode.nextEdges.length === 0) {
           return inputResultFinished;
         }
         return inputResultKanaSucceeded;
       }
       return inputResultKeySucceeded;
     }
-    return inputResultFailed;
+    const failedEdges = this._currentNode.nextEdges.filter(
+      (edge) => stroke.match(edge) === "failed"
+    );
+    if (failedEdges.length > 0) {
+      return inputResultFailed;
+    }
+    return inputResultIgnored;
   }
 }
 
@@ -95,13 +108,13 @@ export class SelectorInputResult<T> {
   constructor(readonly type: InputResult, readonly automaton: T) {}
 }
 
-export class Selector<T extends Comparable<T>, U extends Matchable<T>> {
+export class Selector<T extends Comparable<T>> {
   // 現在入力試行対象になっている automaton
-  private activeAutomatons: Automaton<T, U>[];
-  constructor(private automatons: Automaton<T, U>[]) {
+  private activeAutomatons: Automaton<T>[];
+  constructor(private automatons: Automaton<T>[]) {
     this.activeAutomatons = automatons;
   }
-  input(stroke: U): SelectorInputResult<Automaton<T, U>>[] {
+  input(stroke: InputEvent<T>): SelectorInputResult<Automaton<T>>[] {
     const result = [];
     const newActiveAutomatons = [];
     let succeeded = false;
@@ -128,7 +141,7 @@ export class Selector<T extends Comparable<T>, U extends Matchable<T>> {
     this.activeAutomatons.forEach((v) => v.reset());
     this.activeAutomatons = this.automatons.filter((v) => !v.finished);
   }
-  append(automaton: Automaton<T, U>) {
+  append(automaton: Automaton<T>) {
     this.automatons.push(automaton);
   }
 }

@@ -7,7 +7,7 @@ function App() {
   const [rest, setRest] = useState("");
   useEffect(() => {
     const rule = emiel.rules.roman;
-    const automaton = emiel.buildAutomaton(rule, "おった");
+    const automaton = emiel.buildAutomaton(rule, "おったabcしゅう");
     console.log(automaton);
     const guide = new emiel.ShortestStrokeGuide(automaton);
     setRest(guide.restStrokes.map((s) => s.keys.join("|")).join(""));
@@ -16,7 +16,7 @@ function App() {
       console.log(e);
       const result = automaton.input(e);
       console.log(result);
-      console.log(automaton.getCurrentNode());
+      console.log(automaton.currentNode);
       setInputted(automaton.succeededInputs.map((s) => s.input.key).join(""));
       setRest(guide.restStrokes.map((s) => s.keys.join("|")).join(""));
     });

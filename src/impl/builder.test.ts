@@ -1,8 +1,8 @@
 import { prettyPrint } from "@base2/pretty-print-object";
 import { loadFromGoogleImeText } from "./google_ime_config_loader";
 import { test } from "vitest";
-import { buildKanaNode } from "../core/kana_graph_builder";
-import { buildStrokeNode } from "../core/stroke_graph_builder";
+import { buildKanaNode } from "../core/builder_kana_graph";
+import { buildStrokeNode } from "../core/builder_stroke_graph";
 
 function showNextNode(node: any) {
   return console.log(
@@ -47,7 +47,7 @@ ltu	っ
   );
   // console.log(rule);
   const [_, endKanaNode] = buildKanaNode(rule, "おった");
-  const startStrokeNode = buildStrokeNode(endKanaNode);
+  const startStrokeNode = buildStrokeNode(rule, endKanaNode);
   showNextNode(startStrokeNode);
   showPreviousNode(endKanaNode);
 });

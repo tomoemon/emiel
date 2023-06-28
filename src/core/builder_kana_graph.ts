@@ -1,6 +1,5 @@
-// kanaText の特定の位置に対応する Node
-
 import { Comparable, Rule, RuleEntry } from "./rule";
+import { RuleStroke } from "./stroke";
 
 // build 中にのみ使用する
 export class KanaNode<T extends Comparable<T>> {
@@ -47,8 +46,8 @@ export class KanaEdge<T extends Comparable<T>> {
    * entry の nextInput が次とつながる分を除いて結合する
    * 例：entires: [tt っ t], [ta た] → tta を返す
    */
-  get inputs(): { input: T; kanaIndex: number }[] {
-    const result: { input: T; kanaIndex: number }[] = [];
+  get inputs(): { input: RuleStroke<T>; kanaIndex: number }[] {
+    const result: { input: RuleStroke<T>; kanaIndex: number }[] = [];
     let lastNextInputLength = 0;
     let lastTotalEntryOutputLength = 0;
     const previousKanaNodeIndex = this.previous.startIndex;
@@ -68,7 +67,7 @@ export class KanaEdge<T extends Comparable<T>> {
   /*
 	nextInput を渡されたときに、この Edge からつながる Entry の input が nextInput とつながるかどうかを判定する
    */
-  canConnectWithNextInput(nextInput: T[]): boolean {
+  canConnectWithNextInput(nextInput: RuleStroke<T>[]): boolean {
     return this.entries[0].isConnetableAfter(nextInput);
   }
 }
@@ -87,8 +86,8 @@ export class KanaEdge<T extends Comparable<T>> {
 	 ya            tti
 	 ya           cchi
 */
-export function buildKanaNode<T extends Comparable<T>, M>(
-  rule: Rule<T, M>,
+export function buildKanaNode<T extends Comparable<T>>(
+  rule: Rule<T>,
   kanaText: string
 ): [KanaNode<T>, KanaNode<T>] {
   // かなテキスト1文字1文字に対応する KanaNode を作成する

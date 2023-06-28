@@ -1,5 +1,5 @@
 import { KeyboardState } from "../core/keyboard_state";
-import { InputKeyEvent, InputKeyStroke, KeyEventType } from "../impl/stroke";
+import { InputEvent, InputStroke, KeyEventType } from "../core/stroke";
 import { VirtualKey, VirtualKeys } from "../impl/virtual_key";
 
 /**
@@ -9,7 +9,7 @@ import { VirtualKey, VirtualKeys } from "../impl/virtual_key";
  */
 export function activate(
   target: EventTarget,
-  handler: (evt: InputKeyEvent) => void
+  handler: (evt: InputEvent<VirtualKey>) => void
 ) {
   const keyboardState = new KeyboardState<VirtualKey>();
   const keyDownEventHandler = (evt: Event) => {
@@ -20,7 +20,7 @@ export function activate(
       now
     );
     keyboardState.keydown(keyStroke.key);
-    handler(new InputKeyEvent(keyStroke, keyboardState));
+    handler(new InputEvent(keyStroke, keyboardState));
   };
   const keyUpEventHandler = (evt: Event) => {
     const now = new Date();
@@ -30,7 +30,7 @@ export function activate(
       now
     );
     keyboardState.keyup(keyStroke.key);
-    handler(new InputKeyEvent(keyStroke, keyboardState));
+    handler(new InputEvent(keyStroke, keyboardState));
   };
   target.addEventListener("keydown", keyDownEventHandler);
   target.addEventListener("keyup", keyUpEventHandler);
@@ -44,9 +44,9 @@ function toInputKeyStrokeFromKeyboardEvent(
   evtType: KeyEventType,
   evt: KeyboardEvent,
   now: Date
-): InputKeyStroke {
+): InputStroke<VirtualKey> {
   const vkey = toVirtualKeyFromEventCode(evt.code);
-  return new InputKeyStroke(vkey, evtType, now);
+  return new InputStroke(vkey, evtType, now);
 }
 
 function toVirtualKeyFromEventCode(code: string): VirtualKey {

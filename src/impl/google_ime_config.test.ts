@@ -3,5 +3,5 @@ import { expect, test } from "vitest";
 
 test("load google ime roman rule", () => {
   const rule = rules.roman;
-  expect(rule.entries.length).toBe(312);
+  expect(rule.entries.length).toBe(406);
 });

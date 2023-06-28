@@ -1,6 +1,7 @@
 import { setDefault } from "../utils/map";
-import { KanaNode } from "./kana_graph_builder";
-import { Comparable } from "./rule";
+import { KanaNode } from "./builder_kana_graph";
+import { Comparable, Rule } from "./rule";
+import { RuleStroke } from "./stroke";
 
 export class StrokeNode<T extends Comparable<T>> {
   private cost: number = 0; // このノードから打ち切るまでの最短ストローク数
@@ -24,13 +25,15 @@ export class StrokeNode<T extends Comparable<T>> {
 
 export class StrokeEdge<T extends Comparable<T>> {
   constructor(
-    readonly input: T,
+    readonly rule: Rule<T>, // このグラフ生成元になった Rule
+    readonly input: RuleStroke<T>,
     readonly previous: StrokeNode<T>,
     readonly next: StrokeNode<T>
   ) {}
 }
 
 export function buildStrokeNode<T extends Comparable<T>>(
+  rule: Rule<T>,
   endKanaNode: KanaNode<T>
 ): StrokeNode<T> {
   // KanaNode の index に対応する StrokeNode
@@ -69,6 +72,7 @@ export function buildStrokeNode<T extends Comparable<T>>(
                 ? nextKanaStrokeNode
                 : new StrokeNode<T>(edgeInputs[index + 1].kanaIndex, [], []);
             const strokeEdge = new StrokeEdge<T>(
+              rule,
               input.input,
               previousStrokeNode,
               nextStrokeNode
