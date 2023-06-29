@@ -1,0 +1,934 @@
+{
+  "modifierGroups": [
+    {
+      "name": "shift",
+      "keys": ["ShiftLeft", "ShiftRight"]
+    }
+  ],
+  "entries": [
+    {
+      "input": [
+        {
+          "keys": ["Digit1"],
+          "modifiers": []
+        }
+      ],
+      "output": "ぬ",
+      "nextInput": []
+    },
+    {
+      "input": [
+        {
+          "keys": ["Digit2"],
+          "modifiers": []
+        }
+      ],
+      "output": "ふ",
+      "nextInput": []
+    },
+    {
+      "input": [
+        {
+          "keys": ["Digit3"],
+          "modifiers": []
+        }
+      ],
+      "output": "あ",
+      "nextInput": []
+    },
+    {
+      "input": [
+        {
+          "keys": ["Digit4"],
+          "modifiers": []
+        }
+      ],
+      "output": "う",
+      "nextInput": []
+    },
+    {
+      "input": [
+        {
+          "keys": ["Digit5"],
+          "modifiers": []
+        }
+      ],
+      "output": "え",
+      "nextInput": []
+    },
+    {
+      "input": [
+        {
+          "keys": ["Digit6"],
+          "modifiers": []
+        }
+      ],
+      "output": "お",
+      "nextInput": []
+    },
+    {
+      "input": [
+        {
+          "keys": ["Digit7"],
+          "modifiers": []
+        }
+      ],
+      "output": "や",
+      "nextInput": []
+    },
+    {
+      "input": [
+        {
+          "keys": ["Digit8"],
+          "modifiers": []
+        }
+      ],
+      "output": "ゆ",
+      "nextInput": []
+    },
+    {
+      "input": [
+        {
+          "keys": ["Digit9"],
+          "modifiers": []
+        }
+      ],
+      "output": "よ",
+      "nextInput": []
+    },
+    {
+      "input": [
+        {
+          "keys": ["Digit0"],
+          "modifiers": []
+        }
+      ],
+      "output": "わ",
+      "nextInput": []
+    },
+    {
+      "input": [
+        {
+          "keys": ["Minus"],
+          "modifiers": []
+        }
+      ],
+      "output": "ほ",
+      "nextInput": []
+    },
+    {
+      "input": [
+        {
+          "keys": ["Equal"],
+          "modifiers": []
+        }
+      ],
+      "output": "へ",
+      "nextInput": []
+    },
+    {
+      "input": [
+        {
+          "keys": ["JpnYen"],
+          "modifiers": []
+        }
+      ],
+      "output": "ー",
+      "nextInput": []
+    },
+    {
+      "input": [
+        {
+          "keys": ["Q"],
+          "modifiers": []
+        }
+      ],
+      "output": "た",
+      "nextInput": []
+    },
+    {
+      "input": [
+        {
+          "keys": ["W"],
+          "modifiers": []
+        }
+      ],
+      "output": "て",
+      "nextInput": []
+    },
+    {
+      "input": [
+        {
+          "keys": ["E"],
+          "modifiers": []
+        }
+      ],
+      "output": "い",
+      "nextInput": []
+    },
+    {
+      "input": [
+        {
+          "keys": ["R"],
+          "modifiers": []
+        }
+      ],
+      "output": "す",
+      "nextInput": []
+    },
+    {
+      "input": [
+        {
+          "keys": ["T"],
+          "modifiers": []
+        }
+      ],
+      "output": "か",
+      "nextInput": []
+    },
+    {
+      "input": [
+        {
+          "keys": ["Y"],
+          "modifiers": []
+        }
+      ],
+      "output": "ん",
+      "nextInput": []
+    },
+    {
+      "input": [
+        {
+          "keys": ["U"],
+          "modifiers": []
+        }
+      ],
+      "output": "な",
+      "nextInput": []
+    },
+    {
+      "input": [
+        {
+          "keys": ["I"],
+          "modifiers": []
+        }
+      ],
+      "output": "に",
+      "nextInput": []
+    },
+    {
+      "input": [
+        {
+          "keys": ["O"],
+          "modifiers": []
+        }
+      ],
+      "output": "ら",
+      "nextInput": []
+    },
+    {
+      "input": [
+        {
+          "keys": ["P"],
+          "modifiers": []
+        }
+      ],
+      "output": "せ",
+      "nextInput": []
+    },
+    {
+      "input": [
+        {
+          "keys": ["A"],
+          "modifiers": []
+        }
+      ],
+      "output": "ち",
+      "nextInput": []
+    },
+    {
+      "input": [
+        {
+          "keys": ["S"],
+          "modifiers": []
+        }
+      ],
+      "output": "と",
+      "nextInput": []
+    },
+    {
+      "input": [
+        {
+          "keys": ["D"],
+          "modifiers": []
+        }
+      ],
+      "output": "し",
+      "nextInput": []
+    },
+    {
+      "input": [
+        {
+          "keys": ["F"],
+          "modifiers": []
+        }
+      ],
+      "output": "は",
+      "nextInput": []
+    },
+    {
+      "input": [
+        {
+          "keys": ["G"],
+          "modifiers": []
+        }
+      ],
+      "output": "き",
+      "nextInput": []
+    },
+    {
+      "input": [
+        {
+          "keys": ["H"],
+          "modifiers": []
+        }
+      ],
+      "output": "く",
+      "nextInput": []
+    },
+    {
+      "input": [
+        {
+          "keys": ["J"],
+          "modifiers": []
+        }
+      ],
+      "output": "ま",
+      "nextInput": []
+    },
+    {
+      "input": [
+        {
+          "keys": ["K"],
+          "modifiers": []
+        }
+      ],
+      "output": "の",
+      "nextInput": []
+    },
+    {
+      "input": [
+        {
+          "keys": ["L"],
+          "modifiers": []
+        }
+      ],
+      "output": "り",
+      "nextInput": []
+    },
+    {
+      "input": [
+        {
+          "keys": ["Semicolon"],
+          "modifiers": []
+        }
+      ],
+      "output": "れ",
+      "nextInput": []
+    },
+    {
+      "input": [
+        {
+          "keys": ["Quote"],
+          "modifiers": []
+        }
+      ],
+      "output": "け",
+      "nextInput": []
+    },
+    {
+      "input": [
+        {
+          "keys": ["Backslash"],
+          "modifiers": []
+        }
+      ],
+      "output": "む",
+      "nextInput": []
+    },
+    {
+      "input": [
+        {
+          "keys": ["Z"],
+          "modifiers": []
+        }
+      ],
+      "output": "つ",
+      "nextInput": []
+    },
+    {
+      "input": [
+        {
+          "keys": ["X"],
+          "modifiers": []
+        }
+      ],
+      "output": "さ",
+      "nextInput": []
+    },
+    {
+      "input": [
+        {
+          "keys": ["C"],
+          "modifiers": []
+        }
+      ],
+      "output": "そ",
+      "nextInput": []
+    },
+    {
+      "input": [
+        {
+          "keys": ["V"],
+          "modifiers": []
+        }
+      ],
+      "output": "ひ",
+      "nextInput": []
+    },
+    {
+      "input": [
+        {
+          "keys": ["B"],
+          "modifiers": []
+        }
+      ],
+      "output": "こ",
+      "nextInput": []
+    },
+    {
+      "input": [
+        {
+          "keys": ["N"],
+          "modifiers": []
+        }
+      ],
+      "output": "み",
+      "nextInput": []
+    },
+    {
+      "input": [
+        {
+          "keys": ["M"],
+          "modifiers": []
+        }
+      ],
+      "output": "も",
+      "nextInput": []
+    },
+    {
+      "input": [
+        {
+          "keys": ["Comma"],
+          "modifiers": []
+        }
+      ],
+      "output": "ね",
+      "nextInput": []
+    },
+    {
+      "input": [
+        {
+          "keys": ["Period"],
+          "modifiers": []
+        }
+      ],
+      "output": "る",
+      "nextInput": []
+    },
+    {
+      "input": [
+        {
+          "keys": ["Slash"],
+          "modifiers": []
+        }
+      ],
+      "output": "め",
+      "nextInput": []
+    },
+    {
+      "input": [
+        {
+          "keys": ["JpnRo"],
+          "modifiers": []
+        }
+      ],
+      "output": "ろ",
+      "nextInput": []
+    },
+    {
+      "input": [
+        {
+          "keys": ["Digit3"],
+          "modifiers": ["shift"]
+        }
+      ],
+      "output": "ぁ",
+      "nextInput": []
+    },
+    {
+      "input": [
+        {
+          "keys": ["Digit4"],
+          "modifiers": ["shift"]
+        }
+      ],
+      "output": "ぅ",
+      "nextInput": []
+    },
+    {
+      "input": [
+        {
+          "keys": ["Digit5"],
+          "modifiers": ["shift"]
+        }
+      ],
+      "output": "ぇ",
+      "nextInput": []
+    },
+    {
+      "input": [
+        {
+          "keys": ["Digit6"],
+          "modifiers": ["shift"]
+        }
+      ],
+      "output": "ぉ",
+      "nextInput": []
+    },
+    {
+      "input": [
+        {
+          "keys": ["Digit7"],
+          "modifiers": ["shift"]
+        }
+      ],
+      "output": "ゃ",
+      "nextInput": []
+    },
+    {
+      "input": [
+        {
+          "keys": ["Digit8"],
+          "modifiers": ["shift"]
+        }
+      ],
+      "output": "ゅ",
+      "nextInput": []
+    },
+    {
+      "input": [
+        {
+          "keys": ["Digit9"],
+          "modifiers": ["shift"]
+        }
+      ],
+      "output": "ょ",
+      "nextInput": []
+    },
+    {
+      "input": [
+        {
+          "keys": ["Digit0"],
+          "modifiers": ["shift"]
+        }
+      ],
+      "output": "を",
+      "nextInput": []
+    },
+    {
+      "input": [
+        {
+          "keys": ["E"],
+          "modifiers": ["shift"]
+        }
+      ],
+      "output": "ぃ",
+      "nextInput": []
+    },
+    {
+      "input": [
+        {
+          "keys": ["Z"],
+          "modifiers": ["shift"]
+        }
+      ],
+      "output": "っ",
+      "nextInput": []
+    },
+    {
+      "input": [
+        {
+          "keys": ["Digit2"],
+          "modifiers": []
+        },
+        {
+          "keys": ["BracketLeft"],
+          "modifiers": []
+        }
+      ],
+      "output": "ぶ",
+      "nextInput": []
+    },
+    {
+      "input": [
+        {
+          "keys": ["Minus"],
+          "modifiers": []
+        },
+        {
+          "keys": ["BracketLeft"],
+          "modifiers": []
+        }
+      ],
+      "output": "ぼ",
+      "nextInput": []
+    },
+    {
+      "input": [
+        {
+          "keys": ["Equal"],
+          "modifiers": []
+        },
+        {
+          "keys": ["BracketLeft"],
+          "modifiers": []
+        }
+      ],
+      "output": "べ",
+      "nextInput": []
+    },
+    {
+      "input": [
+        {
+          "keys": ["Q"],
+          "modifiers": []
+        },
+        {
+          "keys": ["BracketLeft"],
+          "modifiers": []
+        }
+      ],
+      "output": "だ",
+      "nextInput": []
+    },
+    {
+      "input": [
+        {
+          "keys": ["W"],
+          "modifiers": []
+        },
+        {
+          "keys": ["BracketLeft"],
+          "modifiers": []
+        }
+      ],
+      "output": "で",
+      "nextInput": []
+    },
+    {
+      "input": [
+        {
+          "keys": ["R"],
+          "modifiers": []
+        },
+        {
+          "keys": ["BracketLeft"],
+          "modifiers": []
+        }
+      ],
+      "output": "ず",
+      "nextInput": []
+    },
+    {
+      "input": [
+        {
+          "keys": ["T"],
+          "modifiers": []
+        },
+        {
+          "keys": ["BracketLeft"],
+          "modifiers": []
+        }
+      ],
+      "output": "が",
+      "nextInput": []
+    },
+    {
+      "input": [
+        {
+          "keys": ["P"],
+          "modifiers": []
+        },
+        {
+          "keys": ["BracketLeft"],
+          "modifiers": []
+        }
+      ],
+      "output": "ぜ",
+      "nextInput": []
+    },
+    {
+      "input": [
+        {
+          "keys": ["T"],
+          "modifiers": []
+        },
+        {
+          "keys": ["BracketLeft"],
+          "modifiers": []
+        }
+      ],
+      "output": "A",
+      "nextInput": []
+    },
+    {
+      "input": [
+        {
+          "keys": ["T"],
+          "modifiers": []
+        },
+        {
+          "keys": ["BracketLeft"],
+          "modifiers": []
+        }
+      ],
+      "output": "ぢ",
+      "nextInput": []
+    },
+    {
+      "input": [
+        {
+          "keys": ["S"],
+          "modifiers": []
+        },
+        {
+          "keys": ["BracketLeft"],
+          "modifiers": []
+        }
+      ],
+      "output": "ど",
+      "nextInput": []
+    },
+    {
+      "input": [
+        {
+          "keys": ["D"],
+          "modifiers": []
+        },
+        {
+          "keys": ["BracketLeft"],
+          "modifiers": []
+        }
+      ],
+      "output": "じ",
+      "nextInput": []
+    },
+    {
+      "input": [
+        {
+          "keys": ["F"],
+          "modifiers": []
+        },
+        {
+          "keys": ["BracketLeft"],
+          "modifiers": []
+        }
+      ],
+      "output": "ば",
+      "nextInput": []
+    },
+    {
+      "input": [
+        {
+          "keys": ["G"],
+          "modifiers": []
+        },
+        {
+          "keys": ["BracketLeft"],
+          "modifiers": []
+        }
+      ],
+      "output": "ぎ",
+      "nextInput": []
+    },
+    {
+      "input": [
+        {
+          "keys": ["H"],
+          "modifiers": []
+        },
+        {
+          "keys": ["BracketLeft"],
+          "modifiers": []
+        }
+      ],
+      "output": "ぐ",
+      "nextInput": []
+    },
+    {
+      "input": [
+        {
+          "keys": ["Quote"],
+          "modifiers": []
+        },
+        {
+          "keys": ["BracketLeft"],
+          "modifiers": []
+        }
+      ],
+      "output": "げ",
+      "nextInput": []
+    },
+    {
+      "input": [
+        {
+          "keys": ["Z"],
+          "modifiers": []
+        },
+        {
+          "keys": ["BracketLeft"],
+          "modifiers": []
+        }
+      ],
+      "output": "づ",
+      "nextInput": []
+    },
+    {
+      "input": [
+        {
+          "keys": ["X"],
+          "modifiers": []
+        },
+        {
+          "keys": ["BracketLeft"],
+          "modifiers": []
+        }
+      ],
+      "output": "ざ",
+      "nextInput": []
+    },
+    {
+      "input": [
+        {
+          "keys": ["C"],
+          "modifiers": []
+        },
+        {
+          "keys": ["BracketLeft"],
+          "modifiers": []
+        }
+      ],
+      "output": "ぞ",
+      "nextInput": []
+    },
+    {
+      "input": [
+        {
+          "keys": ["V"],
+          "modifiers": []
+        },
+        {
+          "keys": ["BracketLeft"],
+          "modifiers": []
+        }
+      ],
+      "output": "び",
+      "nextInput": []
+    },
+    {
+      "input": [
+        {
+          "keys": ["B"],
+          "modifiers": []
+        },
+        {
+          "keys": ["BracketLeft"],
+          "modifiers": []
+        }
+      ],
+      "output": "ご",
+      "nextInput": []
+    },
+    {
+      "input": [
+        {
+          "keys": ["Digit2"],
+          "modifiers": []
+        },
+        {
+          "keys": ["BracketRight"],
+          "modifiers": []
+        }
+      ],
+      "output": "ぷ",
+      "nextInput": []
+    },
+    {
+      "input": [
+        {
+          "keys": ["Minus"],
+          "modifiers": []
+        },
+        {
+          "keys": ["BracketRight"],
+          "modifiers": []
+        }
+      ],
+      "output": "ぽ",
+      "nextInput": []
+    },
+    {
+      "input": [
+        {
+          "keys": ["Equal"],
+          "modifiers": []
+        },
+        {
+          "keys": ["BracketRight"],
+          "modifiers": []
+        }
+      ],
+      "output": "ぺ",
+      "nextInput": []
+    },
+    {
+      "input": [
+        {
+          "keys": ["F"],
+          "modifiers": []
+        },
+        {
+          "keys": ["BracketRight"],
+          "modifiers": []
+        }
+      ],
+      "output": "ぱ",
+      "nextInput": []
+    },
+    {
+      "input": [
+        {
+          "keys": ["V"],
+          "modifiers": []
+        },
+        {
+          "keys": ["BracketRight"],
+          "modifiers": []
+        }
+      ],
+      "output": "ぴ",
+      "nextInput": []
+    }
+  ]
+}
