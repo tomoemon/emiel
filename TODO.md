@@ -1,0 +1,2 @@
+- common prefix を持つ入力ルールの展開
+- 同時押し配列の実装案。[a,b] 同時押しを要求するエントリがある場合、互いに相手を modifier とする a+modifier(b), b+modifier(a) という 2 つの入力エントリに変換する。[a,b,c] 同時押しを要求するエントリがある場合、a+modifier(b,c),b+modifier(a,c),c+modifier(a,b) に変換する。

@@ -99,12 +99,22 @@ const virtualKeys = {
   NumpadMultiply: "NumpadMultiply",
 } as const;
 
-type virtualKey = (typeof virtualKeys)[keyof typeof virtualKeys];
+type virtualKey = keyof typeof virtualKeys;
 
+// 同一の key に対しては同一のインスタンスを返す
 export class VirtualKey implements Comparable<VirtualKey> {
-  constructor(readonly key: virtualKey) {}
+  private constructor(readonly key: virtualKey) {}
   equals(other: VirtualKey): boolean {
     return this.key === other.key;
+  }
+  private static readonly keyMap: Map<virtualKey, VirtualKey> = new Map();
+  static get(key: virtualKey): VirtualKey {
+    if (!VirtualKey.keyMap.has(key)) {
+      const newKey = new VirtualKey(key);
+      VirtualKey.keyMap.set(key, newKey);
+      return newKey;
+    }
+    return VirtualKey.keyMap.get(key)!;
   }
   toString(): string {
     return this.key;
@@ -114,13 +124,11 @@ export class VirtualKey implements Comparable<VirtualKey> {
 export const VirtualKeys = Object.fromEntries(
   Object.entries(virtualKeys).map(([_, v]: [string, virtualKey]) => [
     v,
-    new VirtualKey(v),
+    VirtualKey.get(v),
   ])
 ) as {
   readonly [k in virtualKey]: VirtualKey;
 };
-
-// export type VirtualKey = (typeof VirtualKeys)[keyof typeof VirtualKeys];
 
 export function getKeyFromString(v: string): VirtualKey {
   if (v in VirtualKeys) {

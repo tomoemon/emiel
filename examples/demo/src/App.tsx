@@ -8,7 +8,6 @@ function App() {
   useEffect(() => {
     const rule = emiel.rules.roman;
     const automaton = emiel.buildAutomaton(rule, "おったabcしゅう");
-    console.log(automaton);
     const guide = new emiel.ShortestStrokeGuide(automaton);
     setRest(guide.restStrokes.map((s) => s.keys.join("|")).join(""));
     const deactivate = emiel.activate(window, function (e) {

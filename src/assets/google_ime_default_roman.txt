@@ -43,7 +43,6 @@ mm	っ	m
 yy	っ	y
 rr	っ	r
 ww	っ	w
-www	w	ww
 cc	っ	c
 kya	きゃ
 kyi	きぃ

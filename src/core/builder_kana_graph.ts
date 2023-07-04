@@ -13,7 +13,7 @@ export class KanaNode<T extends Comparable<T>> {
       .filter((edge) => edge.canConnectWithNextInput(entry.nextInput))
       .forEach((edge) => {
         // この段階では「次の入力」の分を次のEntryの「入力」から削除することはしない
-        // edge の inputs を参照するときに重なる部分が除去される
+        // StrokeNode 構築時に、edge の inputs の重なる部分が除去される
         const newEdge = new KanaEdge(
           [entry, ...edge.entries],
           edge.next,

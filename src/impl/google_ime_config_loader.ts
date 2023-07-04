@@ -1,7 +1,9 @@
 import { ModifierGroup, NullModifier, Rule, RuleEntry } from "../core/rule";
 import { RuleStroke } from "../core/stroke";
-import { alphaNumericRule } from "./alpha_numeric_rule";
+import { alphaNumericEntriesMap } from "./alpha_numeric_rule";
 import { VirtualKey, VirtualKeys } from "./virtual_key";
+
+const nullModifier = new NullModifier<VirtualKey>();
 
 const modifierGroupSet = {
   shift: new ModifierGroup<VirtualKey>([
@@ -21,6 +23,11 @@ const modifierGroupSet = {
     VirtualKeys.MetaRight,
   ]),
 };
+
+const allAvailableModifiers = Object.values(modifierGroupSet);
+const modifiersExceptShift = allAvailableModifiers.filter(
+  (v) => !v.equals(modifierGroupSet.shift)
+);
 
 export function loadFromGoogleImeText(
   name: string,
@@ -54,11 +61,17 @@ export function loadFromGoogleImeText(
     const nextInput: RuleStroke<VirtualKey>[] = [...cols[2]].map((c) =>
       toKeyCodeStrokeFromKeyChar(c)
     );
-    entries.push(new RuleEntry(input, output, nextInput));
+    entries.push(
+      new RuleEntry(
+        input,
+        output,
+        nextInput,
+        // output の文字がすべて英数字で構成されているかどうか
+        Array.from(output).every((v) => alphaNumericEntriesMap.has(v))
+      )
+    );
   }
-  return new Rule(name, entries, Object.values(modifierGroupSet)).merge(
-    alphaNumericRule
-  );
+  return new Rule(name, entries, Object.values(modifierGroupSet));
 }
 
 export function toKeyCodeStrokeFromKeyChar(
@@ -74,116 +87,479 @@ export function toKeyCodeStrokeFromKeyChar(
 // Mac + JIS キーボード で取得した場合の code を前提にしている
 // https://www.toptal.com/developers/keycode
 const charToRuleStroke: { [key: string]: RuleStroke<VirtualKey> } = {
-  a: new RuleStroke<VirtualKey>([VirtualKeys.A], new NullModifier()),
-  b: new RuleStroke<VirtualKey>([VirtualKeys.B], new NullModifier()),
-  c: new RuleStroke<VirtualKey>([VirtualKeys.C], new NullModifier()),
-  d: new RuleStroke<VirtualKey>([VirtualKeys.D], new NullModifier()),
-  e: new RuleStroke<VirtualKey>([VirtualKeys.E], new NullModifier()),
-  f: new RuleStroke<VirtualKey>([VirtualKeys.F], new NullModifier()),
-  g: new RuleStroke<VirtualKey>([VirtualKeys.G], new NullModifier()),
-  h: new RuleStroke<VirtualKey>([VirtualKeys.H], new NullModifier()),
-  i: new RuleStroke<VirtualKey>([VirtualKeys.I], new NullModifier()),
-  j: new RuleStroke<VirtualKey>([VirtualKeys.J], new NullModifier()),
-  k: new RuleStroke<VirtualKey>([VirtualKeys.K], new NullModifier()),
-  l: new RuleStroke<VirtualKey>([VirtualKeys.L], new NullModifier()),
-  m: new RuleStroke<VirtualKey>([VirtualKeys.M], new NullModifier()),
-  n: new RuleStroke<VirtualKey>([VirtualKeys.N], new NullModifier()),
-  o: new RuleStroke<VirtualKey>([VirtualKeys.O], new NullModifier()),
-  p: new RuleStroke<VirtualKey>([VirtualKeys.P], new NullModifier()),
-  q: new RuleStroke<VirtualKey>([VirtualKeys.Q], new NullModifier()),
-  r: new RuleStroke<VirtualKey>([VirtualKeys.R], new NullModifier()),
-  s: new RuleStroke<VirtualKey>([VirtualKeys.S], new NullModifier()),
-  t: new RuleStroke<VirtualKey>([VirtualKeys.T], new NullModifier()),
-  u: new RuleStroke<VirtualKey>([VirtualKeys.U], new NullModifier()),
-  v: new RuleStroke<VirtualKey>([VirtualKeys.V], new NullModifier()),
-  w: new RuleStroke<VirtualKey>([VirtualKeys.W], new NullModifier()),
-  x: new RuleStroke<VirtualKey>([VirtualKeys.X], new NullModifier()),
-  y: new RuleStroke<VirtualKey>([VirtualKeys.Y], new NullModifier()),
-  z: new RuleStroke<VirtualKey>([VirtualKeys.Z], new NullModifier()),
-  A: new RuleStroke<VirtualKey>([VirtualKeys.A], modifierGroupSet.shift),
-  B: new RuleStroke<VirtualKey>([VirtualKeys.B], modifierGroupSet.shift),
-  C: new RuleStroke<VirtualKey>([VirtualKeys.C], modifierGroupSet.shift),
-  D: new RuleStroke<VirtualKey>([VirtualKeys.D], modifierGroupSet.shift),
-  E: new RuleStroke<VirtualKey>([VirtualKeys.E], modifierGroupSet.shift),
-  F: new RuleStroke<VirtualKey>([VirtualKeys.F], modifierGroupSet.shift),
-  G: new RuleStroke<VirtualKey>([VirtualKeys.G], modifierGroupSet.shift),
-  H: new RuleStroke<VirtualKey>([VirtualKeys.H], modifierGroupSet.shift),
-  I: new RuleStroke<VirtualKey>([VirtualKeys.I], modifierGroupSet.shift),
-  J: new RuleStroke<VirtualKey>([VirtualKeys.J], modifierGroupSet.shift),
-  K: new RuleStroke<VirtualKey>([VirtualKeys.K], modifierGroupSet.shift),
-  L: new RuleStroke<VirtualKey>([VirtualKeys.L], modifierGroupSet.shift),
-  M: new RuleStroke<VirtualKey>([VirtualKeys.M], modifierGroupSet.shift),
-  N: new RuleStroke<VirtualKey>([VirtualKeys.N], modifierGroupSet.shift),
-  O: new RuleStroke<VirtualKey>([VirtualKeys.O], modifierGroupSet.shift),
-  P: new RuleStroke<VirtualKey>([VirtualKeys.P], modifierGroupSet.shift),
-  Q: new RuleStroke<VirtualKey>([VirtualKeys.Q], modifierGroupSet.shift),
-  R: new RuleStroke<VirtualKey>([VirtualKeys.R], modifierGroupSet.shift),
-  S: new RuleStroke<VirtualKey>([VirtualKeys.S], modifierGroupSet.shift),
-  T: new RuleStroke<VirtualKey>([VirtualKeys.T], modifierGroupSet.shift),
-  U: new RuleStroke<VirtualKey>([VirtualKeys.U], modifierGroupSet.shift),
-  V: new RuleStroke<VirtualKey>([VirtualKeys.V], modifierGroupSet.shift),
-  W: new RuleStroke<VirtualKey>([VirtualKeys.W], modifierGroupSet.shift),
-  X: new RuleStroke<VirtualKey>([VirtualKeys.X], modifierGroupSet.shift),
-  Y: new RuleStroke<VirtualKey>([VirtualKeys.Y], modifierGroupSet.shift),
-  Z: new RuleStroke<VirtualKey>([VirtualKeys.Z], modifierGroupSet.shift),
-  "1": new RuleStroke<VirtualKey>([VirtualKeys.Digit1], new NullModifier()),
-  "2": new RuleStroke<VirtualKey>([VirtualKeys.Digit2], new NullModifier()),
-  "3": new RuleStroke<VirtualKey>([VirtualKeys.Digit3], new NullModifier()),
-  "4": new RuleStroke<VirtualKey>([VirtualKeys.Digit4], new NullModifier()),
-  "5": new RuleStroke<VirtualKey>([VirtualKeys.Digit5], new NullModifier()),
-  "6": new RuleStroke<VirtualKey>([VirtualKeys.Digit6], new NullModifier()),
-  "7": new RuleStroke<VirtualKey>([VirtualKeys.Digit7], new NullModifier()),
-  "8": new RuleStroke<VirtualKey>([VirtualKeys.Digit8], new NullModifier()),
-  "9": new RuleStroke<VirtualKey>([VirtualKeys.Digit9], new NullModifier()),
-  "0": new RuleStroke<VirtualKey>([VirtualKeys.Digit0], new NullModifier()),
-  "!": new RuleStroke<VirtualKey>([VirtualKeys.Digit1], modifierGroupSet.shift),
-  '"': new RuleStroke<VirtualKey>([VirtualKeys.Digit2], modifierGroupSet.shift),
-  "#": new RuleStroke<VirtualKey>([VirtualKeys.Digit3], modifierGroupSet.shift),
-  $: new RuleStroke<VirtualKey>([VirtualKeys.Digit4], modifierGroupSet.shift),
-  "%": new RuleStroke<VirtualKey>([VirtualKeys.Digit5], modifierGroupSet.shift),
-  "&": new RuleStroke<VirtualKey>([VirtualKeys.Digit6], modifierGroupSet.shift),
-  "'": new RuleStroke<VirtualKey>([VirtualKeys.Digit7], modifierGroupSet.shift),
-  "(": new RuleStroke<VirtualKey>([VirtualKeys.Digit8], modifierGroupSet.shift),
-  ")": new RuleStroke<VirtualKey>([VirtualKeys.Digit9], modifierGroupSet.shift),
-  "-": new RuleStroke<VirtualKey>([VirtualKeys.Minus], new NullModifier()),
-  "^": new RuleStroke<VirtualKey>([VirtualKeys.Equal], new NullModifier()),
-  "\\": new RuleStroke<VirtualKey>([VirtualKeys.JpnYen], new NullModifier()),
+  a: new RuleStroke<VirtualKey>(
+    [VirtualKeys.A],
+    nullModifier,
+    allAvailableModifiers
+  ),
+  b: new RuleStroke<VirtualKey>(
+    [VirtualKeys.B],
+    nullModifier,
+    allAvailableModifiers
+  ),
+  c: new RuleStroke<VirtualKey>(
+    [VirtualKeys.C],
+    nullModifier,
+    allAvailableModifiers
+  ),
+  d: new RuleStroke<VirtualKey>(
+    [VirtualKeys.D],
+    nullModifier,
+    allAvailableModifiers
+  ),
+  e: new RuleStroke<VirtualKey>(
+    [VirtualKeys.E],
+    nullModifier,
+    allAvailableModifiers
+  ),
+  f: new RuleStroke<VirtualKey>(
+    [VirtualKeys.F],
+    nullModifier,
+    allAvailableModifiers
+  ),
+  g: new RuleStroke<VirtualKey>(
+    [VirtualKeys.G],
+    nullModifier,
+    allAvailableModifiers
+  ),
+  h: new RuleStroke<VirtualKey>(
+    [VirtualKeys.H],
+    nullModifier,
+    allAvailableModifiers
+  ),
+  i: new RuleStroke<VirtualKey>(
+    [VirtualKeys.I],
+    nullModifier,
+    allAvailableModifiers
+  ),
+  j: new RuleStroke<VirtualKey>(
+    [VirtualKeys.J],
+    nullModifier,
+    allAvailableModifiers
+  ),
+  k: new RuleStroke<VirtualKey>(
+    [VirtualKeys.K],
+    nullModifier,
+    allAvailableModifiers
+  ),
+  l: new RuleStroke<VirtualKey>(
+    [VirtualKeys.L],
+    nullModifier,
+    allAvailableModifiers
+  ),
+  m: new RuleStroke<VirtualKey>(
+    [VirtualKeys.M],
+    nullModifier,
+    allAvailableModifiers
+  ),
+  n: new RuleStroke<VirtualKey>(
+    [VirtualKeys.N],
+    nullModifier,
+    allAvailableModifiers
+  ),
+  o: new RuleStroke<VirtualKey>(
+    [VirtualKeys.O],
+    nullModifier,
+    allAvailableModifiers
+  ),
+  p: new RuleStroke<VirtualKey>(
+    [VirtualKeys.P],
+    nullModifier,
+    allAvailableModifiers
+  ),
+  q: new RuleStroke<VirtualKey>(
+    [VirtualKeys.Q],
+    nullModifier,
+    allAvailableModifiers
+  ),
+  r: new RuleStroke<VirtualKey>(
+    [VirtualKeys.R],
+    nullModifier,
+    allAvailableModifiers
+  ),
+  s: new RuleStroke<VirtualKey>(
+    [VirtualKeys.S],
+    nullModifier,
+    allAvailableModifiers
+  ),
+  t: new RuleStroke<VirtualKey>(
+    [VirtualKeys.T],
+    nullModifier,
+    allAvailableModifiers
+  ),
+  u: new RuleStroke<VirtualKey>(
+    [VirtualKeys.U],
+    nullModifier,
+    allAvailableModifiers
+  ),
+  v: new RuleStroke<VirtualKey>(
+    [VirtualKeys.V],
+    nullModifier,
+    allAvailableModifiers
+  ),
+  w: new RuleStroke<VirtualKey>(
+    [VirtualKeys.W],
+    nullModifier,
+    allAvailableModifiers
+  ),
+  x: new RuleStroke<VirtualKey>(
+    [VirtualKeys.X],
+    nullModifier,
+    allAvailableModifiers
+  ),
+  y: new RuleStroke<VirtualKey>(
+    [VirtualKeys.Y],
+    nullModifier,
+    allAvailableModifiers
+  ),
+  z: new RuleStroke<VirtualKey>(
+    [VirtualKeys.Z],
+    nullModifier,
+    allAvailableModifiers
+  ),
+  A: new RuleStroke<VirtualKey>(
+    [VirtualKeys.A],
+    modifierGroupSet.shift,
+    modifiersExceptShift
+  ),
+  B: new RuleStroke<VirtualKey>(
+    [VirtualKeys.B],
+    modifierGroupSet.shift,
+    modifiersExceptShift
+  ),
+  C: new RuleStroke<VirtualKey>(
+    [VirtualKeys.C],
+    modifierGroupSet.shift,
+    modifiersExceptShift
+  ),
+  D: new RuleStroke<VirtualKey>(
+    [VirtualKeys.D],
+    modifierGroupSet.shift,
+    modifiersExceptShift
+  ),
+  E: new RuleStroke<VirtualKey>(
+    [VirtualKeys.E],
+    modifierGroupSet.shift,
+    modifiersExceptShift
+  ),
+  F: new RuleStroke<VirtualKey>(
+    [VirtualKeys.F],
+    modifierGroupSet.shift,
+    modifiersExceptShift
+  ),
+  G: new RuleStroke<VirtualKey>(
+    [VirtualKeys.G],
+    modifierGroupSet.shift,
+    modifiersExceptShift
+  ),
+  H: new RuleStroke<VirtualKey>(
+    [VirtualKeys.H],
+    modifierGroupSet.shift,
+    modifiersExceptShift
+  ),
+  I: new RuleStroke<VirtualKey>(
+    [VirtualKeys.I],
+    modifierGroupSet.shift,
+    modifiersExceptShift
+  ),
+  J: new RuleStroke<VirtualKey>(
+    [VirtualKeys.J],
+    modifierGroupSet.shift,
+    modifiersExceptShift
+  ),
+  K: new RuleStroke<VirtualKey>(
+    [VirtualKeys.K],
+    modifierGroupSet.shift,
+    modifiersExceptShift
+  ),
+  L: new RuleStroke<VirtualKey>(
+    [VirtualKeys.L],
+    modifierGroupSet.shift,
+    modifiersExceptShift
+  ),
+  M: new RuleStroke<VirtualKey>(
+    [VirtualKeys.M],
+    modifierGroupSet.shift,
+    modifiersExceptShift
+  ),
+  N: new RuleStroke<VirtualKey>(
+    [VirtualKeys.N],
+    modifierGroupSet.shift,
+    modifiersExceptShift
+  ),
+  O: new RuleStroke<VirtualKey>(
+    [VirtualKeys.O],
+    modifierGroupSet.shift,
+    modifiersExceptShift
+  ),
+  P: new RuleStroke<VirtualKey>(
+    [VirtualKeys.P],
+    modifierGroupSet.shift,
+    modifiersExceptShift
+  ),
+  Q: new RuleStroke<VirtualKey>(
+    [VirtualKeys.Q],
+    modifierGroupSet.shift,
+    modifiersExceptShift
+  ),
+  R: new RuleStroke<VirtualKey>(
+    [VirtualKeys.R],
+    modifierGroupSet.shift,
+    modifiersExceptShift
+  ),
+  S: new RuleStroke<VirtualKey>(
+    [VirtualKeys.S],
+    modifierGroupSet.shift,
+    modifiersExceptShift
+  ),
+  T: new RuleStroke<VirtualKey>(
+    [VirtualKeys.T],
+    modifierGroupSet.shift,
+    modifiersExceptShift
+  ),
+  U: new RuleStroke<VirtualKey>(
+    [VirtualKeys.U],
+    modifierGroupSet.shift,
+    modifiersExceptShift
+  ),
+  V: new RuleStroke<VirtualKey>(
+    [VirtualKeys.V],
+    modifierGroupSet.shift,
+    modifiersExceptShift
+  ),
+  W: new RuleStroke<VirtualKey>(
+    [VirtualKeys.W],
+    modifierGroupSet.shift,
+    modifiersExceptShift
+  ),
+  X: new RuleStroke<VirtualKey>(
+    [VirtualKeys.X],
+    modifierGroupSet.shift,
+    modifiersExceptShift
+  ),
+  Y: new RuleStroke<VirtualKey>(
+    [VirtualKeys.Y],
+    modifierGroupSet.shift,
+    modifiersExceptShift
+  ),
+  Z: new RuleStroke<VirtualKey>(
+    [VirtualKeys.Z],
+    modifierGroupSet.shift,
+    modifiersExceptShift
+  ),
+  "1": new RuleStroke<VirtualKey>(
+    [VirtualKeys.Digit1],
+    nullModifier,
+    allAvailableModifiers
+  ),
+  "2": new RuleStroke<VirtualKey>(
+    [VirtualKeys.Digit2],
+    nullModifier,
+    allAvailableModifiers
+  ),
+  "3": new RuleStroke<VirtualKey>(
+    [VirtualKeys.Digit3],
+    nullModifier,
+    allAvailableModifiers
+  ),
+  "4": new RuleStroke<VirtualKey>(
+    [VirtualKeys.Digit4],
+    nullModifier,
+    allAvailableModifiers
+  ),
+  "5": new RuleStroke<VirtualKey>(
+    [VirtualKeys.Digit5],
+    nullModifier,
+    allAvailableModifiers
+  ),
+  "6": new RuleStroke<VirtualKey>(
+    [VirtualKeys.Digit6],
+    nullModifier,
+    allAvailableModifiers
+  ),
+  "7": new RuleStroke<VirtualKey>(
+    [VirtualKeys.Digit7],
+    nullModifier,
+    allAvailableModifiers
+  ),
+  "8": new RuleStroke<VirtualKey>(
+    [VirtualKeys.Digit8],
+    nullModifier,
+    allAvailableModifiers
+  ),
+  "9": new RuleStroke<VirtualKey>(
+    [VirtualKeys.Digit9],
+    nullModifier,
+    allAvailableModifiers
+  ),
+  "0": new RuleStroke<VirtualKey>(
+    [VirtualKeys.Digit0],
+    nullModifier,
+    allAvailableModifiers
+  ),
+  "!": new RuleStroke<VirtualKey>(
+    [VirtualKeys.Digit1],
+    modifierGroupSet.shift,
+    modifiersExceptShift
+  ),
+  '"': new RuleStroke<VirtualKey>(
+    [VirtualKeys.Digit2],
+    modifierGroupSet.shift,
+    modifiersExceptShift
+  ),
+  "#": new RuleStroke<VirtualKey>(
+    [VirtualKeys.Digit3],
+    modifierGroupSet.shift,
+    modifiersExceptShift
+  ),
+  $: new RuleStroke<VirtualKey>(
+    [VirtualKeys.Digit4],
+    modifierGroupSet.shift,
+    modifiersExceptShift
+  ),
+  "%": new RuleStroke<VirtualKey>(
+    [VirtualKeys.Digit5],
+    modifierGroupSet.shift,
+    modifiersExceptShift
+  ),
+  "&": new RuleStroke<VirtualKey>(
+    [VirtualKeys.Digit6],
+    modifierGroupSet.shift,
+    modifiersExceptShift
+  ),
+  "'": new RuleStroke<VirtualKey>(
+    [VirtualKeys.Digit7],
+    modifierGroupSet.shift,
+    modifiersExceptShift
+  ),
+  "(": new RuleStroke<VirtualKey>(
+    [VirtualKeys.Digit8],
+    modifierGroupSet.shift,
+    modifiersExceptShift
+  ),
+  ")": new RuleStroke<VirtualKey>(
+    [VirtualKeys.Digit9],
+    modifierGroupSet.shift,
+    modifiersExceptShift
+  ),
+  "-": new RuleStroke<VirtualKey>(
+    [VirtualKeys.Minus],
+    nullModifier,
+    allAvailableModifiers
+  ),
+  "^": new RuleStroke<VirtualKey>(
+    [VirtualKeys.Equal],
+    nullModifier,
+    allAvailableModifiers
+  ),
+  "\\": new RuleStroke<VirtualKey>(
+    [VirtualKeys.JpnYen],
+    nullModifier,
+    allAvailableModifiers
+  ),
   "@": new RuleStroke<VirtualKey>(
     [VirtualKeys.BracketLeft],
-    new NullModifier()
+    nullModifier,
+    allAvailableModifiers
   ),
   "[": new RuleStroke<VirtualKey>(
     [VirtualKeys.BracketRight],
-    new NullModifier()
+    nullModifier,
+    allAvailableModifiers
   ),
-  ";": new RuleStroke<VirtualKey>([VirtualKeys.Semicolon], new NullModifier()),
-  ":": new RuleStroke<VirtualKey>([VirtualKeys.Quote], new NullModifier()),
-  "]": new RuleStroke<VirtualKey>([VirtualKeys.Backslash], new NullModifier()),
-  ",": new RuleStroke<VirtualKey>([VirtualKeys.Comma], new NullModifier()),
-  ".": new RuleStroke<VirtualKey>([VirtualKeys.Period], new NullModifier()),
-  "/": new RuleStroke<VirtualKey>([VirtualKeys.Slash], new NullModifier()),
-  "=": new RuleStroke<VirtualKey>([VirtualKeys.Minus], modifierGroupSet.shift),
-  "~": new RuleStroke<VirtualKey>([VirtualKeys.Equal], modifierGroupSet.shift),
-  "|": new RuleStroke<VirtualKey>([VirtualKeys.JpnYen], modifierGroupSet.shift),
+  ";": new RuleStroke<VirtualKey>(
+    [VirtualKeys.Semicolon],
+    nullModifier,
+    allAvailableModifiers
+  ),
+  ":": new RuleStroke<VirtualKey>(
+    [VirtualKeys.Quote],
+    nullModifier,
+    allAvailableModifiers
+  ),
+  "]": new RuleStroke<VirtualKey>(
+    [VirtualKeys.Backslash],
+    nullModifier,
+    allAvailableModifiers
+  ),
+  ",": new RuleStroke<VirtualKey>(
+    [VirtualKeys.Comma],
+    nullModifier,
+    allAvailableModifiers
+  ),
+  ".": new RuleStroke<VirtualKey>(
+    [VirtualKeys.Period],
+    nullModifier,
+    allAvailableModifiers
+  ),
+  "/": new RuleStroke<VirtualKey>(
+    [VirtualKeys.Slash],
+    nullModifier,
+    allAvailableModifiers
+  ),
+  "=": new RuleStroke<VirtualKey>(
+    [VirtualKeys.Minus],
+    modifierGroupSet.shift,
+    modifiersExceptShift
+  ),
+  "~": new RuleStroke<VirtualKey>(
+    [VirtualKeys.Equal],
+    modifierGroupSet.shift,
+    modifiersExceptShift
+  ),
+  "|": new RuleStroke<VirtualKey>(
+    [VirtualKeys.JpnYen],
+    modifierGroupSet.shift,
+    modifiersExceptShift
+  ),
   "`": new RuleStroke<VirtualKey>(
     [VirtualKeys.BracketLeft],
-    modifierGroupSet.shift
+    modifierGroupSet.shift,
+    modifiersExceptShift
   ),
   "{": new RuleStroke<VirtualKey>(
     [VirtualKeys.BracketRight],
-    modifierGroupSet.shift
+    modifierGroupSet.shift,
+    modifiersExceptShift
   ),
   "+": new RuleStroke<VirtualKey>(
     [VirtualKeys.Semicolon],
-    modifierGroupSet.shift
+    modifierGroupSet.shift,
+    modifiersExceptShift
   ),
-  "*": new RuleStroke<VirtualKey>([VirtualKeys.Quote], modifierGroupSet.shift),
+  "*": new RuleStroke<VirtualKey>(
+    [VirtualKeys.Quote],
+    modifierGroupSet.shift,
+    modifiersExceptShift
+  ),
   "}": new RuleStroke<VirtualKey>(
     [VirtualKeys.Backslash],
-    modifierGroupSet.shift
+    modifierGroupSet.shift,
+    modifiersExceptShift
   ),
-  "<": new RuleStroke<VirtualKey>([VirtualKeys.Comma], modifierGroupSet.shift),
-  ">": new RuleStroke<VirtualKey>([VirtualKeys.Period], modifierGroupSet.shift),
-  "?": new RuleStroke<VirtualKey>([VirtualKeys.Slash], modifierGroupSet.shift),
-  _: new RuleStroke<VirtualKey>([VirtualKeys.JpnRo], modifierGroupSet.shift),
+  "<": new RuleStroke<VirtualKey>(
+    [VirtualKeys.Comma],
+    modifierGroupSet.shift,
+    modifiersExceptShift
+  ),
+  ">": new RuleStroke<VirtualKey>(
+    [VirtualKeys.Period],
+    modifierGroupSet.shift,
+    modifiersExceptShift
+  ),
+  "?": new RuleStroke<VirtualKey>(
+    [VirtualKeys.Slash],
+    modifierGroupSet.shift,
+    modifiersExceptShift
+  ),
+  _: new RuleStroke<VirtualKey>(
+    [VirtualKeys.JpnRo],
+    modifierGroupSet.shift,
+    modifiersExceptShift
+  ),
+  " ": new RuleStroke<VirtualKey>(
+    [VirtualKeys.Space],
+    nullModifier,
+    allAvailableModifiers
+  ),
 };
