@@ -13,7 +13,7 @@ export function validateRule<T extends Comparable<T>>(rule: Rule<T>): void {
       entries.forEach((v) => {
         for (let i = 0; i < v.input.length && i < entry.input.length; i++) {
           const result = compareStroke(v.input[i], entry.input[i]);
-          if (!result.keys || !result.requiredModifier) {
+          if (!result.key || !result.requiredModifier) {
             // 必要なキーが異なる場合はそもそも StrokeNode として区別可能なので問題ない
             break;
           }
@@ -37,10 +37,8 @@ export function validateRule<T extends Comparable<T>>(rule: Rule<T>): void {
 function compareStroke<T extends Comparable<T>>(
   thisStroke: RuleStroke<T>,
   other: RuleStroke<T>
-): { keys: boolean; requiredModifier: boolean; unnecessaryModifiers: boolean } {
-  const keysResult =
-    thisStroke.keys.length === other.keys.length &&
-    thisStroke.keys.every((v, i) => v.equals(other.keys[i]));
+): { key: boolean; requiredModifier: boolean; unnecessaryModifiers: boolean } {
+  const keysResult = thisStroke.key.equals(other.key);
 
   const requiredModifierResult = thisStroke.requiredModifier.equals(
     other.requiredModifier
@@ -51,7 +49,7 @@ function compareStroke<T extends Comparable<T>>(
     thisMods.length === otherMods.length &&
     thisMods.every((v) => otherMods.some((v2) => v.equals(v2)));
   return {
-    keys: keysResult,
+    key: keysResult,
     requiredModifier: requiredModifierResult,
     unnecessaryModifiers: unnecesaryModifiersResult,
   };

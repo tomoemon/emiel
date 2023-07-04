@@ -27,13 +27,7 @@ test("entry 1つのときに矛盾はない", () => {
     "test-rule",
     [
       new RuleEntry<Key>(
-        [
-          new RuleStroke<Key>(
-            [new Key("A")],
-            new NullModifier(),
-            modifierGroups
-          ),
-        ],
+        [new RuleStroke<Key>(new Key("A"), new NullModifier(), modifierGroups)],
         "あ",
         [],
         false
@@ -52,20 +46,14 @@ test("異なる output を持つ時、異なる unnecesary modifier があって
     "test-rule",
     [
       new RuleEntry<Key>(
-        [
-          new RuleStroke<Key>(
-            [new Key("A")],
-            new NullModifier(),
-            modifierGroups
-          ),
-        ],
+        [new RuleStroke<Key>(new Key("A"), new NullModifier(), modifierGroups)],
         "あ",
         [],
         false
       ),
       new RuleEntry<Key>(
         [
-          new RuleStroke<Key>([new Key("A")], new NullModifier(), [
+          new RuleStroke<Key>(new Key("A"), new NullModifier(), [
             new ModifierGroup<Key>([new Key("ControlLeft")]),
           ]),
         ],
@@ -87,20 +75,14 @@ test("同じ output を持つ時、異なる unnecesary modifier があると矛
     "test-rule",
     [
       new RuleEntry<Key>(
-        [
-          new RuleStroke<Key>(
-            [new Key("A")],
-            new NullModifier(),
-            modifierGroups
-          ),
-        ],
+        [new RuleStroke<Key>(new Key("A"), new NullModifier(), modifierGroups)],
         "あ",
         [],
         false
       ),
       new RuleEntry<Key>(
         [
-          new RuleStroke<Key>([new Key("A")], new NullModifier(), [
+          new RuleStroke<Key>(new Key("A"), new NullModifier(), [
             new ModifierGroup<Key>([new Key("ControlLeft")]),
           ]),
         ],

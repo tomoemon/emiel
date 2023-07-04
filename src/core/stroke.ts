@@ -22,7 +22,7 @@ export class InputEvent<T extends Comparable<T>> {
     const unnecessaryModifiers = edge.input.unnecessaryModifiers;
 
     // 入力されたキーがマッチし、
-    if (this.input.key.equals(edge.input.keys[0])) {
+    if (this.input.key.equals(edge.input.key)) {
       // 必要な modifier がすべて押されていて、
       if (necessaryModifiers.every((v) => v.accept(this.keyboardState))) {
         // 不要な modifier が1つも押されていないときに成功
@@ -48,21 +48,13 @@ export class InputEvent<T extends Comparable<T>> {
 
 export class RuleStroke<T extends Comparable<T>> {
   constructor(
-    readonly keys: T[],
+    readonly key: T,
     readonly requiredModifier: Modifier<T>,
     readonly unnecessaryModifiers: ModifierGroup<T>[]
   ) {}
-  toString(): string {
-    return `{${this.keys.map((v) => v.toString()).join("")} ${
-      this.requiredModifier
-    } (${this.unnecessaryModifiers
-      .map((v) => v.modifiers.join(""))
-      .join(" ")})}`;
-  }
   equals(other: RuleStroke<T>): boolean {
     return (
-      this.keys.length === other.keys.length &&
-      this.keys.every((v, i) => v.equals(other.keys[i])) &&
+      this.key.equals(other.key) &&
       this.requiredModifier.equals(other.requiredModifier) &&
       this.unnecessaryModifiers.length === other.unnecessaryModifiers.length &&
       this.unnecessaryModifiers.every((v, i) =>

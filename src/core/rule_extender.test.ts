@@ -28,13 +28,13 @@ const nullModifier = new NullModifier<Key>();
 test("英数字は展開しない", () => {
   const entries = [
     new RuleEntry<Key>(
-      [new RuleStroke<Key>([keys.A], nullModifier, [])],
+      [new RuleStroke<Key>(keys.A, nullModifier, [])],
       "a",
       [],
       true
     ),
     new RuleEntry<Key>(
-      [new RuleStroke<Key>([keys.B], nullModifier, [])],
+      [new RuleStroke<Key>(keys.B, nullModifier, [])],
       "b",
       [],
       true
@@ -47,15 +47,15 @@ test("英数字は展開しない", () => {
 test("んの展開", () => {
   const entries = [
     new RuleEntry<Key>(
-      [new RuleStroke<Key>([keys.N], nullModifier, [])],
+      [new RuleStroke<Key>(keys.N, nullModifier, [])],
       "ん",
       [],
       false
     ),
     new RuleEntry<Key>(
       [
-        new RuleStroke<Key>([keys.N], nullModifier, []),
-        new RuleStroke<Key>([keys.A], nullModifier, []),
+        new RuleStroke<Key>(keys.N, nullModifier, []),
+        new RuleStroke<Key>(keys.A, nullModifier, []),
       ],
       "な",
       [],
@@ -63,8 +63,8 @@ test("んの展開", () => {
     ),
     new RuleEntry<Key>(
       [
-        new RuleStroke<Key>([keys.K], nullModifier, []),
-        new RuleStroke<Key>([keys.A], nullModifier, []),
+        new RuleStroke<Key>(keys.K, nullModifier, []),
+        new RuleStroke<Key>(keys.A, nullModifier, []),
       ],
       "か",
       [],

@@ -64,11 +64,7 @@ function extendCommonPrefixOverlappedEntries<T extends Comparable<T>>(
     return strokes
       .map(
         (stroke) =>
-          `${stroke.keys
-            .map((v) => v.toString())
-            .join(
-              ","
-            )}/${stroke.requiredModifier.toString()}/${stroke.unnecessaryModifiers
+          `${stroke.key.toString()}/${stroke.requiredModifier.toString()}/${stroke.unnecessaryModifiers
             .map((v) => v.toString())
             .join(",")}`
       )

@@ -5,9 +5,9 @@ import { mergeRule } from "../core/rule_merger";
 import { alphaNumericRule } from "./alpha_numeric_rule";
 
 export const rules = {
-  // tomoemon_azik: mergeRule(
-  //   loadFromGoogleImeText("tomoemon-azik", tomoemon_azik),
-  //   alphaNumericRule
-  // ),
+  tomoemon_azik: mergeRule(
+    loadFromGoogleImeText("tomoemon-azik", tomoemon_azik),
+    alphaNumericRule
+  ),
   roman: mergeRule(loadFromGoogleImeText("roman", roman), alphaNumericRule),
 };
