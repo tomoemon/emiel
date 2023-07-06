@@ -25,8 +25,8 @@ export class RuleEntry<T extends Comparable<T>> {
     readonly input: RuleStroke<T>[],
     readonly output: string,
     readonly nextInput: RuleStroke<T>[],
-    // 英数字を入力するためのルールかどうか
-    readonly isAlphaNumeric: boolean
+    // 共通プレフィックスエントリを展開するかどうか
+    readonly extendablePrefixCommon: boolean
   ) {}
   get hasNextInput(): boolean {
     return this.nextInput.length > 0;
@@ -38,7 +38,7 @@ export class RuleEntry<T extends Comparable<T>> {
       this.output === other.output &&
       this.nextInput.length === other.nextInput.length &&
       this.nextInput.every((v, i) => v.equals(other.nextInput[i])) &&
-      this.isAlphaNumeric === other.isAlphaNumeric
+      this.extendablePrefixCommon === other.extendablePrefixCommon
     );
   }
   isConnetableAfter(nextInputs: RuleStroke<T>[]): boolean {

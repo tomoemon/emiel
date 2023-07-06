@@ -6,7 +6,7 @@ function App() {
   const [inputted, setInputted] = useState("");
   const [rest, setRest] = useState("");
   useEffect(() => {
-    const rule = emiel.rules.roman;
+    const rule = emiel.rules.jis_kana;
     const automaton = emiel.buildAutomaton(rule, "おったabcしゅう");
     const guide = new emiel.ShortestStrokeGuide(automaton);
     setRest(guide.restStrokes.map((s) => s.key).join(""));

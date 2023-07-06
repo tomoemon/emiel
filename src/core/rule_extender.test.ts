@@ -72,5 +72,5 @@ test("んの展開", () => {
     ),
   ];
   const result = extendCommonPrefixOverlappedEntriesDeeply(entries);
-  console.log(result);
+  // console.log(result);
 });

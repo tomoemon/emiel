@@ -510,7 +510,7 @@ const charToRuleStroke: { [key: string]: RuleStroke<VirtualKey> } = {
 export const alphaNumericEntriesMap = new Map<string, RuleEntry<VirtualKey>>(
   Object.entries(charToRuleStroke).map(([output, stroke]) => [
     output,
-    new RuleEntry<VirtualKey>([stroke], output, [], true),
+    new RuleEntry<VirtualKey>([stroke], output, [], false),
   ])
 );
 

@@ -4,23 +4,21 @@ import { RuleStroke } from "./stroke";
 export function extendCommonPrefixOverlappedEntriesDeeply<
   T extends Comparable<T>
 >(entries: RuleEntry<T>[]): RuleEntry<T>[] {
-  const alphaNumericEntries = entries.filter((entry) => entry.isAlphaNumeric);
-  const notAlphaNumericEntries = entries.filter(
-    (entry) => !entry.isAlphaNumeric
-  );
-  return [
-    ...recursiveExtendCommontPrefixOverlappedEntries(alphaNumericEntries),
-    ...recursiveExtendCommontPrefixOverlappedEntries(notAlphaNumericEntries),
-  ];
+  return recursiveExtendCommontPrefixOverlappedEntries(entries);
 }
 
 function recursiveExtendCommontPrefixOverlappedEntries<T extends Comparable<T>>(
   entries: RuleEntry<T>[]
 ): RuleEntry<T>[] {
-  let newEntries = entries.slice();
+  let extendableEntries = entries.filter(
+    (entry) => entry.extendablePrefixCommon
+  );
+  const unextendableEntries = entries.filter(
+    (entry) => !entry.extendablePrefixCommon
+  );
   while (true) {
     const { extendRequiredEntries, extendedNewEntries } =
-      extendCommonPrefixOverlappedEntries(newEntries);
+      extendCommonPrefixOverlappedEntries(extendableEntries);
     // console.log(
     //   Array.from(extendRequiredEntries).map((v) => {
     //     return {
@@ -31,7 +29,7 @@ function recursiveExtendCommontPrefixOverlappedEntries<T extends Comparable<T>>(
     //   })
     // );
     // extend された entry は除外する
-    newEntries = newEntries.filter(
+    extendableEntries = extendableEntries.filter(
       (entry) => !extendRequiredEntries.has(entry)
     );
     // console.log(
@@ -44,12 +42,12 @@ function recursiveExtendCommontPrefixOverlappedEntries<T extends Comparable<T>>(
     //   })
     // );
     // new entries を追加する
-    newEntries.push(...extendedNewEntries);
+    extendableEntries.push(...extendedNewEntries);
     if (extendRequiredEntries.size === 0) {
       break;
     }
   }
-  return newEntries;
+  return [...unextendableEntries, ...extendableEntries];
 }
 
 function extendCommonPrefixOverlappedEntries<T extends Comparable<T>>(
@@ -166,7 +164,7 @@ function extendCommonPrefixOverlappedEntries<T extends Comparable<T>>(
               newInput,
               expandRequiredEntry.output + availableEntry.output,
               availableEntry.nextInput,
-              false
+              true
             )
           );
         } else {
@@ -181,7 +179,7 @@ function extendCommonPrefixOverlappedEntries<T extends Comparable<T>>(
               [...expandRequiredEntry.input, availableEntry.input[0]],
               expandRequiredEntry.output,
               [availableEntry.input[0]],
-              false
+              true
             )
           );
         }

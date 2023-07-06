@@ -1,3 +1,4 @@
+import { test } from "vitest";
 import { Comparable } from "./rule";
 
 class Key implements Comparable<Key> {
@@ -17,3 +18,5 @@ const keys = {
   D: new Key("D"),
   E: new Key("E"),
 } as const;
+
+test("empty", () => {});

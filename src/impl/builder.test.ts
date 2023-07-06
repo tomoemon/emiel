@@ -46,10 +46,10 @@ ltu	っ
 `
   );
   // console.log(rule);
-  const [_, endKanaNode] = buildKanaNode(rule, "おった");
-  const startStrokeNode = buildStrokeNode(rule, endKanaNode);
-  showNextNode(startStrokeNode);
-  showPreviousNode(endKanaNode);
+  // const [_, endKanaNode] = buildKanaNode(rule, "おった");
+  // const startStrokeNode = buildStrokeNode(rule, endKanaNode);
+  // showNextNode(startStrokeNode);
+  // showPreviousNode(endKanaNode);
 });
 
 test("erase invalid connection test", () => {
@@ -60,7 +60,7 @@ a	あ
 x	あいうえ
 `
   );
-  console.log(prettyPrint(rule, { indent: "    " }));
+  // console.log(prettyPrint(rule, { indent: "    " }));
   /*
   function clearPrevious(node: KanaNode) {
     node.previousEdges.splice(0);

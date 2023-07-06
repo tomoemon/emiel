@@ -66,8 +66,7 @@ export function loadFromGoogleImeText(
         input,
         output,
         nextInput,
-        // output の文字がすべて英数字で構成されているかどうか
-        Array.from(output).every((v) => alphaNumericEntriesMap.has(v))
+        !Array.from(output).some((v) => alphaNumericEntriesMap.has(v))
       )
     );
   }
