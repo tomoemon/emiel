@@ -97,9 +97,6 @@ export class Automaton<T extends Comparable<T>> {
     const ignoredEdges = this._currentNode.nextEdges.filter(
       (edge) => stroke.match(edge) === "ignored"
     );
-    const failedEdges = this._currentNode.nextEdges.filter(
-      (edge) => stroke.match(edge) === "failed"
-    );
     if (ignoredEdges.length > 0) {
       return inputResultIgnored;
     }
