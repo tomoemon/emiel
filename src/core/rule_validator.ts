@@ -1,3 +1,4 @@
+import { prettyPrint } from "@base2/pretty-print-object";
 import { Comparable, Rule, RuleEntry } from "./rule";
 import { RuleStroke } from "./stroke";
 
@@ -19,7 +20,9 @@ export function validateRule<T extends Comparable<T>>(rule: Rule<T>): void {
           }
           if (!result.unnecessaryModifiers) {
             throw new Error(
-              `Rule ${rule.name} has duplicated input entry: ${entry} and ${v}`
+              `Rule ${rule.name} has duplicated input entry: ${prettyPrint(
+                entry
+              )} and ${prettyPrint(v)}`
             );
           }
         }

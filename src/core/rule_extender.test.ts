@@ -1,7 +1,8 @@
 import { expect, test } from "vitest";
-import { Comparable, NullModifier, RuleEntry } from "./rule";
+import { Comparable, RuleEntry } from "./rule";
 import { RuleStroke } from "./stroke";
 import { extendCommonPrefixOverlappedEntriesDeeply } from "./rule_extender";
+import { AndModifier } from "./modifier";
 
 class Key implements Comparable<Key> {
   constructor(public readonly code: string) {}
@@ -23,7 +24,7 @@ const keys = {
   N: new Key("N"),
 } as const;
 
-const nullModifier = new NullModifier<Key>();
+const nullModifier = new AndModifier<Key>();
 
 test("英数字は展開しない", () => {
   const entries = [

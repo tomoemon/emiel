@@ -1,4 +1,4 @@
-import { KeyboardStateReader } from "./keyboard_state";
+import { ModifierGroup } from "./modifier";
 import { extendCommonPrefixOverlappedEntriesDeeply } from "./rule_extender";
 import { RuleStroke } from "./stroke";
 
@@ -100,72 +100,5 @@ export class Rule<T extends Comparable<T>> {
     readonly modifierGroups: ModifierGroup<T>[]
   ) {
     this.entries = extendCommonPrefixOverlappedEntriesDeeply(entries);
-  }
-}
-
-export type Modifier<T extends Comparable<T>> =
-  | ModifierGroup<T>
-  | AndModifier<T>
-  | NullModifier<T>;
-
-export class NullModifier<T extends Comparable<T>> {
-  readonly type: "null" = "null";
-  readonly modifiers: T[] = [];
-  accept(_: KeyboardStateReader<T>): boolean {
-    return true;
-  }
-  equals(other: Modifier<T>): boolean {
-    return other.type === this.type;
-  }
-  has(_: T): boolean {
-    return false;
-  }
-  get groups(): ModifierGroup<T>[] {
-    return [];
-  }
-  toString(): string {
-    return "";
-  }
-}
-
-export class ModifierGroup<T extends Comparable<T>> {
-  readonly type: "or" = "or";
-  constructor(readonly modifiers: T[]) {}
-  accept(state: KeyboardStateReader<T>): boolean {
-    return state.isAnyKeyDowned(this.modifiers);
-  }
-  equals(other: Modifier<T>): boolean {
-    return (
-      other.type === this.type &&
-      this.modifiers.length === other.modifiers.length &&
-      this.modifiers.every((v, i) => v.equals(other.modifiers[i]))
-    );
-  }
-  has(key: T): boolean {
-    return this.modifiers.some((v) => v.equals(key));
-  }
-  get groups(): ModifierGroup<T>[] {
-    return [this];
-  }
-  toString(): string {
-    return `${this.modifiers.map((v) => v.toString()).join("|")}`;
-  }
-}
-
-export class AndModifier<T extends Comparable<T>> {
-  readonly type: "and" = "and";
-  constructor(readonly groups: ModifierGroup<T>[]) {}
-  accept(state: KeyboardStateReader<T>): boolean {
-    return this.groups.every((group) => group.accept(state));
-  }
-  equals(other: Modifier<T>): boolean {
-    return (
-      other.type === this.type &&
-      this.groups.length === other.groups.length &&
-      this.groups.every((v, i) => v.equals(other.groups[i]))
-    );
-  }
-  toString(): string {
-    return `${this.groups.map((v) => v.toString()).join("&")}`;
   }
 }

@@ -94,13 +94,16 @@ export class Automaton<T extends Comparable<T>> {
       }
       return inputResultKeySucceeded;
     }
+    const ignoredEdges = this._currentNode.nextEdges.filter(
+      (edge) => stroke.match(edge) === "ignored"
+    );
     const failedEdges = this._currentNode.nextEdges.filter(
       (edge) => stroke.match(edge) === "failed"
     );
-    if (failedEdges.length > 0) {
-      return inputResultFailed;
+    if (ignoredEdges.length > 0) {
+      return inputResultIgnored;
     }
-    return inputResultIgnored;
+    return inputResultFailed;
   }
 }
 

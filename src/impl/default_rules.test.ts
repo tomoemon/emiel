@@ -15,9 +15,9 @@ function entryToString(entry: RuleEntry<VirtualKey>): string {
 
 test("load google ime roman rule", () => {
   const rule = rules.roman;
-  rule.entries.forEach((entry) => {
-    console.log(entryToString(entry));
-  });
+  // rule.entries.forEach((entry) => {
+  //   console.log(entryToString(entry));
+  // });
   expect(rule.entries.length).toBe(420);
 });
 

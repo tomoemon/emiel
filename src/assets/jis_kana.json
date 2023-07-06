@@ -4,7 +4,7 @@
   },
   "modifierGroups": [
     {
-      "name": "shift",
+      "name": "$shift",
       "keys": ["ShiftLeft", "ShiftRight"]
     }
   ],
@@ -473,7 +473,7 @@
       "input": [
         {
           "keys": ["Digit3"],
-          "modifiers": ["shift"]
+          "modifiers": ["$shift"]
         }
       ],
       "output": "ぁ",
@@ -483,7 +483,7 @@
       "input": [
         {
           "keys": ["Digit4"],
-          "modifiers": ["shift"]
+          "modifiers": ["$shift"]
         }
       ],
       "output": "ぅ",
@@ -493,7 +493,7 @@
       "input": [
         {
           "keys": ["Digit5"],
-          "modifiers": ["shift"]
+          "modifiers": ["$shift"]
         }
       ],
       "output": "ぇ",
@@ -503,7 +503,7 @@
       "input": [
         {
           "keys": ["Digit6"],
-          "modifiers": ["shift"]
+          "modifiers": ["$shift"]
         }
       ],
       "output": "ぉ",
@@ -513,7 +513,7 @@
       "input": [
         {
           "keys": ["Digit7"],
-          "modifiers": ["shift"]
+          "modifiers": ["$shift"]
         }
       ],
       "output": "ゃ",
@@ -523,7 +523,7 @@
       "input": [
         {
           "keys": ["Digit8"],
-          "modifiers": ["shift"]
+          "modifiers": ["$shift"]
         }
       ],
       "output": "ゅ",
@@ -533,7 +533,7 @@
       "input": [
         {
           "keys": ["Digit9"],
-          "modifiers": ["shift"]
+          "modifiers": ["$shift"]
         }
       ],
       "output": "ょ",
@@ -543,7 +543,7 @@
       "input": [
         {
           "keys": ["Digit0"],
-          "modifiers": ["shift"]
+          "modifiers": ["$shift"]
         }
       ],
       "output": "を",
@@ -553,7 +553,7 @@
       "input": [
         {
           "keys": ["E"],
-          "modifiers": ["shift"]
+          "modifiers": ["$shift"]
         }
       ],
       "output": "ぃ",
@@ -563,7 +563,7 @@
       "input": [
         {
           "keys": ["Z"],
-          "modifiers": ["shift"]
+          "modifiers": ["$shift"]
         }
       ],
       "output": "っ",

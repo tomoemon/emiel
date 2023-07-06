@@ -1,32 +1,37 @@
-import { ModifierGroup, NullModifier, Rule, RuleEntry } from "../core/rule";
+import { AndModifier, ModifierGroup } from "../core/modifier";
+import { Rule, RuleEntry } from "../core/rule";
 import { RuleStroke } from "../core/stroke";
 import { alphaNumericEntriesMap } from "./alpha_numeric_rule";
 import { VirtualKey, VirtualKeys } from "./virtual_key";
 
-const nullModifier = new NullModifier<VirtualKey>();
+const nullModifier = new AndModifier<VirtualKey>();
 
 const modifierGroupSet = {
-  shift: new ModifierGroup<VirtualKey>([
-    VirtualKeys.ShiftLeft,
-    VirtualKeys.ShiftRight,
-  ]),
-  control: new ModifierGroup<VirtualKey>([
-    VirtualKeys.ControlLeft,
-    VirtualKeys.ControlRight,
-  ]),
-  alt: new ModifierGroup<VirtualKey>([
-    VirtualKeys.AltLeft,
-    VirtualKeys.AltRight,
-  ]),
-  meta: new ModifierGroup<VirtualKey>([
-    VirtualKeys.MetaLeft,
-    VirtualKeys.MetaRight,
-  ]),
+  shift: new AndModifier(
+    new ModifierGroup<VirtualKey>([
+      VirtualKeys.ShiftLeft,
+      VirtualKeys.ShiftRight,
+    ])
+  ),
+  control: new AndModifier(
+    new ModifierGroup<VirtualKey>([
+      VirtualKeys.ControlLeft,
+      VirtualKeys.ControlRight,
+    ])
+  ),
+  alt: new AndModifier(
+    new ModifierGroup<VirtualKey>([VirtualKeys.AltLeft, VirtualKeys.AltRight])
+  ),
+  meta: new AndModifier(
+    new ModifierGroup<VirtualKey>([VirtualKeys.MetaLeft, VirtualKeys.MetaRight])
+  ),
 };
 
-const allAvailableModifiers = Object.values(modifierGroupSet);
+const allAvailableModifiers = Object.values(modifierGroupSet).flatMap(
+  (v) => v.groups
+);
 const modifiersExceptShift = allAvailableModifiers.filter(
-  (v) => !v.equals(modifierGroupSet.shift)
+  (v) => !v.equals(modifierGroupSet.shift.groups[0])
 );
 
 export function loadFromGoogleImeText(
@@ -70,7 +75,7 @@ export function loadFromGoogleImeText(
       )
     );
   }
-  return new Rule(name, entries, Object.values(modifierGroupSet));
+  return new Rule(name, entries, allAvailableModifiers);
 }
 
 export function toKeyCodeStrokeFromKeyChar(

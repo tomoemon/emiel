@@ -1,0 +1,488 @@
+{
+  "options": {
+    "extendablePrefixCommon": false
+  },
+  "modifierGroups": [
+    {
+      "name": "$shift",
+      "keys": ["ShiftLeft", "ShiftRight"]
+    }
+  ],
+  "entries": [
+    {
+      "input": [{ "keys": ["Q"] }],
+      "output": ".",
+      "nextInput": []
+    },
+    {
+      "input": [{ "keys": ["W"] }],
+      "output": "か",
+      "nextInput": []
+    },
+    {
+      "input": [{ "keys": ["E"] }],
+      "output": "た",
+      "nextInput": []
+    },
+    {
+      "input": [{ "keys": ["R"] }],
+      "output": "こ",
+      "nextInput": []
+    },
+    {
+      "input": [{ "keys": ["T"] }],
+      "output": "さ",
+      "nextInput": []
+    },
+    {
+      "input": [{ "keys": ["Y"] }],
+      "output": "ら",
+      "nextInput": []
+    },
+    {
+      "input": [{ "keys": ["U"] }],
+      "output": "ち",
+      "nextInput": []
+    },
+    {
+      "input": [{ "keys": ["I"] }],
+      "output": "く",
+      "nextInput": []
+    },
+    {
+      "input": [{ "keys": ["O"] }],
+      "output": "つ",
+      "nextInput": []
+    },
+    {
+      "input": [{ "keys": ["P"] }],
+      "output": ",",
+      "nextInput": []
+    },
+    {
+      "input": [{ "keys": ["BracketLeft"] }],
+      "output": ",",
+      "nextInput": []
+    },
+    {
+      "input": [{ "keys": ["A"] }],
+      "output": "う",
+      "nextInput": []
+    },
+    {
+      "input": [{ "keys": ["S"] }],
+      "output": "し",
+      "nextInput": []
+    },
+    {
+      "input": [{ "keys": ["D"] }],
+      "output": "て",
+      "nextInput": []
+    },
+    {
+      "input": [{ "keys": ["F"] }],
+      "output": "け",
+      "nextInput": []
+    },
+    {
+      "input": [{ "keys": ["G"] }],
+      "output": "せ",
+      "nextInput": []
+    },
+    {
+      "input": [{ "keys": ["H"] }],
+      "output": "は",
+      "nextInput": []
+    },
+    {
+      "input": [{ "keys": ["J"] }],
+      "output": "と",
+      "nextInput": []
+    },
+    {
+      "input": [{ "keys": ["K"] }],
+      "output": "き",
+      "nextInput": []
+    },
+    {
+      "input": [{ "keys": ["L"] }],
+      "output": "い",
+      "nextInput": []
+    },
+    {
+      "input": [{ "keys": ["Semicolon"] }],
+      "output": "ん",
+      "nextInput": []
+    },
+    {
+      "input": [{ "keys": ["Z"] }],
+      "output": ".",
+      "nextInput": []
+    },
+    {
+      "input": [{ "keys": ["X"] }],
+      "output": "ひ",
+      "nextInput": []
+    },
+    {
+      "input": [{ "keys": ["C"] }],
+      "output": "す",
+      "nextInput": []
+    },
+    {
+      "input": [{ "keys": ["V"] }],
+      "output": "ふ",
+      "nextInput": []
+    },
+    {
+      "input": [{ "keys": ["B"] }],
+      "output": "へ",
+      "nextInput": []
+    },
+    {
+      "input": [{ "keys": ["N"] }],
+      "output": "め",
+      "nextInput": []
+    },
+    {
+      "input": [{ "keys": ["M"] }],
+      "output": "そ",
+      "nextInput": []
+    },
+    {
+      "input": [{ "keys": ["Comma"] }],
+      "output": "ね",
+      "nextInput": []
+    },
+    {
+      "input": [{ "keys": ["Period"] }],
+      "output": "ほ",
+      "nextInput": []
+    },
+    {
+      "input": [{ "keys": ["Digit1", "Lang2"] }],
+      "output": "?",
+      "nextInput": []
+    },
+    {
+      "input": [{ "keys": ["Digit2", "Lang2"] }],
+      "output": "/",
+      "nextInput": []
+    },
+    {
+      "input": [{ "keys": ["Digit3", "Lang2"] }],
+      "output": "~",
+      "nextInput": []
+    },
+    {
+      "input": [{ "keys": ["Digit4", "Lang2"] }],
+      "output": "[",
+      "nextInput": []
+    },
+    {
+      "input": [{ "keys": ["Digit5", "Lang2"] }],
+      "output": "]",
+      "nextInput": []
+    },
+    {
+      "input": [{ "keys": ["Digit6", "Lang1"] }],
+      "output": "[",
+      "nextInput": []
+    },
+    {
+      "input": [{ "keys": ["Digit7", "Lang1"] }],
+      "output": "]",
+      "nextInput": []
+    },
+    {
+      "input": [{ "keys": ["Digit8", "Lang1"] }],
+      "output": "(",
+      "nextInput": []
+    },
+    {
+      "input": [{ "keys": ["Digit9", "Lang1"] }],
+      "output": ")",
+      "nextInput": []
+    },
+    {
+      "input": [{ "keys": ["Q", "Lang2"] }],
+      "output": "ぁ",
+      "nextInput": []
+    },
+    {
+      "input": [{ "keys": ["W", "Lang2"] }],
+      "output": "え",
+      "nextInput": []
+    },
+    {
+      "input": [{ "keys": ["E", "Lang2"] }],
+      "output": "り",
+      "nextInput": []
+    },
+    {
+      "input": [{ "keys": ["R", "Lang2"] }],
+      "output": "ゃ",
+      "nextInput": []
+    },
+    {
+      "input": [{ "keys": ["T", "Lang2"] }],
+      "output": "れ",
+      "nextInput": []
+    },
+    {
+      "input": [{ "keys": ["Y", "Lang1"] }],
+      "output": "よ",
+      "nextInput": []
+    },
+    {
+      "input": [{ "keys": ["U", "Lang1"] }],
+      "output": "に",
+      "nextInput": []
+    },
+    {
+      "input": [{ "keys": ["I", "Lang1"] }],
+      "output": "る",
+      "nextInput": []
+    },
+    {
+      "input": [{ "keys": ["O", "Lang1"] }],
+      "output": "ま",
+      "nextInput": []
+    },
+    {
+      "input": [{ "keys": ["P", "Lang1"] }],
+      "output": "ぇ",
+      "nextInput": []
+    },
+    {
+      "input": [{ "keys": ["A", "Lang2"] }],
+      "output": "を",
+      "nextInput": []
+    },
+    {
+      "input": [{ "keys": ["S", "Lang2"] }],
+      "output": "あ",
+      "nextInput": []
+    },
+    {
+      "input": [{ "keys": ["D", "Lang2"] }],
+      "output": "な",
+      "nextInput": []
+    },
+    {
+      "input": [{ "keys": ["F", "Lang2"] }],
+      "output": "ゅ",
+      "nextInput": []
+    },
+    {
+      "input": [{ "keys": ["G", "Lang2"] }],
+      "output": "も",
+      "nextInput": []
+    },
+    {
+      "input": [{ "keys": ["H", "Lang1"] }],
+      "output": "み",
+      "nextInput": []
+    },
+    {
+      "input": [{ "keys": ["J", "Lang1"] }],
+      "output": "お",
+      "nextInput": []
+    },
+    {
+      "input": [{ "keys": ["K", "Lang1"] }],
+      "output": "の",
+      "nextInput": []
+    },
+    {
+      "input": [{ "keys": ["L", "Lang1"] }],
+      "output": "ょ",
+      "nextInput": []
+    },
+    {
+      "input": [{ "keys": ["Semicolon", "Lang1"] }],
+      "output": "っ",
+      "nextInput": []
+    },
+    {
+      "input": [{ "keys": ["Z", "Lang2"] }],
+      "output": "ぅ",
+      "nextInput": []
+    },
+    {
+      "input": [{ "keys": ["X", "Lang2"] }],
+      "output": "-",
+      "nextInput": []
+    },
+    {
+      "input": [{ "keys": ["C", "Lang2"] }],
+      "output": "ろ",
+      "nextInput": []
+    },
+    {
+      "input": [{ "keys": ["V", "Lang2"] }],
+      "output": "や",
+      "nextInput": []
+    },
+    {
+      "input": [{ "keys": ["B", "Lang2"] }],
+      "output": "ぃ",
+      "nextInput": []
+    },
+    {
+      "input": [{ "keys": ["N", "Lang1"] }],
+      "output": "ぬ",
+      "nextInput": []
+    },
+    {
+      "input": [{ "keys": ["M", "Lang1"] }],
+      "output": "ゆ",
+      "nextInput": []
+    },
+    {
+      "input": [{ "keys": ["Semicolon", "Lang1"] }],
+      "output": "む",
+      "nextInput": []
+    },
+    {
+      "input": [{ "keys": ["Period", "Lang1"] }],
+      "output": "わ",
+      "nextInput": []
+    },
+    {
+      "input": [{ "keys": ["Slash", "Lang1"] }],
+      "output": "ぉ",
+      "nextInput": []
+    },
+    {
+      "input": [{ "keys": ["W", "Lang1"] }],
+      "output": "が",
+      "nextInput": []
+    },
+    {
+      "input": [{ "keys": ["E", "Lang1"] }],
+      "output": "だ",
+      "nextInput": []
+    },
+    {
+      "input": [{ "keys": ["R", "Lang1"] }],
+      "output": "ご",
+      "nextInput": []
+    },
+    {
+      "input": [{ "keys": ["T", "Lang1"] }],
+      "output": "ざ",
+      "nextInput": []
+    },
+    {
+      "input": [{ "keys": ["Y", "Lang2"] }],
+      "output": "ぱ",
+      "nextInput": []
+    },
+    {
+      "input": [{ "keys": ["U", "Lang2"] }],
+      "output": "ぢ",
+      "nextInput": []
+    },
+    {
+      "input": [{ "keys": ["I", "Lang2"] }],
+      "output": "ぐ",
+      "nextInput": []
+    },
+    {
+      "input": [{ "keys": ["O", "Lang2"] }],
+      "output": "づ",
+      "nextInput": []
+    },
+    {
+      "input": [{ "keys": ["P", "Lang2"] }],
+      "output": "ぴ",
+      "nextInput": []
+    },
+    {
+      "input": [{ "keys": ["A", "Lang1"] }],
+      "output": "ヴ",
+      "nextInput": []
+    },
+    {
+      "input": [{ "keys": ["S", "Lang1"] }],
+      "output": "じ",
+      "nextInput": []
+    },
+    {
+      "input": [{ "keys": ["D", "Lang1"] }],
+      "output": "で",
+      "nextInput": []
+    },
+    {
+      "input": [{ "keys": ["F", "Lang1"] }],
+      "output": "げ",
+      "nextInput": []
+    },
+    {
+      "input": [{ "keys": ["G", "Lang1"] }],
+      "output": "ぜ",
+      "nextInput": []
+    },
+    {
+      "input": [{ "keys": ["H", "Lang2"] }],
+      "output": "ば",
+      "nextInput": []
+    },
+    {
+      "input": [{ "keys": ["J", "Lang2"] }],
+      "output": "ど",
+      "nextInput": []
+    },
+    {
+      "input": [{ "keys": ["K", "Lang2"] }],
+      "output": "ぎ",
+      "nextInput": []
+    },
+    {
+      "input": [{ "keys": ["L", "Lang2"] }],
+      "output": "ぽ",
+      "nextInput": []
+    },
+    {
+      "input": [{ "keys": ["X", "Lang1"] }],
+      "output": "び",
+      "nextInput": []
+    },
+    {
+      "input": [{ "keys": ["C", "Lang1"] }],
+      "output": "ず",
+      "nextInput": []
+    },
+    {
+      "input": [{ "keys": ["V", "Lang1"] }],
+      "output": "ぶ",
+      "nextInput": []
+    },
+    {
+      "input": [{ "keys": ["B", "Lang1"] }],
+      "output": "べ",
+      "nextInput": []
+    },
+    {
+      "input": [{ "keys": ["N", "Lang2"] }],
+      "output": "ぷ",
+      "nextInput": []
+    },
+    {
+      "input": [{ "keys": ["M", "Lang2"] }],
+      "output": "ぞ",
+      "nextInput": []
+    },
+    {
+      "input": [{ "keys": ["Semicolon", "Lang2"] }],
+      "output": "ぺ",
+      "nextInput": []
+    },
+    {
+      "input": [{ "keys": ["Period", "Lang2"] }],
+      "output": "ぼ",
+      "nextInput": []
+    }
+  ]
+}

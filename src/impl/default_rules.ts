@@ -5,6 +5,7 @@ import { mergeRule } from "../core/rule_merger";
 import { alphaNumericRule } from "./alpha_numeric_rule";
 import { loadFromJsonConfig } from "./json_config_loader";
 import jis_kana from "../assets/jis_kana.json";
+import nicola from "../assets/nicola.json";
 
 export const rules = {
   tomoemon_azik: mergeRule(
@@ -16,4 +17,5 @@ export const rules = {
     loadFromJsonConfig("jis-kana", jis_kana),
     alphaNumericRule
   ),
+  nicola: mergeRule(loadFromJsonConfig("nicola", nicola), alphaNumericRule),
 };

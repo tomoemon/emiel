@@ -1,5 +1,7 @@
-import { AndModifier, ModifierGroup, Rule, RuleEntry } from "../core/rule";
+import { AndModifier, ModifierGroup } from "../core/modifier";
+import { Rule, RuleEntry } from "../core/rule";
 import { RuleStroke } from "../core/stroke";
+import { product } from "../utils/iter";
 import { VirtualKey, getKeyFromString } from "./virtual_key";
 
 /*
@@ -15,17 +17,17 @@ import { VirtualKey, getKeyFromString } from "./virtual_key";
     },
 */
 
-type input = {
+type stroke = {
   keys: string[];
-  modifiers: string[];
+  modifiers?: string[];
 };
 type jsonSchema = {
-  options: { extendablePrefixCommon?: boolean };
+  options?: { extendablePrefixCommon?: boolean };
   modifierGroups: { name: string; keys: string[] }[];
   entries: {
-    input: input[];
+    input: stroke[];
     output: string;
-    nextInput: input[];
+    nextInput: stroke[];
     extendablePrefixCommon?: boolean;
   }[];
 };
@@ -44,10 +46,10 @@ function loadModifierGroups(
   return modifierGroups;
 }
 
-function loadInput(
-  json: input,
+function loadStroke(
+  json: stroke,
   modifierGroupMap: Map<string, ModifierGroup<VirtualKey>>
-): RuleStroke<VirtualKey> {
+): RuleStroke<VirtualKey>[] {
   const keys: VirtualKey[] = [];
   json.keys.forEach((key) => {
     keys.push(getKeyFromString(key));
@@ -55,23 +57,69 @@ function loadInput(
   if (keys.length === 0) {
     throw new Error("empty keys: " + json.toString());
   }
-  const modifiers: ModifierGroup<VirtualKey>[] = [];
-  json.modifiers.forEach((modifierName) => {
-    const modifier = modifierGroupMap.get(modifierName);
-    if (!modifier) {
-      throw new Error("undefined modifier: " + modifierName);
-    }
-    modifiers.push(modifier);
+  return keys.map((key) => {
+    const multipleStrokeModifier = new ModifierGroup<VirtualKey>(
+      keys.filter((v) => v !== key)
+    );
+    const modifiers: ModifierGroup<VirtualKey>[] = [];
+    json.modifiers?.forEach((modifierName) => {
+      const modifier = modifierGroupMap.get(modifierName);
+      if (!modifier) {
+        throw new Error("undefined modifier: " + modifierName);
+      }
+      modifiers.push(modifier);
+    });
+    const unnecesaryModifiers = Array.from(modifierGroupMap.values()).filter(
+      (v) => !modifiers.includes(v)
+    );
+    return new RuleStroke<VirtualKey>(
+      key,
+      new AndModifier(...modifiers, multipleStrokeModifier),
+      unnecesaryModifiers
+    );
   });
-  const unnecesaryModifiers = Array.from(modifierGroupMap.values()).filter(
-    (v) => !modifiers.includes(v)
-  );
-  // 同時打ちをサポートするタイミングでここを変更する
-  return new RuleStroke<VirtualKey>(
-    keys[0],
-    new AndModifier(modifiers),
-    unnecesaryModifiers
-  );
+}
+
+/**
+ * input の配列を読み込み、RuleStroke の配列の配列を返す。
+ *
+ * eg. 単打の連続の場合は1要素の配列を返す
+ *    input: [{keys: ["A"]},{keys: ["B"]}]
+ *    output: [[RuleStroke(A),RuleStroke(B)]]
+ * eg. 同時打ちの場合は相互にモディファイアとするRuleStrokeを生成し複数要素の配列を返す
+ *    input: [{keys: ["A","B"]}]
+ *    output: [
+ *              [RuleStroke(A+mod(B))],
+ *              [RuleStroke(B+mod(A))],
+ *            ]
+ * eg. 3つ同時打ちの場合は相互にモディファイアとするRuleStrokeを生成し複数要素の配列を返す
+ *    input: [{keys: ["A","B","C"]}]
+ *    output: [
+ *              [RuleStroke(A+mod(B)+mod(C))],
+ *              [RuleStroke(B+mod(A)+mod(C))],
+ *              [RuleStroke(C+mod(A)+mod(B))],
+ *            ]
+ * eg. 同時打ちの打鍵列の全組み合わせで相互にモディファイアとするRuleStrokeを生成し複数要素の配列を返す
+ *    input: [{keys: ["A","B"]}, {keys: ["C","D"]}]
+ *    output: [
+ *              [RuleStroke(A+mod(B)),RuleStroke(C+mod(D))],
+ *              [RuleStroke(B+mod(A)),RuleStroke(C+mod(D))],
+ *              [RuleStroke(A+mod(B)),RuleStroke(D+mod(C))],
+ *              [RuleStroke(B+mod(A)),RuleStroke(D+mod(C))],
+ *            ]
+ */
+function loadInput(
+  input: stroke[],
+  modifierGroupMap: Map<string, ModifierGroup<VirtualKey>>
+): RuleStroke<VirtualKey>[][] {
+  /**
+   * aとbの同時打鍵の後に、cとdの同時打鍵が必要な場合
+   * input: [[a,b], [c,d]]
+   * strokeGroups: [[a+mod(b),b+mod(a)], [c+mod(d),d+mod(c)]]
+   */
+  const strokeGroups = input.map((v) => loadStroke(v, modifierGroupMap));
+  // strokeGroups の直積を作って返す
+  return Array.from(product(strokeGroups));
 }
 
 function loadEntries(
@@ -80,19 +128,22 @@ function loadEntries(
 ): RuleEntry<VirtualKey>[] {
   const entries: RuleEntry<VirtualKey>[] = [];
   jsonConfig.entries.forEach((v) => {
-    const input = v.input.map((i) => loadInput(i, modifierGroupMap));
+    const inputExtended = loadInput(v.input, modifierGroupMap);
     const output = v.output;
-    const nextInput = v.nextInput.map((i) => loadInput(i, modifierGroupMap));
-    entries.push(
-      new RuleEntry(
-        input,
-        output,
-        nextInput,
-        v.extendablePrefixCommon ??
-          jsonConfig.options.extendablePrefixCommon ??
-          false
-      )
-    );
+    // 次の入力として使用するものは具体化されたもの1つだけなので、配列の先頭を取得する
+    const nextInput = loadInput(v.nextInput, modifierGroupMap)[0];
+    inputExtended.forEach((input) => {
+      entries.push(
+        new RuleEntry(
+          input,
+          output,
+          nextInput,
+          v.extendablePrefixCommon ??
+            jsonConfig.options?.extendablePrefixCommon ??
+            false
+        )
+      );
+    });
   });
   return entries;
 }

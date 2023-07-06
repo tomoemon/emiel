@@ -1,13 +1,10 @@
-import {
-  Comparable,
-  ModifierGroup,
-  NullModifier,
-  Rule,
-  RuleEntry,
-} from "./rule";
+import { Comparable, Rule, RuleEntry } from "./rule";
 import { validateRule } from "./rule_validator";
 import { expect, test } from "vitest";
 import { RuleStroke } from "./stroke";
+import { AndModifier, ModifierGroup } from "./modifier";
+
+const nullModifier = new AndModifier<Key>();
 
 class Key implements Comparable<Key> {
   constructor(public readonly code: string) {}
@@ -27,7 +24,7 @@ test("entry 1つのときに矛盾はない", () => {
     "test-rule",
     [
       new RuleEntry<Key>(
-        [new RuleStroke<Key>(new Key("A"), new NullModifier(), modifierGroups)],
+        [new RuleStroke<Key>(new Key("A"), nullModifier, modifierGroups)],
         "あ",
         [],
         false
@@ -46,14 +43,14 @@ test("異なる output を持つ時、異なる unnecesary modifier があって
     "test-rule",
     [
       new RuleEntry<Key>(
-        [new RuleStroke<Key>(new Key("A"), new NullModifier(), modifierGroups)],
+        [new RuleStroke<Key>(new Key("A"), nullModifier, modifierGroups)],
         "あ",
         [],
         false
       ),
       new RuleEntry<Key>(
         [
-          new RuleStroke<Key>(new Key("A"), new NullModifier(), [
+          new RuleStroke<Key>(new Key("A"), nullModifier, [
             new ModifierGroup<Key>([new Key("ControlLeft")]),
           ]),
         ],
@@ -75,14 +72,14 @@ test("同じ output を持つ時、異なる unnecesary modifier があると矛
     "test-rule",
     [
       new RuleEntry<Key>(
-        [new RuleStroke<Key>(new Key("A"), new NullModifier(), modifierGroups)],
+        [new RuleStroke<Key>(new Key("A"), nullModifier, modifierGroups)],
         "あ",
         [],
         false
       ),
       new RuleEntry<Key>(
         [
-          new RuleStroke<Key>(new Key("A"), new NullModifier(), [
+          new RuleStroke<Key>(new Key("A"), nullModifier, [
             new ModifierGroup<Key>([new Key("ControlLeft")]),
           ]),
         ],
