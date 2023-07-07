@@ -1,7 +1,6 @@
 {
-  "options": {
-    "extendablePrefixCommon": false
-  },
+  "options": {},
+  "extendCommonPrefixEntry": false,
   "modifierGroups": [
     {
       "name": "$shift",

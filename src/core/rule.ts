@@ -26,7 +26,7 @@ export class RuleEntry<T extends Comparable<T>> {
     readonly output: string,
     readonly nextInput: RuleStroke<T>[],
     // 共通プレフィックスエントリを展開するかどうか
-    readonly extendablePrefixCommon: boolean
+    readonly extendCommonPrefixCommonEntry: boolean
   ) {}
   get hasNextInput(): boolean {
     return this.nextInput.length > 0;
@@ -38,7 +38,7 @@ export class RuleEntry<T extends Comparable<T>> {
       this.output === other.output &&
       this.nextInput.length === other.nextInput.length &&
       this.nextInput.every((v, i) => v.equals(other.nextInput[i])) &&
-      this.extendablePrefixCommon === other.extendablePrefixCommon
+      this.extendCommonPrefixCommonEntry === other.extendCommonPrefixCommonEntry
     );
   }
   isConnetableAfter(nextInputs: RuleStroke<T>[]): boolean {

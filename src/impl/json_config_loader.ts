@@ -21,25 +21,45 @@ type stroke = {
   keys: string[];
   modifiers?: string[];
 };
+type entry = {
+  input: stroke[];
+  output: string;
+  nextInput: stroke[];
+  extendCommonPrefixEntry?: boolean;
+};
+type modifierGroup = {
+  name: string;
+  keys: string[];
+};
+type options = {
+  aliasKeys?: { [key: string]: string };
+};
 type jsonSchema = {
-  options?: { extendablePrefixCommon?: boolean };
-  modifierGroups: { name: string; keys: string[] }[];
-  entries: {
-    input: stroke[];
-    output: string;
-    nextInput: stroke[];
-    extendablePrefixCommon?: boolean;
-  }[];
+  options?: options;
+  extendCommonPrefixEntry: boolean;
+  modifierGroups: modifierGroup[];
+  entries: entry[];
 };
 
+function getKeyFromStringWithAliasKeysMap(
+  key: string,
+  aliasKeysMap: Map<string, VirtualKey>
+): VirtualKey {
+  if (aliasKeysMap.has(key)) {
+    return aliasKeysMap.get(key)!;
+  }
+  return getKeyFromString(key);
+}
+
 function loadModifierGroups(
-  json: jsonSchema
+  jsonModifierGroups: modifierGroup[],
+  aliasKeysMap: Map<string, VirtualKey>
 ): Map<string, ModifierGroup<VirtualKey>> {
   const modifierGroups = new Map<string, ModifierGroup<VirtualKey>>();
-  json.modifierGroups.forEach((v) => {
+  jsonModifierGroups.forEach((v) => {
     const modifiers: VirtualKey[] = [];
     v.keys.forEach((key) => {
-      modifiers.push(getKeyFromString(key));
+      modifiers.push(getKeyFromStringWithAliasKeysMap(key, aliasKeysMap));
     });
     modifierGroups.set(v.name, new ModifierGroup(modifiers));
   });
@@ -48,11 +68,12 @@ function loadModifierGroups(
 
 function loadStroke(
   json: stroke,
-  modifierGroupMap: Map<string, ModifierGroup<VirtualKey>>
+  modifierGroupMap: Map<string, ModifierGroup<VirtualKey>>,
+  aliasKeysMap: Map<string, VirtualKey>
 ): RuleStroke<VirtualKey>[] {
   const keys: VirtualKey[] = [];
   json.keys.forEach((key) => {
-    keys.push(getKeyFromString(key));
+    keys.push(getKeyFromStringWithAliasKeysMap(key, aliasKeysMap));
   });
   if (keys.length === 0) {
     throw new Error("empty keys: " + json.toString());
@@ -110,37 +131,40 @@ function loadStroke(
  */
 function loadInput(
   input: stroke[],
-  modifierGroupMap: Map<string, ModifierGroup<VirtualKey>>
+  modifierGroupMap: Map<string, ModifierGroup<VirtualKey>>,
+  aliasKeysMap: Map<string, VirtualKey>
 ): RuleStroke<VirtualKey>[][] {
   /**
    * aとbの同時打鍵の後に、cとdの同時打鍵が必要な場合
    * input: [[a,b], [c,d]]
    * strokeGroups: [[a+mod(b),b+mod(a)], [c+mod(d),d+mod(c)]]
    */
-  const strokeGroups = input.map((v) => loadStroke(v, modifierGroupMap));
+  const strokeGroups = input.map((v) =>
+    loadStroke(v, modifierGroupMap, aliasKeysMap)
+  );
   // strokeGroups の直積を作って返す
   return Array.from(product(strokeGroups));
 }
 
 function loadEntries(
-  jsonConfig: jsonSchema,
-  modifierGroupMap: Map<string, ModifierGroup<VirtualKey>>
+  jsonEntries: entry[],
+  jsonExtendablePrefixCommon: boolean,
+  modifierGroupMap: Map<string, ModifierGroup<VirtualKey>>,
+  aliasKeysMap: Map<string, VirtualKey>
 ): RuleEntry<VirtualKey>[] {
   const entries: RuleEntry<VirtualKey>[] = [];
-  jsonConfig.entries.forEach((v) => {
-    const inputExtended = loadInput(v.input, modifierGroupMap);
+  jsonEntries.forEach((v) => {
+    const inputExtended = loadInput(v.input, modifierGroupMap, aliasKeysMap);
     const output = v.output;
     // 次の入力として使用するものは具体化されたもの1つだけなので、配列の先頭を取得する
-    const nextInput = loadInput(v.nextInput, modifierGroupMap)[0];
+    const nextInput = loadInput(v.nextInput, modifierGroupMap, aliasKeysMap)[0];
     inputExtended.forEach((input) => {
       entries.push(
         new RuleEntry(
           input,
           output,
           nextInput,
-          v.extendablePrefixCommon ??
-            jsonConfig.options?.extendablePrefixCommon ??
-            false
+          v.extendCommonPrefixEntry ?? jsonExtendablePrefixCommon ?? false
         )
       );
     });
@@ -148,21 +172,41 @@ function loadEntries(
   return entries;
 }
 
-export function loadFromJsonConfigText(
-  name: string,
-  jsonText: string
-): Rule<VirtualKey> {
-  const jsonConfig = JSON.parse(jsonText);
-  const modifierGroupMap = loadModifierGroups(jsonConfig);
-  const entries = loadEntries(jsonConfig, modifierGroupMap);
-  return new Rule(name, entries, Array.from(modifierGroupMap.values()));
+function loadAliasKeys(jsonOptions?: options): Map<string, VirtualKey> {
+  const aliasKeys = jsonOptions?.aliasKeys;
+  if (!aliasKeys) {
+    return new Map();
+  }
+  const aliasMap = new Map<string, VirtualKey>();
+  Object.entries(aliasKeys).forEach(([aliasName, key]) => {
+    const vKey = getKeyFromString(key);
+    aliasMap.set(aliasName, vKey);
+  });
+  return aliasMap;
 }
 
 export function loadFromJsonConfig(
   name: string,
   jsonConfig: jsonSchema
 ): Rule<VirtualKey> {
-  const modifierGroupMap = loadModifierGroups(jsonConfig);
-  const entries = loadEntries(jsonConfig, modifierGroupMap);
+  const aliasKeysMap = loadAliasKeys(jsonConfig.options);
+  const modifierGroupMap = loadModifierGroups(
+    jsonConfig.modifierGroups,
+    aliasKeysMap
+  );
+  const entries = loadEntries(
+    jsonConfig.entries,
+    jsonConfig.extendCommonPrefixEntry,
+    modifierGroupMap,
+    aliasKeysMap
+  );
   return new Rule(name, entries, Array.from(modifierGroupMap.values()));
+}
+
+export function loadFromJsonConfigText(
+  name: string,
+  jsonText: string
+): Rule<VirtualKey> {
+  const jsonConfig = JSON.parse(jsonText) as jsonSchema;
+  return loadFromJsonConfig(name, jsonConfig);
 }

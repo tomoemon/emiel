@@ -11,10 +11,10 @@ function recursiveExtendCommontPrefixOverlappedEntries<T extends Comparable<T>>(
   entries: RuleEntry<T>[]
 ): RuleEntry<T>[] {
   let extendableEntries = entries.filter(
-    (entry) => entry.extendablePrefixCommon
+    (entry) => entry.extendCommonPrefixCommonEntry
   );
   const unextendableEntries = entries.filter(
-    (entry) => !entry.extendablePrefixCommon
+    (entry) => !entry.extendCommonPrefixCommonEntry
   );
   while (true) {
     const { extendRequiredEntries, extendedNewEntries } =

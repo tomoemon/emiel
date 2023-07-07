@@ -2,6 +2,7 @@ import { RuleEntry } from "../core/rule";
 import { rules } from "./default_rules";
 import { expect, test } from "vitest";
 import { VirtualKey } from "./virtual_key";
+import { prettyPrint } from "@base2/pretty-print-object";
 
 function entryToString(entry: RuleEntry<VirtualKey>): string {
   return (
@@ -23,5 +24,10 @@ test("load google ime roman rule", () => {
 
 test("load jis kana rule", () => {
   const rule = rules.jis_kana;
-  expect(rule.entries.length).toBe(177);
+  expect(rule.entries.length).toBe(178);
+});
+
+test("load nicola rule", () => {
+  const rule = rules.nicola;
+  expect(rule.entries.length).toBe(255);
 });
