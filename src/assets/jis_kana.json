@@ -562,6 +562,16 @@
     {
       "input": [
         {
+          "keys": ["Quote"],
+          "modifiers": ["$shift"]
+        }
+      ],
+      "output": "ヶ",
+      "nextInput": []
+    },
+    {
+      "input": [
+        {
           "keys": ["Z"],
           "modifiers": ["$shift"]
         }

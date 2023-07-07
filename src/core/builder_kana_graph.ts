@@ -94,6 +94,10 @@ export function buildKanaNode<T extends Comparable<T>>(
   const kanaNodes = [...kanaText].map((_, i) => new KanaNode<T>(i, [], []));
   const endNode = new KanaNode<T>(kanaText.length, [], []); // 終端ノード
   const kanaNodesWithEnd = [...kanaNodes, endNode];
+  if (kanaText.length === 0) {
+    // 空文字列の場合は終端ノードのみを返す
+    return [endNode, endNode];
+  }
   /*
   kanaText: あいうえお
   に対して
@@ -123,6 +127,12 @@ export function buildKanaNode<T extends Comparable<T>>(
     }
   }
   eraseInvalidEdges(kanaNodes);
+  if (kanaNodes[0].nextEdges.length === 0) {
+    // 初期ノードから遷移する候補がない場合はオートマトン生成に失敗しているのでエラーを返す
+    throw new Error(
+      `Rule ${rule.name} can't generate an automaton for "${kanaText}"`
+    );
+  }
   return [kanaNodes[0], endNode];
 }
 
