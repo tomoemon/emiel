@@ -2,6 +2,7 @@ import { AndModifier, ModifierGroup } from "../core/modifier";
 import { Rule, RuleEntry } from "../core/rule";
 import { RuleStroke } from "../core/stroke";
 import { alphaNumericEntriesMap } from "./alpha_numeric_rule";
+import { defaultKanaNormalize } from "./char_normalizer";
 import { VirtualKey, VirtualKeys } from "./virtual_key";
 
 const nullModifier = new AndModifier<VirtualKey>();
@@ -75,7 +76,7 @@ export function loadFromGoogleImeText(
       )
     );
   }
-  return new Rule(name, entries, allAvailableModifiers);
+  return new Rule(name, entries, allAvailableModifiers, defaultKanaNormalize);
 }
 
 export function toKeyCodeStrokeFromKeyChar(

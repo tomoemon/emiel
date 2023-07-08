@@ -34,7 +34,8 @@ export function mergeRule<T extends Comparable<T>>(
   const newRule = new Rule<T>(
     thisRule.name,
     [...thisRule.entries, ...toBeAddedEntries],
-    newModifiers
+    newModifiers,
+    (v: string) => other.normalize(thisRule.normalize(v))
   );
   validateRule(newRule);
   return newRule;

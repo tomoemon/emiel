@@ -2,6 +2,8 @@ import { ModifierGroup } from "./modifier";
 import { extendCommonPrefixOverlappedEntriesDeeply } from "./rule_extender";
 import { RuleStroke } from "./stroke";
 
+export type normalizerFunc = (value: string) => string;
+
 /**
  * 比較可能な型を表すインターフェース
  */
@@ -97,7 +99,8 @@ export class Rule<T extends Comparable<T>> {
     readonly name: string,
     readonly entries: RuleEntry<T>[],
     // このルールの中で使われうる Modifier のリスト
-    readonly modifierGroups: ModifierGroup<T>[]
+    readonly modifierGroups: ModifierGroup<T>[],
+    readonly normalize: normalizerFunc
   ) {
     this.entries = extendCommonPrefixOverlappedEntriesDeeply(entries);
   }

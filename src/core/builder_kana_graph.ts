@@ -1,3 +1,4 @@
+import { setDefault, setDefaultFunc } from "../utils/map";
 import { Comparable, Rule, RuleEntry } from "./rule";
 import { RuleStroke } from "./stroke";
 
@@ -90,11 +91,14 @@ export function buildKanaNode<T extends Comparable<T>>(
   rule: Rule<T>,
   kanaText: string
 ): [KanaNode<T>, KanaNode<T>] {
+  const normalizedKanaText = rule.normalize(kanaText);
   // かなテキスト1文字1文字に対応する KanaNode を作成する
-  const kanaNodes = [...kanaText].map((_, i) => new KanaNode<T>(i, [], []));
-  const endNode = new KanaNode<T>(kanaText.length, [], []); // 終端ノード
+  const kanaNodes = [...normalizedKanaText].map(
+    (_, i) => new KanaNode<T>(i, [], [])
+  );
+  const endNode = new KanaNode<T>(normalizedKanaText.length, [], []); // 終端ノード
   const kanaNodesWithEnd = [...kanaNodes, endNode];
-  if (kanaText.length === 0) {
+  if (normalizedKanaText.length === 0) {
     // 空文字列の場合は終端ノードのみを返す
     return [endNode, endNode];
   }
@@ -107,11 +111,17 @@ export function buildKanaNode<T extends Comparable<T>>(
   i=2 あい の末尾から手前にチェック
   i=1 あ の末尾から手前にチェック
   */
-  for (let i = kanaText.length; i > 0; i--) {
-    const kanaPrefix = kanaText.substring(0, i);
+  const normalizedEntryOutputMap: Map<RuleEntry<T>, string> = new Map();
+  for (let i = normalizedKanaText.length; i > 0; i--) {
+    const kanaPrefix = normalizedKanaText.substring(0, i);
     const nextNode = kanaNodesWithEnd[i];
     for (let entry of rule.entries) {
-      if (kanaPrefix.endsWith(entry.output)) {
+      const normalizedEntryOutput = setDefaultFunc(
+        normalizedEntryOutputMap,
+        entry,
+        () => rule.normalize(entry.output)
+      );
+      if (kanaPrefix.endsWith(normalizedEntryOutput)) {
         const previousNode =
           kanaNodesWithEnd[kanaPrefix.length - entry.output.length];
         if (entry.hasNextInput) {
@@ -126,9 +136,11 @@ export function buildKanaNode<T extends Comparable<T>>(
       }
     }
   }
+  // startNode から終端ノードまでの間で、終端ノードにつながらない Edge を削除する
   eraseInvalidEdges(kanaNodes);
+
+  // 初期ノードから遷移する候補がない場合はオートマトン生成に失敗したらエラーを返す
   if (kanaNodes[0].nextEdges.length === 0) {
-    // 初期ノードから遷移する候補がない場合はオートマトン生成に失敗しているのでエラーを返す
     throw new Error(
       `Rule ${rule.name} can't generate an automaton for "${kanaText}"`
     );

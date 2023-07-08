@@ -60,7 +60,8 @@ const defaultRule = new Rule<Key>(
       true
     ),
   ],
-  []
+  [],
+  (v) => v
 );
 
 test("test buildKanaNode: empty text", () => {

@@ -1,6 +1,7 @@
 import { AndModifier, ModifierGroup } from "../core/modifier";
 import { Rule, RuleEntry } from "../core/rule";
 import { RuleStroke } from "../core/stroke";
+import { defaultAlphaNumericNormalize } from "./char_normalizer";
 import { VirtualKey, VirtualKeys } from "./virtual_key";
 
 const nullModifier = new AndModifier<VirtualKey>();
@@ -522,5 +523,6 @@ export const alphaNumericEntriesMap = new Map<string, RuleEntry<VirtualKey>>(
 export const alphaNumericRule = new Rule<VirtualKey>(
   "alpha-numeric",
   Array.from(alphaNumericEntriesMap.values()),
-  allAvailableModifiers
+  allAvailableModifiers,
+  defaultAlphaNumericNormalize
 );

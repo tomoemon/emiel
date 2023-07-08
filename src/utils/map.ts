@@ -6,3 +6,16 @@ export function setDefault<T, U>(map: Map<T, U>, key: T, value: U): U {
   map.set(key, value);
   return value;
 }
+
+export function setDefaultFunc<T, U>(
+  map: Map<T, U>,
+  key: T,
+  valueFunc: () => U
+): U {
+  if (map.has(key)) {
+    return map.get(key) as U;
+  }
+  const value = valueFunc();
+  map.set(key, value);
+  return value;
+}
