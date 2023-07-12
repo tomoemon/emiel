@@ -701,20 +701,6 @@
           "modifiers": []
         }
       ],
-      "output": "A",
-      "nextInput": []
-    },
-    {
-      "input": [
-        {
-          "keys": ["T"],
-          "modifiers": []
-        },
-        {
-          "keys": ["BracketLeft"],
-          "modifiers": []
-        }
-      ],
       "output": "ぢ",
       "nextInput": []
     },

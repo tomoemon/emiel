@@ -4,7 +4,7 @@ import { Comparable } from "./rule";
 export class ModifierGroup<T extends Comparable<T>> {
   constructor(readonly modifiers: T[]) {}
   accept(state: KeyboardStateReader<T>): boolean {
-    return state.isAnyKeyDowned(this.modifiers);
+    return state.isAnyKeyDowned(...this.modifiers);
   }
   equals(other: ModifierGroup<T>): boolean {
     return (
@@ -27,6 +27,12 @@ export class AndModifier<T extends Comparable<T>> {
   readonly groups: ModifierGroup<T>[];
   constructor(...groups: ModifierGroup<T>[]) {
     this.groups = groups.filter((v) => v.modifiers.length > 0);
+  }
+  get isEmpty(): boolean {
+    return this.groups.length === 0;
+  }
+  has(key: T): boolean {
+    return this.groups.some((v) => v.has(key));
   }
   accept(state: KeyboardStateReader<T>): boolean {
     return this.groups.every((group) => group.accept(state));

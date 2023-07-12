@@ -3,29 +3,39 @@ import * as emiel from "../../../src/index";
 import { useEffect, useState } from "react";
 
 function App() {
-  const [inputted, setInputted] = useState("");
-  const [rest, setRest] = useState("");
+  const words = ["さいりうむ", "しょうがっこう", "すいせいのGUNDAM"];
+  const automatons = words.map((w) =>
+    emiel.buildAutomaton(emiel.rules.roman, w)
+  );
+  let wordIndex = 0;
+  const [guide, setGuide] = useState(
+    new emiel.DefaultGuide(automatons[wordIndex])
+  );
   useEffect(() => {
-    const rule = emiel.rules.nicola;
-    const automaton = emiel.buildAutomaton(rule, "おったabcしゅう");
-    const guide = new emiel.ShortestStrokeGuide(automaton);
-    setRest(guide.restStrokes.map((s) => s.key).join(""));
-    const deactivate = emiel.activate(window, function (e) {
-      if (e.input.type === "keyup") return;
+    const deactivate = emiel.activate(window, (e) => {
       console.log(e);
-      const result = automaton.input(e);
+      const result = automatons[wordIndex].input(e);
       console.log(result);
-      console.log(automaton.currentNode);
-      setInputted(automaton.succeededInputs.map((s) => s.input.key).join(""));
-      setRest(guide.restStrokes.map((s) => s.key.toString()).join(""));
+      console.log(automatons[wordIndex].currentNode);
+      if (result.isFinished) {
+        wordIndex = (wordIndex + 1) % automatons.length;
+        automatons[wordIndex].reset();
+      }
+      setGuide(new emiel.DefaultGuide(automatons[wordIndex]));
     });
     return deactivate;
   }, []);
+
   return (
     <>
-      <h1>Vite + React</h1>
-      <p>{inputted}</p>
-      <p>{rest}</p>
+      <h1>
+        <span style={{ color: "gray" }}>{guide.finishedWordSubstr}</span>{" "}
+        {guide.pendingWordSubstr}
+      </h1>
+      <h1>
+        <span style={{ color: "gray" }}>{guide.finishedKeys}</span>{" "}
+        {guide.pendingKeys}
+      </h1>
     </>
   );
 }

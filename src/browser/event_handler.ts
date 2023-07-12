@@ -30,7 +30,8 @@ export function activate(
       now
     );
     keyboardState.keyup(keyStroke.key);
-    handler(new InputEvent(keyStroke, keyboardState));
+    // keyup は現状の仕様だと基本的に使わないのでイベントを発行しない
+    // handler(new InputEvent(keyStroke, keyboardState));
   };
   target.addEventListener("keydown", keyDownEventHandler);
   target.addEventListener("keyup", keyUpEventHandler);

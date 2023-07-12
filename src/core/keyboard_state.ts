@@ -2,9 +2,9 @@ import { Comparable } from "./rule";
 
 export interface KeyboardStateReader<T extends Comparable<T>> {
   isKeyDowned(key: T): boolean;
-  isAllKeyDowned(keys: T[]): boolean;
-  isAnyKeyDowned(keys: T[]): boolean;
-  findDownedKeys(search: T[]): T[];
+  isAllKeyDowned(...keys: T[]): boolean;
+  isAnyKeyDowned(...keys: T[]): boolean;
+  findDownedKeys(...keys: T[]): T[];
 }
 
 /**
@@ -28,13 +28,13 @@ export class KeyboardState<T extends Comparable<T>>
   isKeyDowned(key: T) {
     return this.downedKeys.indexOf(key) >= 0;
   }
-  isAllKeyDowned(keys: T[]) {
+  isAllKeyDowned(...keys: T[]) {
     return keys.every((key) => this.isKeyDowned(key));
   }
-  isAnyKeyDowned(keys: T[]) {
+  isAnyKeyDowned(...keys: T[]) {
     return keys.some((key) => this.isKeyDowned(key));
   }
-  findDownedKeys(search: T[]): T[] {
-    return search.filter((key) => this.isKeyDowned(key));
+  findDownedKeys(...keys: T[]): T[] {
+    return keys.filter((key) => this.isKeyDowned(key));
   }
 }

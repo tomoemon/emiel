@@ -152,10 +152,10 @@ ryi	りぃ
 ryu	りゅ
 rye	りぇ
 ryo	りょ
-n'	ん
 nn	ん
 n	ん
 xn	ん
+n'	ん
 a	あ
 i	い
 u	う

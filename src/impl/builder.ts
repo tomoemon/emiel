@@ -8,5 +8,5 @@ export function buildAutomaton(
   kanaText: string
 ): Automaton<VirtualKey> {
   const strokeNode = build(rule, kanaText);
-  return new Automaton(strokeNode);
+  return new Automaton(kanaText, strokeNode);
 }
