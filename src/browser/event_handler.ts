@@ -57,8 +57,7 @@ function toVirtualKeyFromEventCode(code: string): VirtualKey {
   }
   return key;
 }
-// Mac + JIS キーボード で取得した場合の code を前提にしている
-// https://www.toptal.com/developers/keycode
+
 const codeToVirtualKey: { [key: string]: VirtualKey } = {
   KeyA: VirtualKeys.A,
   KeyB: VirtualKeys.B,
@@ -121,4 +120,9 @@ const codeToVirtualKey: { [key: string]: VirtualKey } = {
   Escape: VirtualKeys.Escape,
   Lang2: VirtualKeys.Lang2,
   Lang1: VirtualKeys.Lang1,
+  NonConvert: VirtualKeys.Lang2, // Windows
+  Convert: VirtualKeys.Lang1, // Windows
+  KanaMode: VirtualKeys.Lang1, // Windows
+  OSLeft: VirtualKeys.MetaLeft, // Gecko
+  OSRight: VirtualKeys.MetaRight, // Gecko
 };

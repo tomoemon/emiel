@@ -1,6 +1,10 @@
 import { expect, test } from "vitest";
-import { alphaNumericRule } from "./alpha_numeric_rule";
+import { getAlphaNumericRuleByLayout } from "./alpha_numeric_rule";
+import { getKeyboardLayout } from "./default_keyboard_layout";
 
 test("import alphaNumericRule", () => {
-  expect(alphaNumericRule.entries.length).toBe(95);
+  const alphaNumericRule = getAlphaNumericRuleByLayout(
+    getKeyboardLayout("qwerty-jis")
+  );
+  expect(alphaNumericRule.entries.length).toBe(96);
 });

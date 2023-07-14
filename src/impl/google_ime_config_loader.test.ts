@@ -1,14 +1,23 @@
+import { getKeyboardLayout } from "./default_keyboard_layout";
 import { loadFromGoogleImeText } from "./google_ime_config_loader";
-import { VirtualKeys } from "./virtual_key";
+import { VirtualKeys, getKeyFromString } from "./virtual_key";
 import { expect, test } from "vitest";
 
 test("load google ime empty rule", () => {
-  const rule = loadFromGoogleImeText("test-rule", ``);
+  const rule = loadFromGoogleImeText(
+    "test-rule",
+    ``,
+    getKeyboardLayout("qwerty-jis")
+  );
   expect(rule.entries.length).toBe(0);
 });
 
 test("load google ime single rule", () => {
-  const rule = loadFromGoogleImeText("test-rule", `a	あ`);
+  const rule = loadFromGoogleImeText(
+    "test-rule",
+    `a	あ`,
+    getKeyboardLayout("qwerty-jis")
+  );
   const entries = rule.entries;
   expect(entries.length).toBe(1);
   expect(entries[0].input[0].key).toEqual(VirtualKeys.A);
@@ -17,7 +26,11 @@ test("load google ime single rule", () => {
 });
 
 test("load google ime next rule", () => {
-  const rule = loadFromGoogleImeText("test-rule", `tt	っ	t`);
+  const rule = loadFromGoogleImeText(
+    "test-rule",
+    `tt	っ	t`,
+    getKeyboardLayout("qwerty-jis")
+  );
   const entries = rule.entries;
   expect(entries.length).toBe(1);
   expect(entries[0].input.length).toBe(2);
@@ -33,7 +46,8 @@ test("load google ime double rule", () => {
     "test-rule",
     `a	あ
 i	い
-`
+`,
+    getKeyboardLayout("qwerty-jis")
   );
   const entries = rule.entries;
   expect(entries.length).toBe(2);

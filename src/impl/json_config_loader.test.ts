@@ -4,7 +4,6 @@ import { RuleEntry } from "../core/rule";
 import { VirtualKey, VirtualKeys } from "./virtual_key";
 import { RuleStroke } from "../core/stroke";
 import { AndModifier, ModifierGroup } from "../core/modifier";
-import { prettyPrint } from "@base2/pretty-print-object";
 
 const nullModifier = new AndModifier<VirtualKey>();
 

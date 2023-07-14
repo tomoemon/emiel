@@ -3,6 +3,7 @@ import { loadFromGoogleImeText } from "./google_ime_config_loader";
 import { test } from "vitest";
 import { buildKanaNode } from "../core/builder_kana_graph";
 import { buildStrokeNode } from "../core/builder_stroke_graph";
+import { getKeyboardLayout } from "./default_keyboard_layout";
 
 function showNextNode(node: any) {
   return console.log(
@@ -43,7 +44,8 @@ o	お
 tt	っ	t
 ta	た
 ltu	っ
-`
+`,
+    getKeyboardLayout("qwerty-jis")
   );
   // console.log(rule);
   // const [_, endKanaNode] = buildKanaNode(rule, "おった");
@@ -58,7 +60,8 @@ test("erase invalid connection test", () => {
     `
 a	あ
 x	あいうえ
-`
+`,
+    getKeyboardLayout("qwerty-jis")
   );
   // console.log(prettyPrint(rule, { indent: "    " }));
   /*

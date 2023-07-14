@@ -7,20 +7,24 @@ import cytoscape from "cytoscape";
 import { cyStylesheet } from "./grpah_style";
 import { Automaton } from "../../../src/core/automaton";
 import { VirtualKey } from "../../../src/impl/virtual_key";
+import { KeyboardLayout } from "../../../src/core/keyboard_layout";
 
 cytoscape.use(dagre);
 
 export function TypingGraph(props: {
+  layout: KeyboardLayout<VirtualKey>;
   automaton: Automaton<VirtualKey>;
   ruleName: string;
   onFinished: () => void;
 }) {
   const automaton = props.automaton;
   const graphData = buildGraphData(automaton.currentNode);
-  const [guide, setGuide] = useState(new emiel.DefaultGuide(automaton));
+  const [guide, setGuide] = useState(
+    new emiel.DefaultGuide(props.layout, automaton)
+  );
   let ref: cytoscape.Core;
   useEffect(() => {
-    setGuide(new emiel.DefaultGuide(automaton));
+    setGuide(new emiel.DefaultGuide(props.layout, automaton));
     ref.remove(ref.elements());
     ref.add([...graphData.nodes, ...graphData.edges]);
     ref.layout({ name: "dagre", rankDir: "LR" } as any).run();
@@ -39,7 +43,7 @@ export function TypingGraph(props: {
         const nodeId = graphData.nodesMap.get(automaton.currentNode)!;
         ref.elements(`#${nodeId}`).addClass("miss");
       }
-      setGuide(new emiel.DefaultGuide(automaton));
+      setGuide(new emiel.DefaultGuide(props.layout, automaton));
     });
     return deactivate;
   }, [props.automaton]);

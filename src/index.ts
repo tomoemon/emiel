@@ -3,3 +3,4 @@ export * from "./impl/default_rules";
 export * from "./impl/builder";
 export * from "./browser/event_handler";
 export * from "./impl/default_guide";
+export * from "./impl/default_keyboard_layout";

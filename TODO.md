@@ -19,3 +19,6 @@
 - emiel の公開インターフェース決める
 - いくつかデフォルトの配列定義を追加する
 - github actions で CI 回す
+- 親指シフトのシフトとして使うキーが、Windows では 無変換（NoConvert）、変換（Convert）で、Mac では英数（Lang2）、かな（Lang1）といった具合になる。これを配列定義上でどのように扱うか → ブラウザの code から VirtualKey に変換する際に NonConvert -> Lang2, Convert -> Lang1, KanaMode -> Lang1 にしてしまう
+- RuleStroke に awareKeyboardLayout のようなフラグを付けて、KeyboardLayout を考慮するかどうかを指定できるようにする？（JIS かなは Layout を考慮しない、ローマ字入力は考慮する、みたいなことを制御したい）
+- キーボードの形が違う場合のキーボードレイアウトの扱い

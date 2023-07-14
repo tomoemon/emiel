@@ -1,23 +1,22 @@
 import "./App.css";
 import * as emiel from "../../../src/index";
-import CytoscapeComponent from "react-cytoscapejs";
-import { useEffect, useRef, useState } from "react";
-import { buildGraphData } from "./graph_data";
+import { useEffect, useState } from "react";
 import dagre from "cytoscape-dagre";
-import cytoscape, { use } from "cytoscape";
-import { cyStylesheet } from "./grpah_style";
+import cytoscape from "cytoscape";
 import { TypingGraph } from "./typing_graph";
 import { Automaton } from "../../../src/core/automaton";
 import { VirtualKey } from "../../../src/impl/virtual_key";
 
+const layout = emiel.getKeyboardLayout("dvorak");
+
 cytoscape.use(dagre);
 function App() {
   const rules = [
-    { name: "ローマ字", rule: emiel.rules.roman },
-    { name: "JISかな", rule: emiel.rules.jis_kana },
-    { name: "NICOLA", rule: emiel.rules.nicola },
+    { name: "ローマ字", rule: emiel.rules.get("roman", layout) },
+    { name: "JISかな", rule: emiel.rules.get("jis-kana", layout) },
+    { name: "NICOLA", rule: emiel.rules.get("nicola", layout) },
   ];
-  const words = ["おをひく", "こんとん", "がっこう", "aからz"];
+  const words = ["おをひく", "こんとん", "がっこう", "aから@"];
   const [automaton, setAutomaton] = useState<Automaton<VirtualKey> | undefined>(
     undefined
   );
@@ -53,6 +52,7 @@ function App() {
     <>
       {automaton ? (
         <TypingGraph
+          layout={layout}
           automaton={automaton}
           ruleName={ruleName}
           onFinished={onFinished}

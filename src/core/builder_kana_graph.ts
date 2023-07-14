@@ -1,4 +1,4 @@
-import { setDefault, setDefaultFunc } from "../utils/map";
+import { setDefaultFunc } from "../utils/map";
 import { Comparable, Rule, RuleEntry } from "./rule";
 import { RuleStroke } from "./stroke";
 
