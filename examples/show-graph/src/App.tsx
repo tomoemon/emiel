@@ -10,6 +10,7 @@ import { VirtualKey } from "../../../src/impl/virtual_key";
 const layout = emiel.getKeyboardLayout("dvorak");
 
 cytoscape.use(dagre);
+
 function App() {
   const rules = [
     { name: "ローマ字", rule: emiel.rules.get("roman", layout) },
@@ -55,6 +56,9 @@ function App() {
           layout={layout}
           automaton={automaton}
           ruleName={ruleName}
+          ruleRelyingOnKeyboardLayout={
+            rules[ruleIndex].rule.isStrokeRelyingOnKeyboardLayout
+          }
           onFinished={onFinished}
         ></TypingGraph>
       ) : (

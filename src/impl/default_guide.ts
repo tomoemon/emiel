@@ -30,5 +30,8 @@ function strokeToString(
   layout: KeyboardLayout<VirtualKey>,
   stroke: RuleStroke<VirtualKey>
 ): string {
-  return layout.getCharByStroke(stroke);
+  if (stroke.isFromKeyboardLayout) {
+    return layout.getCharByStroke(stroke);
+  }
+  return "";
 }

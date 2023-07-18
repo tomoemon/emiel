@@ -17,7 +17,8 @@ export function loadLayoutFromJsonConfig(
       new RuleStroke<VirtualKey>(
         getKeyFromString(v.input.key),
         v.input.shift ? modifierGroupSet.shift : nullModifier,
-        v.input.shift ? modifiersExceptShift : allAvailableModifiers
+        v.input.shift ? modifiersExceptShift : allAvailableModifiers,
+        true
       ),
     ]
   );

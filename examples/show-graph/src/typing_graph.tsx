@@ -15,6 +15,7 @@ export function TypingGraph(props: {
   layout: KeyboardLayout<VirtualKey>;
   automaton: Automaton<VirtualKey>;
   ruleName: string;
+  ruleRelyingOnKeyboardLayout: boolean;
   onFinished: () => void;
 }) {
   const automaton = props.automaton;
@@ -55,10 +56,14 @@ export function TypingGraph(props: {
         <span style={{ color: "gray" }}>{guide.finishedWordSubstr}</span>{" "}
         {guide.pendingWordSubstr}
       </h1>
-      <h1>
-        <span style={{ color: "gray" }}>{guide.finishedKeys}</span>{" "}
-        {guide.pendingKeys}
-      </h1>
+      {props.ruleRelyingOnKeyboardLayout ? (
+        <h1>
+          <span style={{ color: "gray" }}>{guide.finishedKeys}</span>{" "}
+          {guide.pendingKeys}
+        </h1>
+      ) : (
+        <></>
+      )}
       <CytoscapeComponent
         elements={[]}
         layout={{ name: "dagre", rankDir: "LR" } as any}

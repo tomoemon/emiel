@@ -95,6 +95,12 @@ khi/き
 nk/ん/k
 */
 export class Rule<T extends Comparable<T>> {
+  // このルールがローマ字入力のようにキーボードレイアウトによって
+  // 入力キーが変わるかどうか。
+  // 例えば、QWERTY JIS では「い」は「i」キーで打鍵されるが、
+  // DVORAK では「g」キーで打鍵される。
+  readonly isStrokeRelyingOnKeyboardLayout: boolean = false;
+
   constructor(
     readonly name: string,
     readonly entries: RuleEntry<T>[],
@@ -103,5 +109,8 @@ export class Rule<T extends Comparable<T>> {
     readonly normalize: normalizerFunc
   ) {
     this.entries = extendCommonPrefixOverlappedEntriesDeeply(entries);
+    this.isStrokeRelyingOnKeyboardLayout = this.entries.every((e) =>
+      e.input.every((i) => i.isFromKeyboardLayout)
+    );
   }
 }
