@@ -1,6 +1,6 @@
 import { Comparable } from "./rule";
 import { InputEvent, RuleStroke } from "./stroke";
-import { StrokeEdge, StrokeNode } from "./builder_stroke_graph";
+import { StrokeEdge, StrokeNode } from "./builderStrokeGraph";
 
 export class InputResult {
   constructor(

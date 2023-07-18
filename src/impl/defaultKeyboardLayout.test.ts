@@ -1,6 +1,6 @@
 import { expect, test } from "vitest";
-import { VirtualKeys } from "./virtual_key";
-import { detectKeyboardLayout } from "./default_keyboard_layout";
+import { VirtualKeys } from "./virtualKey";
+import { detectKeyboardLayout } from "./defaultKeyboardLayout";
 
 test("empty", () => {
   expect(detectKeyboardLayout(new Map()).name).toBe("QWERTY JIS");

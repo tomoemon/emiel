@@ -1,5 +1,5 @@
-import { getKeyboardLayout } from "./default_keyboard_layout";
-import { rules } from "./default_rules";
+import { getKeyboardLayout } from "./defaultKeyboardLayout";
+import { rules } from "./defaultRules";
 import { expect, test } from "vitest";
 
 // function entryToString(entry: RuleEntry<VirtualKey>): string {

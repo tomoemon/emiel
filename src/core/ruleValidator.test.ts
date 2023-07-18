@@ -1,5 +1,5 @@
 import { Comparable, Rule, RuleEntry } from "./rule";
-import { validateRule } from "./rule_validator";
+import { validateRule } from "./ruleValidator";
 import { expect, test } from "vitest";
 import { RuleStroke } from "./stroke";
 import { AndModifier, ModifierGroup } from "./modifier";
@@ -30,7 +30,8 @@ test("entry 1つのときに矛盾はない", () => {
         false
       ),
     ],
-    modifierGroups
+    modifierGroups,
+    (v) => v
   );
   expect(() => validateRule<Key>(rule)).not.toThrowError();
 });
@@ -59,7 +60,8 @@ test("異なる output を持つ時、異なる unnecesary modifier があって
         false
       ),
     ],
-    modifierGroups
+    modifierGroups,
+    (v) => v
   );
   expect(() => validateRule<Key>(rule)).not.toThrowError();
 });
@@ -88,7 +90,8 @@ test("同じ output を持つ時、異なる unnecesary modifier があると矛
         false
       ),
     ],
-    modifierGroups
+    modifierGroups,
+    (v) => v
   );
   expect(() => validateRule<Key>(rule)).toThrowError();
 });

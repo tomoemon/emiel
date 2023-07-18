@@ -3,9 +3,9 @@ import * as emiel from "../../../src/index";
 import { useEffect, useState } from "react";
 import dagre from "cytoscape-dagre";
 import cytoscape from "cytoscape";
-import { TypingGraph } from "./typing_graph";
+import { TypingGraph } from "./typingGraph";
 import { Automaton } from "../../../src/core/automaton";
-import { VirtualKey } from "../../../src/impl/virtual_key";
+import { VirtualKey } from "../../../src/impl/virtualKey";
 
 const layout = emiel.getKeyboardLayout("dvorak");
 

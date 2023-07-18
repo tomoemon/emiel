@@ -1,5 +1,5 @@
-import { StrokeEdge, StrokeNode } from "../../../src/core/builder_stroke_graph";
-import { VirtualKey, VirtualKeys } from "../../../src/impl/virtual_key";
+import { StrokeEdge, StrokeNode } from "../../../src/core/builderStrokeGraph";
+import { VirtualKey, VirtualKeys } from "../../../src/impl/virtualKey";
 
 export function buildGraphData(startNode: StrokeNode<VirtualKey>) {
   const nodes = new Map<StrokeNode<VirtualKey>, number>();

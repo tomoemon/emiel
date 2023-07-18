@@ -1,9 +1,9 @@
-import { KeyboardLayout } from "../core/keyboard_layout";
+import { KeyboardLayout } from "../core/keyboardLayout";
 import { Rule, RuleEntry } from "../core/rule";
 import { RuleStroke } from "../core/stroke";
 import { product } from "../utils/iter";
-import { defaultKanaNormalize } from "./char_normalizer";
-import { VirtualKey } from "./virtual_key";
+import { defaultKanaNormalize } from "./charNormalizer";
+import { VirtualKey } from "./virtualKey";
 
 export function loadFromGoogleImeText(
   name: string,

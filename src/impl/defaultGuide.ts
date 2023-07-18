@@ -1,7 +1,7 @@
 import { Automaton } from "../core/automaton";
 import { RuleStroke } from "../core/stroke";
-import { KeyboardLayout } from "../core/keyboard_layout";
-import { VirtualKey } from "./virtual_key";
+import { KeyboardLayout } from "../core/keyboardLayout";
+import { VirtualKey } from "./virtualKey";
 
 export class DefaultGuide {
   constructor(

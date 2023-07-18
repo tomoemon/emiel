@@ -1,6 +1,6 @@
 import { expect, test } from "vitest";
-import { getAlphaNumericRuleByLayout } from "./alpha_numeric_rule";
-import { getKeyboardLayout } from "./default_keyboard_layout";
+import { getAlphaNumericRuleByLayout } from "./alphaNumericRule";
+import { getKeyboardLayout } from "./defaultKeyboardLayout";
 
 test("import alphaNumericRule", () => {
   const alphaNumericRule = getAlphaNumericRuleByLayout(

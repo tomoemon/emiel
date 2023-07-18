@@ -1,13 +1,13 @@
 import * as emiel from "../../../src/index";
 import CytoscapeComponent from "react-cytoscapejs";
 import { useEffect, useState } from "react";
-import { buildGraphData } from "./graph_data";
+import { buildGraphData } from "./graphData";
 import dagre from "cytoscape-dagre";
 import cytoscape from "cytoscape";
-import { cyStylesheet } from "./grpah_style";
+import { cyStylesheet } from "./grpahStyle";
 import { Automaton } from "../../../src/core/automaton";
-import { VirtualKey } from "../../../src/impl/virtual_key";
-import { KeyboardLayout } from "../../../src/core/keyboard_layout";
+import { VirtualKey } from "../../../src/impl/virtualKey";
+import { KeyboardLayout } from "../../../src/core/keyboardLayout";
 
 cytoscape.use(dagre);
 

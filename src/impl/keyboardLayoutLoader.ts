@@ -1,7 +1,7 @@
 import { AndModifier, ModifierGroup } from "../core/modifier";
 import { RuleStroke } from "../core/stroke";
-import { VirtualKey, VirtualKeys, getKeyFromString } from "./virtual_key";
-import { KeyboardLayout } from "../core/keyboard_layout";
+import { VirtualKey, VirtualKeys, getKeyFromString } from "./virtualKey";
+import { KeyboardLayout } from "../core/keyboardLayout";
 
 type jsonSchema = {
   name: string;

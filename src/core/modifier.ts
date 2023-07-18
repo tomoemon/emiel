@@ -1,4 +1,4 @@
-import { KeyboardStateReader } from "./keyboard_state";
+import { KeyboardStateReader } from "./keyboardState";
 import { Comparable } from "./rule";
 
 export class ModifierGroup<T extends Comparable<T>> {

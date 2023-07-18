@@ -1,8 +1,8 @@
-import { KeyboardLayout } from "../core/keyboard_layout";
+import { KeyboardLayout } from "../core/keyboardLayout";
 import { Rule, RuleEntry } from "../core/rule";
 import { setDefaultFunc } from "../utils/map";
-import { defaultAlphaNumericNormalize } from "./char_normalizer";
-import { VirtualKey } from "./virtual_key";
+import { defaultAlphaNumericNormalize } from "./charNormalizer";
+import { VirtualKey } from "./virtualKey";
 
 const alphaNumericRuleByLayout = new Map<string, Rule<VirtualKey>>();
 

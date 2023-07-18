@@ -1,15 +1,15 @@
-import { loadFromGoogleImeText } from "./google_ime_config_loader";
+import { loadFromGoogleImeText } from "./googleImeConfigLoader";
 import tomoemon_azik from "../assets/rules/google_ime_tomoemon_azik.txt?raw";
 import roman from "../assets/rules/google_ime_default_roman.txt?raw";
-import { mergeRule } from "../core/rule_merger";
-import { getAlphaNumericRuleByLayout } from "./alpha_numeric_rule";
-import { loadFromJsonConfig } from "./json_config_loader";
+import { mergeRule } from "../core/ruleMerger";
+import { getAlphaNumericRuleByLayout } from "./alphaNumericRule";
+import { loadFromJsonConfig } from "./jsonConfigLoader";
 import jis_kana from "../assets/rules/jis_kana.json";
 import nicola from "../assets/rules/nicola.json";
-import { VirtualKey } from "./virtual_key";
+import { VirtualKey } from "./virtualKey";
 import { Rule } from "../core/rule";
 import { setDefaultFunc } from "../utils/map";
-import { KeyboardLayout } from "../core/keyboard_layout";
+import { KeyboardLayout } from "../core/keyboardLayout";
 
 class Rules {
   private static cache: Map<string, Rule<VirtualKey>> = new Map();

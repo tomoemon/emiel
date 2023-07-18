@@ -1,7 +1,7 @@
 import { expect, test } from "vitest";
-import { loadFromJsonConfig } from "./json_config_loader";
+import { loadFromJsonConfig } from "./jsonConfigLoader";
 import { RuleEntry } from "../core/rule";
-import { VirtualKey, VirtualKeys } from "./virtual_key";
+import { VirtualKey, VirtualKeys } from "./virtualKey";
 import { RuleStroke } from "../core/stroke";
 import { AndModifier, ModifierGroup } from "../core/modifier";
 

@@ -1,5 +1,5 @@
 import { ModifierGroup } from "./modifier";
-import { extendCommonPrefixOverlappedEntriesDeeply } from "./rule_extender";
+import { extendCommonPrefixOverlappedEntriesDeeply } from "./ruleExtender";
 import { RuleStroke } from "./stroke";
 
 export type normalizerFunc = (value: string) => string;

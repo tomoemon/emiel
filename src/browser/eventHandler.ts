@@ -1,6 +1,6 @@
-import { KeyboardState } from "../core/keyboard_state";
+import { KeyboardState } from "../core/keyboardState";
 import { InputEvent, InputStroke, KeyEventType } from "../core/stroke";
-import { VirtualKey, VirtualKeys } from "../impl/virtual_key";
+import { VirtualKey, VirtualKeys } from "../impl/virtualKey";
 
 /**
  * @param target Window object のようなものを受け取る

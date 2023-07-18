@@ -1,6 +1,6 @@
 import { Comparable, Rule } from "./rule";
-import { buildKanaNode } from "./builder_kana_graph";
-import { StrokeNode, buildStrokeNode } from "./builder_stroke_graph";
+import { buildKanaNode } from "./builderKanaGraph";
+import { StrokeNode, buildStrokeNode } from "./builderStrokeGraph";
 
 export function build<T extends Comparable<T>>(
   rule: Rule<T>,

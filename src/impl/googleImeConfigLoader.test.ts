@@ -1,6 +1,6 @@
-import { getKeyboardLayout } from "./default_keyboard_layout";
-import { loadFromGoogleImeText } from "./google_ime_config_loader";
-import { VirtualKeys, getKeyFromString } from "./virtual_key";
+import { getKeyboardLayout } from "./defaultKeyboardLayout";
+import { loadFromGoogleImeText } from "./googleImeConfigLoader";
+import { VirtualKeys } from "./virtualKey";
 import { expect, test } from "vitest";
 
 test("load google ime empty rule", () => {

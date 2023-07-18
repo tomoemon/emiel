@@ -1,5 +1,5 @@
 import { setDefault } from "../utils/map";
-import { KanaNode } from "./builder_kana_graph";
+import { KanaNode } from "./builderKanaGraph";
 import { Comparable, Rule } from "./rule";
 import { RuleStroke } from "./stroke";
 

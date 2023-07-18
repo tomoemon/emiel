@@ -1,9 +1,9 @@
 import dvorak from "../assets/keyboard_layouts/dvorak.json";
 import qwerty_jis from "../assets/keyboard_layouts/qwerty_jis.json";
 import qwerty_us from "../assets/keyboard_layouts/qwerty_us.json";
-import { KeyboardLayout } from "../core/keyboard_layout";
-import { loadLayoutFromJsonConfig } from "./keyboard_layout_loader";
-import { VirtualKey } from "./virtual_key";
+import { KeyboardLayout } from "../core/keyboardLayout";
+import { loadLayoutFromJsonConfig } from "./keyboardLayoutLoader";
+import { VirtualKey } from "./virtualKey";
 
 const names = ["qwerty-jis", "qwerty-us", "dvorak"] as const;
 type defaultLayoutName = (typeof names)[number];

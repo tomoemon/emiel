@@ -1,9 +1,9 @@
 import { prettyPrint } from "@base2/pretty-print-object";
-import { loadFromGoogleImeText } from "./google_ime_config_loader";
+import { loadFromGoogleImeText } from "./googleImeConfigLoader";
 import { test } from "vitest";
-import { buildKanaNode } from "../core/builder_kana_graph";
-import { buildStrokeNode } from "../core/builder_stroke_graph";
-import { getKeyboardLayout } from "./default_keyboard_layout";
+import { buildKanaNode } from "../core/builderKanaGraph";
+import { buildStrokeNode } from "../core/builderStrokeGraph";
+import { getKeyboardLayout } from "./defaultKeyboardLayout";
 
 function showNextNode(node: any) {
   return console.log(

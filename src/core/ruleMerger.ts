@@ -1,5 +1,5 @@
 import { Comparable, Rule, RuleEntry } from "./rule";
-import { validateRule } from "./rule_validator";
+import { validateRule } from "./ruleValidator";
 
 // entires と modifierGroups を結合した新しい Rule を返す
 export function mergeRule<T extends Comparable<T>>(

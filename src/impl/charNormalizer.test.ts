@@ -2,7 +2,7 @@ import { expect, test } from "vitest";
 import {
   defaultAlphaNumericNormalize,
   defaultKanaNormalize,
-} from "./char_normalizer";
+} from "./charNormalizer";
 
 test("hiragana normalized: あ", () => {
   expect(defaultKanaNormalize("あ")).toBe("ア");

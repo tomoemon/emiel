@@ -1,7 +1,7 @@
 import { expect, test } from "vitest";
 import { Comparable, RuleEntry } from "./rule";
 import { RuleStroke } from "./stroke";
-import { extendCommonPrefixOverlappedEntriesDeeply } from "./rule_extender";
+import { extendCommonPrefixOverlappedEntriesDeeply } from "./ruleExtender";
 import { AndModifier } from "./modifier";
 
 class Key implements Comparable<Key> {

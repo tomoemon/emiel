@@ -2,8 +2,8 @@ import { AndModifier, ModifierGroup } from "../core/modifier";
 import { Rule, RuleEntry } from "../core/rule";
 import { RuleStroke } from "../core/stroke";
 import { product } from "../utils/iter";
-import { defaultKanaNormalize } from "./char_normalizer";
-import { VirtualKey, getKeyFromString } from "./virtual_key";
+import { defaultKanaNormalize } from "./charNormalizer";
+import { VirtualKey, getKeyFromString } from "./virtualKey";
 
 /*
     {

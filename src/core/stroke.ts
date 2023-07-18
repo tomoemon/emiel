@@ -1,5 +1,5 @@
-import { StrokeEdge } from "./builder_stroke_graph";
-import { KeyboardStateReader } from "./keyboard_state";
+import { StrokeEdge } from "./builderStrokeGraph";
+import { KeyboardStateReader } from "./keyboardState";
 import { AndModifier, ModifierGroup } from "./modifier";
 import { Comparable } from "./rule";
 
