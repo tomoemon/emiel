@@ -1,9 +1,9 @@
-import { loadFromGoogleImeText } from "./googleImeConfigLoader";
+import { loadFromGoogleImeText } from "./googleImeConfigRuleLoader";
 import tomoemon_azik from "../assets/rules/google_ime_tomoemon_azik.txt?raw";
 import roman from "../assets/rules/google_ime_default_roman.txt?raw";
 import { mergeRule } from "../core/ruleMerger";
 import { getAlphaNumericRuleByLayout } from "./alphaNumericRule";
-import { loadFromJsonConfig } from "./jsonConfigLoader";
+import { loadFromJsonConfig } from "./jsonConfigRuleLoader";
 import jis_kana from "../assets/rules/jis_kana.json";
 import nicola from "../assets/rules/nicola.json";
 import { VirtualKey } from "./virtualKey";

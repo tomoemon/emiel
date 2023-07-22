@@ -5,11 +5,11 @@ import { StrokeEdge, StrokeNode } from "./builderStrokeGraph";
 export class InputResult {
   constructor(
     private readonly type:
-      | "ignored"
-      | "failed"
-      | "key_succeeded"
-      | "kana_succeeded"
-      | "finished"
+      | "ignored" // modifier キーの単独入力等で無視された
+      | "failed" // 入力ミス
+      | "key_succeeded" // 1打鍵の成功
+      | "kana_succeeded" // かな1文字の成功
+      | "finished" // 完了
   ) {}
   toString(): string {
     return this.type;
@@ -21,17 +21,20 @@ export class InputResult {
     return this.type === "failed";
   }
   get isKeySucceeded(): boolean {
+    return this.type === "key_succeeded";
+  }
+  get isKanaSucceeded(): boolean {
+    return this.type === "kana_succeeded";
+  }
+  get isFinished(): boolean {
+    return this.type === "finished";
+  }
+  get isSucceeded(): boolean {
     return (
       this.type === "key_succeeded" ||
       this.type === "kana_succeeded" ||
       this.type === "finished"
     );
-  }
-  get isKanaSucceeded(): boolean {
-    return this.type === "kana_succeeded" || this.type === "finished";
-  }
-  get isFinished(): boolean {
-    return this.type === "finished";
   }
 }
 
@@ -90,7 +93,7 @@ export class Automaton<T extends Comparable<T>> {
       }
     }
   }
-  get finished(): boolean {
+  get isFinished(): boolean {
     return this._currentNode.nextEdges.length === 0;
   }
   input(stroke: InputEvent<T>): InputResult {
@@ -120,47 +123,5 @@ export class Automaton<T extends Comparable<T>> {
       return inputResultIgnored;
     }
     return inputResultFailed;
-  }
-}
-
-export class SelectorInputResult<T> {
-  constructor(readonly type: InputResult, readonly automaton: T) {}
-}
-
-export class Selector<T extends Comparable<T>> {
-  // 現在入力試行対象になっている automaton
-  private activeAutomatons: Automaton<T>[];
-  constructor(private automatons: Automaton<T>[]) {
-    this.activeAutomatons = automatons;
-  }
-  input(stroke: InputEvent<T>): SelectorInputResult<Automaton<T>>[] {
-    const result = [];
-    const newActiveAutomatons = [];
-    let succeeded = false;
-    for (let automaton of this.activeAutomatons) {
-      const type = automaton.input(stroke);
-      result.push(new SelectorInputResult(type, automaton));
-      if (type !== inputResultFailed) {
-        succeeded = true;
-        if (type != inputResultFinished) {
-          newActiveAutomatons.push(automaton);
-        }
-      }
-    }
-    if (!succeeded) {
-      return result;
-    }
-    this.activeAutomatons = newActiveAutomatons;
-    return result;
-  }
-  /**
-   * 完了していない automaton をすべてキャンセルして active な状態に戻す
-   */
-  reset() {
-    this.activeAutomatons.forEach((v) => v.reset());
-    this.activeAutomatons = this.automatons.filter((v) => !v.finished);
-  }
-  append(automaton: Automaton<T>) {
-    this.automatons.push(automaton);
   }
 }

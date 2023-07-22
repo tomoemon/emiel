@@ -1,5 +1,5 @@
 import { prettyPrint } from "@base2/pretty-print-object";
-import { loadFromGoogleImeText } from "./googleImeConfigLoader";
+import { loadFromGoogleImeText } from "./googleImeConfigRuleLoader";
 import { test } from "vitest";
 import { buildKanaNode } from "../core/builderKanaGraph";
 import { buildStrokeNode } from "../core/builderStrokeGraph";

@@ -1,4 +1,6 @@
-export const cyStylesheet = [
+import { Stylesheet } from "cytoscape";
+
+export const cyStylesheet: Stylesheet[] = [
   {
     selector: "node",
     style: {
@@ -6,8 +8,8 @@ export const cyStylesheet = [
       width: 30,
       height: 30,
       backgroundColor: "white",
-      borderColor: "yellow",
-      borderWidth: 2,
+      "border-color": "yellow",
+      "border-width": 2,
       shape: "round-rectangle",
       "text-valign": "center",
       "text-halign": "center",
@@ -20,8 +22,8 @@ export const cyStylesheet = [
       width: 30,
       height: 30,
       backgroundColor: "green",
-      borderColor: "yellow",
-      borderWidth: 2,
+      "border-color": "yellow",
+      "border-width": 2,
       shape: "round-rectangle",
       "text-valign": "center",
       "text-halign": "center",
@@ -34,8 +36,8 @@ export const cyStylesheet = [
       width: 30,
       height: 30,
       backgroundColor: "red",
-      borderColor: "yellow",
-      borderWidth: 2,
+      "border-color": "yellow",
+      "border-width": 2,
       shape: "round-rectangle",
       "text-valign": "center",
       "text-halign": "center",
@@ -47,8 +49,8 @@ export const cyStylesheet = [
       label: "data(label)",
       color: "white",
       width: 3,
-      lineColor: "green",
-      "text-margin-y": "-10px",
+      "line-color": "green",
+      "text-margin-y": -10,
       "arrow-scale": 1,
       "curve-style": "bezier",
       "target-arrow-color": "green",

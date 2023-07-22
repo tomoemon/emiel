@@ -1,9 +1,9 @@
 import { AndModifier, ModifierGroup } from "../core/modifier";
 import { Rule, RuleEntry } from "../core/rule";
 import { RuleStroke } from "../core/stroke";
-import { product } from "../utils/iter";
+import { product } from "../utils/itertools";
 import { defaultKanaNormalize } from "./charNormalizer";
-import { VirtualKey, getKeyFromString } from "./virtualKey";
+import { VirtualKey, getVirtualKeyFromString } from "./virtualKey";
 
 /*
     {
@@ -49,7 +49,7 @@ function getKeyFromStringWithAliasKeysMap(
   if (aliasKeysMap.has(key)) {
     return aliasKeysMap.get(key)!;
   }
-  return getKeyFromString(key);
+  return getVirtualKeyFromString(key);
 }
 
 function loadModifierGroups(
@@ -180,7 +180,7 @@ function loadAliasKeys(jsonOptions?: options): Map<string, VirtualKey> {
   }
   const aliasMap = new Map<string, VirtualKey>();
   Object.entries(aliasKeys).forEach(([aliasName, key]) => {
-    const vKey = getKeyFromString(key);
+    const vKey = getVirtualKeyFromString(key);
     aliasMap.set(aliasName, vKey);
   });
   return aliasMap;

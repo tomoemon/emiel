@@ -1,5 +1,5 @@
 import { getKeyboardLayout } from "./defaultKeyboardLayout";
-import { loadFromGoogleImeText } from "./googleImeConfigLoader";
+import { loadFromGoogleImeText } from "./googleImeConfigRuleLoader";
 import { VirtualKeys } from "./virtualKey";
 import { expect, test } from "vitest";
 

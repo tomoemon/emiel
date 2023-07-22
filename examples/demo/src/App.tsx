@@ -2,12 +2,12 @@ import "./App.css";
 import * as emiel from "../../../src/index";
 import { useEffect, useState } from "react";
 
-const layout = emiel.getKeyboardLayout("qwerty-jis");
+const layout = emiel.keyboard.get("qwerty-jis");
 
 function App() {
   const words = ["さいりうむ", "しょうがっこう", "すいせいのGUNDAM"];
   const automatons = words.map((w) =>
-    emiel.buildAutomaton(emiel.rules.get("roman", layout), w)
+    emiel.build(emiel.rule.get("roman", layout), w)
   );
   let wordIndex = 0;
   const [guide, setGuide] = useState(

@@ -130,7 +130,7 @@ export const VirtualKeys = Object.fromEntries(
   readonly [k in virtualKey]: VirtualKey;
 };
 
-export function getKeyFromString(v: string): VirtualKey {
+export function getVirtualKeyFromString(v: string): VirtualKey {
   if (v in VirtualKeys) {
     return VirtualKeys[v as virtualKey];
   }

@@ -1,7 +1,7 @@
 import { KeyboardLayout } from "../core/keyboardLayout";
 import { Rule, RuleEntry } from "../core/rule";
 import { RuleStroke } from "../core/stroke";
-import { product } from "../utils/iter";
+import { product } from "../utils/itertools";
 import { defaultKanaNormalize } from "./charNormalizer";
 import { VirtualKey } from "./virtualKey";
 
@@ -53,7 +53,7 @@ export function loadFromGoogleImeText(
   return new Rule(name, entries, layout.modifiers, defaultKanaNormalize);
 }
 
-export function toStrokesFromChar(
+function toStrokesFromChar(
   layout: KeyboardLayout<VirtualKey>,
   key: string
 ): RuleStroke<VirtualKey>[] {

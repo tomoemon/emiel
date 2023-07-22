@@ -1,6 +1,6 @@
 import { AndModifier, ModifierGroup } from "../core/modifier";
 import { RuleStroke } from "../core/stroke";
-import { VirtualKey, VirtualKeys, getKeyFromString } from "./virtualKey";
+import { VirtualKey, VirtualKeys, getVirtualKeyFromString } from "./virtualKey";
 import { KeyboardLayout } from "../core/keyboardLayout";
 
 type jsonSchema = {
@@ -15,7 +15,7 @@ export function loadLayoutFromJsonConfig(
     (v) => [
       v.output,
       new RuleStroke<VirtualKey>(
-        getKeyFromString(v.input.key),
+        getVirtualKeyFromString(v.input.key),
         v.input.shift ? modifierGroupSet.shift : nullModifier,
         v.input.shift ? modifiersExceptShift : allAvailableModifiers,
         true

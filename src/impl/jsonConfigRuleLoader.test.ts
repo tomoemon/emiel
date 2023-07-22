@@ -1,5 +1,5 @@
 import { expect, test } from "vitest";
-import { loadFromJsonConfig } from "./jsonConfigLoader";
+import { loadFromJsonConfig } from "./jsonConfigRuleLoader";
 import { RuleEntry } from "../core/rule";
 import { VirtualKey, VirtualKeys } from "./virtualKey";
 import { RuleStroke } from "../core/stroke";

@@ -1,5 +1,5 @@
 import { expect, test } from "vitest";
-import { product } from "./iter";
+import { product } from "./itertools";
 
 test("empty", () => {
   const result = Array.from(product([]));
