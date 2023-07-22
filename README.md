@@ -1,4 +1,4 @@
-![ci status](https://github.com/tomoemon/emiel/actions/workflows/main.yml/badge.svg?branch=main)
+[![main branch](https://github.com/tomoemon/emiel/actions/workflows/main.yaml/badge.svg)](https://github.com/tomoemon/emiel/actions/workflows/main.yaml)
 
 # これは何？
 
