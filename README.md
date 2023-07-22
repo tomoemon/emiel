@@ -1,3 +1,5 @@
+![ci status](https://github.com/tomoemon/emiel/actions/workflows/main.yml/badge.svg?branch=main)
+
 # これは何？
 
 emiel（エミエル）は超汎用日本語タイピングゲーム用ライブラリです。
