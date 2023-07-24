@@ -5,31 +5,43 @@ import { useEffect, useState } from "react";
 const layout = emiel.keyboard.get("qwerty-jis");
 
 function App() {
-  const words = ["さいりうむ", "しょうがっこう", "すいせいのGUNDAM"];
+  const words = [
+    { kana: "お,を,ひ,く".split(","), mixed: "尾,を,引,く".split(",") },
+    { kana: "こん,とん".split(","), mixed: "混,沌".split(",") },
+    {
+      kana: "がっ,こう".split(","),
+      mixed: "学,校".split(","),
+    },
+    {
+      kana: "a,か,ら,@".split(","),
+      mixed: "a,か,ら,@".split(","),
+    },
+  ];
   const automatons = words.map((w) =>
-    emiel.build(emiel.rule.get("roman", layout), w)
+    emiel.buildMixed(emiel.rule.get("roman", layout), w.kana, w.mixed)
   );
   let wordIndex = 0;
   const [guide, setGuide] = useState(
-    new emiel.DefaultGuide(layout, automatons[wordIndex])
+    new emiel.DefaultMixedGuide(layout, automatons[wordIndex])
   );
   useEffect(() => {
     const deactivate = emiel.activate(window, (e) => {
-      console.log(e);
       const result = automatons[wordIndex].input(e);
-      console.log(result);
-      console.log(automatons[wordIndex].currentNode);
       if (result.isFinished) {
         wordIndex = (wordIndex + 1) % automatons.length;
         automatons[wordIndex].reset();
       }
-      setGuide(new emiel.DefaultGuide(layout, automatons[wordIndex]));
+      setGuide(new emiel.DefaultMixedGuide(layout, automatons[wordIndex]));
     });
     return deactivate;
   }, []);
 
   return (
     <>
+      <h1>
+        <span style={{ color: "gray" }}>{guide.finishedMixedSubstr}</span>{" "}
+        {guide.pendingMixedSubstr}
+      </h1>
       <h1>
         <span style={{ color: "gray" }}>{guide.finishedWordSubstr}</span>{" "}
         {guide.pendingWordSubstr}

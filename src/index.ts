@@ -10,7 +10,10 @@ import {
 } from "./impl/keyboardLayoutLoader";
 import { rules } from "./impl/defaultRules";
 import { loadFromGoogleImeText } from "./impl/googleImeConfigRuleLoader";
-import { Automaton as coreAutomaton } from "./core/automaton";
+import {
+  Automaton as coreAutomaton,
+  MixedAutomaton as coreMixedAutomaton,
+} from "./core/automaton";
 import { Rule as coreRule, RuleEntry as coreRuleEntry } from "./core/rule";
 import { StrokeNode as coreStrokeNode } from "./core/builderStrokeGraph";
 import {
@@ -22,6 +25,7 @@ import { VirtualKey } from "./impl/virtualKey";
 export { activate } from "./browser/eventHandler";
 
 export { buildAutomaton as build } from "./impl/builder";
+export { buildMixedAutomaton as buildMixed } from "./impl/builder";
 
 export const keyboard = {
   loadFromJsonConfig: loadLayoutFromJsonConfig,
@@ -41,7 +45,8 @@ export const rule = {
 };
 
 export type Automaton = coreAutomaton<VirtualKey>;
-export { DefaultGuide } from "./impl/defaultGuide";
+export type MixedAutomaton = coreMixedAutomaton<VirtualKey>;
+export { DefaultGuide, DefaultMixedGuide } from "./impl/defaultGuide";
 export { VirtualKey } from "./impl/virtualKey";
 export { VirtualKeys } from "./impl/virtualKey";
 export type KeyboardLayout = coreKeyboardLayout<VirtualKey>;

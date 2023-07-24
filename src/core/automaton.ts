@@ -125,3 +125,31 @@ export class Automaton<T extends Comparable<T>> {
     return inputResultFailed;
   }
 }
+
+/**
+ * かなテキストと漢字かな混じりテキストの入力状態を同時に表すオートマトン
+ * mixedText: 今日,は,い,い,天,気
+ * kanaText: きょう,は,い,い,てん,き
+ * という入力が与えられた場合、「きょう」まで入力された時点で
+ * mixedText の「今日」の入力が終わった状態になる
+ */
+export class MixedAutomaton<T extends Comparable<T>> extends Automaton<T> {
+  constructor(
+    readonly automaton: Automaton<T>,
+    readonly mixedText: string,
+    readonly mixedTextIndex: number[]
+  ) {
+    super(automaton.word, automaton.startNode);
+  }
+  get finishedMixedSubstr(): string {
+    return this.mixedText.substring(
+      0,
+      this.mixedTextIndex[this.currentNode.kanaIndex]
+    );
+  }
+  get pendingMixedSubstr(): string {
+    return this.mixedText.substring(
+      this.mixedTextIndex[this.currentNode.kanaIndex]
+    );
+  }
+}

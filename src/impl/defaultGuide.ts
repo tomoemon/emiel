@@ -1,4 +1,4 @@
-import { Automaton } from "../core/automaton";
+import { Automaton, MixedAutomaton } from "../core/automaton";
 import { RuleStroke } from "../core/stroke";
 import { KeyboardLayout } from "../core/keyboardLayout";
 import { VirtualKey } from "./virtualKey";
@@ -23,6 +23,21 @@ export class DefaultGuide {
     return this.automaton.succeededInputs
       .map((s) => strokeToString(this.layout, s))
       .join("");
+  }
+}
+
+export class DefaultMixedGuide extends DefaultGuide {
+  constructor(
+    readonly layout: KeyboardLayout<VirtualKey>,
+    readonly mixedAutomaton: MixedAutomaton<VirtualKey>
+  ) {
+    super(layout, mixedAutomaton);
+  }
+  get pendingMixedSubstr(): string {
+    return this.mixedAutomaton.pendingMixedSubstr;
+  }
+  get finishedMixedSubstr(): string {
+    return this.mixedAutomaton.finishedMixedSubstr;
   }
 }
 

@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 const layout = emiel.keyboard.get("qwerty-jis");
 
 function App() {
-  const words = ["さいりうむ", "しょうがっこう", "すいせいのGUNDAM"];
+  const words = ["おをひく", "こんとん", "がっこう", "aから@"];
   const automatons = words.map((w) =>
     emiel.build(emiel.rule.get("roman", layout), w)
   );
