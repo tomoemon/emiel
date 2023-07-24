@@ -14,7 +14,6 @@ export function TypingGraph(props: {
   ruleRelyingOnKeyboardLayout: boolean;
   onFinished: () => void;
 }) {
-  console.log("relying on keyboard", props.ruleRelyingOnKeyboardLayout);
   const automaton = props.automaton;
   const graphData = buildGraphData(automaton.currentNode);
   const [guide, setGuide] = useState(
