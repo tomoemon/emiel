@@ -67,11 +67,12 @@ export class Selector<T extends Comparable<T>, U extends Automaton<T>> {
     }
   }
   /**
-   * 現在 active な automaton をすべてリセットして、すべてを active な状態に戻す
+   * すべての automaton をリセットして、すべてを active な状態に戻す
+   * すでに finish しているものも active な状態に戻す
    */
   reset() {
-    this._activeAutomatons.forEach((v) => v.reset());
-    this._activeAutomatons = this._automatons.filter((v) => !v.isFinished);
+    this._automatons.forEach((v) => v.reset());
+    this._activeAutomatons = this._automatons;
   }
   /**
    * 指定した automaton を取り除く
