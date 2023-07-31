@@ -133,7 +133,7 @@ export class Automaton<T extends Comparable<T>> {
  * という入力が与えられた場合、「きょう」まで入力された時点で
  * mixedText の「今日」の入力が終わった状態になる
  */
-export class MixedAutomaton<T extends Comparable<T>> extends Automaton<T> {
+export class MixedTextAutomaton<T extends Comparable<T>> extends Automaton<T> {
   constructor(
     readonly automaton: Automaton<T>,
     readonly mixedText: string,

@@ -1,7 +1,7 @@
 import { Comparable, Rule } from "./rule";
 import { buildKanaNode } from "./builderKanaGraph";
 import { buildStrokeNode } from "./builderStrokeGraph";
-import { Automaton, MixedAutomaton } from "./automaton";
+import { Automaton, MixedTextAutomaton } from "./automaton";
 
 export function build<T extends Comparable<T>>(
   rule: Rule<T>,
@@ -23,7 +23,7 @@ export function buildMixed<T extends Comparable<T>>(
   rule: Rule<T>,
   kanaTextSplit: string[],
   mixedTextSplit: string[]
-): MixedAutomaton<T> {
+): MixedTextAutomaton<T> {
   if (kanaTextSplit.length !== mixedTextSplit.length) {
     throw new Error(
       `kanaText.length !== mixedText.length: ${kanaTextSplit} ${mixedTextSplit}`
@@ -39,7 +39,7 @@ export function buildMixed<T extends Comparable<T>>(
     lastMixedIndex += mixedTextSplit[i].length;
   });
   mixedTextIndex.push(lastMixedIndex);
-  return new MixedAutomaton<T>(
+  return new MixedTextAutomaton<T>(
     automaton,
     mixedTextSplit.join(""),
     mixedTextIndex

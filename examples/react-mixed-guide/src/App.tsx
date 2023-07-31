@@ -18,14 +18,14 @@ function App() {
     },
   ];
   const automatons = words.map((w) =>
-    emiel.buildMixed(emiel.rule.get("roman", layout), w.kana, w.mixed)
+    emiel.buildMixed(emiel.rule.getRoman(layout), w.kana, w.mixed)
   );
   let wordIndex = 0;
   const [guide, setGuide] = useState(
     new emiel.DefaultMixedGuide(layout, automatons[wordIndex])
   );
   useEffect(() => {
-    const deactivate = emiel.activate(window, (e) => {
+    return emiel.activate(window, (e) => {
       const result = automatons[wordIndex].input(e);
       if (result.isFinished) {
         wordIndex = (wordIndex + 1) % automatons.length;
@@ -33,7 +33,6 @@ function App() {
       }
       setGuide(new emiel.DefaultMixedGuide(layout, automatons[wordIndex]));
     });
-    return deactivate;
   }, []);
 
   return (
