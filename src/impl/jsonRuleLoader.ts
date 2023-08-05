@@ -1,8 +1,9 @@
 import { AndModifier, ModifierGroup } from "../core/modifier";
 import { Rule, RuleEntry } from "../core/rule";
-import { RuleStroke } from "../core/stroke";
+import { RuleStroke } from "../core/ruleStroke";
 import { product } from "../utils/itertools";
 import { defaultKanaNormalize } from "./charNormalizer";
+import { loadJsonKeyboardLayout } from "./keyboardLayoutLoader";
 import { VirtualKey, getVirtualKeyFromString } from "./virtualKey";
 
 /*
@@ -186,18 +187,22 @@ function loadAliasKeys(jsonOptions?: options): Map<string, VirtualKey> {
   return aliasMap;
 }
 
-export function loadFromJsonConfig(
+export function loadJsonRule(
   name: string,
-  jsonConfig: jsonSchema
+  jsonRule: jsonSchema | string
 ): Rule<VirtualKey> {
-  const aliasKeysMap = loadAliasKeys(jsonConfig.options);
+  if (jsonRule instanceof String || typeof jsonRule === "string") {
+    const schema = JSON.parse(jsonRule as string) as jsonSchema;
+    return loadJsonRule(name, schema);
+  }
+  const aliasKeysMap = loadAliasKeys(jsonRule.options);
   const modifierGroupMap = loadModifierGroups(
-    jsonConfig.modifierGroups,
+    jsonRule.modifierGroups,
     aliasKeysMap
   );
   const entries = loadEntries(
-    jsonConfig.entries,
-    jsonConfig.extendCommonPrefixEntry,
+    jsonRule.entries,
+    jsonRule.extendCommonPrefixEntry,
     modifierGroupMap,
     aliasKeysMap
   );
@@ -207,12 +212,4 @@ export function loadFromJsonConfig(
     Array.from(modifierGroupMap.values()),
     defaultKanaNormalize
   );
-}
-
-export function loadFromJsonConfigText(
-  name: string,
-  jsonText: string
-): Rule<VirtualKey> {
-  const jsonConfig = JSON.parse(jsonText) as jsonSchema;
-  return loadFromJsonConfig(name, jsonConfig);
 }

@@ -1,5 +1,5 @@
 import { prettyPrint } from "@base2/pretty-print-object";
-import { loadFromGoogleImeText } from "./googleImeConfigRuleLoader";
+import { loadMozcRule } from "./mozcRuleLoader";
 import { test } from "vitest";
 import { buildKanaNode } from "../core/builderKanaGraph";
 import { buildStrokeNode } from "../core/builderStrokeGraph";
@@ -33,7 +33,7 @@ function showPreviousNode(node: any) {
 }
 
 test("load google ime empty rule", () => {
-  const rule = loadFromGoogleImeText(
+  const rule = loadMozcRule(
     "test-rule",
     `
 a	あ
@@ -55,7 +55,7 @@ ltu	っ
 });
 
 test("erase invalid connection test", () => {
-  const rule = loadFromGoogleImeText(
+  const rule = loadMozcRule(
     "test-rule",
     `
 a	あ

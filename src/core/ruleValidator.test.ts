@@ -1,7 +1,7 @@
 import { Comparable, Rule, RuleEntry } from "./rule";
 import { validateRule } from "./ruleValidator";
 import { expect, test } from "vitest";
-import { RuleStroke } from "./stroke";
+import { RuleStroke } from "./ruleStroke";
 import { AndModifier, ModifierGroup } from "./modifier";
 
 const nullModifier = new AndModifier<Key>();

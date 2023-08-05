@@ -1,14 +1,14 @@
 import { expect, test } from "vitest";
-import { loadFromJsonConfig } from "./jsonConfigRuleLoader";
+import { loadJsonRule } from "./jsonRuleLoader";
 import { RuleEntry } from "../core/rule";
 import { VirtualKey, VirtualKeys } from "./virtualKey";
-import { RuleStroke } from "../core/stroke";
+import { RuleStroke } from "../core/ruleStroke";
 import { AndModifier, ModifierGroup } from "../core/modifier";
 
 const nullModifier = new AndModifier<VirtualKey>();
 
 test("empty", () => {
-  const rule = loadFromJsonConfig("rule", {
+  const rule = loadJsonRule("rule", {
     extendCommonPrefixEntry: true,
     modifierGroups: [],
     entries: [],
@@ -17,7 +17,7 @@ test("empty", () => {
 });
 
 test("simple 1 entry", () => {
-  const rule = loadFromJsonConfig("rule", {
+  const rule = loadJsonRule("rule", {
     extendCommonPrefixEntry: false,
     modifierGroups: [],
     entries: [
@@ -52,7 +52,7 @@ test("simple 1 entry", () => {
 });
 
 test("multiple key 2 stroke, 1 entry, no modifier", () => {
-  const rule = loadFromJsonConfig("rule", {
+  const rule = loadJsonRule("rule", {
     extendCommonPrefixEntry: false,
     modifierGroups: [],
     entries: [
@@ -101,7 +101,7 @@ test("multiple key 2 stroke, 1 entry, no modifier", () => {
 });
 
 test("multiple key 1 stroke, 1 entry, with modifier", () => {
-  const rule = loadFromJsonConfig("rule", {
+  const rule = loadJsonRule("rule", {
     extendCommonPrefixEntry: false,
     modifierGroups: [{ name: "$shift", keys: ["ShiftLeft", "ShiftRight"] }],
     entries: [
@@ -156,7 +156,7 @@ test("multiple key 1 stroke, 1 entry, with modifier", () => {
 });
 
 test("multiple key 2 stroke, 1 entry, no modifier", () => {
-  const rule = loadFromJsonConfig("rule", {
+  const rule = loadJsonRule("rule", {
     extendCommonPrefixEntry: false,
     modifierGroups: [],
     entries: [
@@ -211,7 +211,7 @@ test("multiple key 2 stroke, 1 entry, no modifier", () => {
 });
 
 test("multiple key 1 entry, with modifier", () => {
-  const rule = loadFromJsonConfig("rule", {
+  const rule = loadJsonRule("rule", {
     extendCommonPrefixEntry: false,
     modifierGroups: [{ name: "$shift", keys: ["ShiftLeft", "ShiftRight"] }],
     entries: [

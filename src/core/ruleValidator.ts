@@ -1,6 +1,6 @@
 import { prettyPrint } from "@base2/pretty-print-object";
 import { Comparable, Rule, RuleEntry } from "./rule";
-import { RuleStroke } from "./stroke";
+import { RuleStroke } from "./ruleStroke";
 
 /**
  * validation 時にのみ使う関数はメソッドとしてではなく、ここの中に記述する

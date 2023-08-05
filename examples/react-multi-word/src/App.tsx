@@ -3,8 +3,6 @@ import * as emiel from "../../../src/index";
 import { useEffect, useState } from "react";
 import { Word } from "./word";
 
-const layout = emiel.keyboard.get("qwerty-jis");
-
 // 表示位置と入力状態を合わせて保持しておく
 class PositionedAutomaton extends emiel.Automaton {
   constructor(readonly base: emiel.Automaton, readonly position: number) {
@@ -32,14 +30,20 @@ const wordGen = (function* wordGenerator(): Generator<string> {
 const initialWords = [...Array(3)].map((_) => wordGen.next().value);
 
 function App() {
+  const [layout, setLayout] = useState<emiel.KeyboardLayout | undefined>();
+  useEffect(() => {
+    emiel.detectKeyboardLayout(window).then(setLayout);
+  }, []);
+  return layout ? <Typing layout={layout} /> : <></>;
+}
+
+function Typing(props: { layout: emiel.KeyboardLayout }) {
+  const layout = props.layout;
   const [selector, setSelector] = useState(
     new emiel.Selector(
       initialWords.map(
         (w, i) =>
-          new PositionedAutomaton(
-            emiel.build(emiel.rule.getRoman(layout), w),
-            i
-          )
+          new PositionedAutomaton(emiel.rule.getRoman(layout).build(w), i)
       )
     )
   );
@@ -57,7 +61,7 @@ function App() {
         finished: (a) => {
           console.log("finished", a);
           const newAutomaton = new PositionedAutomaton(
-            emiel.build(emiel.rule.getRoman(layout), wordGen.next().value),
+            emiel.rule.getRoman(layout).build(wordGen.next().value),
             a.position
           );
           setSelector((current) => current.replaced(a, newAutomaton));
@@ -80,7 +84,7 @@ function App() {
         .map((a, i) => (
           <li key={a.word + i.toString()}>
             <Word
-              guide={new emiel.DefaultGuide(layout, a)}
+              automaton={a}
               layout={layout}
               index={a.succeededInputs.length}
             />

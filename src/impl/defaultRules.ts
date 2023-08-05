@@ -1,9 +1,9 @@
-import { loadFromGoogleImeText } from "./googleImeConfigRuleLoader";
+import { loadMozcRule } from "./mozcRuleLoader";
 import tomoemon_azik from "../assets/rules/google_ime_tomoemon_azik.txt?raw";
 import roman from "../assets/rules/google_ime_default_roman.txt?raw";
 import { mergeRule } from "../core/ruleMerger";
 import { getAlphaNumericRuleByLayout } from "./alphaNumericRule";
-import { loadFromJsonConfig } from "./jsonConfigRuleLoader";
+import { loadJsonRule } from "./jsonRuleLoader";
 import jis_kana from "../assets/rules/jis_kana.json";
 import nicola from "../assets/rules/nicola.json";
 import { VirtualKey } from "./virtualKey";
@@ -39,7 +39,7 @@ class Rules {
   ): Rule<VirtualKey> {
     return setDefaultFunc(Rules.cache, name, () =>
       mergeRule(
-        loadFromGoogleImeText(name, text, layout),
+        loadMozcRule(name, text, layout),
         getAlphaNumericRuleByLayout(layout)
       )
     );
@@ -51,7 +51,7 @@ class Rules {
   ): Rule<VirtualKey> {
     return setDefaultFunc(Rules.cache, name, () =>
       mergeRule(
-        loadFromJsonConfig(name, jsonData),
+        loadJsonRule(name, jsonData),
         getAlphaNumericRuleByLayout(layout)
       )
     );

@@ -1,7 +1,7 @@
 import { setDefault } from "../utils/map";
 import { ModifierGroup } from "./modifier";
 import { Comparable } from "./rule";
-import { RuleStroke } from "./stroke";
+import { RuleStroke } from "./ruleStroke";
 
 export class KeyboardLayout<T extends Comparable<T>> {
   readonly strokesByChar: Map<string, RuleStroke<T>[]>;

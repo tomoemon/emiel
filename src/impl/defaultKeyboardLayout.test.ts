@@ -1,14 +1,14 @@
 import { expect, test } from "vitest";
 import { VirtualKeys } from "./virtualKey";
-import { detectKeyboardLayout } from "./defaultKeyboardLayout";
+import { findMatchedKeyboardLayout } from "./defaultKeyboardLayout";
 
 test("empty", () => {
-  expect(detectKeyboardLayout(new Map()).name).toBe("QWERTY JIS");
+  expect(findMatchedKeyboardLayout(new Map()).name).toBe("QWERTY JIS");
 });
 
 test("dvorak", () => {
   expect(
-    detectKeyboardLayout(
+    findMatchedKeyboardLayout(
       new Map([
         [VirtualKeys.A, "a"],
         [VirtualKeys.F, "u"],
@@ -19,7 +19,7 @@ test("dvorak", () => {
 
 test("qwerty us", () => {
   expect(
-    detectKeyboardLayout(
+    findMatchedKeyboardLayout(
       new Map([
         [VirtualKeys.A, "a"],
         [VirtualKeys.BracketLeft, "["],
@@ -30,7 +30,7 @@ test("qwerty us", () => {
 
 test("qwerty jis", () => {
   expect(
-    detectKeyboardLayout(
+    findMatchedKeyboardLayout(
       new Map([
         [VirtualKeys.A, "a"],
         [VirtualKeys.BracketLeft, "@"],

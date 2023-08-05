@@ -1,11 +1,11 @@
 import { KeyboardLayout } from "../core/keyboardLayout";
 import { Rule, RuleEntry } from "../core/rule";
-import { RuleStroke } from "../core/stroke";
+import { RuleStroke } from "../core/ruleStroke";
 import { product } from "../utils/itertools";
 import { defaultKanaNormalize } from "./charNormalizer";
 import { VirtualKey } from "./virtualKey";
 
-export function loadFromGoogleImeText(
+export function loadMozcRule(
   name: string,
   text: string,
   layout: KeyboardLayout<VirtualKey>

@@ -5,11 +5,18 @@ import dagre from "cytoscape-dagre";
 import cytoscape from "cytoscape";
 import { TypingGraph } from "./typingGraph";
 
-const layout = emiel.keyboard.get("qwerty-jis");
-
 cytoscape.use(dagre);
 
 function App() {
+  const [layout, setLayout] = useState<emiel.KeyboardLayout | undefined>();
+  useEffect(() => {
+    emiel.detectKeyboardLayout(window).then(setLayout);
+  }, []);
+  return layout ? <Typing layout={layout} /> : <></>;
+}
+
+function Typing(props: { layout: emiel.KeyboardLayout }) {
+  const layout = props.layout;
   const rules = [
     { name: "ローマ字", rule: emiel.rule.get("roman", layout) },
     { name: "JISかな", rule: emiel.rule.get("jis-kana", layout) },
@@ -22,12 +29,10 @@ function App() {
   const [ruleName, setRuleName] = useState("");
   const [wordIndex, setWordIndex] = useState(0);
   const [ruleIndex, setRuleIndex] = useState(0);
-  const [relyingOnKeyboard, setRelyingOnKeyboard] = useState(true);
   const onFinished = () => {
-    const automaton = emiel.build(rules[ruleIndex].rule, words[wordIndex]);
+    const automaton = rules[ruleIndex].rule.build(words[wordIndex]);
     setAutomaton(automaton);
     setRuleName(rules[ruleIndex].name);
-    setRelyingOnKeyboard(rules[ruleIndex].rule.isStrokeRelyingOnKeyboardLayout);
     if (wordIndex < words.length - 1) {
       setWordIndex(wordIndex + 1);
     } else {
@@ -48,10 +53,8 @@ function App() {
     <>
       {automaton ? (
         <TypingGraph
-          layout={layout}
           automaton={automaton}
           ruleName={ruleName}
-          ruleRelyingOnKeyboardLayout={relyingOnKeyboard}
           onFinished={onFinished}
         ></TypingGraph>
       ) : (

@@ -1,19 +1,15 @@
 import { getKeyboardLayout } from "./defaultKeyboardLayout";
-import { loadFromGoogleImeText } from "./googleImeConfigRuleLoader";
+import { loadMozcRule } from "./mozcRuleLoader";
 import { VirtualKeys } from "./virtualKey";
 import { expect, test } from "vitest";
 
 test("load google ime empty rule", () => {
-  const rule = loadFromGoogleImeText(
-    "test-rule",
-    ``,
-    getKeyboardLayout("qwerty-jis")
-  );
+  const rule = loadMozcRule("test-rule", ``, getKeyboardLayout("qwerty-jis"));
   expect(rule.entries.length).toBe(0);
 });
 
 test("load google ime single rule", () => {
-  const rule = loadFromGoogleImeText(
+  const rule = loadMozcRule(
     "test-rule",
     `a	あ`,
     getKeyboardLayout("qwerty-jis")
@@ -26,7 +22,7 @@ test("load google ime single rule", () => {
 });
 
 test("load google ime next rule", () => {
-  const rule = loadFromGoogleImeText(
+  const rule = loadMozcRule(
     "test-rule",
     `tt	っ	t`,
     getKeyboardLayout("qwerty-jis")
@@ -42,7 +38,7 @@ test("load google ime next rule", () => {
 });
 
 test("load google ime double rule", () => {
-  const rule = loadFromGoogleImeText(
+  const rule = loadMozcRule(
     "test-rule",
     `a	あ
 i	い

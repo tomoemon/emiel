@@ -1,5 +1,5 @@
 import { Comparable, RuleEntry } from "./rule";
-import { RuleStroke } from "./stroke";
+import { RuleStroke } from "./ruleStroke";
 
 export function extendCommonPrefixOverlappedEntriesDeeply<
   T extends Comparable<T>

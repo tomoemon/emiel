@@ -1,7 +1,10 @@
 import { Automaton } from "./automaton";
 import { Comparable } from "./rule";
-import { InputEvent } from "./stroke";
+import { InputEvent } from "./ruleStroke";
 
+/**
+ * 複数の automaton をまとめて、入力を受け付ける
+ */
 export class Selector<T extends Comparable<T>, U extends Automaton<T>> {
   // 現在入力試行対象になっている automaton
   private _activeAutomatons: readonly U[];

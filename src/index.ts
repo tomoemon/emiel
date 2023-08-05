@@ -1,15 +1,7 @@
 import { KeyboardLayout as coreKeyboardLayout } from "./core/keyboardLayout";
 import { getKeyboardLayout } from "./impl/defaultKeyboardLayout";
-import {
-  loadFromJsonConfig,
-  loadFromJsonConfigText,
-} from "./impl/jsonConfigRuleLoader";
-import {
-  loadLayoutFromJsonConfig,
-  loadLayoutFromJsonConfigText,
-} from "./impl/keyboardLayoutLoader";
+import { loadJsonKeyboardLayout } from "./impl/keyboardLayoutLoader";
 import { rules } from "./impl/defaultRules";
-import { loadFromGoogleImeText } from "./impl/googleImeConfigRuleLoader";
 import {
   Automaton as coreAutomaton,
   MixedTextAutomaton as coreMixedTextAutomaton,
@@ -20,43 +12,40 @@ import {
   RuleStroke as coreRuleStroke,
   InputStroke as coreInputStroke,
   InputEvent as coreInputEvent,
-} from "./core/stroke";
+} from "./core/ruleStroke";
 import { StrokeNode as coreStrokeNode } from "./core/builderStrokeGraph";
 import {
   AndModifier as coreAndModifier,
   ModifierGroup as coreModifierGroup,
 } from "./core/modifier";
 import { VirtualKey } from "./impl/virtualKey";
+import { loadJsonRule } from "./impl/jsonRuleLoader";
+import { loadMozcRule } from "./impl/mozcRuleLoader";
 
 export { activate } from "./browser/eventHandler";
-
-export { buildAutomaton as build } from "./impl/builder";
-export { buildMixedAutomaton as buildMixed } from "./impl/builder";
+export { detectKeyboardLayout } from "./browser/osKeyboardLayout";
 
 export const keyboard = {
-  loadFromJsonConfig: loadLayoutFromJsonConfig,
-  loadFromJsonConfigText: loadLayoutFromJsonConfigText,
+  loadJson: loadJsonKeyboardLayout,
   get: getKeyboardLayout,
   getQwertyJis: () => getKeyboardLayout("qwerty-jis"),
   getQwertyUs: () => getKeyboardLayout("qwerty-us"),
 };
 
 export const rule = {
-  loadFromText: loadFromGoogleImeText,
-  loadFromJsonConfig: loadFromJsonConfig,
-  loadFromJsonConfigText: loadFromJsonConfigText,
   get: rules.get,
-  getRoman: (layout?: KeyboardLayout) =>
+  getRoman: (layout?: KeyboardLayout): Rule =>
     layout
       ? rules.get("roman", layout)
       : rules.get("roman", getKeyboardLayout("qwerty-jis")),
-  getJisKana: (layout?: KeyboardLayout) =>
+  getJisKana: (layout?: KeyboardLayout): Rule =>
     layout
       ? rules.get("jis-kana", layout)
       : rules.get("jis-kana", getKeyboardLayout("qwerty-jis")),
+  loadJson: loadJsonRule,
+  loadMozcRule: loadMozcRule,
 };
 
-export { DefaultGuide, DefaultMixedGuide } from "./impl/defaultGuide";
 export { VirtualKey } from "./impl/virtualKey";
 export { VirtualKeys } from "./impl/virtualKey";
 

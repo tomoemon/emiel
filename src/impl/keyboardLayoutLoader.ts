@@ -1,5 +1,5 @@
 import { AndModifier, ModifierGroup } from "../core/modifier";
-import { RuleStroke } from "../core/stroke";
+import { RuleStroke } from "../core/ruleStroke";
 import { VirtualKey, VirtualKeys, getVirtualKeyFromString } from "./virtualKey";
 import { KeyboardLayout } from "../core/keyboardLayout";
 
@@ -8,33 +8,30 @@ type jsonSchema = {
   entries: { output: string; input: { key: string; shift: boolean } }[];
 };
 
-export function loadLayoutFromJsonConfig(
-  jsonConfig: jsonSchema
+export function loadJsonKeyboardLayout(
+  jsonLayout: jsonSchema | string
 ): KeyboardLayout<VirtualKey> {
-  const strokes: [string, RuleStroke<VirtualKey>][] = jsonConfig.entries.map(
+  if (jsonLayout instanceof String || typeof jsonLayout === "string") {
+    const schema = JSON.parse(jsonLayout as string) as jsonSchema;
+    return loadJsonKeyboardLayout(schema);
+  }
+  const strokes: [string, RuleStroke<VirtualKey>][] = jsonLayout.entries.map(
     (v) => [
       v.output,
       new RuleStroke<VirtualKey>(
         getVirtualKeyFromString(v.input.key),
         v.input.shift ? modifierGroupSet.shift : nullModifier,
         v.input.shift ? modifiersExceptShift : allAvailableModifiers,
-        true
+        v.output
       ),
     ]
   );
   return new KeyboardLayout(
-    jsonConfig.name,
+    jsonLayout.name,
     strokes,
     allAvailableModifiers,
     modifierGroupSet.shift.groups[0].modifiers
   );
-}
-
-export function loadLayoutFromJsonConfigText(
-  jsonText: string
-): KeyboardLayout<VirtualKey> {
-  const jsonConfig = JSON.parse(jsonText) as jsonSchema;
-  return loadLayoutFromJsonConfig(jsonConfig);
 }
 
 const nullModifier = new AndModifier<VirtualKey>();

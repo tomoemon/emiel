@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 import { buildGraphData } from "./graphData";
 import dagre from "cytoscape-dagre";
 import cytoscape from "cytoscape";
@@ -8,17 +8,12 @@ import * as emiel from "../../../src/index";
 cytoscape.use(dagre);
 
 export function TypingGraph(props: {
-  layout: emiel.KeyboardLayout;
   automaton: emiel.Automaton;
   ruleName: string;
-  ruleRelyingOnKeyboardLayout: boolean;
   onFinished: () => void;
 }) {
   const automaton = props.automaton;
   const graphData = buildGraphData(automaton.currentNode);
-  const [guide, setGuide] = useState(
-    new emiel.DefaultGuide(props.layout, automaton)
-  );
   const htmlElem = useRef(null);
   useEffect(() => {
     const cy = cytoscape({
@@ -27,7 +22,6 @@ export function TypingGraph(props: {
       userZoomingEnabled: false,
       style: cyStylesheet,
     });
-    setGuide(new emiel.DefaultGuide(props.layout, automaton));
     cy.remove(cy.elements());
     cy.add([...graphData.nodes, ...graphData.edges]);
     cy.layout({ name: "dagre", rankDir: "LR" } as any).run();
@@ -46,22 +40,23 @@ export function TypingGraph(props: {
         const nodeId = graphData.nodesMap.get(automaton.currentNode)!;
         cy.elements(`#${nodeId}`).addClass("miss");
       }
-      setGuide(new emiel.DefaultGuide(props.layout, automaton));
     });
     return deactivate;
   }, [props.automaton]);
 
+  const finishedRomanSubstr = automaton.finishedRomanSubstr;
+  const pendingRomanSubstr = automaton.pendingRomanSubstr;
   return (
     <>
       <h2>{props.ruleName}</h2>
       <h1>
-        <span style={{ color: "gray" }}>{guide.finishedWordSubstr}</span>{" "}
-        {guide.pendingWordSubstr}
+        <span style={{ color: "gray" }}>{automaton.finishedWordSubstr}</span>{" "}
+        {automaton.pendingWordSubstr}
       </h1>
-      {props.ruleRelyingOnKeyboardLayout ? (
+      {finishedRomanSubstr || pendingRomanSubstr ? (
         <h1>
-          <span style={{ color: "gray" }}>{guide.finishedKeys}</span>{" "}
-          {guide.pendingKeys}
+          <span style={{ color: "gray" }}>{automaton.finishedRomanSubstr}</span>{" "}
+          {automaton.pendingRomanSubstr}
         </h1>
       ) : (
         <></>

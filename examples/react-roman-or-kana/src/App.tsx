@@ -2,16 +2,23 @@ import "./App.css";
 import * as emiel from "../../../src/index";
 import { useEffect, useState } from "react";
 
-const layout = emiel.keyboard.get("qwerty-jis");
-
 function App() {
+  const [layout, setLayout] = useState<emiel.KeyboardLayout | undefined>();
+  useEffect(() => {
+    emiel.detectKeyboardLayout(window).then(setLayout);
+  }, []);
+  return layout ? <Typing layout={layout} /> : <></>;
+}
+
+function Typing(props: { layout: emiel.KeyboardLayout }) {
+  const layout = props.layout;
   const words = ["おをひく", "こんとん", "がっこう", "aから@"];
   const [selectors] = useState(
     words.map(
       (w) =>
         new emiel.Selector([
-          emiel.build(emiel.rule.getRoman(layout), w),
-          emiel.build(emiel.rule.getJisKana(layout), w),
+          emiel.rule.getRoman(layout).build(w),
+          emiel.rule.getJisKana(layout).build(w),
         ])
     )
   );
@@ -45,8 +52,8 @@ function App() {
   }, [wordIndex]);
 
   const selector = selectors[wordIndex];
-  const romanGuide = new emiel.DefaultGuide(layout, selector.automatons[0]);
-  const kanaGuide = new emiel.DefaultGuide(layout, selector.automatons[1]);
+  const romanAutomaton = selector.automatons[0];
+  const kanaAutomaton = selector.automatons[1];
   return (
     <>
       <h1>
@@ -59,16 +66,18 @@ function App() {
       {/* ローマ字入力 */}
       <h1>
         <p style={{ fontSize: "1rem" }}>ローマ字入力</p>
-        <span style={{ color: "gray" }}>{romanGuide.finishedKeys}</span>{" "}
-        {romanGuide.pendingKeys}
+        <span style={{ color: "gray" }}>
+          {romanAutomaton.finishedRomanSubstr}
+        </span>{" "}
+        {romanAutomaton.pendingRomanSubstr}
       </h1>
       {/* かな入力 */}
       <h1>
         <p style={{ fontSize: "1rem" }}>かな入力</p>
         <span style={{ color: "gray" }}>
-          {kanaGuide.finishedWordSubstr}
+          {kanaAutomaton.finishedWordSubstr}
         </span>{" "}
-        {kanaGuide.pendingWordSubstr}
+        {kanaAutomaton.pendingWordSubstr}
       </h1>
     </>
   );

@@ -1,7 +1,7 @@
 import { expect, test } from "vitest";
 import { Comparable, Rule, RuleEntry } from "./rule";
 import { AndModifier } from "./modifier";
-import { RuleStroke } from "./stroke";
+import { RuleStroke } from "./ruleStroke";
 import { buildKanaNode } from "./builderKanaGraph";
 
 const nullModifier = new AndModifier<Key>();

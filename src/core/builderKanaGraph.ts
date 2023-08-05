@@ -1,6 +1,6 @@
 import { setDefaultFunc } from "../utils/map";
 import { Comparable, Rule, RuleEntry } from "./rule";
-import { RuleStroke } from "./stroke";
+import { RuleStroke } from "./ruleStroke";
 
 // build 中にのみ使用する
 export class KanaNode<T extends Comparable<T>> {

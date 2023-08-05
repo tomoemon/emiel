@@ -2,12 +2,12 @@ import * as emiel from "../../../src/index";
 
 export function Word(props: {
   event?: emiel.InputEvent;
-  guide: emiel.DefaultGuide;
+  automaton: emiel.Automaton;
   layout: emiel.KeyboardLayout;
   index: number;
 }) {
-  console.log("Word", props.guide.automaton.word);
-  const guide = props.guide;
+  console.log("Word", props.automaton.word);
+  const automaton = props.automaton;
   return (
     <div
       style={{
@@ -17,12 +17,12 @@ export function Word(props: {
       }}
     >
       <h2>
-        <span style={{ color: "gray" }}>{guide.finishedWordSubstr}</span>{" "}
-        {guide.pendingWordSubstr}
+        <span style={{ color: "gray" }}>{automaton.finishedWordSubstr}</span>{" "}
+        {automaton.pendingWordSubstr}
       </h2>
       <h2>
-        <span style={{ color: "gray" }}>{guide.finishedKeys}</span>{" "}
-        {guide.pendingKeys}
+        <span style={{ color: "gray" }}>{automaton.finishedRomanSubstr}</span>{" "}
+        {automaton.pendingRomanSubstr}
       </h2>
     </div>
   );

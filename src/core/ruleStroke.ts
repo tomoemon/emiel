@@ -68,10 +68,8 @@ export class RuleStroke<T extends Comparable<T>> {
     readonly key: T,
     readonly requiredModifier: AndModifier<T>,
     readonly unnecessaryModifiers: ModifierGroup<T>[],
-    // キーボードレイアウトによって作られた RuleStroke かどうか。
-    // 英字配列・ローマ字入力系に関してはキーボードレイアウトの影響を受けるため true
-    // かな配列系に関してはキーボードレイアウトに関係ないため false になる
-    readonly isFromKeyboardLayout: boolean = false
+    // ローマ字入力系（mozcRule）のルールで作られたRuleStrokeの場合、ローマ字を表す文字を持つ
+    readonly romanChar: string = ""
   ) {}
   equals(other: RuleStroke<T>): boolean {
     return (

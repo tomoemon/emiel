@@ -1,6 +1,6 @@
 import { expect, test } from "vitest";
 import { Comparable, RuleEntry } from "./rule";
-import { RuleStroke } from "./stroke";
+import { RuleStroke } from "./ruleStroke";
 import { extendCommonPrefixOverlappedEntriesDeeply } from "./ruleExtender";
 import { AndModifier } from "./modifier";
 

@@ -1,6 +1,8 @@
+import { Automaton, MixedTextAutomaton } from "./automaton";
+import { build, buildMixed } from "./automatonBuilder";
 import { ModifierGroup } from "./modifier";
 import { extendCommonPrefixOverlappedEntriesDeeply } from "./ruleExtender";
-import { RuleStroke } from "./stroke";
+import { RuleStroke } from "./ruleStroke";
 
 export type normalizerFunc = (value: string) => string;
 
@@ -95,12 +97,6 @@ khi/き
 nk/ん/k
 */
 export class Rule<T extends Comparable<T>> {
-  // このルールがローマ字入力のようにキーボードレイアウトによって
-  // 入力キーが変わるかどうか。
-  // 例えば、QWERTY JIS では「い」は「i」キーで打鍵されるが、
-  // DVORAK では「g」キーで打鍵される。
-  readonly isStrokeRelyingOnKeyboardLayout: boolean = false;
-
   constructor(
     readonly name: string,
     readonly entries: RuleEntry<T>[],
@@ -109,8 +105,24 @@ export class Rule<T extends Comparable<T>> {
     readonly normalize: normalizerFunc
   ) {
     this.entries = extendCommonPrefixOverlappedEntriesDeeply(entries);
-    this.isStrokeRelyingOnKeyboardLayout = this.entries.every((e) =>
-      e.input.every((i) => i.isFromKeyboardLayout)
-    );
+  }
+
+  build(kanaText: string): Automaton<T> {
+    return build(this, kanaText);
+  }
+
+  /**
+   * kanaTextSplit: [きょう,は,い,い,てん,き]
+   * mixedTextSplit: [今日,は,い,い,天,気]
+   *
+   * ある kanaText の位置における mixedText の位置を指す
+   *                  き ょ う  は い い  て ん き
+   * mixedTextIndex: [0, 0, 0, 2, 3, 4, 5, 5, 6, 7]
+   */
+  buildMixed(
+    kanaTextSplit: string[],
+    mixedTextSplit: string[]
+  ): MixedTextAutomaton<T> {
+    return buildMixed(this, kanaTextSplit, mixedTextSplit);
   }
 }

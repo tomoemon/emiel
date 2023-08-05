@@ -1,5 +1,5 @@
 import { Comparable } from "./rule";
-import { InputEvent, RuleStroke } from "./stroke";
+import { InputEvent, RuleStroke } from "./ruleStroke";
 import { StrokeEdge, StrokeNode } from "./builderStrokeGraph";
 
 export class InputResult {
@@ -57,6 +57,12 @@ export class Automaton<T extends Comparable<T>> {
   get pendingWordSubstr(): string {
     return this.word.substring(this._currentNode.kanaIndex);
   }
+  get finishedRomanSubstr(): string {
+    return this.succeededInputs.map((v) => v.romanChar).join("");
+  }
+  get pendingRomanSubstr(): string {
+    return this.shortestPendingStrokes.map((v) => v.romanChar).join("");
+  }
   /**
    * 現在の入力状態から最短ストローク数で打ち切れるストローク列を返す
    */
@@ -101,7 +107,6 @@ export class Automaton<T extends Comparable<T>> {
     const acceptedEdges = this._currentNode.nextEdges.filter(
       (edge) => stroke.match(edge) === "matched"
     );
-    console.log(acceptedEdges);
     if (acceptedEdges.length > 0) {
       this.succeededStack.push({
         input: stroke,
