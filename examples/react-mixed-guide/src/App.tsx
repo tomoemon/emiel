@@ -23,7 +23,7 @@ function Typing(props: { layout: emiel.KeyboardLayout }) {
       mixed: "a,か,ら,@".split(","),
     },
   ];
-  const [automatons, setAutomatons] = useState(
+  const [automatons] = useState(
     words.map((w) =>
       emiel.rule.getRoman(props.layout).buildMixed(w.kana, w.mixed)
     )
