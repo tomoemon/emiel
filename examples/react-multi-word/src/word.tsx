@@ -1,11 +1,6 @@
 import * as emiel from "../../../src/index";
 
-export function Word(props: {
-  event?: emiel.InputEvent;
-  automaton: emiel.Automaton;
-  layout: emiel.KeyboardLayout;
-  index: number;
-}) {
+export function Word(props: { automaton: emiel.Automaton }) {
   console.log("Word", props.automaton.word);
   const automaton = props.automaton;
   return (

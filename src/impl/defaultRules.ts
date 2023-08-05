@@ -37,7 +37,7 @@ class Rules {
     text: string,
     layout: KeyboardLayout<VirtualKey>
   ): Rule<VirtualKey> {
-    return setDefaultFunc(Rules.cache, name, () =>
+    return setDefaultFunc(Rules.cache, name + "/" + layout.name, () =>
       mergeRule(
         loadMozcRule(name, text, layout),
         getAlphaNumericRuleByLayout(layout)
@@ -49,7 +49,7 @@ class Rules {
     jsonData: any,
     layout: KeyboardLayout<VirtualKey>
   ): Rule<VirtualKey> {
-    return setDefaultFunc(Rules.cache, name, () =>
+    return setDefaultFunc(Rules.cache, name + "/" + layout.name, () =>
       mergeRule(
         loadJsonRule(name, jsonData),
         getAlphaNumericRuleByLayout(layout)

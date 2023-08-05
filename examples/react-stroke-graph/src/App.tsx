@@ -16,11 +16,10 @@ function App() {
 }
 
 function Typing(props: { layout: emiel.KeyboardLayout }) {
-  const layout = props.layout;
   const rules = [
-    { name: "ローマ字", rule: emiel.rule.get("roman", layout) },
-    { name: "JISかな", rule: emiel.rule.get("jis-kana", layout) },
-    { name: "NICOLA", rule: emiel.rule.get("nicola", layout) },
+    { name: "ローマ字", rule: emiel.rule.get("roman", props.layout) },
+    { name: "JISかな", rule: emiel.rule.get("jis-kana", props.layout) },
+    { name: "NICOLA", rule: emiel.rule.get("nicola", props.layout) },
   ];
   const words = ["おをひく", "こんとん", "がっこう", "aから@"];
   const [automaton, setAutomaton] = useState<emiel.Automaton | undefined>(

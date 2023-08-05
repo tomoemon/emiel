@@ -3,7 +3,6 @@ import { Rule, RuleEntry } from "../core/rule";
 import { RuleStroke } from "../core/ruleStroke";
 import { product } from "../utils/itertools";
 import { defaultKanaNormalize } from "./charNormalizer";
-import { loadJsonKeyboardLayout } from "./keyboardLayoutLoader";
 import { VirtualKey, getVirtualKeyFromString } from "./virtualKey";
 
 /*

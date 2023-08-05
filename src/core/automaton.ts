@@ -14,27 +14,33 @@ export class InputResult {
   toString(): string {
     return this.type;
   }
+  // 今回の打鍵が無視されたかどうか（シフトキー等のモディファイアキーの単独入力の場合）
   get isIgnored(): boolean {
     return this.type === "ignored";
   }
+  // 今回の1打鍵が入力ミスだったかどうか
   get isFailed(): boolean {
     return this.type === "failed";
   }
-  get isKeySucceeded(): boolean {
-    return this.type === "key_succeeded";
-  }
-  get isKanaSucceeded(): boolean {
-    return this.type === "kana_succeeded";
-  }
-  get isFinished(): boolean {
-    return this.type === "finished";
-  }
+  // 今回の入力に成功したかどうか
   get isSucceeded(): boolean {
     return (
       this.type === "key_succeeded" ||
       this.type === "kana_succeeded" ||
       this.type === "finished"
     );
+  }
+  // isSucceeded:true の場合の詳細な情報: 今回の1打鍵でかな1文字分の遷移はしていない
+  get isKeySucceeded(): boolean {
+    return this.type === "key_succeeded";
+  }
+  // isSucceeded:true の場合の詳細な情報: 今回の1打鍵でかな1文字分の遷移をした
+  get isKanaSucceeded(): boolean {
+    return this.type === "kana_succeeded";
+  }
+  // isSucceeded:true の場合の詳細な情報: 今回の1打鍵でワードの入力が完了した
+  get isFinished(): boolean {
+    return this.type === "finished";
   }
 }
 

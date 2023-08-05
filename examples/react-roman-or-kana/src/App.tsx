@@ -11,24 +11,25 @@ function App() {
 }
 
 function Typing(props: { layout: emiel.KeyboardLayout }) {
-  const layout = props.layout;
   const words = ["おをひく", "こんとん", "がっこう", "aから@"];
   const [selectors] = useState(
     words.map(
       (w) =>
         new emiel.Selector([
-          emiel.rule.getRoman(layout).build(w),
-          emiel.rule.getJisKana(layout).build(w),
+          emiel.rule.getRoman(props.layout).build(w),
+          emiel.rule.getJisKana(props.layout).build(w),
         ])
     )
   );
-  const [_, setSucceededCount] = useState(0);
+  const [lastInputKey, setLastInputKey] = useState<
+    emiel.InputStroke | undefined
+  >();
   const [wordIndex, setWordIndex] = useState(0);
   useEffect(() => {
     return emiel.activate(window, (e) => {
+      setLastInputKey(e.input);
       if (e.input.key === emiel.VirtualKeys.Escape) {
         selectors[wordIndex].reset();
-        setSucceededCount(0);
         return;
       }
       selectors[wordIndex].input(e, {
@@ -42,7 +43,6 @@ function Typing(props: { layout: emiel.KeyboardLayout }) {
         },
         succeeded: (a) => {
           console.log("succeeded", a);
-          setSucceededCount((current) => current + 1);
         },
         failed: (a) => {
           console.log("failed", a);
@@ -79,6 +79,12 @@ function Typing(props: { layout: emiel.KeyboardLayout }) {
         </span>{" "}
         {kanaAutomaton.pendingWordSubstr}
       </h1>
+      <h2>
+        Key:{" "}
+        <code style={{ border: "1px solid gray", padding: "0.2rem" }}>
+          {lastInputKey ? lastInputKey.key.toString() : ""}
+        </code>
+      </h2>
     </>
   );
 }

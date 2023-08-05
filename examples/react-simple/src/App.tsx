@@ -11,30 +11,29 @@ function App() {
 }
 
 function Typing(props: { layout: emiel.KeyboardLayout }) {
-  const layout = props.layout;
   const words = ["おをひく", "こんとん", "がっこう", "aから@"];
   const [automatons] = useState(
     words.map((w) => {
-      return emiel.rule.getRoman(layout).build(w);
+      return emiel.rule.getRoman(props.layout).build(w);
     })
   );
   const [index, setIndex] = useState(0);
-  const [_, setStrokeCount] = useState(0);
+  const [lastInputKey, setLastInputKey] = useState<
+    emiel.InputStroke | undefined
+  >();
   const automaton = automatons[index];
   useEffect(() => {
     return emiel.activate(window, (e) => {
+      setLastInputKey(e.input);
       const result = automaton.input(e);
       if (result.isFinished) {
         automaton.reset();
         setIndex((current) => (current + 1) % words.length);
       }
-      // 1打鍵ごとの再レンダリングのため
-      setStrokeCount((current) => current + 1);
     });
   }, [index]);
   return (
     <>
-      <p style={{ fontSize: "1rem" }}>[{layout.name} KEYBOARD]</p>
       <h1>
         <span style={{ color: "gray" }}>{automaton.finishedWordSubstr}</span>{" "}
         {automaton.pendingWordSubstr}
@@ -43,6 +42,12 @@ function Typing(props: { layout: emiel.KeyboardLayout }) {
         <span style={{ color: "gray" }}>{automaton.finishedRomanSubstr}</span>{" "}
         {automaton.pendingRomanSubstr}
       </h1>
+      <h2>
+        Key:{" "}
+        <code style={{ border: "1px solid gray", padding: "0.2rem" }}>
+          {lastInputKey ? lastInputKey.key.toString() : ""}
+        </code>
+      </h2>
     </>
   );
 }

@@ -38,37 +38,37 @@ function App() {
 }
 
 function Typing(props: { layout: emiel.KeyboardLayout }) {
-  const layout = props.layout;
   const [selector, setSelector] = useState(
     new emiel.Selector(
       initialWords.map(
         (w, i) =>
-          new PositionedAutomaton(emiel.rule.getRoman(layout).build(w), i)
+          new PositionedAutomaton(emiel.rule.getRoman(props.layout).build(w), i)
       )
     )
   );
-  const [_, setSucceededCount] = useState(0);
+  const [lastInputKey, setLastInputKey] = useState<
+    emiel.InputStroke | undefined
+  >();
   useEffect(() => {
     return emiel.activate(window, (e) => {
+      setLastInputKey(e.input);
       console.log("input:", e);
       if (e.input.key === emiel.VirtualKeys.Escape) {
         console.log("reset");
         selector.reset();
-        setSucceededCount(0);
         return;
       }
       selector.input(e, {
         finished: (a) => {
           console.log("finished", a);
           const newAutomaton = new PositionedAutomaton(
-            emiel.rule.getRoman(layout).build(wordGen.next().value),
+            emiel.rule.getRoman(props.layout).build(wordGen.next().value),
             a.position
           );
           setSelector((current) => current.replaced(a, newAutomaton));
         },
         succeeded: (a) => {
           console.log("succeeded", a);
-          setSucceededCount((current) => current + 1);
         },
         failed: (a) => {
           console.log("failed", a);
@@ -78,19 +78,23 @@ function Typing(props: { layout: emiel.KeyboardLayout }) {
   }, [selector]);
 
   return (
-    <ul style={{ display: "flex", gap: "2rem", listStyle: "none" }}>
-      {[...selector.automatons]
-        .sort((a, b) => a.position - b.position)
-        .map((a, i) => (
-          <li key={a.word + i.toString()}>
-            <Word
-              automaton={a}
-              layout={layout}
-              index={a.succeededInputs.length}
-            />
-          </li>
-        ))}
-    </ul>
+    <>
+      <ul style={{ display: "flex", gap: "2rem", listStyle: "none" }}>
+        {[...selector.automatons]
+          .sort((a, b) => a.position - b.position)
+          .map((a, i) => (
+            <li key={a.word + i.toString()}>
+              <Word automaton={a} />
+            </li>
+          ))}
+      </ul>
+      <h2>
+        Key:{" "}
+        <code style={{ border: "1px solid gray", padding: "0.2rem" }}>
+          {lastInputKey ? lastInputKey.key.toString() : ""}
+        </code>
+      </h2>
+    </>
   );
 }
 
