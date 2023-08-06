@@ -13,7 +13,10 @@ import {
   InputStroke as coreInputStroke,
   InputEvent as coreInputEvent,
 } from "./core/ruleStroke";
-import { StrokeNode as coreStrokeNode } from "./core/builderStrokeGraph";
+import {
+  StrokeNode as coreStrokeNode,
+  StrokeEdge as coreStrokeEdge,
+} from "./core/builderStrokeGraph";
 import {
   AndModifier as coreAndModifier,
   ModifierGroup as coreModifierGroup,
@@ -60,6 +63,7 @@ export class RuleEntry extends coreRuleEntry<VirtualKey> {}
 export class InputStroke extends coreInputStroke<VirtualKey> {}
 export class InputEvent extends coreInputEvent<VirtualKey> {}
 export class StrokeNode extends coreStrokeNode<VirtualKey> {}
+export class StrokeEdge extends coreStrokeEdge<VirtualKey> {}
 export class ModifierGroup extends coreModifierGroup<VirtualKey> {}
 export class AndModifier extends coreAndModifier<VirtualKey> {}
 export class Automaton extends coreAutomaton<VirtualKey> {}

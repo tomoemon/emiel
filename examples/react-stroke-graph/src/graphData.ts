@@ -1,9 +1,8 @@
-import { StrokeEdge, StrokeNode } from "../../../src/core/builderStrokeGraph";
-import { VirtualKey, VirtualKeys } from "../../../src/impl/virtualKey";
+import * as emiel from "emiel";
 
-export function buildGraphData(startNode: StrokeNode<VirtualKey>) {
-  const nodes = new Map<StrokeNode<VirtualKey>, number>();
-  const edges = new Set<StrokeEdge<VirtualKey>>();
+export function buildGraphData(startNode: emiel.StrokeNode) {
+  const nodes = new Map<emiel.StrokeNode, number>();
+  const edges = new Set<emiel.StrokeEdge>();
   walkTree(startNode, nodes, edges);
   return {
     nodesMap: nodes,
@@ -27,9 +26,9 @@ export function buildGraphData(startNode: StrokeNode<VirtualKey>) {
 }
 
 function walkTree(
-  startNode: StrokeNode<VirtualKey>,
-  nodes: Map<StrokeNode<VirtualKey>, number>,
-  edges: Set<StrokeEdge<VirtualKey>>
+  startNode: emiel.StrokeNode,
+  nodes: Map<emiel.StrokeNode, number>,
+  edges: Set<emiel.StrokeEdge>
 ) {
   if (nodes.has(startNode)) {
     return;
@@ -41,7 +40,7 @@ function walkTree(
   });
 }
 
-function strokeToString(stroke: StrokeEdge<VirtualKey>): string {
+function strokeToString(stroke: emiel.StrokeEdge): string {
   const key = stroke.input.key;
   const mod = stroke.input.requiredModifier;
   const modStr = Array.from(
@@ -49,7 +48,10 @@ function strokeToString(stroke: StrokeEdge<VirtualKey>): string {
       mod.groups
         .flatMap((v) => v.modifiers)
         .map((v) => {
-          if (v === VirtualKeys.ShiftLeft || v === VirtualKeys.ShiftRight) {
+          if (
+            v === emiel.VirtualKeys.ShiftLeft ||
+            v === emiel.VirtualKeys.ShiftRight
+          ) {
             return "Sft";
           }
           return keyToString(v);
@@ -59,75 +61,75 @@ function strokeToString(stroke: StrokeEdge<VirtualKey>): string {
   return keyToString(key) + (modStr.length > 0 ? `/${modStr}` : "");
 }
 
-function keyToString(key: VirtualKey): string {
+function keyToString(key: emiel.VirtualKey): string {
   switch (key) {
-    case VirtualKeys.A:
-    case VirtualKeys.B:
-    case VirtualKeys.C:
-    case VirtualKeys.D:
-    case VirtualKeys.E:
-    case VirtualKeys.F:
-    case VirtualKeys.G:
-    case VirtualKeys.H:
-    case VirtualKeys.I:
-    case VirtualKeys.J:
-    case VirtualKeys.K:
-    case VirtualKeys.L:
-    case VirtualKeys.M:
-    case VirtualKeys.N:
-    case VirtualKeys.O:
-    case VirtualKeys.P:
-    case VirtualKeys.Q:
-    case VirtualKeys.R:
-    case VirtualKeys.S:
-    case VirtualKeys.T:
-    case VirtualKeys.U:
-    case VirtualKeys.V:
-    case VirtualKeys.W:
-    case VirtualKeys.X:
-    case VirtualKeys.Y:
-    case VirtualKeys.Z:
+    case emiel.VirtualKeys.A:
+    case emiel.VirtualKeys.B:
+    case emiel.VirtualKeys.C:
+    case emiel.VirtualKeys.D:
+    case emiel.VirtualKeys.E:
+    case emiel.VirtualKeys.F:
+    case emiel.VirtualKeys.G:
+    case emiel.VirtualKeys.H:
+    case emiel.VirtualKeys.I:
+    case emiel.VirtualKeys.J:
+    case emiel.VirtualKeys.K:
+    case emiel.VirtualKeys.L:
+    case emiel.VirtualKeys.M:
+    case emiel.VirtualKeys.N:
+    case emiel.VirtualKeys.O:
+    case emiel.VirtualKeys.P:
+    case emiel.VirtualKeys.Q:
+    case emiel.VirtualKeys.R:
+    case emiel.VirtualKeys.S:
+    case emiel.VirtualKeys.T:
+    case emiel.VirtualKeys.U:
+    case emiel.VirtualKeys.V:
+    case emiel.VirtualKeys.W:
+    case emiel.VirtualKeys.X:
+    case emiel.VirtualKeys.Y:
+    case emiel.VirtualKeys.Z:
       return key.toString();
-    case VirtualKeys.Digit0:
-    case VirtualKeys.Digit1:
-    case VirtualKeys.Digit2:
-    case VirtualKeys.Digit3:
-    case VirtualKeys.Digit4:
-    case VirtualKeys.Digit5:
-    case VirtualKeys.Digit6:
-    case VirtualKeys.Digit7:
-    case VirtualKeys.Digit8:
-    case VirtualKeys.Digit9:
+    case emiel.VirtualKeys.Digit0:
+    case emiel.VirtualKeys.Digit1:
+    case emiel.VirtualKeys.Digit2:
+    case emiel.VirtualKeys.Digit3:
+    case emiel.VirtualKeys.Digit4:
+    case emiel.VirtualKeys.Digit5:
+    case emiel.VirtualKeys.Digit6:
+    case emiel.VirtualKeys.Digit7:
+    case emiel.VirtualKeys.Digit8:
+    case emiel.VirtualKeys.Digit9:
       return key.toString().replace("Digit", "");
-    case VirtualKeys.Minus:
+    case emiel.VirtualKeys.Minus:
       return "-";
-    case VirtualKeys.Equal:
+    case emiel.VirtualKeys.Equal:
       return "^";
-    case VirtualKeys.JpnYen:
+    case emiel.VirtualKeys.JpnYen:
       return "¥";
-    case VirtualKeys.BracketLeft:
+    case emiel.VirtualKeys.BracketLeft:
       return "@";
-    case VirtualKeys.BracketRight:
+    case emiel.VirtualKeys.BracketRight:
       return "[";
-    case VirtualKeys.Semicolon:
+    case emiel.VirtualKeys.Semicolon:
       return ";";
-    case VirtualKeys.Quote:
+    case emiel.VirtualKeys.Quote:
       return ":";
-    case VirtualKeys.Backslash:
+    case emiel.VirtualKeys.Backslash:
       return "]";
-    case VirtualKeys.Comma:
+    case emiel.VirtualKeys.Comma:
       return ",";
-    case VirtualKeys.Period:
+    case emiel.VirtualKeys.Period:
       return ".";
-    case VirtualKeys.Slash:
+    case emiel.VirtualKeys.Slash:
       return "/";
-    case VirtualKeys.JpnRo:
+    case emiel.VirtualKeys.JpnRo:
       return "_";
-    case VirtualKeys.Space:
+    case emiel.VirtualKeys.Space:
       return "␣";
-    case VirtualKeys.Lang2:
+    case emiel.VirtualKeys.Lang2:
       return "親左";
-    case VirtualKeys.Lang1:
+    case emiel.VirtualKeys.Lang1:
       return "親右";
   }
   return key.toString();

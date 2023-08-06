@@ -1,4 +1,4 @@
-# CLI デモ
+# 概要
 
 CLI でタイピングの入力を試す例。
 ブラウザで動かす場合は `emiel.activate` 経由でキー入力に応じて InputEvent をハンドリングできるが、CLI では InputEvent を自前で作成する必要がある。
@@ -6,7 +6,7 @@ CLI でタイピングの入力を試す例。
 # 動かし方
 
 ```
-npm install
+pnpm install
 node index.js
 ```
 

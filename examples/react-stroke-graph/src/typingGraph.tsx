@@ -3,7 +3,7 @@ import { buildGraphData } from "./graphData";
 import dagre from "cytoscape-dagre";
 import cytoscape from "cytoscape";
 import { cyStylesheet } from "./grpahStyle";
-import * as emiel from "../../../src/index";
+import * as emiel from "emiel";
 
 cytoscape.use(dagre);
 

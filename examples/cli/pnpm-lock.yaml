@@ -1,0 +1,16 @@
+lockfileVersion: '6.0'
+
+settings:
+  autoInstallPeers: true
+  excludeLinksFromLockfile: false
+
+dependencies:
+  emiel:
+    specifier: ^0.1.1
+    version: 0.1.1
+
+packages:
+
+  /emiel@0.1.1:
+    resolution: {integrity: sha512-LJ0UUnu5foa/eighMEkZZj/akPDLD9ABzp7e+Ud2dyQrCzSb1YKe8ltQWKpYpQz6o4xEREK+EtY9uF2EK9TahA==}
+    dev: false

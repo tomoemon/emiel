@@ -1,4 +1,4 @@
-import * as emiel from "../../../src/index";
+import * as emiel from "emiel";
 
 export function Word(props: { automaton: emiel.Automaton }) {
   console.log("Word", props.automaton.word);

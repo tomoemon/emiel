@@ -1,5 +1,5 @@
 {
-  "name": "sample",
+  "name": "cli",
   "version": "1.0.0",
   "description": "",
   "type": "module",
@@ -9,6 +9,6 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
-    "emiel": "^0.1.0"
+    "emiel": "^0.1.2"
   }
 }

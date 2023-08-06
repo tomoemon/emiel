@@ -1,6 +1,7 @@
 {
   "name": "react-multi-word",
   "private": true,
+  "packageManager": "pnpm@8.6.11",
   "version": "0.0.0",
   "type": "module",
   "scripts": {
@@ -10,6 +11,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "emiel": "^0.1.2",
     "react": "^18.2.0",
     "react-dom": "^18.2.0"
   },
