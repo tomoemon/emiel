@@ -45,7 +45,7 @@ export class KanaEdge<T extends Comparable<T>> {
   /**
    * entries に含まれる input を結合して返す
    * entry の nextInput が次とつながる分を除いて結合する
-   * 例：entires: [tt っ t], [ta た] → tta を返す
+   * 例：entries: [tt っ t], [ta た] → tta を返す
    */
   get inputs(): { input: RuleStroke<T>; kanaIndex: number }[] {
     const result: { input: RuleStroke<T>; kanaIndex: number }[] = [];

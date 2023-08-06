@@ -1,38 +1,10 @@
-import { prettyPrint } from "@base2/pretty-print-object";
 import { loadMozcRule } from "./mozcRuleLoader";
-import { test } from "vitest";
+import { expect, test } from "vitest";
 import { buildKanaNode } from "../core/builderKanaGraph";
-import { buildStrokeNode } from "../core/builderStrokeGraph";
 import { getKeyboardLayout } from "./defaultKeyboardLayout";
+import { VirtualKeys } from "..";
 
-function showNextNode(node: any) {
-  return console.log(
-    prettyPrint(node, {
-      indent: "  ",
-      transform: (_, prop, originalResult) => {
-        if (prop.toString().indexOf("previous") >= 0 || prop == "kanaEdge") {
-          return "[ignore]";
-        }
-        return originalResult;
-      },
-    })
-  );
-}
-function showPreviousNode(node: any) {
-  return console.log(
-    prettyPrint(node, {
-      indent: "  ",
-      transform: (_, prop, originalResult) => {
-        if (prop.toString().indexOf("next") >= 0 || prop == "kanaEdge") {
-          return "[ignore]";
-        }
-        return originalResult;
-      },
-    })
-  );
-}
-
-test("load google ime empty rule", () => {
+test("build kana node", () => {
   const rule = loadMozcRule(
     "test-rule",
     `
@@ -47,11 +19,18 @@ ltu	っ
 `,
     getKeyboardLayout("qwerty-jis")
   );
-  // console.log(rule);
-  // const [_, endKanaNode] = buildKanaNode(rule, "おった");
-  // const startStrokeNode = buildStrokeNode(rule, endKanaNode);
-  // showNextNode(startStrokeNode);
-  // showPreviousNode(endKanaNode);
+  const [startNode, endKanaNode] = buildKanaNode(rule, "おった");
+  expect(startNode.nextEdges[0].entries[0].output).toBe("お");
+  const nextNode = startNode.nextEdges[0].next;
+  expect(nextNode.nextEdges.length).toBe(2);
+  expect(nextNode.nextEdges[0].entries[0].output).toBe("っ");
+  expect(nextNode.nextEdges[0].entries[1].output).toBe("た");
+  expect(nextNode.nextEdges[0].next).toBe(endKanaNode);
+  expect(nextNode.nextEdges[1].entries[0].output).toBe("っ");
+  const thirdNode = nextNode.nextEdges[1].next;
+  expect(thirdNode.nextEdges.length).toBe(1);
+  expect(thirdNode.nextEdges[0].entries[0].output).toBe("た");
+  expect(thirdNode.nextEdges[0].next).toBe(endKanaNode);
 });
 
 test("erase invalid connection test", () => {
@@ -59,19 +38,12 @@ test("erase invalid connection test", () => {
     "test-rule",
     `
 a	あ
-x	あいうえ
+x	あいう
 `,
     getKeyboardLayout("qwerty-jis")
   );
-  // console.log(prettyPrint(rule, { indent: "    " }));
-  /*
-  function clearPrevious(node: KanaNode) {
-    node.previousEdges.splice(0);
-    for (let edge of node.nextEdges) {
-      clearPrevious(edge.next);
-    }
-  }
-	*/
-  //clearPrevious(startNode);
-  // console.log(prettyPrint(startNode, { indent: "    " }));
+  const [startNode, endNode] = buildKanaNode(rule, "あいう");
+  expect(startNode.nextEdges.length).toBe(1);
+  expect(startNode.nextEdges[0].entries[0].input[0].key).toBe(VirtualKeys.X);
+  expect(startNode.nextEdges[0].next).toBe(endNode);
 });

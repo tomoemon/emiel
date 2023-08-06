@@ -21,6 +21,10 @@ import {
 import { VirtualKey } from "./impl/virtualKey";
 import { loadJsonRule } from "./impl/jsonRuleLoader";
 import { loadMozcRule } from "./impl/mozcRuleLoader";
+import {
+  KeyboardState as coreKeyboardState,
+  KeyboardStateReader as coreKeyboardStateReader,
+} from "./core/keyboardState";
 
 export { activate } from "./browser/eventHandler";
 export { detectKeyboardLayout } from "./browser/osKeyboardLayout";
@@ -64,3 +68,6 @@ export class Selector<T extends coreAutomaton<VirtualKey>> extends coreSelector<
   VirtualKey,
   T
 > {}
+export class KeyboardState extends coreKeyboardState<VirtualKey> {}
+export interface KeyboardStateReader
+  extends coreKeyboardStateReader<VirtualKey> {}

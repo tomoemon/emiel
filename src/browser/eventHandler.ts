@@ -9,7 +9,11 @@ import { VirtualKey, VirtualKeys } from "../impl/virtualKey";
  */
 export function activate(
   target: EventTarget,
-  handler: (evt: InputEvent<VirtualKey>) => void
+  handler: (evt: InputEvent<VirtualKey>) => void,
+  options: { ignoreKeyDown?: boolean; ignoreKeyUp?: boolean } = {
+    ignoreKeyDown: false,
+    ignoreKeyUp: true,
+  }
 ) {
   const keyboardState = new KeyboardState<VirtualKey>();
   const keyDownEventHandler = (evt: Event) => {
@@ -20,7 +24,9 @@ export function activate(
       now
     );
     keyboardState.keydown(keyStroke.key);
-    handler(new InputEvent(keyStroke, keyboardState));
+    if (!options.ignoreKeyDown) {
+      handler(new InputEvent(keyStroke, keyboardState));
+    }
   };
   const keyUpEventHandler = (evt: Event) => {
     const now = new Date();
@@ -30,8 +36,9 @@ export function activate(
       now
     );
     keyboardState.keyup(keyStroke.key);
-    // keyup は現状の仕様だと基本的に使わないのでイベントを発行しない
-    // handler(new InputEvent(keyStroke, keyboardState));
+    if (!options.ignoreKeyUp) {
+      handler(new InputEvent(keyStroke, keyboardState));
+    }
   };
   target.addEventListener("keydown", keyDownEventHandler);
   target.addEventListener("keyup", keyUpEventHandler);

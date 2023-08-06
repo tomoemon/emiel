@@ -51,7 +51,7 @@ test("んの展開", () => {
       [new RuleStroke<Key>(keys.N, nullModifier, [])],
       "ん",
       [],
-      false
+      true
     ),
     new RuleEntry<Key>(
       [
@@ -60,7 +60,7 @@ test("んの展開", () => {
       ],
       "な",
       [],
-      false
+      true
     ),
     new RuleEntry<Key>(
       [
@@ -69,9 +69,15 @@ test("んの展開", () => {
       ],
       "か",
       [],
-      false
+      true
     ),
   ];
   const result = extendCommonPrefixOverlappedEntriesDeeply(entries);
-  // console.log(result);
+  const extendedN = result.filter((e) => e.output === "ん");
+  expect(extendedN.length).toBe(1);
+  expect(extendedN[0].input.length).toBe(2);
+  expect(extendedN[0].input[0].key).toBe(keys.N);
+  expect(extendedN[0].input[1].key).toBe(keys.K);
+  expect(extendedN[0].nextInput.length).toBe(1);
+  expect(extendedN[0].nextInput[0].key).toBe(keys.K);
 });
