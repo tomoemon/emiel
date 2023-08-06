@@ -1,11 +1,34 @@
 {
   "name": "emiel",
-  "private": true,
-  "version": "0.1.0",
+  "author": "tomoemon",
+  "version": "0.1.1",
   "type": "module",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/tomoemon/emiel"
+  },
+  "bugs": {
+    "url": "https://github.com/tomoemon/emiel/issues"
+  },
+  "files": [
+    "dist"
+  ],
+  "module": "./dist/index.js",
+  "main": "./dist/index.cjs",
+  "exports": {
+    "import": {
+      "types": "./dist/types/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "require": {
+      "types": "./dist/types/index.d.ts",
+      "default": "./dist/index.cjs"
+    }
+  },
   "scripts": {
     "dev": "vite",
-    "build": "tsc && vite build",
+    "build": "vite build && tsc",
     "lint": "eslint src --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview",
     "test": "vitest"
@@ -13,6 +36,7 @@
   "dependencies": {},
   "devDependencies": {
     "@base2/pretty-print-object": "^1.0.2",
+    "@types/estree": "^1.0.1",
     "@typescript-eslint/eslint-plugin": "^5.59.0",
     "@typescript-eslint/parser": "^5.59.0",
     "eslint": "^8.38.0",
