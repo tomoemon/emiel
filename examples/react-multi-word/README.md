@@ -12,6 +12,4 @@ pnpm dev
 
 # 実行例
 
-<video controls width="500">
-  <source src="https://github.com/tomoemon/emiel/assets/1381362/51e1ea22-554b-4a9d-b2a2-4e07cd0291c3" type="video/quicktime" />
-</video>
+https://github.com/tomoemon/emiel/assets/1381362/51e1ea22-554b-4a9d-b2a2-4e07cd0291c3
