@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 function App() {
   const [layout, setLayout] = useState<emiel.KeyboardLayout | undefined>();
   useEffect(() => {
-    emiel.detectKeyboardLayout(window).then(setLayout);
+    emiel.keyboard.detect(window).then(setLayout);
   }, []);
   return layout ? <Typing layout={layout} /> : <></>;
 }

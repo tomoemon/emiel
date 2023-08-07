@@ -28,11 +28,12 @@ import {
   KeyboardState as coreKeyboardState,
   KeyboardStateReader as coreKeyboardStateReader,
 } from "./core/keyboardState";
+import { detectKeyboardLayout } from "./browser/osKeyboardLayout";
 
 export { activate } from "./browser/eventHandler";
-export { detectKeyboardLayout } from "./browser/osKeyboardLayout";
 
 export const keyboard = {
+  detect: detectKeyboardLayout,
   loadJson: loadJsonKeyboardLayout,
   get: getKeyboardLayout,
   getQwertyJis: () => getKeyboardLayout("qwerty-jis"),

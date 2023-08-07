@@ -32,7 +32,7 @@ const initialWords = [...Array(3)].map((_) => wordGen.next().value);
 function App() {
   const [layout, setLayout] = useState<emiel.KeyboardLayout | undefined>();
   useEffect(() => {
-    emiel.detectKeyboardLayout(window).then(setLayout);
+    emiel.keyboard.detect(window).then(setLayout);
   }, []);
   return layout ? <Typing layout={layout} /> : <></>;
 }
