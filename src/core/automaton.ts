@@ -52,8 +52,10 @@ const inputResultFinished = new InputResult("finished");
 
 export class Automaton<T extends Comparable<T>> {
   private _currentNode: StrokeNode<T>;
-  private succeededStack: { input: InputEvent<T>; lastEdge: StrokeEdge<T> }[] =
-    [];
+  private _succeededInputs: {
+    input: InputEvent<T>;
+    lastEdge: StrokeEdge<T>;
+  }[] = [];
   constructor(readonly word: string, readonly startNode: StrokeNode<T>) {
     this._currentNode = startNode;
   }
@@ -86,20 +88,20 @@ export class Automaton<T extends Comparable<T>> {
    */
   reset(): void {
     this._currentNode = this.startNode;
-    this.succeededStack = [];
+    this._succeededInputs = [];
   }
   get currentNode(): StrokeNode<T> {
     return this._currentNode;
   }
   get succeededInputs(): RuleStroke<T>[] {
-    return this.succeededStack.map((v) => v.lastEdge.input);
+    return this._succeededInputs.map((v) => v.lastEdge.input);
   }
   /**
    * 1 stroke 分の入力を戻す
    */
   back(): void {
     if (this._currentNode !== this.startNode) {
-      const history = this.succeededStack.pop();
+      const history = this._succeededInputs.pop();
       if (history) {
         this._currentNode = history.lastEdge.previous;
       }
@@ -108,32 +110,110 @@ export class Automaton<T extends Comparable<T>> {
   get isFinished(): boolean {
     return this._currentNode.nextEdges.length === 0;
   }
-  input(stroke: InputEvent<T>): InputResult {
+  /**
+   * 状態遷移せずに、入力が成功するかどうかをテストする
+   */
+  testInput(stroke: InputEvent<T>): {
+    result: InputResult;
+    acceptedEdge: StrokeEdge<T> | undefined;
+  } {
     const lastKanaIndex = this._currentNode.kanaIndex;
     const acceptedEdges = this._currentNode.nextEdges.filter(
       (edge) => stroke.match(edge) === "matched"
     );
     if (acceptedEdges.length > 0) {
-      this.succeededStack.push({
-        input: stroke,
-        lastEdge: acceptedEdges[0],
-      });
-      this._currentNode = acceptedEdges[0].next;
-      if (lastKanaIndex < this._currentNode.kanaIndex) {
-        if (this._currentNode.nextEdges.length === 0) {
-          return inputResultFinished;
+      const acceptedEdge = acceptedEdges[0];
+      if (lastKanaIndex < acceptedEdge.next.kanaIndex) {
+        if (acceptedEdge.next.nextEdges.length === 0) {
+          return {
+            result: inputResultFinished,
+            acceptedEdge: acceptedEdge,
+          };
         }
-        return inputResultKanaSucceeded;
+        return {
+          result: inputResultKanaSucceeded,
+          acceptedEdge: acceptedEdge,
+        };
       }
-      return inputResultKeySucceeded;
+      return {
+        result: inputResultKeySucceeded,
+        acceptedEdge: acceptedEdge,
+      };
     }
     const ignoredEdges = this._currentNode.nextEdges.filter(
       (edge) => stroke.match(edge) === "ignored"
     );
     if (ignoredEdges.length > 0) {
-      return inputResultIgnored;
+      return { result: inputResultIgnored, acceptedEdge: undefined };
     }
-    return inputResultFailed;
+    return { result: inputResultFailed, acceptedEdge: undefined };
+  }
+  /**
+   * キー入力して状態遷移し、入力が成功するかどうかを返す
+   */
+  input(stroke: InputEvent<T>): InputResult {
+    const { result, acceptedEdge } = this.testInput(stroke);
+    this.moveState(stroke, result, acceptedEdge);
+    return result;
+  }
+  protected moveState(
+    stroke: InputEvent<T>,
+    result: InputResult,
+    acceptedEdge: StrokeEdge<T> | undefined
+  ) {
+    if (result.isSucceeded) {
+      this._succeededInputs.push({
+        input: stroke,
+        lastEdge: acceptedEdge!,
+      });
+      this._currentNode = acceptedEdge!.next;
+    }
+  }
+}
+
+/**
+ * 入力ミスしたキーを蓄積していき、Backspace 等の消去キーを入力して消さないと次の入力ができないオートマトン
+ */
+export class FailureStackAutomaton<
+  T extends Comparable<T>
+> extends Automaton<T> {
+  private _failedInputs: InputEvent<T>[] = [];
+
+  constructor(readonly base: Automaton<T>) {
+    super(base.word, base.startNode);
+  }
+
+  get failedInputs(): readonly InputEvent<T>[] {
+    return this._failedInputs;
+  }
+
+  input(stroke: InputEvent<T>): InputResult {
+    const { result, acceptedEdge } = this.testInput(stroke);
+    if (result.isIgnored) {
+      return result;
+    }
+    if (this._failedInputs.length > 0) {
+      // すでにミスしたキーが存在する場合は、それ以降の入力も自動的に失敗扱いにする
+      this._failedInputs.push(stroke);
+      return inputResultFailed;
+    }
+    if (result.isFailed) {
+      this._failedInputs.push(stroke);
+    }
+    // 状態遷移する
+    this.moveState(stroke, result, acceptedEdge);
+    return result;
+  }
+
+  backFailedInput(): void {
+    if (this._failedInputs.length > 0) {
+      this._failedInputs.pop();
+    }
+  }
+
+  reset(): void {
+    this._failedInputs = [];
+    super.reset();
   }
 }
 

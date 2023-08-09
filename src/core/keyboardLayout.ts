@@ -1,5 +1,5 @@
 import { setDefault } from "../utils/map";
-import { ModifierGroup } from "./modifier";
+import { AndModifier, ModifierGroup } from "./modifier";
 import { Comparable } from "./rule";
 import { RuleStroke } from "./ruleStroke";
 
@@ -36,6 +36,16 @@ export class KeyboardLayout<T extends Comparable<T>> {
       throw new Error("invalid char: " + char);
     }
     return strokes;
+  }
+  getCharByKey(key: T, shifted: boolean): string {
+    const stroke = new RuleStroke(
+      key,
+      shifted
+        ? new AndModifier(new ModifierGroup(this.shiftKeys))
+        : new AndModifier(),
+      []
+    );
+    return this.getCharByStroke(stroke);
   }
   getCharByStroke(stroke: RuleStroke<T>): string {
     const char = this.charByStroke.get(

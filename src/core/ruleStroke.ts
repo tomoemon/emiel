@@ -51,12 +51,19 @@ export class InputEvent<T extends Comparable<T>> {
     // というルールがある場合、
     // [t]:た
     // [t + modifier(無変換)]:ち
-    // [無変換 + modifier(t) ]: ち
+    // [無変換 + modifier(t)]: ち
     // として扱われる。このとき、「ち」を打つべきタイミングで、t を単独で押した場合、
     // [無変換 + modifiere(t)] で必要とする modifier が単独で押されていることになるため、無視する。
     // このとき、[t] 単独で「た」が入力された扱いにしてミスとしないための仕様。
     // 厳密には keyup を待ってから判定したりするべきだが、タイピングゲームならではの仕様として許容可能と考える。
-    if (necessaryModifiers.some((v) => v.accept(this.keyboardState))) {
+    if (
+      this.keyboardState.downedKeys.length > 0 &&
+      this.keyboardState.downedKeys.every((key) =>
+        necessaryModifiers.some((v) => {
+          return v.has(key);
+        })
+      )
+    ) {
       return "ignored";
     }
     return "failed";

@@ -11,10 +11,7 @@
     "allowImportingTsExtensions": true,
     "resolveJsonModule": true,
     "isolatedModules": true,
-    // "noEmit": true,
-    "emitDeclarationOnly": true,
-    "declaration": true,
-    "declarationDir": "./dist/types",
+    "noEmit": true,
     "jsx": "react-jsx",
 
     /* Linting */
@@ -24,7 +21,5 @@
     "noFallthroughCasesInSwitch": true
   },
   "include": ["src"],
-  /* ビルド時に test ファイルの型定義ファイルを作らない */
-  "exclude": ["**/*.test.ts"],
   "references": [{ "path": "./tsconfig.node.json" }]
 }

@@ -25,7 +25,13 @@ export function activate(
     );
     keyboardState.keydown(keyStroke.key);
     if (!options.ignoreKeyDown) {
-      handler(new InputEvent(keyStroke, keyboardState));
+      handler(
+        new InputEvent(
+          keyStroke,
+          // キー入力ごとのその時点での KeyboardState を渡す
+          new KeyboardState([...keyboardState.downedKeys])
+        )
+      );
     }
   };
   const keyUpEventHandler = (evt: Event) => {
@@ -37,7 +43,13 @@ export function activate(
     );
     keyboardState.keyup(keyStroke.key);
     if (!options.ignoreKeyUp) {
-      handler(new InputEvent(keyStroke, keyboardState));
+      handler(
+        new InputEvent(
+          keyStroke,
+          // キー入力ごとのその時点での KeyboardState を渡す
+          new KeyboardState([...keyboardState.downedKeys])
+        )
+      );
     }
   };
   target.addEventListener("keydown", keyDownEventHandler);
@@ -66,6 +78,19 @@ function toVirtualKeyFromEventCode(code: string): VirtualKey {
 }
 
 const codeToVirtualKey: { [key: string]: VirtualKey } = {
+  Escape: VirtualKeys.Escape,
+  F1: VirtualKeys.F1,
+  F2: VirtualKeys.F2,
+  F3: VirtualKeys.F3,
+  F4: VirtualKeys.F4,
+  F5: VirtualKeys.F5,
+  F6: VirtualKeys.F6,
+  F7: VirtualKeys.F7,
+  F8: VirtualKeys.F8,
+  F9: VirtualKeys.F9,
+  F10: VirtualKeys.F10,
+  F11: VirtualKeys.F11,
+  F12: VirtualKeys.F12,
   KeyA: VirtualKeys.A,
   KeyB: VirtualKeys.B,
   KeyC: VirtualKeys.C,
@@ -105,8 +130,10 @@ const codeToVirtualKey: { [key: string]: VirtualKey } = {
   Minus: VirtualKeys.Minus,
   Equal: VirtualKeys.Equal,
   IntlYen: VirtualKeys.JpnYen,
+  Backspace: VirtualKeys.Backspace,
   BracketLeft: VirtualKeys.BracketLeft,
   BracketRight: VirtualKeys.BracketRight,
+  Enter: VirtualKeys.Enter,
   Semicolon: VirtualKeys.Semicolon,
   Quote: VirtualKeys.Quote,
   Backslash: VirtualKeys.Backslash,
@@ -124,7 +151,6 @@ const codeToVirtualKey: { [key: string]: VirtualKey } = {
   MetaLeft: VirtualKeys.MetaLeft,
   MetaRight: VirtualKeys.MetaRight,
   Space: VirtualKeys.Space,
-  Escape: VirtualKeys.Escape,
   Lang2: VirtualKeys.Lang2,
   Lang1: VirtualKeys.Lang1,
   NonConvert: VirtualKeys.Lang2, // Windows

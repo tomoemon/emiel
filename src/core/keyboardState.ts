@@ -1,6 +1,7 @@
 import { Comparable } from "./rule";
 
 export interface KeyboardStateReader<T extends Comparable<T>> {
+  get downedKeys(): readonly T[];
   isKeyDowned(key: T): boolean;
   isAllKeyDowned(...keys: T[]): boolean;
   isAnyKeyDowned(...keys: T[]): boolean;
@@ -18,15 +19,18 @@ export class KeyboardState<T extends Comparable<T>>
   // Javascript の仕様で、Set<T> にオブジェクトをセットする場合は、
   // オブジェクトの同値性ではなく（その方法がない）、同一性で比較されるため、重複した値がセットされてしまう恐れがある
   // そのため、ここでは配列として持った上で equals で明示的に同値チェックを行っている
-  constructor(private downedKeys: T[] = []) {}
+  constructor(private _downedKeys: T[] = []) {}
+  get downedKeys(): readonly T[] {
+    return this._downedKeys;
+  }
   keydown(key: T) {
-    this.downedKeys.push(key);
+    this._downedKeys.push(key);
   }
   keyup(key: T) {
-    this.downedKeys = this.downedKeys.filter((v) => !v.equals(key));
+    this._downedKeys = this._downedKeys.filter((v) => !v.equals(key));
   }
   isKeyDowned(key: T) {
-    return this.downedKeys.indexOf(key) >= 0;
+    return this._downedKeys.indexOf(key) >= 0;
   }
   isAllKeyDowned(...keys: T[]) {
     return keys.every((key) => this.isKeyDowned(key));

@@ -5,6 +5,7 @@ import { rules } from "./impl/defaultRules";
 import {
   Automaton as coreAutomaton,
   MixedTextAutomaton as coreMixedTextAutomaton,
+  FailureStackAutomaton as coreFailureStackAutomaton,
 } from "./core/automaton";
 import { Selector as coreSelector } from "./core/automatonSelector";
 import { Rule as coreRule, RuleEntry as coreRuleEntry } from "./core/rule";
@@ -69,6 +70,7 @@ export class ModifierGroup extends coreModifierGroup<VirtualKey> {}
 export class AndModifier extends coreAndModifier<VirtualKey> {}
 export class Automaton extends coreAutomaton<VirtualKey> {}
 export class MixedTextAutomaton extends coreMixedTextAutomaton<VirtualKey> {}
+export class FailureStackAutomaton extends coreFailureStackAutomaton<VirtualKey> {}
 export class Selector<T extends coreAutomaton<VirtualKey>> extends coreSelector<
   VirtualKey,
   T

@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { buildGraphData } from "./graphData";
 import dagre from "cytoscape-dagre";
 import cytoscape from "cytoscape";
@@ -15,6 +15,7 @@ export function TypingGraph(props: {
   const automaton = props.automaton;
   const graphData = buildGraphData(automaton.currentNode);
   const htmlElem = useRef(null);
+  const [_, setLastInputKey] = useState<emiel.InputStroke | undefined>();
   useEffect(() => {
     const cy = cytoscape({
       container: htmlElem.current!,
@@ -27,10 +28,8 @@ export function TypingGraph(props: {
     cy.layout({ name: "dagre", rankDir: "LR" } as any).run();
 
     const deactivate = emiel.activate(window, (e) => {
-      console.log(e);
+      setLastInputKey(e.input);
       const result = automaton.input(e);
-      console.log(result);
-      console.log(automaton.currentNode);
       if (result.isFinished) {
         props.onFinished();
       } else if (result.isSucceeded) {
