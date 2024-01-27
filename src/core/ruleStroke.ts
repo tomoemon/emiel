@@ -6,17 +6,14 @@ import { Comparable } from "./rule";
 export type KeyEventType = "keyup" | "keydown";
 
 export class InputStroke<T extends Comparable<T>> {
-  constructor(
-    readonly key: T,
-    readonly type: KeyEventType,
-    readonly timestamp: Date
-  ) {}
+  constructor(readonly key: T, readonly type: KeyEventType) {}
 }
 
 export class InputEvent<T extends Comparable<T>> {
   constructor(
     readonly input: InputStroke<T>,
-    readonly keyboardState: KeyboardStateReader<T>
+    readonly keyboardState: KeyboardStateReader<T>,
+    readonly timestamp: Date
   ) {}
   match(edge: StrokeEdge<T>): "ignored" | "matched" | "failed" {
     const necessaryModifiers = edge.input.requiredModifier.groups;

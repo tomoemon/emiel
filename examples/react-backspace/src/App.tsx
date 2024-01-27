@@ -14,7 +14,7 @@ function Typing(props: { layout: emiel.KeyboardLayout }) {
   const words = ["おをひく", "こんとん", "がっこう", "aから@"];
   const [automatons] = useState(
     words.map((w) => {
-      return new emiel.FailureStackAutomaton(
+      return new emiel.BackspaceAutomaton(
         emiel.rule.getRoman(props.layout).build(w)
       );
     })

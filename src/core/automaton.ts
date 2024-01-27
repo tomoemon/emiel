@@ -53,7 +53,7 @@ const inputResultFinished = new InputResult("finished");
 export class Automaton<T extends Comparable<T>> {
   private _currentNode: StrokeNode<T>;
   private _succeededInputs: {
-    input: InputEvent<T>;
+    event: InputEvent<T>;
     lastEdge: StrokeEdge<T>;
   }[] = [];
   constructor(readonly word: string, readonly startNode: StrokeNode<T>) {
@@ -66,7 +66,7 @@ export class Automaton<T extends Comparable<T>> {
     return this.word.substring(this._currentNode.kanaIndex);
   }
   get finishedRomanSubstr(): string {
-    return this.succeededInputs.map((v) => v.romanChar).join("");
+    return this.succeededInputs.map((v) => v.matchedStroke.romanChar).join("");
   }
   get pendingRomanSubstr(): string {
     return this.shortestPendingStrokes.map((v) => v.romanChar).join("");
@@ -93,8 +93,14 @@ export class Automaton<T extends Comparable<T>> {
   get currentNode(): StrokeNode<T> {
     return this._currentNode;
   }
-  get succeededInputs(): RuleStroke<T>[] {
-    return this._succeededInputs.map((v) => v.lastEdge.input);
+  get succeededInputs(): {
+    event: InputEvent<T>;
+    matchedStroke: RuleStroke<T>;
+  }[] {
+    return this._succeededInputs.map((v) => ({
+      event: v.event,
+      matchedStroke: v.lastEdge.input,
+    }));
   }
   /**
    * 1 stroke 分の入力を戻す
@@ -163,7 +169,7 @@ export class Automaton<T extends Comparable<T>> {
   ) {
     if (result.isSucceeded) {
       this._succeededInputs.push({
-        input: stroke,
+        event: stroke,
         lastEdge: acceptedEdge!,
       });
       this._currentNode = acceptedEdge!.next;
@@ -174,12 +180,13 @@ export class Automaton<T extends Comparable<T>> {
 /**
  * 入力ミスしたキーを蓄積していき、Backspace 等の消去キーを入力して消さないと次の入力ができないオートマトン
  */
-export class FailureStackAutomaton<
-  T extends Comparable<T>
+export class BackspaceAutomaton<
+  T extends Comparable<T>,
+  U extends Automaton<T>
 > extends Automaton<T> {
   private _failedInputs: InputEvent<T>[] = [];
 
-  constructor(readonly base: Automaton<T>) {
+  constructor(readonly base: U) {
     super(base.word, base.startNode);
   }
 

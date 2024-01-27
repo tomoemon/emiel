@@ -39,7 +39,7 @@ export function buildMixed<T extends Comparable<T>>(
     lastMixedIndex += mixedTextSplit[i].length;
   });
   mixedTextIndex.push(lastMixedIndex);
-  return new MixedTextAutomaton<T>(
+  return new MixedTextAutomaton(
     automaton,
     mixedTextSplit.join(""),
     mixedTextIndex

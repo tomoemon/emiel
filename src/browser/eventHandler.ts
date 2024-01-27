@@ -20,8 +20,7 @@ export function activate(
     const now = new Date();
     const keyStroke = toInputKeyStrokeFromKeyboardEvent(
       "keydown",
-      evt as KeyboardEvent,
-      now
+      evt as KeyboardEvent
     );
     keyboardState.keydown(keyStroke.key);
     if (!options.ignoreKeyDown) {
@@ -29,7 +28,8 @@ export function activate(
         new InputEvent(
           keyStroke,
           // キー入力ごとのその時点での KeyboardState を渡す
-          new KeyboardState([...keyboardState.downedKeys])
+          new KeyboardState([...keyboardState.downedKeys]),
+          now
         )
       );
     }
@@ -38,8 +38,7 @@ export function activate(
     const now = new Date();
     const keyStroke = toInputKeyStrokeFromKeyboardEvent(
       "keyup",
-      evt as KeyboardEvent,
-      now
+      evt as KeyboardEvent
     );
     keyboardState.keyup(keyStroke.key);
     if (!options.ignoreKeyUp) {
@@ -47,7 +46,8 @@ export function activate(
         new InputEvent(
           keyStroke,
           // キー入力ごとのその時点での KeyboardState を渡す
-          new KeyboardState([...keyboardState.downedKeys])
+          new KeyboardState([...keyboardState.downedKeys]),
+          now
         )
       );
     }
@@ -62,11 +62,10 @@ export function activate(
 
 function toInputKeyStrokeFromKeyboardEvent(
   evtType: KeyEventType,
-  evt: KeyboardEvent,
-  now: Date
+  evt: KeyboardEvent
 ): InputStroke<VirtualKey> {
   const vkey = toVirtualKeyFromEventCode(evt.code);
-  return new InputStroke(vkey, evtType, now);
+  return new InputStroke(vkey, evtType);
 }
 
 function toVirtualKeyFromEventCode(code: string): VirtualKey {
