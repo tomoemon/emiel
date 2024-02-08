@@ -5,12 +5,13 @@ import dagre from "cytoscape-dagre";
 import cytoscape from "cytoscape";
 import { TypingGraph } from "./typingGraph";
 
+// eslint-disable-next-line @typescript-eslint/no-unsafe-argument
 cytoscape.use(dagre);
 
 function App() {
   const [layout, setLayout] = useState<emiel.KeyboardLayout | undefined>();
   useEffect(() => {
-    emiel.keyboard.detect(window).then(setLayout);
+    emiel.keyboard.detect(window).then(setLayout).catch(console.error);
   }, []);
   return layout ? <Typing layout={layout} /> : <></>;
 }

@@ -1,11 +1,12 @@
 import "./App.css";
 import * as emiel from "emiel";
 import { useEffect, useState } from "react";
+import { BackspaceRequirdAutomaton } from "./backspace";
 
 function App() {
   const [layout, setLayout] = useState<emiel.KeyboardLayout | undefined>();
   useEffect(() => {
-    emiel.keyboard.detect(window).then(setLayout);
+    emiel.keyboard.detect(window).then(setLayout).catch(console.error);
   }, []);
   return layout ? <Typing layout={layout} /> : <></>;
 }
@@ -14,7 +15,7 @@ function Typing(props: { layout: emiel.KeyboardLayout }) {
   const words = ["おをひく", "こんとん", "がっこう", "aから@"];
   const [automatons] = useState(
     words.map((w) => {
-      return new emiel.BackspaceAutomaton(
+      return new BackspaceRequirdAutomaton(
         emiel.rule.getRoman(props.layout).build(w)
       );
     })
@@ -32,7 +33,6 @@ function Typing(props: { layout: emiel.KeyboardLayout }) {
         return;
       }
       const result = automaton.input(e);
-      console.log("result", result);
       if (result.isFinished) {
         automaton.reset();
         setIndex((current) => (current + 1) % words.length);
@@ -43,26 +43,26 @@ function Typing(props: { layout: emiel.KeyboardLayout }) {
     <>
       <h1>
         <div style={{ display: "flex" }}>
-          <div style={{ color: "gray" }}>{automaton.finishedWordSubstr}</div>
+          <div style={{ color: "gray" }}>{automaton.base.finishedWord}</div>
           <div
             style={{
-              marginLeft: automaton.finishedWordSubstr ? "0.5rem" : "0",
+              marginLeft: automaton.base.finishedWord ? "0.5rem" : "0",
             }}
           >
-            {automaton.pendingWordSubstr}
+            {automaton.base.pendingWord}
           </div>
         </div>
       </h1>
       <h1>
         <div style={{ display: "flex" }}>
-          <div style={{ color: "gray" }}>{automaton.finishedRomanSubstr}</div>
+          <div style={{ color: "gray" }}>{automaton.base.finishedRoman}</div>
           <div
             style={{
-              marginLeft: automaton.finishedRomanSubstr ? "0.5rem" : "0",
+              marginLeft: automaton.base.finishedRoman ? "0.5rem" : "0",
               textAlign: "left",
             }}
           >
-            {automaton.pendingRomanSubstr}
+            {automaton.base.pendingRoman}
             <br />
             <span style={{ color: "yellow" }}>
               {automaton.failedInputs

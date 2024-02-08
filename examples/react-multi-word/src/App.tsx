@@ -2,16 +2,10 @@ import "./App.css";
 import * as emiel from "emiel";
 import { useEffect, useState } from "react";
 import { Word } from "./word";
-
-// 表示位置と入力状態を合わせて保持しておく
-class PositionedAutomaton extends emiel.Automaton {
-  constructor(readonly base: emiel.Automaton, readonly position: number) {
-    super(base.word, base.startNode);
-  }
-}
+import { InputEvent } from "../../../dist/types/core/ruleStroke";
 
 // 繰り返し次のワードを生成するジェネレータ
-const wordGen = (function* wordGenerator(): Generator<string> {
+const wordGen = (function* wordGenerator(): Generator<string, string> {
   const words = [
     "こうきょう",
     "こんとん",
@@ -27,12 +21,23 @@ const wordGen = (function* wordGenerator(): Generator<string> {
 })();
 
 // 初期ワード3つ
-const initialWords = [...Array(3)].map((_) => wordGen.next().value);
+const initialWords = Array.from({ length: 3 }, () => wordGen.next().value);
+
+class PositionAutomaton implements emiel.Inputtable {
+  constructor(readonly base: emiel.Automaton, readonly position: number) {
+  }
+  input(stroke: InputEvent<emiel.VirtualKey>): emiel.InputResult {
+    return this.base.input(stroke);
+  }
+  reset(): void {
+    this.base.reset();
+  }
+}
 
 function App() {
   const [layout, setLayout] = useState<emiel.KeyboardLayout | undefined>();
   useEffect(() => {
-    emiel.keyboard.detect(window).then(setLayout);
+    emiel.keyboard.detect(window).then(setLayout).catch(console.error);
   }, []);
   return layout ? <Typing layout={layout} /> : <></>;
 }
@@ -40,9 +45,13 @@ function App() {
 function Typing(props: { layout: emiel.KeyboardLayout }) {
   const [selector, setSelector] = useState(
     new emiel.Selector(
+      // 各 automaton の metadata として表示位置をもたせる
       initialWords.map(
         (w, i) =>
-          new PositionedAutomaton(emiel.rule.getRoman(props.layout).build(w), i)
+          new PositionAutomaton(
+            emiel.rule.getRoman(props.layout).build(w),
+            i
+          )
       )
     )
   );
@@ -61,10 +70,11 @@ function Typing(props: { layout: emiel.KeyboardLayout }) {
       selector.input(e, {
         finished: (a) => {
           console.log("finished", a);
-          const newAutomaton = new PositionedAutomaton(
-            emiel.rule.getRoman(props.layout).build(wordGen.next().value),
-            a.position
-          );
+          const newAutomaton =
+            new PositionAutomaton(
+              emiel.rule.getRoman(props.layout).build(wordGen.next().value),
+              a.position
+            );
           setSelector((current) => current.replaced(a, newAutomaton));
         },
         succeeded: (a) => {
@@ -80,11 +90,11 @@ function Typing(props: { layout: emiel.KeyboardLayout }) {
   return (
     <>
       <ul style={{ display: "flex", gap: "2rem", listStyle: "none" }}>
-        {[...selector.automatons]
+        {[...selector.items]
           .sort((a, b) => a.position - b.position)
           .map((a, i) => (
-            <li key={a.word + i.toString()}>
-              <Word automaton={a} />
+            <li key={a.base.word + i.toString()}>
+              <Word automaton={a.base} />
             </li>
           ))}
       </ul>

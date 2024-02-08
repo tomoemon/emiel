@@ -1,31 +1,29 @@
 import "./App.css";
 import * as emiel from "emiel";
 import { useEffect, useState } from "react";
+import { MixedText, MixedTextAutomaton } from "./MixedGuide";
 
 function App() {
   const [layout, setLayout] = useState<emiel.KeyboardLayout | undefined>();
   useEffect(() => {
-    emiel.keyboard.detect(window).then(setLayout);
+    emiel.keyboard.detect(window).then(setLayout).catch(console.error);
   }, []);
   return layout ? <Typing layout={layout} /> : <></>;
 }
 
 function Typing(props: { layout: emiel.KeyboardLayout }) {
   const words = [
-    { kana: "お,を,ひ,く".split(","), mixed: "尾,を,引,く".split(",") },
-    { kana: "こん,とん".split(","), mixed: "混,沌".split(",") },
-    {
-      kana: "がっ,こう".split(","),
-      mixed: "学,校".split(","),
-    },
-    {
-      kana: "a,か,ら,@".split(","),
-      mixed: "a,か,ら,@".split(","),
-    },
+    new MixedText("お,を,ひ,く", "尾,を,引,く"),
+    new MixedText("こん,とん", "混,沌"),
+    new MixedText("がっ,こう", "学,校"),
+    new MixedText("a,か,ら,@", "a,か,ら,@"),
   ];
   const [automatons] = useState(
     words.map((w) =>
-      emiel.rule.getRoman(props.layout).buildMixed(w.kana, w.mixed)
+      new MixedTextAutomaton(
+        emiel.rule.getRoman(props.layout).build(w.kanaText),
+        w,
+      )
     )
   );
   const [index, setIndex] = useState(0);
@@ -35,16 +33,16 @@ function Typing(props: { layout: emiel.KeyboardLayout }) {
   useEffect(() => {
     return emiel.activate(window, (e) => {
       setLastInputKey(e.input);
-      const result = automatons[index].input(e);
+      const result = automatons[index].base.input(e);
       if (result.isFinished) {
         setIndex((current) => {
           const newIndex = (current + 1) % automatons.length;
-          automatons[newIndex].reset();
+          automatons[newIndex].base.reset();
           return newIndex;
         });
       }
     });
-  }, [index]);
+  }, [index, automatons]);
   const automaton = automatons[index];
 
   return (
@@ -54,12 +52,12 @@ function Typing(props: { layout: emiel.KeyboardLayout }) {
         {automaton.pendingMixedSubstr}
       </h1>
       <h1>
-        <span style={{ color: "gray" }}>{automaton.finishedWordSubstr}</span>{" "}
-        {automaton.pendingWordSubstr}
+        <span style={{ color: "gray" }}>{automaton.base.finishedWord}</span>{" "}
+        {automaton.base.pendingWord}
       </h1>
       <h1>
-        <span style={{ color: "gray" }}>{automaton.finishedRomanSubstr}</span>{" "}
-        {automaton.pendingRomanSubstr}
+        <span style={{ color: "gray" }}>{automaton.base.finishedRoman}</span>{" "}
+        {automaton.base.pendingRoman}
       </h1>
       <h2>
         Key:{" "}

@@ -12,12 +12,12 @@ export function Word(props: { automaton: emiel.Automaton }) {
       }}
     >
       <h2>
-        <span style={{ color: "gray" }}>{automaton.finishedWordSubstr}</span>{" "}
-        {automaton.pendingWordSubstr}
+        <span style={{ color: "gray" }}>{automaton.finishedWord}</span>{" "}
+        {automaton.pendingWord}
       </h2>
       <h2>
-        <span style={{ color: "gray" }}>{automaton.finishedRomanSubstr}</span>{" "}
-        {automaton.pendingRomanSubstr}
+        <span style={{ color: "gray" }}>{automaton.finishedRoman}</span>{" "}
+        {automaton.pendingRoman}
       </h2>
     </div>
   );

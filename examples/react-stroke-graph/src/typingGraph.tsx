@@ -5,6 +5,7 @@ import cytoscape from "cytoscape";
 import { cyStylesheet } from "./grpahStyle";
 import * as emiel from "emiel";
 
+// eslint-disable-next-line @typescript-eslint/no-unsafe-argument
 cytoscape.use(dagre);
 
 export function TypingGraph(props: {
@@ -15,17 +16,19 @@ export function TypingGraph(props: {
   const automaton = props.automaton;
   const graphData = buildGraphData(automaton.currentNode);
   const htmlElem = useRef(null);
-  const [_, setLastInputKey] = useState<emiel.InputStroke | undefined>();
+  const [, setLastInputKey] = useState<emiel.InputStroke | undefined>();
   useEffect(() => {
     const cy = cytoscape({
       container: htmlElem.current!,
-      layout: { name: "dagre", rankDir: "LR" } as any,
+      // @ts-expect-error rankDir is not defined in cytoscape
+      layout: { name: "dagre", rankDir: "LR" },
       userZoomingEnabled: false,
       style: cyStylesheet,
     });
     cy.remove(cy.elements());
     cy.add([...graphData.nodes, ...graphData.edges]);
-    cy.layout({ name: "dagre", rankDir: "LR" } as any).run();
+    // @ts-expect-error rankDir is not defined in cytoscape
+    cy.layout({ name: "dagre", rankDir: "LR" }).run();
 
     const deactivate = emiel.activate(window, (e) => {
       setLastInputKey(e.input);

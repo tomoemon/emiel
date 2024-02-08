@@ -4,10 +4,8 @@ import { loadJsonKeyboardLayout } from "./impl/keyboardLayoutLoader";
 import { rules } from "./impl/defaultRules";
 import {
   Automaton as coreAutomaton,
-  MixedTextAutomaton as coreMixedTextAutomaton,
-  BackspaceAutomaton as coreBackspaceAutomaton,
 } from "./core/automaton";
-import { Selector as coreSelector } from "./core/automatonSelector";
+import { Inputtable as coreInputtable, Selector as coreSelector } from "./core/selector";
 import { Rule as coreRule, RuleEntry as coreRuleEntry } from "./core/rule";
 import {
   RuleStroke as coreRuleStroke,
@@ -31,6 +29,7 @@ import {
 } from "./core/keyboardState";
 import { detectKeyboardLayout } from "./browser/osKeyboardLayout";
 
+export { InputResult } from "./core/automaton";
 export { activate } from "./browser/eventHandler";
 
 export const keyboard = {
@@ -58,25 +57,22 @@ export const rule = {
 export { VirtualKey } from "./impl/virtualKey";
 export { VirtualKeys } from "./impl/virtualKey";
 
-export class KeyboardLayout extends coreKeyboardLayout<VirtualKey> {}
-export class Rule extends coreRule<VirtualKey> {}
-export class RuleStroke extends coreRuleStroke<VirtualKey> {}
-export class RuleEntry extends coreRuleEntry<VirtualKey> {}
-export class InputStroke extends coreInputStroke<VirtualKey> {}
-export class InputEvent extends coreInputEvent<VirtualKey> {}
-export class StrokeNode extends coreStrokeNode<VirtualKey> {}
-export class StrokeEdge extends coreStrokeEdge<VirtualKey> {}
-export class ModifierGroup extends coreModifierGroup<VirtualKey> {}
-export class AndModifier extends coreAndModifier<VirtualKey> {}
-export class Automaton extends coreAutomaton<VirtualKey> {}
-export class MixedTextAutomaton extends coreMixedTextAutomaton<VirtualKey> {}
-export class BackspaceAutomaton<
-  T extends Automaton
-> extends coreBackspaceAutomaton<VirtualKey, T> {}
-export class Selector<T extends coreAutomaton<VirtualKey>> extends coreSelector<
+export class KeyboardLayout extends coreKeyboardLayout<VirtualKey> { }
+export class Rule extends coreRule<VirtualKey> { }
+export class RuleStroke extends coreRuleStroke<VirtualKey> { }
+export class RuleEntry extends coreRuleEntry<VirtualKey> { }
+export class InputStroke extends coreInputStroke<VirtualKey> { }
+export class InputEvent extends coreInputEvent<VirtualKey> { }
+export class StrokeNode extends coreStrokeNode<VirtualKey> { }
+export class StrokeEdge extends coreStrokeEdge<VirtualKey> { }
+export class ModifierGroup extends coreModifierGroup<VirtualKey> { }
+export class AndModifier extends coreAndModifier<VirtualKey> { }
+export class Automaton extends coreAutomaton<VirtualKey> { }
+export class Selector<U extends coreInputtable<VirtualKey>> extends coreSelector<
   VirtualKey,
-  T
-> {}
-export class KeyboardState extends coreKeyboardState<VirtualKey> {}
+  U
+> { }
+export interface Inputtable extends coreInputtable<VirtualKey> { }
+export class KeyboardState extends coreKeyboardState<VirtualKey> { }
 export interface KeyboardStateReader
-  extends coreKeyboardStateReader<VirtualKey> {}
+  extends coreKeyboardStateReader<VirtualKey> { }

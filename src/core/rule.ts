@@ -1,5 +1,5 @@
-import { Automaton, MixedTextAutomaton } from "./automaton";
-import { build, buildMixed } from "./automatonBuilder";
+import { Automaton } from "./automaton";
+import { build } from "./automatonBuilder";
 import { ModifierGroup } from "./modifier";
 import { extendCommonPrefixOverlappedEntriesDeeply } from "./ruleExtender";
 import { RuleStroke } from "./ruleStroke";
@@ -31,7 +31,7 @@ export class RuleEntry<T extends Comparable<T>> {
     readonly nextInput: RuleStroke<T>[],
     // 共通プレフィックスエントリを展開するかどうか
     readonly extendCommonPrefixCommonEntry: boolean
-  ) {}
+  ) { }
   get hasNextInput(): boolean {
     return this.nextInput.length > 0;
   }
@@ -109,20 +109,5 @@ export class Rule<T extends Comparable<T>> {
 
   build(kanaText: string): Automaton<T> {
     return build(this, kanaText);
-  }
-
-  /**
-   * kanaTextSplit: [きょう,は,い,い,てん,き]
-   * mixedTextSplit: [今日,は,い,い,天,気]
-   *
-   * ある kanaText の位置における mixedText の位置を指す
-   *                  き ょ う  は い い  て ん き
-   * mixedTextIndex: [0, 0, 0, 2, 3, 4, 5, 5, 6, 7]
-   */
-  buildMixed(
-    kanaTextSplit: string[],
-    mixedTextSplit: string[]
-  ): MixedTextAutomaton<T> {
-    return buildMixed(this, kanaTextSplit, mixedTextSplit);
   }
 }

@@ -30,9 +30,7 @@
   "scripts": {
     "build": "vite build && tsc",
     "lint": "eslint src --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
-    "test": "vitest",
-    "": "eg: pnpm run linkto examples/react-backspace",
-    "linkto": "pnpm link --dir"
+    "test": "vitest"
   },
   "dependencies": {},
   "devDependencies": {

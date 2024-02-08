@@ -2,38 +2,48 @@ import "./App.css";
 import * as emiel from "emiel";
 import { useEffect, useState } from "react";
 
-function App() {
-  const [layout, setLayout] = useState<emiel.KeyboardLayout | undefined>();
-  useEffect(() => {
-    emiel.keyboard.detect(window).then(setLayout).catch(console.error);
-  }, []);
-  return layout ? <Typing layout={layout} /> : <></>;
-}
-
 const words = ["おをひく", "こんとん", "がっこう", "aから@"];
 
-function Typing(props: { layout: emiel.KeyboardLayout }) {
+export function Typing(props: {
+  layout: emiel.KeyboardLayout;
+  onWordFinished: (
+    a: emiel.Automaton,
+    displayedAt: Date,
+    missCount: number
+  ) => void;
+  onFinished: () => void;
+}) {
   const [automatons] = useState(
     words.map((w) => {
       return emiel.rule.getRoman(props.layout).build(w);
     })
   );
   const [wordIndex, setWordIndex] = useState(0);
+  const [wordDisplayedAt, setWordDisplayedAt] = useState(new Date());
+  const [missCount, setMissCount] = useState(0);
   const [lastInputKey, setLastInputKey] = useState<
     emiel.InputStroke | undefined
   >();
+  const automaton = automatons[wordIndex];
   useEffect(() => {
+    setWordDisplayedAt(new Date());
     return emiel.activate(window, (e) => {
       setLastInputKey(e.input);
-      const result = automatons[wordIndex].input(e);
+      const result = automaton.input(e);
       if (result.isFinished) {
-        automatons[wordIndex].reset();
-        setWordIndex((current) => (current + 1) % words.length);
+        props.onWordFinished(automaton, wordDisplayedAt, missCount);
+        if (wordIndex === words.length - 1) {
+          props.onFinished();
+        }
+        setWordIndex((current) => current + 1);
+        setWordDisplayedAt(new Date());
+        setMissCount(0);
+      }
+      if (result.isFailed) {
+        setMissCount((current) => current + 1);
       }
     });
-  }, [wordIndex, automatons]);
-  const automaton = automatons[wordIndex];
-  console.log(automaton);
+  }, [wordIndex]);
   return (
     <>
       <h1>
@@ -53,5 +63,3 @@ function Typing(props: { layout: emiel.KeyboardLayout }) {
     </>
   );
 }
-
-export default App;

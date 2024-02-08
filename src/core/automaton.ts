@@ -10,7 +10,14 @@ export class InputResult {
       | "key_succeeded" // 1打鍵の成功
       | "kana_succeeded" // かな1文字の成功
       | "finished" // 完了
-  ) {}
+  ) { }
+
+  static readonly IGNORED = new InputResult("ignored");
+  static readonly FAILED = new InputResult("failed");
+  static readonly KEY_SUCCEEDED = new InputResult("key_succeeded");
+  static readonly KANA_SUCCEEDED = new InputResult("kana_succeeded");
+  static readonly FINISHED = new InputResult("finished");
+
   toString(): string {
     return this.type;
   }
@@ -34,7 +41,7 @@ export class InputResult {
   get isKeySucceeded(): boolean {
     return this.type === "key_succeeded";
   }
-  // isSucceeded:true の場合の詳細な情報: 今回の1打鍵でかな1文字分の遷移をした
+  // isSucceeded:true の場合の詳細な情報: 今回の1打鍵でかな1文字分以上の遷移をした
   get isKanaSucceeded(): boolean {
     return this.type === "kana_succeeded";
   }
@@ -44,11 +51,6 @@ export class InputResult {
   }
 }
 
-const inputResultIgnored = new InputResult("ignored");
-const inputResultFailed = new InputResult("failed");
-const inputResultKeySucceeded = new InputResult("key_succeeded");
-const inputResultKanaSucceeded = new InputResult("kana_succeeded");
-const inputResultFinished = new InputResult("finished");
 
 export class Automaton<T extends Comparable<T>> {
   private _currentNode: StrokeNode<T>;
@@ -56,19 +58,25 @@ export class Automaton<T extends Comparable<T>> {
     event: InputEvent<T>;
     lastEdge: StrokeEdge<T>;
   }[] = [];
+  /**
+   * @param word かな文字列（配列定義 Rule で使用可能な文字で構成される文字列）
+   * @param startNode 打鍵を受け付ける開始ノード
+   */
   constructor(readonly word: string, readonly startNode: StrokeNode<T>) {
     this._currentNode = startNode;
   }
-  get finishedWordSubstr(): string {
+  // 入力が完了したかな文字列
+  get finishedWord(): string {
     return this.word.substring(0, this._currentNode.kanaIndex);
   }
-  get pendingWordSubstr(): string {
+  // 入力が完了していないかな文字列
+  get pendingWord(): string {
     return this.word.substring(this._currentNode.kanaIndex);
   }
-  get finishedRomanSubstr(): string {
+  get finishedRoman(): string {
     return this.succeededInputs.map((v) => v.matchedStroke.romanChar).join("");
   }
-  get pendingRomanSubstr(): string {
+  get pendingRoman(): string {
     return this.shortestPendingStrokes.map((v) => v.romanChar).join("");
   }
   /**
@@ -132,37 +140,41 @@ export class Automaton<T extends Comparable<T>> {
       if (lastKanaIndex < acceptedEdge.next.kanaIndex) {
         if (acceptedEdge.next.nextEdges.length === 0) {
           return {
-            result: inputResultFinished,
+            result: InputResult.FINISHED,
             acceptedEdge: acceptedEdge,
           };
         }
         return {
-          result: inputResultKanaSucceeded,
+          result: InputResult.KANA_SUCCEEDED,
           acceptedEdge: acceptedEdge,
         };
       }
       return {
-        result: inputResultKeySucceeded,
+        result: InputResult.KEY_SUCCEEDED,
         acceptedEdge: acceptedEdge,
       };
     }
+    // ローマ字入力における Shift キーの単独押下などの場合は無視する
     const ignoredEdges = this._currentNode.nextEdges.filter(
       (edge) => stroke.match(edge) === "ignored"
     );
     if (ignoredEdges.length > 0) {
-      return { result: inputResultIgnored, acceptedEdge: undefined };
+      return { result: InputResult.IGNORED, acceptedEdge: undefined };
     }
-    return { result: inputResultFailed, acceptedEdge: undefined };
+    return { result: InputResult.FAILED, acceptedEdge: undefined };
   }
   /**
    * キー入力して状態遷移し、入力が成功するかどうかを返す
    */
   input(stroke: InputEvent<T>): InputResult {
     const { result, acceptedEdge } = this.testInput(stroke);
-    this.moveState(stroke, result, acceptedEdge);
+    this.applyState(stroke, result, acceptedEdge);
     return result;
   }
-  protected moveState(
+  /**
+   * testInput の結果を適用して内部の状態を変更する
+   */
+  applyState(
     stroke: InputEvent<T>,
     result: InputResult,
     acceptedEdge: StrokeEdge<T> | undefined
@@ -174,80 +186,5 @@ export class Automaton<T extends Comparable<T>> {
       });
       this._currentNode = acceptedEdge!.next;
     }
-  }
-}
-
-/**
- * 入力ミスしたキーを蓄積していき、Backspace 等の消去キーを入力して消さないと次の入力ができないオートマトン
- */
-export class BackspaceAutomaton<
-  T extends Comparable<T>,
-  U extends Automaton<T>
-> extends Automaton<T> {
-  private _failedInputs: InputEvent<T>[] = [];
-
-  constructor(readonly base: U) {
-    super(base.word, base.startNode);
-  }
-
-  get failedInputs(): readonly InputEvent<T>[] {
-    return this._failedInputs;
-  }
-
-  input(stroke: InputEvent<T>): InputResult {
-    const { result, acceptedEdge } = this.testInput(stroke);
-    if (result.isIgnored) {
-      return result;
-    }
-    if (this._failedInputs.length > 0) {
-      // すでにミスしたキーが存在する場合は、それ以降の入力も自動的に失敗扱いにする
-      this._failedInputs.push(stroke);
-      return inputResultFailed;
-    }
-    if (result.isFailed) {
-      this._failedInputs.push(stroke);
-    }
-    // 状態遷移する
-    this.moveState(stroke, result, acceptedEdge);
-    return result;
-  }
-
-  backFailedInput(): void {
-    if (this._failedInputs.length > 0) {
-      this._failedInputs.pop();
-    }
-  }
-
-  reset(): void {
-    this._failedInputs = [];
-    super.reset();
-  }
-}
-
-/**
- * かなテキストと漢字かな混じりテキストの入力状態を同時に表すオートマトン
- * mixedText: 今日,は,い,い,天,気
- * kanaText: きょう,は,い,い,てん,き
- * という入力が与えられた場合、「きょう」まで入力された時点で
- * mixedText の「今日」の入力が終わった状態になる
- */
-export class MixedTextAutomaton<T extends Comparable<T>> extends Automaton<T> {
-  constructor(
-    readonly automaton: Automaton<T>,
-    readonly mixedText: string,
-    readonly mixedTextIndex: number[]
-  ) {
-    super(automaton.word, automaton.startNode);
-  }
-  get finishedMixedSubstr(): string {
-    return this.mixedText.substring(
-      0,
-      this.mixedTextIndex[this.currentNode.kanaIndex]
-    );
-  }
-  get pendingMixedSubstr(): string {
-    return this.mixedText.substring(
-      this.mixedTextIndex[this.currentNode.kanaIndex]
-    );
   }
 }

@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 function App() {
   const [layout, setLayout] = useState<emiel.KeyboardLayout | undefined>();
   useEffect(() => {
-    emiel.keyboard.detect(window).then(setLayout);
+    emiel.keyboard.detect(window).then(setLayout).catch(console.error);
   }, []);
   return layout ? <Typing layout={layout} /> : <></>;
 }
@@ -52,32 +52,33 @@ function Typing(props: { layout: emiel.KeyboardLayout }) {
   }, [wordIndex]);
 
   const selector = selectors[wordIndex];
-  const romanAutomaton = selector.automatons[0];
-  const kanaAutomaton = selector.automatons[1];
+  console.log("selector", selector);
+  const romanAutomaton = selector.items[0];
+  const kanaAutomaton = selector.items[1];
   return (
     <>
       <h1>
         {/* 課題文かな表示 */}
         <span style={{ color: "gray" }}>
-          {selector.activeAutomatons[0].finishedWordSubstr}
+          {selector.activeItems[0].finishedWord}
         </span>{" "}
-        {selector.activeAutomatons[0].pendingWordSubstr}
+        {selector.activeItems[0].pendingWord}
       </h1>
       {/* ローマ字入力 */}
       <h1>
         <p style={{ fontSize: "1rem" }}>ローマ字入力</p>
         <span style={{ color: "gray" }}>
-          {romanAutomaton.finishedRomanSubstr}
+          {romanAutomaton.finishedRoman}
         </span>{" "}
-        {romanAutomaton.pendingRomanSubstr}
+        {romanAutomaton.pendingRoman}
       </h1>
       {/* かな入力 */}
       <h1>
         <p style={{ fontSize: "1rem" }}>かな入力</p>
         <span style={{ color: "gray" }}>
-          {kanaAutomaton.finishedWordSubstr}
+          {kanaAutomaton.finishedWord}
         </span>{" "}
-        {kanaAutomaton.pendingWordSubstr}
+        {kanaAutomaton.pendingWord}
       </h1>
       <h2>
         Key:{" "}
