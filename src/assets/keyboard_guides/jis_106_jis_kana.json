@@ -1,0 +1,862 @@
+{
+  "name": "JIS106 JIS_kana",
+  "physicalLayout": "jis_106",
+  "entries": [
+    {
+      "key": "Digit1",
+      "labels": [
+        {
+          "position": "left",
+          "label": "{layout.alpha_or_sign}"
+        },
+        {
+          "position": "top",
+          "label": "{layout.shifted_sign}"
+        },
+        {
+          "position": "bottom",
+          "label": "ぬ"
+        }
+      ]
+    },
+    {
+      "key": "Digit2",
+      "labels": [
+        {
+          "position": "left",
+          "label": "{layout.alpha_or_sign}"
+        },
+        {
+          "position": "top",
+          "label": "{layout.shifted_sign}"
+        },
+        {
+          "position": "bottom",
+          "label": "ふ"
+        }
+      ]
+    },
+    {
+      "key": "Digit3",
+      "labels": [
+        {
+          "position": "left",
+          "label": "{layout.alpha_or_sign}"
+        },
+        {
+          "position": "top",
+          "label": "{layout.shifted_sign}"
+        },
+        {
+          "position": "bottom",
+          "label": "あ"
+        },
+        {
+          "position": "right",
+          "label": "ぁ"
+        }
+      ]
+    },
+    {
+      "key": "Digit4",
+      "labels": [
+        {
+          "position": "left",
+          "label": "{layout.alpha_or_sign}"
+        },
+        {
+          "position": "top",
+          "label": "{layout.shifted_sign}"
+        },
+        {
+          "position": "bottom",
+          "label": "う"
+        },
+        {
+          "position": "right",
+          "label": "ぅ"
+        }
+      ]
+    },
+    {
+      "key": "Digit5",
+      "labels": [
+        {
+          "position": "left",
+          "label": "{layout.alpha_or_sign}"
+        },
+        {
+          "position": "top",
+          "label": "{layout.shifted_sign}"
+        },
+        {
+          "position": "bottom",
+          "label": "え"
+        },
+        {
+          "position": "right",
+          "label": "ぇ"
+        }
+      ]
+    },
+    {
+      "key": "Digit6",
+      "labels": [
+        {
+          "position": "left",
+          "label": "{layout.alpha_or_sign}"
+        },
+        {
+          "position": "top",
+          "label": "{layout.shifted_sign}"
+        },
+        {
+          "position": "bottom",
+          "label": "お"
+        },
+        {
+          "position": "right",
+          "label": "ぉ"
+        }
+      ]
+    },
+    {
+      "key": "Digit7",
+      "labels": [
+        {
+          "position": "bottom",
+          "label": "{layout.alpha_or_sign}"
+        },
+        {
+          "position": "top",
+          "label": "{layout.shifted_sign}"
+        },
+        {
+          "position": "left",
+          "label": "や"
+        },
+        {
+          "position": "right",
+          "label": "ゃ"
+        }
+      ]
+    },
+    {
+      "key": "Digit8",
+      "labels": [
+        {
+          "position": "left",
+          "label": "{layout.alpha_or_sign}"
+        },
+        {
+          "position": "top",
+          "label": "{layout.shifted_sign}"
+        },
+        {
+          "position": "bottom",
+          "label": "ゆ"
+        },
+        {
+          "position": "right",
+          "label": "ゅ"
+        }
+      ]
+    },
+    {
+      "key": "Digit9",
+      "labels": [
+        {
+          "position": "left",
+          "label": "{layout.alpha_or_sign}"
+        },
+        {
+          "position": "top",
+          "label": "{layout.shifted_sign}"
+        },
+        {
+          "position": "bottom",
+          "label": "よ"
+        },
+        {
+          "position": "right",
+          "label": "ょ"
+        }
+      ]
+    },
+    {
+      "key": "Digit0",
+      "labels": [
+        {
+          "position": "left",
+          "label": "{layout.alpha_or_sign}"
+        },
+        {
+          "position": "top",
+          "label": "{layout.shifted_sign}"
+        },
+        {
+          "position": "bottom",
+          "label": "わ"
+        },
+        {
+          "position": "right",
+          "label": "を"
+        }
+      ]
+    },
+    {
+      "key": "Minus",
+      "labels": [
+        {
+          "position": "left",
+          "label": "{layout.alpha_or_sign}"
+        },
+        {
+          "position": "top",
+          "label": "{layout.shifted_sign}"
+        },
+        {
+          "position": "bottom",
+          "label": "ほ"
+        }
+      ]
+    },
+    {
+      "key": "Equal",
+      "labels": [
+        {
+          "position": "left",
+          "label": "{layout.alpha_or_sign}"
+        },
+        {
+          "position": "top",
+          "label": "{layout.shifted_sign}"
+        },
+        {
+          "position": "bottom",
+          "label": "へ"
+        }
+      ]
+    },
+    {
+      "key": "JpnYen",
+      "labels": [
+        {
+          "position": "left",
+          "label": "{layout.alpha_or_sign}"
+        },
+        {
+          "position": "top",
+          "label": "{layout.shifted_sign}"
+        },
+        {
+          "position": "bottom",
+          "label": "ー"
+        }
+      ]
+    },
+    {
+      "key": "Q",
+      "labels": [
+        {
+          "position": "left",
+          "label": "{layout.alpha_or_sign}"
+        },
+        {
+          "position": "top",
+          "label": "{layout.shifted_sign}"
+        },
+        {
+          "position": "bottom",
+          "label": "た"
+        }
+      ]
+    },
+    {
+      "key": "W",
+      "labels": [
+        {
+          "position": "left",
+          "label": "{layout.alpha_or_sign}"
+        },
+        {
+          "position": "top",
+          "label": "{layout.shifted_sign}"
+        },
+        {
+          "position": "bottom",
+          "label": "て"
+        }
+      ]
+    },
+    {
+      "key": "E",
+      "labels": [
+        {
+          "position": "left",
+          "label": "{layout.alpha_or_sign}"
+        },
+        {
+          "position": "top",
+          "label": "{layout.shifted_sign}"
+        },
+        {
+          "position": "bottom",
+          "label": "い"
+        },
+        {
+          "position": "right",
+          "label": "ぃ"
+        }
+      ]
+    },
+    {
+      "key": "R",
+      "labels": [
+        {
+          "position": "left",
+          "label": "{layout.alpha_or_sign}"
+        },
+        {
+          "position": "top",
+          "label": "{layout.shifted_sign}"
+        },
+        {
+          "position": "bottom",
+          "label": "す"
+        }
+      ]
+    },
+    {
+      "key": "T",
+      "labels": [
+        {
+          "position": "left",
+          "label": "{layout.alpha_or_sign}"
+        },
+        {
+          "position": "top",
+          "label": "{layout.shifted_sign}"
+        },
+        {
+          "position": "bottom",
+          "label": "か"
+        }
+      ]
+    },
+    {
+      "key": "Y",
+      "labels": [
+        {
+          "position": "left",
+          "label": "{layout.alpha_or_sign}"
+        },
+        {
+          "position": "top",
+          "label": "{layout.shifted_sign}"
+        },
+        {
+          "position": "bottom",
+          "label": "ん"
+        }
+      ]
+    },
+    {
+      "key": "U",
+      "labels": [
+        {
+          "position": "left",
+          "label": "{layout.alpha_or_sign}"
+        },
+        {
+          "position": "top",
+          "label": "{layout.shifted_sign}"
+        },
+        {
+          "position": "bottom",
+          "label": "な"
+        }
+      ]
+    },
+    {
+      "key": "I",
+      "labels": [
+        {
+          "position": "left",
+          "label": "{layout.alpha_or_sign}"
+        },
+        {
+          "position": "top",
+          "label": "{layout.shifted_sign}"
+        },
+        {
+          "position": "bottom",
+          "label": "に"
+        }
+      ]
+    },
+    {
+      "key": "O",
+      "labels": [
+        {
+          "position": "left",
+          "label": "{layout.alpha_or_sign}"
+        },
+        {
+          "position": "top",
+          "label": "{layout.shifted_sign}"
+        },
+        {
+          "position": "bottom",
+          "label": "ら"
+        }
+      ]
+    },
+    {
+      "key": "P",
+      "labels": [
+        {
+          "position": "left",
+          "label": "{layout.alpha_or_sign}"
+        },
+        {
+          "position": "top",
+          "label": "{layout.shifted_sign}"
+        },
+        {
+          "position": "bottom",
+          "label": "せ"
+        }
+      ]
+    },
+    {
+      "key": "BracketLeft",
+      "labels": [
+        {
+          "position": "left",
+          "label": "{layout.alpha_or_sign}"
+        },
+        {
+          "position": "top",
+          "label": "{layout.shifted_sign}"
+        },
+        {
+          "position": "bottomRight",
+          "label": "゛"
+        }
+      ]
+    },
+    {
+      "key": "BracketRight",
+      "labels": [
+        {
+          "position": "left",
+          "label": "{layout.alpha_or_sign}"
+        },
+        {
+          "position": "top",
+          "label": "{layout.shifted_sign}"
+        },
+        {
+          "position": "bottomRight",
+          "label": "゜"
+        }
+      ]
+    },
+    {
+      "key": "A",
+      "labels": [
+        {
+          "position": "left",
+          "label": "{layout.alpha_or_sign}"
+        },
+        {
+          "position": "top",
+          "label": "{layout.shifted_sign}"
+        },
+        {
+          "position": "bottom",
+          "label": "ち"
+        }
+      ]
+    },
+    {
+      "key": "S",
+      "labels": [
+        {
+          "position": "left",
+          "label": "{layout.alpha_or_sign}"
+        },
+        {
+          "position": "top",
+          "label": "{layout.shifted_sign}"
+        },
+        {
+          "position": "bottom",
+          "label": "と"
+        }
+      ]
+    },
+    {
+      "key": "D",
+      "labels": [
+        {
+          "position": "left",
+          "label": "{layout.alpha_or_sign}"
+        },
+        {
+          "position": "top",
+          "label": "{layout.shifted_sign}"
+        },
+        {
+          "position": "bottom",
+          "label": "し"
+        }
+      ]
+    },
+    {
+      "key": "F",
+      "labels": [
+        {
+          "position": "left",
+          "label": "{layout.alpha_or_sign}"
+        },
+        {
+          "position": "top",
+          "label": "{layout.shifted_sign}"
+        },
+        {
+          "position": "bottom",
+          "label": "は"
+        }
+      ]
+    },
+    {
+      "key": "G",
+      "labels": [
+        {
+          "position": "left",
+          "label": "{layout.alpha_or_sign}"
+        },
+        {
+          "position": "top",
+          "label": "{layout.shifted_sign}"
+        },
+        {
+          "position": "bottom",
+          "label": "き"
+        }
+      ]
+    },
+    {
+      "key": "H",
+      "labels": [
+        {
+          "position": "left",
+          "label": "{layout.alpha_or_sign}"
+        },
+        {
+          "position": "top",
+          "label": "{layout.shifted_sign}"
+        },
+        {
+          "position": "bottom",
+          "label": "く"
+        }
+      ]
+    },
+    {
+      "key": "J",
+      "labels": [
+        {
+          "position": "left",
+          "label": "{layout.alpha_or_sign}"
+        },
+        {
+          "position": "top",
+          "label": "{layout.shifted_sign}"
+        },
+        {
+          "position": "bottom",
+          "label": "ま"
+        }
+      ]
+    },
+    {
+      "key": "K",
+      "labels": [
+        {
+          "position": "left",
+          "label": "{layout.alpha_or_sign}"
+        },
+        {
+          "position": "top",
+          "label": "{layout.shifted_sign}"
+        },
+        {
+          "position": "bottom",
+          "label": "の"
+        }
+      ]
+    },
+    {
+      "key": "L",
+      "labels": [
+        {
+          "position": "left",
+          "label": "{layout.alpha_or_sign}"
+        },
+        {
+          "position": "top",
+          "label": "{layout.shifted_sign}"
+        },
+        {
+          "position": "bottom",
+          "label": "り"
+        }
+      ]
+    },
+    {
+      "key": "Semicolon",
+      "labels": [
+        {
+          "position": "left",
+          "label": "{layout.alpha_or_sign}"
+        },
+        {
+          "position": "top",
+          "label": "{layout.shifted_sign}"
+        },
+        {
+          "position": "bottom",
+          "label": "れ"
+        }
+      ]
+    },
+    {
+      "key": "Quote",
+      "labels": [
+        {
+          "position": "left",
+          "label": "{layout.alpha_or_sign}"
+        },
+        {
+          "position": "top",
+          "label": "{layout.shifted_sign}"
+        },
+        {
+          "position": "bottom",
+          "label": "け"
+        }
+      ]
+    },
+    {
+      "key": "Backslash",
+      "labels": [
+        {
+          "position": "left",
+          "label": "{layout.alpha_or_sign}"
+        },
+        {
+          "position": "top",
+          "label": "{layout.shifted_sign}"
+        },
+        {
+          "position": "bottom",
+          "label": "む"
+        }
+      ]
+    },
+    {
+      "key": "Z",
+      "labels": [
+        {
+          "position": "left",
+          "label": "{layout.alpha_or_sign}"
+        },
+        {
+          "position": "top",
+          "label": "{layout.shifted_sign}"
+        },
+        {
+          "position": "bottom",
+          "label": "つ"
+        },
+        {
+          "position": "right",
+          "label": "っ"
+        }
+      ]
+    },
+    {
+      "key": "X",
+      "labels": [
+        {
+          "position": "left",
+          "label": "{layout.alpha_or_sign}"
+        },
+        {
+          "position": "top",
+          "label": "{layout.shifted_sign}"
+        },
+        {
+          "position": "bottom",
+          "label": "さ"
+        }
+      ]
+    },
+    {
+      "key": "C",
+      "labels": [
+        {
+          "position": "left",
+          "label": "{layout.alpha_or_sign}"
+        },
+        {
+          "position": "top",
+          "label": "{layout.shifted_sign}"
+        },
+        {
+          "position": "bottom",
+          "label": "そ"
+        }
+      ]
+    },
+    {
+      "key": "V",
+      "labels": [
+        {
+          "position": "left",
+          "label": "{layout.alpha_or_sign}"
+        },
+        {
+          "position": "top",
+          "label": "{layout.shifted_sign}"
+        },
+        {
+          "position": "bottom",
+          "label": "ひ"
+        }
+      ]
+    },
+    {
+      "key": "B",
+      "labels": [
+        {
+          "position": "left",
+          "label": "{layout.alpha_or_sign}"
+        },
+        {
+          "position": "top",
+          "label": "{layout.shifted_sign}"
+        },
+        {
+          "position": "bottom",
+          "label": "こ"
+        }
+      ]
+    },
+    {
+      "key": "N",
+      "labels": [
+        {
+          "position": "left",
+          "label": "{layout.alpha_or_sign}"
+        },
+        {
+          "position": "top",
+          "label": "{layout.shifted_sign}"
+        },
+        {
+          "position": "bottom",
+          "label": "み"
+        }
+      ]
+    },
+    {
+      "key": "M",
+      "labels": [
+        {
+          "position": "left",
+          "label": "{layout.alpha_or_sign}"
+        },
+        {
+          "position": "top",
+          "label": "{layout.shifted_sign}"
+        },
+        {
+          "position": "bottom",
+          "label": "も"
+        }
+      ]
+    },
+    {
+      "key": "Comma",
+      "labels": [
+        {
+          "position": "left",
+          "label": "{layout.alpha_or_sign}"
+        },
+        {
+          "position": "top",
+          "label": "{layout.shifted_sign}"
+        },
+        {
+          "position": "bottom",
+          "label": "ね"
+        }
+      ]
+    },
+    {
+      "key": "Period",
+      "labels": [
+        {
+          "position": "left",
+          "label": "{layout.alpha_or_sign}"
+        },
+        {
+          "position": "top",
+          "label": "{layout.shifted_sign}"
+        },
+        {
+          "position": "bottom",
+          "label": "る"
+        }
+      ]
+    },
+    {
+      "key": "Slash",
+      "labels": [
+        {
+          "position": "left",
+          "label": "{layout.alpha_or_sign}"
+        },
+        {
+          "position": "top",
+          "label": "{layout.shifted_sign}"
+        },
+        {
+          "position": "bottom",
+          "label": "め"
+        }
+      ]
+    },
+    {
+      "key": "JpnRo",
+      "labels": [
+        {
+          "position": "left",
+          "label": "{layout.alpha_or_sign}"
+        },
+        {
+          "position": "top",
+          "label": "{layout.shifted_sign}"
+        },
+        {
+          "position": "bottom",
+          "label": "ろ"
+        }
+      ]
+    }
+  ]
+}

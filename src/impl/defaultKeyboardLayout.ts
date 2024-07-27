@@ -5,13 +5,12 @@ import { KeyboardLayout } from "../core/keyboardLayout";
 import { loadJsonKeyboardLayout } from "./keyboardLayoutLoader";
 import { VirtualKey } from "./virtualKey";
 
-const names = ["qwerty-jis", "qwerty-us", "dvorak"] as const;
-type defaultLayoutName = (typeof names)[number];
+const names = ["qwerty-jis", "qwerty-us", "dvorak"];
 
-const layoutCache = new Map<defaultLayoutName, KeyboardLayout<VirtualKey>>();
+const layoutCache = new Map<string, KeyboardLayout<VirtualKey>>();
 
 export function getKeyboardLayout(
-  name: defaultLayoutName
+  name: string
 ): KeyboardLayout<VirtualKey> {
   const layout = layoutCache.get(name);
   if (!layout) {
@@ -41,16 +40,11 @@ export function findMatchedKeyboardLayout(
     return getKeyboardLayout("qwerty-jis");
   }
   for (const layoutName of names) {
-    const layout = getKeyboardLayout(layoutName as defaultLayoutName);
+    const layout = getKeyboardLayout(layoutName);
     if (
       Array.from(keyToCharMap.entries()).every(([key, char]) => {
-        const strokes = layout.getStrokesByChar(char);
-        if (!strokes || strokes.length === 0) {
-          return false;
-        }
-        return strokes.some(
-          (stroke) => stroke.key.equals(key) && stroke.requiredModifier.isEmpty
-        );
+        const charByLayout = layout.getCharByKey(key, false);
+        return charByLayout === char;
       })
     ) {
       return layout;

@@ -3,28 +3,25 @@ import { InputEvent, InputStroke, KeyEventType } from "../core/ruleStroke";
 import { VirtualKey, VirtualKeys } from "../impl/virtualKey";
 
 /**
- * @param target Window object のようなものを受け取る
+ * @param target addEventListener,removeEventListener を持つ Window object のような型
  * @param handler キー入力を受け取るハンドラ
  * @returns イベントハンドラを解除する関数を返す
  */
 export function activate(
   target: EventTarget,
-  handler: (evt: InputEvent<VirtualKey>) => void,
-  options: { ignoreKeyDown?: boolean; ignoreKeyUp?: boolean } = {
-    ignoreKeyDown: false,
-    ignoreKeyUp: true,
-  }
+  onKeyDown?: (evt: InputEvent<VirtualKey>) => void,
+  onKeyUp?: (evt: InputEvent<VirtualKey>) => void,
 ) {
   const keyboardState = new KeyboardState<VirtualKey>();
   const keyDownEventHandler = (evt: Event) => {
-    const now = new Date();
     const keyStroke = toInputKeyStrokeFromKeyboardEvent(
       "keydown",
       evt as KeyboardEvent
     );
     keyboardState.keydown(keyStroke.key);
-    if (!options.ignoreKeyDown) {
-      handler(
+    if (onKeyDown) {
+      const now = new Date();
+      onKeyDown(
         new InputEvent(
           keyStroke,
           // キー入力ごとのその時点での KeyboardState を渡す
@@ -35,14 +32,14 @@ export function activate(
     }
   };
   const keyUpEventHandler = (evt: Event) => {
-    const now = new Date();
     const keyStroke = toInputKeyStrokeFromKeyboardEvent(
       "keyup",
       evt as KeyboardEvent
     );
     keyboardState.keyup(keyStroke.key);
-    if (!options.ignoreKeyUp) {
-      handler(
+    if (onKeyUp) {
+      const now = new Date();
+      onKeyUp(
         new InputEvent(
           keyStroke,
           // キー入力ごとのその時点での KeyboardState を渡す

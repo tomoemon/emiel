@@ -18,8 +18,6 @@ export interface Comparable<T> {
 
 /**
  * 1つの入力定義を表す。T 型は
- * @param U キー入力イベントを表す型
- * @param T 受け入れ可能な入力を表す型、U 型の入力を受け入れるかどうかを判定する
  * @property input 受け入れ可能なキー入力列
  * @property output 出力文字列
  * @property nextInput 次の入力として自動入力されるキー入力列

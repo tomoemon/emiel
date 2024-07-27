@@ -54,16 +54,7 @@ export class KeyboardLayout<T extends Comparable<T>> {
     if (char) {
       return char;
     }
-    // JISかなのように「を」：「Shift + 0」の組み合わせが存在するが
-    // これ自体は QWERTY JIS のキーボードレイアウトには存在しない
-    // こういった場合は Shift を無視したキー押下時の文字を返す
-    const charShiftIgnored = this.charByStrokeWithoutShift.get(
-      strokeToString(stroke, true, this.shiftKeys)
-    );
-    if (charShiftIgnored) {
-      return charShiftIgnored;
-    }
-    throw new Error("invalid stroke: " + stroke);
+    throw new Error(`invalid stroke: ${stroke.key.toString()}, mod: ${stroke.requiredModifier.toString()}`);
   }
   hasChar(char: string): boolean {
     return this.strokesByChar.has(char);
@@ -75,9 +66,9 @@ function strokeToString<T extends Comparable<T>>(
   ignoreShift: boolean,
   shiftKeys: T[]
 ): string {
-  const mod = stroke.requiredModifier;
   if (ignoreShift) {
     return stroke.key.toString();
   }
+  const mod = stroke.requiredModifier;
   return stroke.key.toString() + "\0" + shiftKeys.some((k) => mod.has(k));
 }

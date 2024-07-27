@@ -1,0 +1,617 @@
+{
+  "name": "QWERTY US",
+  "physicalLayout": "us_hhkb",
+  "entries": [
+    {
+      "key": "Digit1",
+      "labels": [
+        {
+          "position": "bottom",
+          "label": "{layout.alpha_or_sign}"
+        },
+        {
+          "position": "top",
+          "label": "{layout.shifted_sign}"
+        }
+      ]
+    },
+    {
+      "key": "Digit2",
+      "labels": [
+        {
+          "position": "bottom",
+          "label": "{layout.alpha_or_sign}"
+        },
+        {
+          "position": "top",
+          "label": "{layout.shifted_sign}"
+        }
+      ]
+    },
+    {
+      "key": "Digit3",
+      "labels": [
+        {
+          "position": "bottom",
+          "label": "{layout.alpha_or_sign}"
+        },
+        {
+          "position": "top",
+          "label": "{layout.shifted_sign}"
+        }
+      ]
+    },
+    {
+      "key": "Digit4",
+      "labels": [
+        {
+          "position": "bottom",
+          "label": "{layout.alpha_or_sign}"
+        },
+        {
+          "position": "top",
+          "label": "{layout.shifted_sign}"
+        }
+      ]
+    },
+    {
+      "key": "Digit5",
+      "labels": [
+        {
+          "position": "bottom",
+          "label": "{layout.alpha_or_sign}"
+        },
+        {
+          "position": "top",
+          "label": "{layout.shifted_sign}"
+        }
+      ]
+    },
+    {
+      "key": "Digit6",
+      "labels": [
+        {
+          "position": "bottom",
+          "label": "{layout.alpha_or_sign}"
+        },
+        {
+          "position": "top",
+          "label": "{layout.shifted_sign}"
+        }
+      ]
+    },
+    {
+      "key": "Digit7",
+      "labels": [
+        {
+          "position": "bottom",
+          "label": "{layout.alpha_or_sign}"
+        },
+        {
+          "position": "top",
+          "label": "{layout.shifted_sign}"
+        }
+      ]
+    },
+    {
+      "key": "Digit8",
+      "labels": [
+        {
+          "position": "bottom",
+          "label": "{layout.alpha_or_sign}"
+        },
+        {
+          "position": "top",
+          "label": "{layout.shifted_sign}"
+        }
+      ]
+    },
+    {
+      "key": "Digit9",
+      "labels": [
+        {
+          "position": "bottom",
+          "label": "{layout.alpha_or_sign}"
+        },
+        {
+          "position": "top",
+          "label": "{layout.shifted_sign}"
+        }
+      ]
+    },
+    {
+      "key": "Digit0",
+      "labels": [
+        {
+          "position": "bottom",
+          "label": "{layout.alpha_or_sign}"
+        },
+        {
+          "position": "top",
+          "label": "{layout.shifted_sign}"
+        }
+      ]
+    },
+    {
+      "key": "Minus",
+      "labels": [
+        {
+          "position": "bottom",
+          "label": "{layout.alpha_or_sign}"
+        },
+        {
+          "position": "top",
+          "label": "{layout.shifted_sign}"
+        }
+      ]
+    },
+    {
+      "key": "Equal",
+      "labels": [
+        {
+          "position": "bottom",
+          "label": "{layout.alpha_or_sign}"
+        },
+        {
+          "position": "top",
+          "label": "{layout.shifted_sign}"
+        }
+      ]
+    },
+    {
+      "key": "Backslash",
+      "labels": [
+        {
+          "position": "bottom",
+          "label": "{layout.alpha_or_sign}"
+        },
+        {
+          "position": "top",
+          "label": "{layout.shifted_sign}"
+        }
+      ]
+    },
+    {
+      "key": "Backquote",
+      "labels": [
+        {
+          "position": "bottom",
+          "label": "{layout.alpha_or_sign}"
+        },
+        {
+          "position": "top",
+          "label": "{layout.shifted_sign}"
+        }
+      ]
+    },
+    {
+      "key": "Q",
+      "labels": [
+        {
+          "position": "bottom",
+          "label": "{layout.alpha_or_sign}"
+        },
+        {
+          "position": "top",
+          "label": "{layout.shifted_sign}"
+        }
+      ]
+    },
+    {
+      "key": "W",
+      "labels": [
+        {
+          "position": "bottom",
+          "label": "{layout.alpha_or_sign}"
+        },
+        {
+          "position": "top",
+          "label": "{layout.shifted_sign}"
+        }
+      ]
+    },
+    {
+      "key": "E",
+      "labels": [
+        {
+          "position": "bottom",
+          "label": "{layout.alpha_or_sign}"
+        },
+        {
+          "position": "top",
+          "label": "{layout.shifted_sign}"
+        }
+      ]
+    },
+    {
+      "key": "R",
+      "labels": [
+        {
+          "position": "bottom",
+          "label": "{layout.alpha_or_sign}"
+        },
+        {
+          "position": "top",
+          "label": "{layout.shifted_sign}"
+        }
+      ]
+    },
+    {
+      "key": "T",
+      "labels": [
+        {
+          "position": "bottom",
+          "label": "{layout.alpha_or_sign}"
+        },
+        {
+          "position": "top",
+          "label": "{layout.shifted_sign}"
+        }
+      ]
+    },
+    {
+      "key": "Y",
+      "labels": [
+        {
+          "position": "bottom",
+          "label": "{layout.alpha_or_sign}"
+        },
+        {
+          "position": "top",
+          "label": "{layout.shifted_sign}"
+        }
+      ]
+    },
+    {
+      "key": "U",
+      "labels": [
+        {
+          "position": "bottom",
+          "label": "{layout.alpha_or_sign}"
+        },
+        {
+          "position": "top",
+          "label": "{layout.shifted_sign}"
+        }
+      ]
+    },
+    {
+      "key": "I",
+      "labels": [
+        {
+          "position": "bottom",
+          "label": "{layout.alpha_or_sign}"
+        },
+        {
+          "position": "top",
+          "label": "{layout.shifted_sign}"
+        }
+      ]
+    },
+    {
+      "key": "O",
+      "labels": [
+        {
+          "position": "bottom",
+          "label": "{layout.alpha_or_sign}"
+        },
+        {
+          "position": "top",
+          "label": "{layout.shifted_sign}"
+        }
+      ]
+    },
+    {
+      "key": "P",
+      "labels": [
+        {
+          "position": "bottom",
+          "label": "{layout.alpha_or_sign}"
+        },
+        {
+          "position": "top",
+          "label": "{layout.shifted_sign}"
+        }
+      ]
+    },
+    {
+      "key": "BracketLeft",
+      "labels": [
+        {
+          "position": "bottom",
+          "label": "{layout.alpha_or_sign}"
+        },
+        {
+          "position": "top",
+          "label": "{layout.shifted_sign}"
+        }
+      ]
+    },
+    {
+      "key": "BracketRight",
+      "labels": [
+        {
+          "position": "bottom",
+          "label": "{layout.alpha_or_sign}"
+        },
+        {
+          "position": "top",
+          "label": "{layout.shifted_sign}"
+        }
+      ]
+    },
+    {
+      "key": "A",
+      "labels": [
+        {
+          "position": "bottom",
+          "label": "{layout.alpha_or_sign}"
+        },
+        {
+          "position": "top",
+          "label": "{layout.shifted_sign}"
+        }
+      ]
+    },
+    {
+      "key": "S",
+      "labels": [
+        {
+          "position": "bottom",
+          "label": "{layout.alpha_or_sign}"
+        },
+        {
+          "position": "top",
+          "label": "{layout.shifted_sign}"
+        }
+      ]
+    },
+    {
+      "key": "D",
+      "labels": [
+        {
+          "position": "bottom",
+          "label": "{layout.alpha_or_sign}"
+        },
+        {
+          "position": "top",
+          "label": "{layout.shifted_sign}"
+        }
+      ]
+    },
+    {
+      "key": "F",
+      "labels": [
+        {
+          "position": "bottom",
+          "label": "{layout.alpha_or_sign}"
+        },
+        {
+          "position": "top",
+          "label": "{layout.shifted_sign}"
+        }
+      ]
+    },
+    {
+      "key": "G",
+      "labels": [
+        {
+          "position": "bottom",
+          "label": "{layout.alpha_or_sign}"
+        },
+        {
+          "position": "top",
+          "label": "{layout.shifted_sign}"
+        }
+      ]
+    },
+    {
+      "key": "H",
+      "labels": [
+        {
+          "position": "bottom",
+          "label": "{layout.alpha_or_sign}"
+        },
+        {
+          "position": "top",
+          "label": "{layout.shifted_sign}"
+        }
+      ]
+    },
+    {
+      "key": "J",
+      "labels": [
+        {
+          "position": "bottom",
+          "label": "{layout.alpha_or_sign}"
+        },
+        {
+          "position": "top",
+          "label": "{layout.shifted_sign}"
+        }
+      ]
+    },
+    {
+      "key": "K",
+      "labels": [
+        {
+          "position": "bottom",
+          "label": "{layout.alpha_or_sign}"
+        },
+        {
+          "position": "top",
+          "label": "{layout.shifted_sign}"
+        }
+      ]
+    },
+    {
+      "key": "L",
+      "labels": [
+        {
+          "position": "bottom",
+          "label": "{layout.alpha_or_sign}"
+        },
+        {
+          "position": "top",
+          "label": "{layout.shifted_sign}"
+        }
+      ]
+    },
+    {
+      "key": "Semicolon",
+      "labels": [
+        {
+          "position": "bottom",
+          "label": "{layout.alpha_or_sign}"
+        },
+        {
+          "position": "top",
+          "label": "{layout.shifted_sign}"
+        }
+      ]
+    },
+    {
+      "key": "Quote",
+      "labels": [
+        {
+          "position": "bottom",
+          "label": "{layout.alpha_or_sign}"
+        },
+        {
+          "position": "top",
+          "label": "{layout.shifted_sign}"
+        }
+      ]
+    },
+    {
+      "key": "Z",
+      "labels": [
+        {
+          "position": "bottom",
+          "label": "{layout.alpha_or_sign}"
+        },
+        {
+          "position": "top",
+          "label": "{layout.shifted_sign}"
+        }
+      ]
+    },
+    {
+      "key": "X",
+      "labels": [
+        {
+          "position": "bottom",
+          "label": "{layout.alpha_or_sign}"
+        },
+        {
+          "position": "top",
+          "label": "{layout.shifted_sign}"
+        }
+      ]
+    },
+    {
+      "key": "C",
+      "labels": [
+        {
+          "position": "bottom",
+          "label": "{layout.alpha_or_sign}"
+        },
+        {
+          "position": "top",
+          "label": "{layout.shifted_sign}"
+        }
+      ]
+    },
+    {
+      "key": "V",
+      "labels": [
+        {
+          "position": "bottom",
+          "label": "{layout.alpha_or_sign}"
+        },
+        {
+          "position": "top",
+          "label": "{layout.shifted_sign}"
+        }
+      ]
+    },
+    {
+      "key": "B",
+      "labels": [
+        {
+          "position": "bottom",
+          "label": "{layout.alpha_or_sign}"
+        },
+        {
+          "position": "top",
+          "label": "{layout.shifted_sign}"
+        }
+      ]
+    },
+    {
+      "key": "N",
+      "labels": [
+        {
+          "position": "bottom",
+          "label": "{layout.alpha_or_sign}"
+        },
+        {
+          "position": "top",
+          "label": "{layout.shifted_sign}"
+        }
+      ]
+    },
+    {
+      "key": "M",
+      "labels": [
+        {
+          "position": "bottom",
+          "label": "{layout.alpha_or_sign}"
+        },
+        {
+          "position": "top",
+          "label": "{layout.shifted_sign}"
+        }
+      ]
+    },
+    {
+      "key": "Comma",
+      "labels": [
+        {
+          "position": "bottom",
+          "label": "{layout.alpha_or_sign}"
+        },
+        {
+          "position": "top",
+          "label": "{layout.shifted_sign}"
+        }
+      ]
+    },
+    {
+      "key": "Period",
+      "labels": [
+        {
+          "position": "bottom",
+          "label": "{layout.alpha_or_sign}"
+        },
+        {
+          "position": "top",
+          "label": "{layout.shifted_sign}"
+        }
+      ]
+    },
+    {
+      "key": "Slash",
+      "labels": [
+        {
+          "position": "bottom",
+          "label": "{layout.alpha_or_sign}"
+        },
+        {
+          "position": "top",
+          "label": "{layout.shifted_sign}"
+        }
+      ]
+    }
+  ]
+}

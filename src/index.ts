@@ -28,9 +28,11 @@ import {
   KeyboardStateReader as coreKeyboardStateReader,
 } from "./core/keyboardState";
 import { detectKeyboardLayout } from "./browser/osKeyboardLayout";
+import { getKeyboardGuide } from "./impl/defaultKeyboardGuide";
 
 export { InputResult } from "./core/automaton";
 export { activate } from "./browser/eventHandler";
+export { KeyboardGuide, type KeyRect, type KeyTop } from "./impl/keyboardGuide";
 
 export const keyboard = {
   detect: detectKeyboardLayout,
@@ -38,7 +40,14 @@ export const keyboard = {
   get: getKeyboardLayout,
   getQwertyJis: () => getKeyboardLayout("qwerty-jis"),
   getQwertyUs: () => getKeyboardLayout("qwerty-us"),
+  getDvorak: () => getKeyboardLayout("dvorak"),
 };
+
+export const guide = {
+  get: getKeyboardGuide,
+}
+
+export type { PhysicalKeyboardLayoutName } from "./impl/keyboardGuide";
 
 export const rule = {
   get: rules.get,
