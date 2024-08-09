@@ -28,9 +28,11 @@ export function Typing(props: {
   useEffect(() => {
     setWordDisplayedAt(new Date());
     return emiel.activate(window, (e) => {
+      console.log("missCount in activate: ", missCount);
       setLastInputKey(e.input);
       const result = automaton.input(e);
       if (result.isFinished) {
+        console.log("missCount in: ", missCount);
         props.onWordFinished(automaton, wordDisplayedAt, missCount);
         if (wordIndex === words.length - 1) {
           props.onFinished();
@@ -54,6 +56,12 @@ export function Typing(props: {
         <span style={{ color: "gray" }}>{automaton.finishedRoman}</span>{" "}
         {automaton.pendingRoman}
       </h1>
+      <h2>
+        Miss:{" "}
+        <code>
+          {missCount}
+        </code>
+      </h2>
       <h2>
         Key:{" "}
         <code style={{ border: "1px solid gray", padding: "0.2rem" }}>

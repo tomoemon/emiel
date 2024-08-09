@@ -1,16 +1,16 @@
 import { prettyPrint } from "@base2/pretty-print-object";
-import { Comparable, Rule, RuleEntry } from "./rule";
+import { Rule, RuleEntry } from "./rule";
 import { RuleStroke } from "./ruleStroke";
 
 /**
  * validation 時にのみ使う関数はメソッドとしてではなく、ここの中に記述する
  */
 
-export function validateRule<T extends Comparable<T>>(rule: Rule<T>): void {
-  const outputHashMap = new Map<string, RuleEntry<T>[]>();
+export function validateRule(rule: Rule): void {
+  const outputHashMap = new Map<string, RuleEntry[]>();
   rule.entries.forEach((entry) => {
     if (outputHashMap.has(entry.output)) {
-      const entries = outputHashMap.get(entry.output) as RuleEntry<T>[];
+      const entries = outputHashMap.get(entry.output) as RuleEntry[];
       entries.forEach((v) => {
         for (let i = 0; i < v.input.length && i < entry.input.length; i++) {
           const result = compareStroke(v.input[i], entry.input[i]);
@@ -37,11 +37,11 @@ export function validateRule<T extends Comparable<T>>(rule: Rule<T>): void {
 /**
  * keys と requiredModifiers は一致しているが unnecesaryModifiers が一致していないときに true を返す
  */
-function compareStroke<T extends Comparable<T>>(
-  thisStroke: RuleStroke<T>,
-  other: RuleStroke<T>
+function compareStroke(
+  thisStroke: RuleStroke,
+  other: RuleStroke
 ): { key: boolean; requiredModifier: boolean; unnecessaryModifiers: boolean } {
-  const keysResult = thisStroke.key.equals(other.key);
+  const keysResult = thisStroke.key === other.key;
 
   const requiredModifierResult = thisStroke.requiredModifier.equals(
     other.requiredModifier
@@ -50,7 +50,7 @@ function compareStroke<T extends Comparable<T>>(
   const otherMods = other.unnecessaryModifiers.flatMap((v) => v.modifiers);
   const unnecesaryModifiersResult =
     thisMods.length === otherMods.length &&
-    thisMods.every((v) => otherMods.some((v2) => v.equals(v2)));
+    thisMods.every((v) => otherMods.some((v2) => v === v2));
   return {
     key: keysResult,
     requiredModifier: requiredModifierResult,

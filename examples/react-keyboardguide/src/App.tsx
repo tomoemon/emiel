@@ -1,9 +1,9 @@
-import { KeyRect, KeyTop, KeyboardState, KeyboardStateReader, guide, keyboard } from 'emiel'
+import { KeyRect, KeyTop, KeyboardState, guide, keyboard } from 'emiel'
 import { useEffect, useState } from 'react';
 import * as emiel from 'emiel';
 
 function App() {
-  const [keyboardState, setKeyboardState] = useState<KeyboardStateReader>(new KeyboardState([]));
+  const [keyboardState, setKeyboardState] = useState<emiel.KeyboardStateReader>(new KeyboardState([]));
   useEffect(() => {
     emiel.activate(window, (evt) => {
       console.log("down", evt.input.key);
@@ -125,7 +125,7 @@ function KeyboardGuideComponent(props: {
   layoutName: string,
   physicalLayoutName: string,
   guideName: string,
-  kbdState: KeyboardStateReader,
+  kbdState: emiel.KeyboardStateReader,
   showVirtualKeyCodes: boolean,
 }) {
   // console.log("guide component", props.layout.name, props.kbdGuide.guideData.name);

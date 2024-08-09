@@ -1,5 +1,5 @@
 import { KeyboardLayout } from "../core/keyboardLayout";
-import { VirtualKey, VirtualKeys } from "./virtualKey";
+import { VirtualKey, VirtualKeys } from "../core/virtualKey";
 
 export type PhysicalKeyboardLayoutName = "jis_106" | "us_101" | "us_hhkb";
 
@@ -353,7 +353,7 @@ export class KeyboardGuide {
 	}
 
 	keyTops(
-		layout: KeyboardLayout<VirtualKey>,
+		layout: KeyboardLayout,
 		size: {
 			keyWidth: number,
 			keyHeight: number,

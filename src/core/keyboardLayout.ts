@@ -1,17 +1,17 @@
 import { setDefault } from "../utils/map";
 import { AndModifier, ModifierGroup } from "./modifier";
-import { Comparable } from "./rule";
 import { RuleStroke } from "./ruleStroke";
+import { VirtualKey } from "./virtualKey";
 
-export class KeyboardLayout<T extends Comparable<T>> {
-  readonly strokesByChar: Map<string, RuleStroke<T>[]>;
+export class KeyboardLayout {
+  readonly strokesByChar: Map<string, RuleStroke[]>;
   private readonly charByStroke: Map<string, string>;
   private readonly charByStrokeWithoutShift: Map<string, string>;
   constructor(
     readonly name: string,
-    readonly mapping: [string, RuleStroke<T>][],
-    readonly modifiers: ModifierGroup<T>[],
-    readonly shiftKeys: T[]
+    readonly mapping: [string, RuleStroke][],
+    readonly modifiers: ModifierGroup[],
+    readonly shiftKeys: VirtualKey[]
   ) {
     this.strokesByChar = new Map();
     this.charByStroke = new Map();
@@ -30,14 +30,14 @@ export class KeyboardLayout<T extends Comparable<T>> {
       );
     });
   }
-  getStrokesByChar(char: string): RuleStroke<T>[] {
+  getStrokesByChar(char: string): RuleStroke[] {
     const strokes = this.strokesByChar.get(char);
     if (!strokes) {
       throw new Error("invalid char: " + char);
     }
     return strokes;
   }
-  getCharByKey(key: T, shifted: boolean): string {
+  getCharByKey(key: VirtualKey, shifted: boolean): string {
     const stroke = new RuleStroke(
       key,
       shifted
@@ -47,7 +47,7 @@ export class KeyboardLayout<T extends Comparable<T>> {
     );
     return this.getCharByStroke(stroke);
   }
-  getCharByStroke(stroke: RuleStroke<T>): string {
+  getCharByStroke(stroke: RuleStroke): string {
     const char = this.charByStroke.get(
       strokeToString(stroke, false, this.shiftKeys)
     );
@@ -61,10 +61,10 @@ export class KeyboardLayout<T extends Comparable<T>> {
   }
 }
 
-function strokeToString<T extends Comparable<T>>(
-  stroke: RuleStroke<T>,
+function strokeToString(
+  stroke: RuleStroke,
   ignoreShift: boolean,
-  shiftKeys: T[]
+  shiftKeys: VirtualKey[]
 ): string {
   if (ignoreShift) {
     return stroke.key.toString();

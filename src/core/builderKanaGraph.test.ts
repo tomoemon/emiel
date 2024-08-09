@@ -1,60 +1,51 @@
 import { expect, test } from "vitest";
-import { Comparable, Rule, RuleEntry } from "./rule";
+import { Rule, RuleEntry } from "./rule";
 import { AndModifier } from "./modifier";
 import { RuleStroke } from "./ruleStroke";
 import { buildKanaNode } from "./builderKanaGraph";
+import { VirtualKeys } from "./virtualKey";
 
-const nullModifier = new AndModifier<Key>();
+const nullModifier = new AndModifier();
 
-class Key implements Comparable<Key> {
-  constructor(public readonly code: string) {}
-  equals(other: Key): boolean {
-    return this.code === other.code;
-  }
-  toString(): string {
-    return this.code;
-  }
-}
-
-const defaultRule = new Rule<Key>(
+const defaultRule = new Rule(
   "test-rule",
   [
-    new RuleEntry<Key>(
-      [new RuleStroke<Key>(new Key("A"), nullModifier, [])],
+    new RuleEntry(
+      [new RuleStroke(VirtualKeys.A, nullModifier, [])],
       "あ",
       [],
       true
     ),
-    new RuleEntry<Key>(
+    new RuleEntry(
       [
-        new RuleStroke<Key>(new Key("T"), nullModifier, []),
-        new RuleStroke<Key>(new Key("A"), nullModifier, []),
+        new RuleStroke(VirtualKeys.T, nullModifier, []),
+        new RuleStroke(VirtualKeys.A, nullModifier, []),
       ],
       "た",
       [],
       true
     ),
-    new RuleEntry<Key>(
+    new RuleEntry(
       [
-        new RuleStroke<Key>(new Key("L"), nullModifier, []),
-        new RuleStroke<Key>(new Key("T"), nullModifier, []),
-        new RuleStroke<Key>(new Key("U"), nullModifier, []),
+        new RuleStroke(VirtualKeys.L, nullModifier, []),
+        new RuleStroke(VirtualKeys.T, nullModifier, []),
+        new RuleStroke(VirtualKeys.U, nullModifier, []),
       ],
       "っ",
       [],
       true
     ),
-    new RuleEntry<Key>(
+    new RuleEntry(
       [
-        new RuleStroke<Key>(new Key("T"), nullModifier, []),
-        new RuleStroke<Key>(new Key("T"), nullModifier, []),
+        new RuleStroke(VirtualKeys.T, nullModifier, []),
+        new RuleStroke(VirtualKeys.T, nullModifier, []),
       ],
       "っ",
-      [new RuleStroke<Key>(new Key("T"), nullModifier, [])],
+      [new RuleStroke(VirtualKeys.T, nullModifier, [])],
       true
     ),
-    new RuleEntry<Key>(
-      [new RuleStroke<Key>(new Key("X"), nullModifier, [])],
+    new RuleEntry(
+      [new RuleStroke(VirtualKeys.X, nullModifier, [])],
       "あい",
       [],
       true
@@ -74,8 +65,8 @@ test("test buildKanaNode: あ", () => {
   expect(startNode).not.toBe(endNode);
   expect(startNode.nextEdges.length).toBe(1);
   expect(startNode.nextEdges[0].entries).toEqual([
-    new RuleEntry<Key>(
-      [new RuleStroke<Key>(new Key("A"), nullModifier, [])],
+    new RuleEntry(
+      [new RuleStroke(VirtualKeys.A, nullModifier, [])],
       "あ",
       [],
       true
@@ -89,8 +80,8 @@ test("test buildKanaNode: あっ", () => {
   expect(startNode).not.toBe(endNode);
   expect(startNode.nextEdges.length).toBe(1);
   expect(startNode.nextEdges[0].entries).toEqual([
-    new RuleEntry<Key>(
-      [new RuleStroke<Key>(new Key("A"), nullModifier, [])],
+    new RuleEntry(
+      [new RuleStroke(VirtualKeys.A, nullModifier, [])],
       "あ",
       [],
       true
@@ -99,11 +90,11 @@ test("test buildKanaNode: あっ", () => {
   const secondNode = startNode.nextEdges[0].next;
   expect(secondNode.nextEdges.length).toBe(1);
   expect(secondNode.nextEdges[0].entries).toEqual([
-    new RuleEntry<Key>(
+    new RuleEntry(
       [
-        new RuleStroke<Key>(new Key("L"), nullModifier, []),
-        new RuleStroke<Key>(new Key("T"), nullModifier, []),
-        new RuleStroke<Key>(new Key("U"), nullModifier, []),
+        new RuleStroke(VirtualKeys.L, nullModifier, []),
+        new RuleStroke(VirtualKeys.T, nullModifier, []),
+        new RuleStroke(VirtualKeys.U, nullModifier, []),
       ],
       "っ",
       [],
@@ -118,8 +109,8 @@ test("test buildKanaNode: あった", () => {
   expect(startNode).not.toBe(endNode);
   expect(startNode.nextEdges.length).toBe(1);
   expect(startNode.nextEdges[0].entries).toEqual([
-    new RuleEntry<Key>(
-      [new RuleStroke<Key>(new Key("A"), nullModifier, [])],
+    new RuleEntry(
+      [new RuleStroke(VirtualKeys.A, nullModifier, [])],
       "あ",
       [],
       true
@@ -128,11 +119,11 @@ test("test buildKanaNode: あった", () => {
   const secondNode = startNode.nextEdges[0].next;
   expect(secondNode.nextEdges.length).toBe(2);
   expect(secondNode.nextEdges[0].entries).toEqual([
-    new RuleEntry<Key>(
+    new RuleEntry(
       [
-        new RuleStroke<Key>(new Key("L"), nullModifier, []),
-        new RuleStroke<Key>(new Key("T"), nullModifier, []),
-        new RuleStroke<Key>(new Key("U"), nullModifier, []),
+        new RuleStroke(VirtualKeys.L, nullModifier, []),
+        new RuleStroke(VirtualKeys.T, nullModifier, []),
+        new RuleStroke(VirtualKeys.U, nullModifier, []),
       ],
       "っ",
       [],
@@ -142,10 +133,10 @@ test("test buildKanaNode: あった", () => {
   const thirdNode = secondNode.nextEdges[0].next;
   expect(thirdNode.nextEdges.length).toBe(1);
   expect(thirdNode.nextEdges[0].entries).toEqual([
-    new RuleEntry<Key>(
+    new RuleEntry(
       [
-        new RuleStroke<Key>(new Key("T"), nullModifier, []),
-        new RuleStroke<Key>(new Key("A"), nullModifier, []),
+        new RuleStroke(VirtualKeys.T, nullModifier, []),
+        new RuleStroke(VirtualKeys.A, nullModifier, []),
       ],
       "た",
       [],
@@ -154,19 +145,19 @@ test("test buildKanaNode: あった", () => {
   ]);
   expect(thirdNode.nextEdges[0].next).toBe(endNode);
   expect(secondNode.nextEdges[1].entries).toEqual([
-    new RuleEntry<Key>(
+    new RuleEntry(
       [
-        new RuleStroke<Key>(new Key("T"), nullModifier, []),
-        new RuleStroke<Key>(new Key("T"), nullModifier, []),
+        new RuleStroke(VirtualKeys.T, nullModifier, []),
+        new RuleStroke(VirtualKeys.T, nullModifier, []),
       ],
       "っ",
-      [new RuleStroke<Key>(new Key("T"), nullModifier, [])],
+      [new RuleStroke(VirtualKeys.T, nullModifier, [])],
       true
     ),
-    new RuleEntry<Key>(
+    new RuleEntry(
       [
-        new RuleStroke<Key>(new Key("T"), nullModifier, []),
-        new RuleStroke<Key>(new Key("A"), nullModifier, []),
+        new RuleStroke(VirtualKeys.T, nullModifier, []),
+        new RuleStroke(VirtualKeys.A, nullModifier, []),
       ],
       "た",
       [],
@@ -184,8 +175,8 @@ test("test buildKanaNode: あいた, erase あ->い edge", () => {
   expect(startNode).not.toBe(endNode);
   expect(startNode.nextEdges.length).toBe(1);
   expect(startNode.nextEdges[0].entries).toEqual([
-    new RuleEntry<Key>(
-      [new RuleStroke<Key>(new Key("X"), nullModifier, [])],
+    new RuleEntry(
+      [new RuleStroke(VirtualKeys.X, nullModifier, [])],
       "あい",
       [],
       true
@@ -194,10 +185,10 @@ test("test buildKanaNode: あいた, erase あ->い edge", () => {
   const secondNode = startNode.nextEdges[0].next;
   expect(secondNode.nextEdges.length).toBe(1);
   expect(secondNode.nextEdges[0].entries).toEqual([
-    new RuleEntry<Key>(
+    new RuleEntry(
       [
-        new RuleStroke<Key>(new Key("T"), nullModifier, []),
-        new RuleStroke<Key>(new Key("A"), nullModifier, []),
+        new RuleStroke(VirtualKeys.T, nullModifier, []),
+        new RuleStroke(VirtualKeys.A, nullModifier, []),
       ],
       "た",
       [],

@@ -1,6 +1,6 @@
 import { KeyboardState } from "../core/keyboardState";
 import { InputEvent, InputStroke, KeyEventType } from "../core/ruleStroke";
-import { VirtualKey, VirtualKeys } from "../impl/virtualKey";
+import { VirtualKey, VirtualKeys } from "../core/virtualKey";
 
 /**
  * @param target addEventListener,removeEventListener を持つ Window object のような型
@@ -9,10 +9,10 @@ import { VirtualKey, VirtualKeys } from "../impl/virtualKey";
  */
 export function activate(
   target: EventTarget,
-  onKeyDown?: (evt: InputEvent<VirtualKey>) => void,
-  onKeyUp?: (evt: InputEvent<VirtualKey>) => void,
+  onKeyDown?: (evt: InputEvent) => void,
+  onKeyUp?: (evt: InputEvent) => void,
 ) {
-  const keyboardState = new KeyboardState<VirtualKey>();
+  const keyboardState = new KeyboardState();
   const keyDownEventHandler = (evt: Event) => {
     const keyStroke = toInputKeyStrokeFromKeyboardEvent(
       "keydown",
@@ -60,7 +60,7 @@ export function activate(
 function toInputKeyStrokeFromKeyboardEvent(
   evtType: KeyEventType,
   evt: KeyboardEvent
-): InputStroke<VirtualKey> {
+): InputStroke {
   const vkey = toVirtualKeyFromEventCode(evt.code);
   return new InputStroke(vkey, evtType);
 }

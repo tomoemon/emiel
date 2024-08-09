@@ -1,4 +1,4 @@
-import { VirtualKey, VirtualKeys } from "..";
+import { VirtualKeys } from "..";
 import { KeyboardLayout } from "../core/keyboardLayout";
 import {
   findMatchedKeyboardLayout,
@@ -7,7 +7,7 @@ import {
 
 export async function detectKeyboardLayout(
   window: any
-): Promise<KeyboardLayout<VirtualKey>> {
+): Promise<KeyboardLayout> {
   const layoutMap = await window?.navigator?.keyboard?.getLayoutMap();
   if (!layoutMap) {
     // Chrome, Edge にしか対応していないので、未対応の場合は Qwery JIS として返す

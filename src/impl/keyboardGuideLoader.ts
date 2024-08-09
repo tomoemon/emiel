@@ -1,5 +1,5 @@
+import { VirtualKey } from "../core/virtualKey";
 import { KeyboardGuideLabel, KeyboardGuide } from "./keyboardGuide";
-import { getVirtualKeyFromString, } from "./virtualKey";
 
 type jsonSchema = {
 	name: string;
@@ -22,7 +22,7 @@ export function loadJsonKeyboardGuide(
 	}
 	const entries = jsonGuide.entries.map((v) => {
 		return {
-			key: getVirtualKeyFromString(v.key),
+			key: VirtualKey.getFromString(v.key),
 			labels: v.labels.map(loadLabel),
 		};
 	});

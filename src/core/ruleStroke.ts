@@ -1,26 +1,26 @@
 import { StrokeEdge } from "./builderStrokeGraph";
 import { KeyboardStateReader } from "./keyboardState";
 import { AndModifier, ModifierGroup } from "./modifier";
-import { Comparable } from "./rule";
+import { VirtualKey } from "./virtualKey";
 
 export type KeyEventType = "keyup" | "keydown";
 
-export class InputStroke<T extends Comparable<T>> {
-  constructor(readonly key: T, readonly type: KeyEventType) {}
+export class InputStroke {
+  constructor(readonly key: VirtualKey, readonly type: KeyEventType) { }
 }
 
-export class InputEvent<T extends Comparable<T>> {
+export class InputEvent {
   constructor(
-    readonly input: InputStroke<T>,
-    readonly keyboardState: KeyboardStateReader<T>,
+    readonly input: InputStroke,
+    readonly keyboardState: KeyboardStateReader,
     readonly timestamp: Date
-  ) {}
-  match(edge: StrokeEdge<T>): "ignored" | "matched" | "failed" {
+  ) { }
+  match(edge: StrokeEdge): "ignored" | "matched" | "failed" {
     const necessaryModifiers = edge.input.requiredModifier.groups;
     const unnecessaryModifiers = edge.input.unnecessaryModifiers;
 
     // 入力されたキーがマッチし、
-    if (this.input.key.equals(edge.input.key)) {
+    if (this.input.key === edge.input.key) {
       // 必要な modifier がすべて押されていて、
       if (necessaryModifiers.every((v) => v.accept(this.keyboardState))) {
         // 不要な modifier が1つも押されていないときに成功
@@ -67,17 +67,17 @@ export class InputEvent<T extends Comparable<T>> {
   }
 }
 
-export class RuleStroke<T extends Comparable<T>> {
+export class RuleStroke {
   constructor(
-    readonly key: T,
-    readonly requiredModifier: AndModifier<T>,
-    readonly unnecessaryModifiers: ModifierGroup<T>[],
+    readonly key: VirtualKey,
+    readonly requiredModifier: AndModifier,
+    readonly unnecessaryModifiers: ModifierGroup[],
     // ローマ字入力系（mozcRule）のルールで作られたRuleStrokeの場合、ローマ字を表す文字を持つ
     readonly romanChar: string = ""
-  ) {}
-  equals(other: RuleStroke<T>): boolean {
+  ) { }
+  equals(other: RuleStroke): boolean {
     return (
-      this.key.equals(other.key) &&
+      this.key === other.key &&
       this.requiredModifier.equals(other.requiredModifier) &&
       this.unnecessaryModifiers.length === other.unnecessaryModifiers.length &&
       this.unnecessaryModifiers.every((v, i) =>

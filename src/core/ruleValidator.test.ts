@@ -1,30 +1,21 @@
-import { Comparable, Rule, RuleEntry } from "./rule";
+import { Rule, RuleEntry } from "./rule";
 import { validateRule } from "./ruleValidator";
 import { expect, test } from "vitest";
 import { RuleStroke } from "./ruleStroke";
 import { AndModifier, ModifierGroup } from "./modifier";
+import { VirtualKeys } from "./virtualKey";
 
-const nullModifier = new AndModifier<Key>();
-
-class Key implements Comparable<Key> {
-  constructor(public readonly code: string) {}
-  equals(other: Key): boolean {
-    return this.code === other.code;
-  }
-  toString(): string {
-    return this.code;
-  }
-}
+const nullModifier = new AndModifier();
 
 test("entry 1つのときに矛盾はない", () => {
   const modifierGroups = [
-    new ModifierGroup<Key>([new Key("ShiftLeft"), new Key("ShiftRight")]),
+    new ModifierGroup([VirtualKeys.ShiftLeft, VirtualKeys.ShiftRight]),
   ];
-  const rule = new Rule<Key>(
+  const rule = new Rule(
     "test-rule",
     [
-      new RuleEntry<Key>(
-        [new RuleStroke<Key>(new Key("A"), nullModifier, modifierGroups)],
+      new RuleEntry(
+        [new RuleStroke(VirtualKeys.A, nullModifier, modifierGroups)],
         "あ",
         [],
         false
@@ -33,26 +24,26 @@ test("entry 1つのときに矛盾はない", () => {
     modifierGroups,
     (v) => v
   );
-  expect(() => validateRule<Key>(rule)).not.toThrowError();
+  expect(() => validateRule(rule)).not.toThrowError();
 });
 
 test("異なる output を持つ時、異なる unnecesary modifier があっても問題ない", () => {
   const modifierGroups = [
-    new ModifierGroup<Key>([new Key("ShiftLeft"), new Key("ShiftRight")]),
+    new ModifierGroup([VirtualKeys.ShiftLeft, VirtualKeys.ShiftRight]),
   ];
-  const rule = new Rule<Key>(
+  const rule = new Rule(
     "test-rule",
     [
-      new RuleEntry<Key>(
-        [new RuleStroke<Key>(new Key("A"), nullModifier, modifierGroups)],
+      new RuleEntry(
+        [new RuleStroke(VirtualKeys.A, nullModifier, modifierGroups)],
         "あ",
         [],
         false
       ),
-      new RuleEntry<Key>(
+      new RuleEntry(
         [
-          new RuleStroke<Key>(new Key("A"), nullModifier, [
-            new ModifierGroup<Key>([new Key("ControlLeft")]),
+          new RuleStroke(VirtualKeys.A, nullModifier, [
+            new ModifierGroup([VirtualKeys.ControlLeft]),
           ]),
         ],
         "い",
@@ -63,26 +54,26 @@ test("異なる output を持つ時、異なる unnecesary modifier があって
     modifierGroups,
     (v) => v
   );
-  expect(() => validateRule<Key>(rule)).not.toThrowError();
+  expect(() => validateRule(rule)).not.toThrowError();
 });
 
 test("同じ output を持つ時、異なる unnecesary modifier があると矛盾", () => {
   const modifierGroups = [
-    new ModifierGroup<Key>([new Key("ShiftLeft"), new Key("ShiftRight")]),
+    new ModifierGroup([VirtualKeys.ShiftLeft, VirtualKeys.ShiftRight]),
   ];
-  const rule = new Rule<Key>(
+  const rule = new Rule(
     "test-rule",
     [
-      new RuleEntry<Key>(
-        [new RuleStroke<Key>(new Key("A"), nullModifier, modifierGroups)],
+      new RuleEntry(
+        [new RuleStroke(VirtualKeys.A, nullModifier, modifierGroups)],
         "あ",
         [],
         false
       ),
-      new RuleEntry<Key>(
+      new RuleEntry(
         [
-          new RuleStroke<Key>(new Key("A"), nullModifier, [
-            new ModifierGroup<Key>([new Key("ControlLeft")]),
+          new RuleStroke(VirtualKeys.A, nullModifier, [
+            new ModifierGroup([VirtualKeys.ControlLeft]),
           ]),
         ],
         "あ",
@@ -93,5 +84,5 @@ test("同じ output を持つ時、異なる unnecesary modifier があると矛
     modifierGroups,
     (v) => v
   );
-  expect(() => validateRule<Key>(rule)).toThrowError();
+  expect(() => validateRule(rule)).toThrowError();
 });

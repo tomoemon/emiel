@@ -1,11 +1,11 @@
 import { expect, test } from "vitest";
 import { loadJsonRule } from "./jsonRuleLoader";
 import { RuleEntry } from "../core/rule";
-import { VirtualKey, VirtualKeys } from "./virtualKey";
 import { RuleStroke } from "../core/ruleStroke";
 import { AndModifier, ModifierGroup } from "../core/modifier";
+import { VirtualKeys } from "../core/virtualKey";
 
-const nullModifier = new AndModifier<VirtualKey>();
+const nullModifier = new AndModifier();
 
 test("empty", () => {
   const rule = loadJsonRule("rule", {
@@ -39,10 +39,10 @@ test("simple 1 entry", () => {
   });
   expect(rule.entries.length).toBe(1);
   expect(rule.entries[0]).toEqual(
-    new RuleEntry<VirtualKey>(
+    new RuleEntry(
       [
-        new RuleStroke<VirtualKey>(VirtualKeys.A, nullModifier, []),
-        new RuleStroke<VirtualKey>(VirtualKeys.B, nullModifier, []),
+        new RuleStroke(VirtualKeys.A, nullModifier, []),
+        new RuleStroke(VirtualKeys.B, nullModifier, []),
       ],
       "あ",
       [],
@@ -70,9 +70,9 @@ test("multiple key 2 stroke, 1 entry, no modifier", () => {
   });
   expect(rule.entries.length).toBe(2);
   expect(rule.entries[0]).toEqual(
-    new RuleEntry<VirtualKey>(
+    new RuleEntry(
       [
-        new RuleStroke<VirtualKey>(
+        new RuleStroke(
           VirtualKeys.A,
           new AndModifier(new ModifierGroup([VirtualKeys.B])),
           []
@@ -85,9 +85,9 @@ test("multiple key 2 stroke, 1 entry, no modifier", () => {
   );
 
   expect(rule.entries[1]).toEqual(
-    new RuleEntry<VirtualKey>(
+    new RuleEntry(
       [
-        new RuleStroke<VirtualKey>(
+        new RuleStroke(
           VirtualKeys.B,
           new AndModifier(new ModifierGroup([VirtualKeys.A])),
           []
@@ -119,9 +119,9 @@ test("multiple key 1 stroke, 1 entry, with modifier", () => {
   });
   expect(rule.entries.length).toBe(2);
   expect(rule.entries[0]).toEqual(
-    new RuleEntry<VirtualKey>(
+    new RuleEntry(
       [
-        new RuleStroke<VirtualKey>(
+        new RuleStroke(
           VirtualKeys.A,
           new AndModifier(
             new ModifierGroup([VirtualKeys.ShiftLeft, VirtualKeys.ShiftRight]),
@@ -137,9 +137,9 @@ test("multiple key 1 stroke, 1 entry, with modifier", () => {
   );
 
   expect(rule.entries[1]).toEqual(
-    new RuleEntry<VirtualKey>(
+    new RuleEntry(
       [
-        new RuleStroke<VirtualKey>(
+        new RuleStroke(
           VirtualKeys.B,
           new AndModifier(
             new ModifierGroup([VirtualKeys.ShiftLeft, VirtualKeys.ShiftRight]),
@@ -178,14 +178,14 @@ test("multiple key 2 stroke, 1 entry, no modifier", () => {
   });
   expect(rule.entries.length).toBe(2);
   expect(rule.entries[0]).toEqual(
-    new RuleEntry<VirtualKey>(
+    new RuleEntry(
       [
-        new RuleStroke<VirtualKey>(
+        new RuleStroke(
           VirtualKeys.A,
           new AndModifier(new ModifierGroup([VirtualKeys.B])),
           []
         ),
-        new RuleStroke<VirtualKey>(VirtualKeys.C, nullModifier, []),
+        new RuleStroke(VirtualKeys.C, nullModifier, []),
       ],
       "あ",
       [],
@@ -194,14 +194,14 @@ test("multiple key 2 stroke, 1 entry, no modifier", () => {
   );
 
   expect(rule.entries[1]).toEqual(
-    new RuleEntry<VirtualKey>(
+    new RuleEntry(
       [
-        new RuleStroke<VirtualKey>(
+        new RuleStroke(
           VirtualKeys.B,
           new AndModifier(new ModifierGroup([VirtualKeys.A])),
           []
         ),
-        new RuleStroke<VirtualKey>(VirtualKeys.C, nullModifier, []),
+        new RuleStroke(VirtualKeys.C, nullModifier, []),
       ],
       "あ",
       [],
@@ -229,9 +229,9 @@ test("multiple key 1 entry, with modifier", () => {
   });
   expect(rule.entries.length).toBe(2);
   expect(rule.entries[0]).toEqual(
-    new RuleEntry<VirtualKey>(
+    new RuleEntry(
       [
-        new RuleStroke<VirtualKey>(
+        new RuleStroke(
           VirtualKeys.A,
           new AndModifier(
             new ModifierGroup([VirtualKeys.ShiftLeft, VirtualKeys.ShiftRight]),
@@ -246,9 +246,9 @@ test("multiple key 1 entry, with modifier", () => {
     )
   );
   expect(rule.entries[1]).toEqual(
-    new RuleEntry<VirtualKey>(
+    new RuleEntry(
       [
-        new RuleStroke<VirtualKey>(
+        new RuleStroke(
           VirtualKeys.B,
           new AndModifier(
             new ModifierGroup([VirtualKeys.ShiftLeft, VirtualKeys.ShiftRight]),

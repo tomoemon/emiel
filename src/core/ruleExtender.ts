@@ -1,15 +1,13 @@
-import { Comparable, RuleEntry } from "./rule";
+import { RuleEntry } from "./rule";
 import { RuleStroke } from "./ruleStroke";
 
-export function extendCommonPrefixOverlappedEntriesDeeply<
-  T extends Comparable<T>
->(entries: RuleEntry<T>[]): RuleEntry<T>[] {
+export function extendCommonPrefixOverlappedEntriesDeeply(entries: RuleEntry[]): RuleEntry[] {
   return recursiveExtendCommontPrefixOverlappedEntries(entries);
 }
 
-function recursiveExtendCommontPrefixOverlappedEntries<T extends Comparable<T>>(
-  entries: RuleEntry<T>[]
-): RuleEntry<T>[] {
+function recursiveExtendCommontPrefixOverlappedEntries(
+  entries: RuleEntry[]
+): RuleEntry[] {
   let extendableEntries = entries.filter(
     (entry) => entry.extendCommonPrefixCommonEntry
   );
@@ -50,15 +48,15 @@ function recursiveExtendCommontPrefixOverlappedEntries<T extends Comparable<T>>(
   return [...unextendableEntries, ...extendableEntries];
 }
 
-function extendCommonPrefixOverlappedEntries<T extends Comparable<T>>(
-  entries: RuleEntry<T>[]
+function extendCommonPrefixOverlappedEntries(
+  entries: RuleEntry[]
 ): {
-  extendRequiredEntries: Set<RuleEntry<T>>;
-  extendedNewEntries: RuleEntry<T>[];
+  extendRequiredEntries: Set<RuleEntry>;
+  extendedNewEntries: RuleEntry[];
 } {
   // console.log("called extendCommonPrefixOverlappedEntries");
   // Map のキーにするために、RuleStroke を文字列に変換する
-  const strokeToHash = (...strokes: RuleStroke<T>[]): string => {
+  const strokeToHash = (...strokes: RuleStroke[]): string => {
     return strokes
       .map(
         (stroke) =>
@@ -69,8 +67,8 @@ function extendCommonPrefixOverlappedEntries<T extends Comparable<T>>(
       .join("-");
   };
 
-  const entryMapByInput = new Map<string, RuleEntry<T>[]>();
-  const entryMapByInputPrefix = new Map<string, RuleEntry<T>[]>();
+  const entryMapByInput = new Map<string, RuleEntry[]>();
+  const entryMapByInputPrefix = new Map<string, RuleEntry[]>();
   entries.forEach((entry) => {
     // 各エントリの input をキーにして entry を Map に登録する
     const hash = strokeToHash(...entry.input);
@@ -91,7 +89,7 @@ function extendCommonPrefixOverlappedEntries<T extends Comparable<T>>(
   });
   // console.log("entryMapByInput", entryMapByInput);
   // console.log("entryMapByInputPrefix", entryMapByInputPrefix);
-  const extendRequiredInput = new Map<string, RuleEntry<T>[]>();
+  const extendRequiredInput = new Map<string, RuleEntry[]>();
   entries.forEach((entry) => {
     // 各エントリの input の prefix に一致するものが entryMap にある場合、
     // そのまま使うことはできないので、展開する
@@ -144,11 +142,11 @@ function extendCommonPrefixOverlappedEntries<T extends Comparable<T>>(
     }
   });
   // console.log("extendRequiredInput", extendRequiredInput);
-  const extendRequiredEntries = new Set<RuleEntry<T>>();
-  const extendedNewEntries = new Map<string, RuleEntry<T>>();
+  const extendRequiredEntries = new Set<RuleEntry>();
+  const extendedNewEntries = new Map<string, RuleEntry>();
   extendRequiredInput.forEach((availableEntries, hash) => {
     // 展開が必要なエントリ（例：n/ん）
-    const prefixOverlapEntries = entryMapByInput.get(hash) as RuleEntry<T>[];
+    const prefixOverlapEntries = entryMapByInput.get(hash) as RuleEntry[];
     prefixOverlapEntries.forEach((expandRequiredEntry) => {
       extendRequiredEntries.add(expandRequiredEntry);
       availableEntries.forEach((availableEntry) => {
@@ -160,7 +158,7 @@ function extendCommonPrefixOverlappedEntries<T extends Comparable<T>>(
           const newInputHash = strokeToHash(...newInput);
           extendedNewEntries.set(
             newInputHash,
-            new RuleEntry<T>(
+            new RuleEntry(
               newInput,
               expandRequiredEntry.output + availableEntry.output,
               availableEntry.nextInput,
@@ -175,7 +173,7 @@ function extendCommonPrefixOverlappedEntries<T extends Comparable<T>>(
           const newInputHash = strokeToHash(...newInput);
           extendedNewEntries.set(
             newInputHash,
-            new RuleEntry<T>(
+            new RuleEntry(
               [...expandRequiredEntry.input, availableEntry.input[0]],
               expandRequiredEntry.output,
               [availableEntry.input[0]],

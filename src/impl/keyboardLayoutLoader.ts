@@ -1,6 +1,6 @@
 import { AndModifier, ModifierGroup } from "../core/modifier";
 import { RuleStroke } from "../core/ruleStroke";
-import { VirtualKey, VirtualKeys, getVirtualKeyFromString } from "./virtualKey";
+import { VirtualKey, VirtualKeys } from "../core/virtualKey";
 import { KeyboardLayout } from "../core/keyboardLayout";
 
 type jsonSchema = {
@@ -10,16 +10,16 @@ type jsonSchema = {
 
 export function loadJsonKeyboardLayout(
   jsonLayout: jsonSchema | string
-): KeyboardLayout<VirtualKey> {
+): KeyboardLayout {
   if (jsonLayout instanceof String || typeof jsonLayout === "string") {
     const schema = JSON.parse(jsonLayout as string) as jsonSchema;
     return loadJsonKeyboardLayout(schema);
   }
-  const strokes: [string, RuleStroke<VirtualKey>][] = jsonLayout.entries.map(
+  const strokes: [string, RuleStroke][] = jsonLayout.entries.map(
     (v) => [
       v.output,
-      new RuleStroke<VirtualKey>(
-        getVirtualKeyFromString(v.input.key),
+      new RuleStroke(
+        VirtualKey.getFromString(v.input.key),
         v.input.shift ? modifierGroupSet.shift : nullModifier,
         v.input.shift ? modifiersExceptShift : allAvailableModifiers,
         v.output
@@ -34,25 +34,25 @@ export function loadJsonKeyboardLayout(
   );
 }
 
-const nullModifier = new AndModifier<VirtualKey>();
+const nullModifier = new AndModifier();
 const modifierGroupSet = {
   shift: new AndModifier(
-    new ModifierGroup<VirtualKey>([
+    new ModifierGroup([
       VirtualKeys.ShiftLeft,
       VirtualKeys.ShiftRight,
     ])
   ),
   control: new AndModifier(
-    new ModifierGroup<VirtualKey>([
+    new ModifierGroup([
       VirtualKeys.ControlLeft,
       VirtualKeys.ControlRight,
     ])
   ),
   alt: new AndModifier(
-    new ModifierGroup<VirtualKey>([VirtualKeys.AltLeft, VirtualKeys.AltRight])
+    new ModifierGroup([VirtualKeys.AltLeft, VirtualKeys.AltRight])
   ),
   meta: new AndModifier(
-    new ModifierGroup<VirtualKey>([VirtualKeys.MetaLeft, VirtualKeys.MetaRight])
+    new ModifierGroup([VirtualKeys.MetaLeft, VirtualKeys.MetaRight])
   ),
 };
 const allAvailableModifiers = Object.values(modifierGroupSet).flatMap(

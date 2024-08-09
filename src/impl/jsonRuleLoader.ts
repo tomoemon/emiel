@@ -3,7 +3,7 @@ import { Rule, RuleEntry } from "../core/rule";
 import { RuleStroke } from "../core/ruleStroke";
 import { product } from "../utils/itertools";
 import { defaultKanaNormalize } from "./charNormalizer";
-import { VirtualKey, getVirtualKeyFromString } from "./virtualKey";
+import { VirtualKey } from "../core/virtualKey";
 
 /*
     {
@@ -49,14 +49,14 @@ function getKeyFromStringWithAliasKeysMap(
   if (aliasKeysMap.has(key)) {
     return aliasKeysMap.get(key)!;
   }
-  return getVirtualKeyFromString(key);
+  return VirtualKey.getFromString(key);
 }
 
 function loadModifierGroups(
   jsonModifierGroups: modifierGroup[],
   aliasKeysMap: Map<string, VirtualKey>
-): Map<string, ModifierGroup<VirtualKey>> {
-  const modifierGroups = new Map<string, ModifierGroup<VirtualKey>>();
+): Map<string, ModifierGroup> {
+  const modifierGroups = new Map<string, ModifierGroup>();
   jsonModifierGroups.forEach((v) => {
     const modifiers: VirtualKey[] = [];
     v.keys.forEach((key) => {
@@ -69,9 +69,9 @@ function loadModifierGroups(
 
 function loadStroke(
   json: stroke,
-  modifierGroupMap: Map<string, ModifierGroup<VirtualKey>>,
+  modifierGroupMap: Map<string, ModifierGroup>,
   aliasKeysMap: Map<string, VirtualKey>
-): RuleStroke<VirtualKey>[] {
+): RuleStroke[] {
   const keys: VirtualKey[] = [];
   json.keys.forEach((key) => {
     keys.push(getKeyFromStringWithAliasKeysMap(key, aliasKeysMap));
@@ -80,10 +80,10 @@ function loadStroke(
     throw new Error("empty keys: " + json.toString());
   }
   return keys.map((key) => {
-    const multipleStrokeModifier = new ModifierGroup<VirtualKey>(
+    const multipleStrokeModifier = new ModifierGroup(
       keys.filter((v) => v !== key)
     );
-    const modifiers: ModifierGroup<VirtualKey>[] = [];
+    const modifiers: ModifierGroup[] = [];
     json.modifiers?.forEach((modifierName) => {
       const modifier = modifierGroupMap.get(modifierName);
       if (!modifier) {
@@ -94,7 +94,7 @@ function loadStroke(
     const unnecesaryModifiers = Array.from(modifierGroupMap.values()).filter(
       (v) => !modifiers.includes(v)
     );
-    return new RuleStroke<VirtualKey>(
+    return new RuleStroke(
       key,
       new AndModifier(...modifiers, multipleStrokeModifier),
       unnecesaryModifiers
@@ -132,9 +132,9 @@ function loadStroke(
  */
 function loadInput(
   input: stroke[],
-  modifierGroupMap: Map<string, ModifierGroup<VirtualKey>>,
+  modifierGroupMap: Map<string, ModifierGroup>,
   aliasKeysMap: Map<string, VirtualKey>
-): RuleStroke<VirtualKey>[][] {
+): RuleStroke[][] {
   /**
    * aとbの同時打鍵の後に、cとdの同時打鍵が必要な場合
    * input: [[a,b], [c,d]]
@@ -150,10 +150,10 @@ function loadInput(
 function loadEntries(
   jsonEntries: entry[],
   jsonExtendablePrefixCommon: boolean,
-  modifierGroupMap: Map<string, ModifierGroup<VirtualKey>>,
+  modifierGroupMap: Map<string, ModifierGroup>,
   aliasKeysMap: Map<string, VirtualKey>
-): RuleEntry<VirtualKey>[] {
-  const entries: RuleEntry<VirtualKey>[] = [];
+): RuleEntry[] {
+  const entries: RuleEntry[] = [];
   jsonEntries.forEach((v) => {
     const inputExtended = loadInput(v.input, modifierGroupMap, aliasKeysMap);
     const output = v.output;
@@ -180,7 +180,7 @@ function loadAliasKeys(jsonOptions?: options): Map<string, VirtualKey> {
   }
   const aliasMap = new Map<string, VirtualKey>();
   Object.entries(aliasKeys).forEach(([aliasName, key]) => {
-    const vKey = getVirtualKeyFromString(key);
+    const vKey = VirtualKey.getFromString(key);
     aliasMap.set(aliasName, vKey);
   });
   return aliasMap;
@@ -189,7 +189,7 @@ function loadAliasKeys(jsonOptions?: options): Map<string, VirtualKey> {
 export function loadJsonRule(
   name: string,
   jsonRule: jsonSchema | string
-): Rule<VirtualKey> {
+): Rule {
   if (jsonRule instanceof String || typeof jsonRule === "string") {
     const schema = JSON.parse(jsonRule as string) as jsonSchema;
     return loadJsonRule(name, schema);

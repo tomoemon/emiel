@@ -1,6 +1,6 @@
+import { VirtualKeys } from "../core/virtualKey";
 import { getKeyboardLayout } from "./defaultKeyboardLayout";
 import { loadMozcRule } from "./mozcRuleLoader";
-import { VirtualKeys } from "./virtualKey";
 import { expect, test } from "vitest";
 
 test("load google ime empty rule", () => {

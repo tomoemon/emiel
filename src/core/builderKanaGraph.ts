@@ -1,15 +1,15 @@
 import { setDefaultFunc } from "../utils/map";
-import { Comparable, Rule, RuleEntry } from "./rule";
+import { Rule, RuleEntry } from "./rule";
 import { RuleStroke } from "./ruleStroke";
 
 // build 中にのみ使用する
-export class KanaNode<T extends Comparable<T>> {
+export class KanaNode {
   constructor(
     readonly startIndex: number,
-    readonly nextEdges: KanaEdge<T>[],
-    readonly previousEdges: KanaEdge<T>[]
-  ) {}
-  connectEdgesWithNextInput(previousNode: KanaNode<T>, entry: RuleEntry<T>) {
+    readonly nextEdges: KanaEdge[],
+    readonly previousEdges: KanaEdge[]
+  ) { }
+  connectEdgesWithNextInput(previousNode: KanaNode, entry: RuleEntry) {
     this.nextEdges
       .filter((edge) => edge.canConnectWithNextInput(entry.nextInput))
       .forEach((edge) => {
@@ -24,7 +24,7 @@ export class KanaNode<T extends Comparable<T>> {
         edge.next.previousEdges.push(newEdge);
       });
   }
-  clearNextEdgesTo(targetNode: KanaNode<T>) {
+  clearNextEdgesTo(targetNode: KanaNode) {
     const newNodes = this.nextEdges.filter((edge) => edge.next !== targetNode);
     this.nextEdges.splice(0, this.nextEdges.length, ...newNodes);
   }
@@ -35,20 +35,20 @@ export class KanaNode<T extends Comparable<T>> {
 
 // KanaNode間をつなぐ辺
 // build 中にのみ使用する
-export class KanaEdge<T extends Comparable<T>> {
+export class KanaEdge {
   constructor(
-    readonly entries: RuleEntry<T>[],
-    readonly next: KanaNode<T>,
-    readonly previous: KanaNode<T>
-  ) {}
+    readonly entries: RuleEntry[],
+    readonly next: KanaNode,
+    readonly previous: KanaNode
+  ) { }
 
   /**
    * entries に含まれる input を結合して返す
    * entry の nextInput が次とつながる分を除いて結合する
    * 例：entries: [tt っ t], [ta た] → tta を返す
    */
-  get inputs(): { input: RuleStroke<T>; kanaIndex: number }[] {
-    const result: { input: RuleStroke<T>; kanaIndex: number }[] = [];
+  get inputs(): { input: RuleStroke; kanaIndex: number }[] {
+    const result: { input: RuleStroke; kanaIndex: number }[] = [];
     let lastNextInputLength = 0;
     let lastTotalEntryOutputLength = 0;
     const previousKanaNodeIndex = this.previous.startIndex;
@@ -66,9 +66,9 @@ export class KanaEdge<T extends Comparable<T>> {
   }
 
   /*
-	nextInput を渡されたときに、この Edge からつながる Entry の input が nextInput とつながるかどうかを判定する
+  nextInput を渡されたときに、この Edge からつながる Entry の input が nextInput とつながるかどうかを判定する
    */
-  canConnectWithNextInput(nextInput: RuleStroke<T>[]): boolean {
+  canConnectWithNextInput(nextInput: RuleStroke[]): boolean {
     return this.entries[0].isConnetableAfter(nextInput);
   }
 }
@@ -84,19 +84,19 @@ export class KanaEdge<T extends Comparable<T>> {
    ya     xtu    ti
    ya     ltu    chi
    ya     xtu    chi
-	 ya            tti
-	 ya           cchi
+   ya            tti
+   ya           cchi
 */
-export function buildKanaNode<T extends Comparable<T>>(
-  rule: Rule<T>,
+export function buildKanaNode(
+  rule: Rule,
   kanaText: string
-): [KanaNode<T>, KanaNode<T>] {
+): [KanaNode, KanaNode] {
   const normalizedKanaText = rule.normalize(kanaText);
   // かなテキスト1文字1文字に対応する KanaNode を作成する
   const kanaNodes = [...normalizedKanaText].map(
-    (_, i) => new KanaNode<T>(i, [], [])
+    (_, i) => new KanaNode(i, [], [])
   );
-  const endNode = new KanaNode<T>(normalizedKanaText.length, [], []); // 終端ノード
+  const endNode = new KanaNode(normalizedKanaText.length, [], []); // 終端ノード
   const kanaNodesWithEnd = [...kanaNodes, endNode];
   if (normalizedKanaText.length === 0) {
     // 空文字列の場合は終端ノードのみを返す
@@ -111,7 +111,7 @@ export function buildKanaNode<T extends Comparable<T>>(
   i=2 あい の末尾から手前にチェック
   i=1 あ の末尾から手前にチェック
   */
-  const normalizedEntryOutputMap: Map<RuleEntry<T>, string> = new Map();
+  const normalizedEntryOutputMap: Map<RuleEntry, string> = new Map();
   for (let i = normalizedKanaText.length; i > 0; i--) {
     const kanaPrefix = normalizedKanaText.substring(0, i);
     const nextNode = kanaNodesWithEnd[i];
@@ -165,7 +165,7 @@ startNode から遷移を始める場合は問題が起きない（「い」「�
 +------+            +------+
 +-------------------+
 */
-function eraseInvalidEdges<T extends Comparable<T>>(kanaNodes: KanaNode<T>[]) {
+function eraseInvalidEdges(kanaNodes: KanaNode[]) {
   // 末尾の KanaNode から順にチェックし、次へ遷移できない KanaNode の場合は、
   // 前の KanaNode からその KanaNode に対する Edge を削除する
   for (let i = kanaNodes.length - 1; i > 0; i--) {
