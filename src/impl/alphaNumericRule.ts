@@ -2,18 +2,17 @@ import { KeyboardLayout } from "../core/keyboardLayout";
 import { Rule, RuleEntry } from "../core/rule";
 import { setDefaultFunc } from "../utils/map";
 import { defaultAlphaNumericNormalize } from "./charNormalizer";
-import { VirtualKey } from "./virtualKey";
 
-const alphaNumericRuleByLayout = new Map<string, Rule<VirtualKey>>();
+const alphaNumericRuleByLayout = new Map<string, Rule>();
 
 export function getAlphaNumericRuleByLayout(
-  layout: KeyboardLayout<VirtualKey>
-): Rule<VirtualKey> {
+  layout: KeyboardLayout
+): Rule {
   return setDefaultFunc(alphaNumericRuleByLayout, layout.name, () => {
     const entries = Array.from(layout.mapping).map(
-      ([key, stroke]) => new RuleEntry<VirtualKey>([stroke], key, [], false)
+      ([key, stroke]) => new RuleEntry([stroke], key, [], false)
     );
-    return new Rule<VirtualKey>(
+    return new Rule(
       "alpha-numeric",
       entries,
       layout.modifiers,

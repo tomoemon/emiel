@@ -16,7 +16,8 @@ function App() {
     displayedAt: Date,
     missCount: number
   ) => {
-    setWordRecords([
+    console.log("missCount: ", missCount);
+    setWordRecords((wordRecords) => [
       ...wordRecords,
       {
         automaton: a,

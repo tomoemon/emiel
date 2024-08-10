@@ -6,17 +6,16 @@ import { getAlphaNumericRuleByLayout } from "./alphaNumericRule";
 import { loadJsonRule } from "./jsonRuleLoader";
 import jis_kana from "../assets/rules/jis_kana.json";
 import nicola from "../assets/rules/nicola.json";
-import { VirtualKey } from "./virtualKey";
 import { Rule } from "../core/rule";
 import { setDefaultFunc } from "../utils/map";
 import { KeyboardLayout } from "../core/keyboardLayout";
 
 class Rules {
-  private static cache: Map<string, Rule<VirtualKey>> = new Map();
+  private static cache: Map<string, Rule> = new Map();
   get(
     name: "tomoemon-azik" | "roman" | "jis-kana" | "nicola",
-    layout: KeyboardLayout<VirtualKey>
-  ): Rule<VirtualKey> {
+    layout: KeyboardLayout
+  ): Rule {
     switch (name) {
       case "tomoemon-azik":
         return Rules.getFromGoogleImeText(
@@ -35,8 +34,8 @@ class Rules {
   static getFromGoogleImeText(
     name: string,
     text: string,
-    layout: KeyboardLayout<VirtualKey>
-  ): Rule<VirtualKey> {
+    layout: KeyboardLayout
+  ): Rule {
     return setDefaultFunc(Rules.cache, name + "/" + layout.name, () =>
       mergeRule(
         loadMozcRule(name, text, layout),
@@ -47,8 +46,8 @@ class Rules {
   static getFromJsonConfig(
     name: string,
     jsonData: any,
-    layout: KeyboardLayout<VirtualKey>
-  ): Rule<VirtualKey> {
+    layout: KeyboardLayout
+  ): Rule {
     return setDefaultFunc(Rules.cache, name + "/" + layout.name, () =>
       mergeRule(
         loadJsonRule(name, jsonData),

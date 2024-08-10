@@ -1,12 +1,12 @@
-import { Comparable, Rule } from "./rule";
+import { Rule } from "./rule";
 import { buildKanaNode } from "./builderKanaGraph";
 import { buildStrokeNode } from "./builderStrokeGraph";
 import { Automaton } from "./automaton";
 
-export function build<T extends Comparable<T>>(
-  rule: Rule<T>,
+export function build(
+  rule: Rule,
   kanaText: string,
-): Automaton<T> {
+): Automaton {
   const [_, endKanaNode] = buildKanaNode(rule, kanaText);
-  return new Automaton<T>(kanaText, buildStrokeNode(rule, endKanaNode));
+  return new Automaton(kanaText, buildStrokeNode(rule, endKanaNode));
 }

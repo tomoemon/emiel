@@ -44,21 +44,21 @@ export function TypingGraph(props: {
       }
     });
     return deactivate;
-  }, [props.automaton]);
+  }, [automaton, graphData.edges, graphData.nodes, graphData.nodesMap, props, props.automaton]);
 
-  const finishedRomanSubstr = automaton.finishedRomanSubstr;
-  const pendingRomanSubstr = automaton.pendingRomanSubstr;
+  const finishedRomanSubstr = automaton.finishedRoman;
+  const pendingRomanSubstr = automaton.pendingRoman;
   return (
     <>
       <h2>{props.ruleName}</h2>
       <h1>
-        <span style={{ color: "gray" }}>{automaton.finishedWordSubstr}</span>{" "}
-        {automaton.pendingWordSubstr}
+        <span style={{ color: "gray" }}>{automaton.finishedWord}</span>{" "}
+        {automaton.pendingWord}
       </h1>
       {finishedRomanSubstr || pendingRomanSubstr ? (
         <h1>
-          <span style={{ color: "gray" }}>{automaton.finishedRomanSubstr}</span>{" "}
-          {automaton.pendingRomanSubstr}
+          <span style={{ color: "gray" }}>{automaton.finishedRoman}</span>{" "}
+          {automaton.pendingRoman}
         </h1>
       ) : (
         <></>

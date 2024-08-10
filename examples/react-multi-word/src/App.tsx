@@ -2,7 +2,6 @@ import "./App.css";
 import * as emiel from "emiel";
 import { useEffect, useState } from "react";
 import { Word } from "./word";
-import { InputEvent } from "../../../dist/types/core/ruleStroke";
 
 // 繰り返し次のワードを生成するジェネレータ
 const wordGen = (function* wordGenerator(): Generator<string, string> {
@@ -26,7 +25,7 @@ const initialWords = Array.from({ length: 3 }, () => wordGen.next().value);
 class PositionAutomaton implements emiel.Inputtable {
   constructor(readonly base: emiel.Automaton, readonly position: number) {
   }
-  input(stroke: InputEvent<emiel.VirtualKey>): emiel.InputResult {
+  input(stroke: emiel.InputEvent): emiel.InputResult {
     return this.base.input(stroke);
   }
   reset(): void {

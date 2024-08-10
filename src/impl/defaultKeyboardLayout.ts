@@ -3,15 +3,15 @@ import qwerty_jis from "../assets/keyboard_layouts/qwerty_jis.json";
 import qwerty_us from "../assets/keyboard_layouts/qwerty_us.json";
 import { KeyboardLayout } from "../core/keyboardLayout";
 import { loadJsonKeyboardLayout } from "./keyboardLayoutLoader";
-import { VirtualKey } from "./virtualKey";
+import { VirtualKey } from "../core/virtualKey";
 
 const names = ["qwerty-jis", "qwerty-us", "dvorak"];
 
-const layoutCache = new Map<string, KeyboardLayout<VirtualKey>>();
+const layoutCache = new Map<string, KeyboardLayout>();
 
 export function getKeyboardLayout(
   name: string
-): KeyboardLayout<VirtualKey> {
+): KeyboardLayout {
   const layout = layoutCache.get(name);
   if (!layout) {
     switch (name) {
@@ -34,7 +34,7 @@ export function getKeyboardLayout(
  */
 export function findMatchedKeyboardLayout(
   keyToCharMap: Map<VirtualKey, string>
-): KeyboardLayout<VirtualKey> {
+): KeyboardLayout {
   if (keyToCharMap.size === 0) {
     // default
     return getKeyboardLayout("qwerty-jis");

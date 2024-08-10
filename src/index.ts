@@ -1,34 +1,34 @@
-import { KeyboardLayout as coreKeyboardLayout } from "./core/keyboardLayout";
+export { KeyboardLayout } from "./core/keyboardLayout";
 import { getKeyboardLayout } from "./impl/defaultKeyboardLayout";
 import { loadJsonKeyboardLayout } from "./impl/keyboardLayoutLoader";
 import { rules } from "./impl/defaultRules";
-import {
-  Automaton as coreAutomaton,
-} from "./core/automaton";
-import { Inputtable as coreInputtable, Selector as coreSelector } from "./core/selector";
-import { Rule as coreRule, RuleEntry as coreRuleEntry } from "./core/rule";
-import {
-  RuleStroke as coreRuleStroke,
-  InputStroke as coreInputStroke,
-  InputEvent as coreInputEvent,
+export { Automaton } from "./core/automaton";
+export { Selector, type Inputtable } from "./core/selector";
+export { Rule, RuleEntry } from "./core/rule";
+export {
+  RuleStroke,
+  InputStroke,
+  InputEvent,
 } from "./core/ruleStroke";
-import {
-  StrokeNode as coreStrokeNode,
-  StrokeEdge as coreStrokeEdge,
+export {
+  StrokeNode,
+  StrokeEdge,
 } from "./core/builderStrokeGraph";
-import {
-  AndModifier as coreAndModifier,
-  ModifierGroup as coreModifierGroup,
+export {
+  AndModifier,
+  ModifierGroup,
 } from "./core/modifier";
-import { VirtualKey } from "./impl/virtualKey";
+export { VirtualKey, VirtualKeys } from "./core/virtualKey";
 import { loadJsonRule } from "./impl/jsonRuleLoader";
 import { loadMozcRule } from "./impl/mozcRuleLoader";
-import {
-  KeyboardState as coreKeyboardState,
-  KeyboardStateReader as coreKeyboardStateReader,
+export {
+  KeyboardState,
+  type KeyboardStateReader,
 } from "./core/keyboardState";
 import { detectKeyboardLayout } from "./browser/osKeyboardLayout";
 import { getKeyboardGuide } from "./impl/defaultKeyboardGuide";
+import { KeyboardLayout } from "./core/keyboardLayout";
+import { Rule } from "./core/rule";
 
 export { InputResult } from "./core/automaton";
 export { activate } from "./browser/eventHandler";
@@ -41,11 +41,11 @@ export const keyboard = {
   getQwertyJis: () => getKeyboardLayout("qwerty-jis"),
   getQwertyUs: () => getKeyboardLayout("qwerty-us"),
   getDvorak: () => getKeyboardLayout("dvorak"),
-};
+} as const;
 
 export const guide = {
   get: getKeyboardGuide,
-}
+} as const;
 
 export type { PhysicalKeyboardLayoutName } from "./impl/keyboardGuide";
 
@@ -62,26 +62,3 @@ export const rule = {
   loadJson: loadJsonRule,
   loadMozcRule: loadMozcRule,
 };
-
-export { VirtualKey } from "./impl/virtualKey";
-export { VirtualKeys } from "./impl/virtualKey";
-
-export class KeyboardLayout extends coreKeyboardLayout<VirtualKey> { }
-export class Rule extends coreRule<VirtualKey> { }
-export class RuleStroke extends coreRuleStroke<VirtualKey> { }
-export class RuleEntry extends coreRuleEntry<VirtualKey> { }
-export class InputStroke extends coreInputStroke<VirtualKey> { }
-export class InputEvent extends coreInputEvent<VirtualKey> { }
-export class StrokeNode extends coreStrokeNode<VirtualKey> { }
-export class StrokeEdge extends coreStrokeEdge<VirtualKey> { }
-export class ModifierGroup extends coreModifierGroup<VirtualKey> { }
-export class AndModifier extends coreAndModifier<VirtualKey> { }
-export class Automaton extends coreAutomaton<VirtualKey> { }
-export class Selector<U extends coreInputtable<VirtualKey>> extends coreSelector<
-  VirtualKey,
-  U
-> { }
-export interface Inputtable extends coreInputtable<VirtualKey> { }
-export class KeyboardState extends coreKeyboardState<VirtualKey> { }
-export interface KeyboardStateReader
-  extends coreKeyboardStateReader<VirtualKey> { }

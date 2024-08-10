@@ -1,21 +1,21 @@
 import { KeyboardStateReader } from "./keyboardState";
-import { Comparable } from "./rule";
+import { VirtualKey } from "./virtualKey";
 
-export class ModifierGroup<T extends Comparable<T>> {
-  constructor(readonly modifiers: T[]) {}
-  accept(state: KeyboardStateReader<T>): boolean {
+export class ModifierGroup {
+  constructor(readonly modifiers: VirtualKey[]) { }
+  accept(state: KeyboardStateReader): boolean {
     return state.isAnyKeyDowned(...this.modifiers);
   }
-  equals(other: ModifierGroup<T>): boolean {
+  equals(other: ModifierGroup): boolean {
     return (
       this.modifiers.length === other.modifiers.length &&
-      this.modifiers.every((v, i) => v.equals(other.modifiers[i]))
+      this.modifiers.every((v, i) => v === other.modifiers[i])
     );
   }
-  has(key: T): boolean {
-    return this.modifiers.some((v) => v.equals(key));
+  has(key: VirtualKey): boolean {
+    return this.modifiers.some((v) => v === key);
   }
-  get groups(): ModifierGroup<T>[] {
+  get groups(): ModifierGroup[] {
     return [this];
   }
   toString(): string {
@@ -23,21 +23,21 @@ export class ModifierGroup<T extends Comparable<T>> {
   }
 }
 
-export class AndModifier<T extends Comparable<T>> {
-  readonly groups: ModifierGroup<T>[];
-  constructor(...groups: ModifierGroup<T>[]) {
+export class AndModifier {
+  readonly groups: ModifierGroup[];
+  constructor(...groups: ModifierGroup[]) {
     this.groups = groups.filter((v) => v.modifiers.length > 0);
   }
   get isEmpty(): boolean {
     return this.groups.length === 0;
   }
-  has(key: T): boolean {
+  has(key: VirtualKey): boolean {
     return this.groups.some((v) => v.has(key));
   }
-  accept(state: KeyboardStateReader<T>): boolean {
+  accept(state: KeyboardStateReader): boolean {
     return this.groups.every((group) => group.accept(state));
   }
-  equals(other: AndModifier<T>): boolean {
+  equals(other: AndModifier): boolean {
     return (
       this.groups.length === other.groups.length &&
       this.groups.every((v, i) => v.equals(other.groups[i]))

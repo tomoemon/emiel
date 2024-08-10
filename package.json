@@ -2,7 +2,7 @@
   "name": "emiel",
   "author": "tomoemon",
   "packageManager": "pnpm@8.15.1",
-  "version": "0.1.5",
+  "version": "0.1.6",
   "type": "module",
   "license": "MIT",
   "repository": {
@@ -32,15 +32,15 @@
     "lint": "eslint src --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "test": "vitest"
   },
-  "dependencies": {},
   "devDependencies": {
     "@base2/pretty-print-object": "^1.0.2",
     "@types/estree": "^1.0.5",
-    "@typescript-eslint/eslint-plugin": "^6.19.1",
-    "@typescript-eslint/parser": "^6.19.1",
-    "eslint": "^8.56.0",
-    "typescript": "^5.3.3",
-    "vite": "^5.0.12",
-    "vitest": "^1.2.2"
+    "@types/node": "^22.1.0",
+    "@typescript-eslint/eslint-plugin": "^8.0.1",
+    "@typescript-eslint/parser": "^8.0.1",
+    "eslint": "^8.8.0",
+    "typescript": "^5.5.4",
+    "vite": "^5.3.5",
+    "vitest": "^2.0.5"
   }
 }

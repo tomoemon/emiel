@@ -1,9 +1,6 @@
 // ブラウザから渡される Keyboard Event とは直接関係のない仮想的なキー一覧
-
-import { Comparable } from "../core/rule";
-
 // Rule を json ファイル等で定義するときに使うキーはここで定義されている値を文字列として使う
-const virtualKeys = {
+export const VirtualKeys = {
   Escape: "Escape",
   F1: "F1",
   F2: "F2",
@@ -99,40 +96,13 @@ const virtualKeys = {
   NumpadMultiply: "NumpadMultiply",
 } as const;
 
-type virtualKey = keyof typeof virtualKeys;
+export type VirtualKey = keyof typeof VirtualKeys;
 
-// 同一の key に対しては同一のインスタンスを返す
-export class VirtualKey implements Comparable<VirtualKey> {
-  private constructor(readonly key: virtualKey) {}
-  equals(other: VirtualKey): boolean {
-    return this.key === other.key;
-  }
-  private static readonly keyMap: Map<virtualKey, VirtualKey> = new Map();
-  static get(key: virtualKey): VirtualKey {
-    if (!VirtualKey.keyMap.has(key)) {
-      const newKey = new VirtualKey(key);
-      VirtualKey.keyMap.set(key, newKey);
-      return newKey;
+export const VirtualKey = {
+  getFromString: (key: string) => {
+    if (key in VirtualKeys) {
+      return key as VirtualKey;
     }
-    return VirtualKey.keyMap.get(key)!;
+    throw new Error(`invalid key: ${key}`);
   }
-  toString(): string {
-    return this.key;
-  }
-}
-
-export const VirtualKeys = Object.fromEntries(
-  Object.entries(virtualKeys).map(([_, v]: [string, virtualKey]) => [
-    v,
-    VirtualKey.get(v),
-  ])
-) as {
-  readonly [k in virtualKey]: VirtualKey;
-};
-
-export function getVirtualKeyFromString(v: string): VirtualKey {
-  if (v in VirtualKeys) {
-    return VirtualKeys[v as virtualKey];
-  }
-  throw new Error(`invalid key: ${v}`);
-}
+} as const;

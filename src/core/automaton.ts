@@ -1,4 +1,3 @@
-import { Comparable } from "./rule";
 import { InputEvent, RuleStroke } from "./ruleStroke";
 import { StrokeEdge, StrokeNode } from "./builderStrokeGraph";
 
@@ -52,17 +51,17 @@ export class InputResult {
 }
 
 
-export class Automaton<T extends Comparable<T>> {
-  private _currentNode: StrokeNode<T>;
+export class Automaton {
+  private _currentNode: StrokeNode;
   private _succeededInputs: {
-    event: InputEvent<T>;
-    lastEdge: StrokeEdge<T>;
+    event: InputEvent;
+    lastEdge: StrokeEdge;
   }[] = [];
   /**
    * @param word かな文字列（配列定義 Rule で使用可能な文字で構成される文字列）
    * @param startNode 打鍵を受け付ける開始ノード
    */
-  constructor(readonly word: string, readonly startNode: StrokeNode<T>) {
+  constructor(readonly word: string, readonly startNode: StrokeNode) {
     this._currentNode = startNode;
   }
   // 入力が完了したかな文字列
@@ -82,9 +81,9 @@ export class Automaton<T extends Comparable<T>> {
   /**
    * 現在の入力状態から最短ストローク数で打ち切れるストローク列を返す
    */
-  get shortestPendingStrokes(): RuleStroke<T>[] {
+  get shortestPendingStrokes(): RuleStroke[] {
     let node = this.currentNode;
-    const result: RuleStroke<T>[] = [];
+    const result: RuleStroke[] = [];
     while (node.nextEdges.length > 0) {
       result.push(node.nextEdges[0].input);
       node = node.nextEdges[0].next;
@@ -98,12 +97,12 @@ export class Automaton<T extends Comparable<T>> {
     this._currentNode = this.startNode;
     this._succeededInputs = [];
   }
-  get currentNode(): StrokeNode<T> {
+  get currentNode(): StrokeNode {
     return this._currentNode;
   }
   get succeededInputs(): {
-    event: InputEvent<T>;
-    matchedStroke: RuleStroke<T>;
+    event: InputEvent;
+    matchedStroke: RuleStroke;
   }[] {
     return this._succeededInputs.map((v) => ({
       event: v.event,
@@ -127,9 +126,9 @@ export class Automaton<T extends Comparable<T>> {
   /**
    * 状態遷移せずに、入力が成功するかどうかをテストする
    */
-  testInput(stroke: InputEvent<T>): {
+  testInput(stroke: InputEvent): {
     result: InputResult;
-    acceptedEdge: StrokeEdge<T> | undefined;
+    acceptedEdge: StrokeEdge | undefined;
   } {
     const lastKanaIndex = this._currentNode.kanaIndex;
     const acceptedEdges = this._currentNode.nextEdges.filter(
@@ -166,7 +165,7 @@ export class Automaton<T extends Comparable<T>> {
   /**
    * キー入力して状態遷移し、入力が成功するかどうかを返す
    */
-  input(stroke: InputEvent<T>): InputResult {
+  input(stroke: InputEvent): InputResult {
     const { result, acceptedEdge } = this.testInput(stroke);
     this.applyState(stroke, result, acceptedEdge);
     return result;
@@ -174,10 +173,10 @@ export class Automaton<T extends Comparable<T>> {
   /**
    * testInput の結果を適用して内部の状態を変更する
    */
-  applyState(
-    stroke: InputEvent<T>,
+  protected applyState(
+    stroke: InputEvent,
     result: InputResult,
-    acceptedEdge: StrokeEdge<T> | undefined
+    acceptedEdge: StrokeEdge | undefined
   ) {
     if (result.isSucceeded) {
       this._succeededInputs.push({

@@ -1,44 +1,43 @@
 import { InputResult } from "./automaton";
-import { Comparable } from "./rule";
 import { InputEvent } from "./ruleStroke";
 
-export interface Inputtable<T extends Comparable<T>> {
-  input(stroke: InputEvent<T>): InputResult;
+export interface Inputtable {
+  input(stroke: InputEvent): InputResult;
   reset(): void;
 }
 
 /**
  * 複数の automaton をまとめて、入力を受け付ける
  */
-export class Selector<T extends Comparable<T>, U extends Inputtable<T>> {
+export class Selector<T extends Inputtable> {
   // 現在入力試行対象になっている automaton
-  private _actives: readonly U[];
+  private _actives: readonly T[];
 
-  constructor(private _items: readonly U[]) {
+  constructor(private _items: readonly T[]) {
     this._actives = _items;
   }
   // Selectorに含まれるすべてのアイテム
-  get items(): readonly U[] {
+  get items(): readonly T[] {
     return this._items;
   }
   // 現在入力試行対象になっているアイテム
-  get activeItems(): readonly U[] {
+  get activeItems(): readonly T[] {
     return this._actives;
   }
   input(
-    stroke: InputEvent<T>,
+    stroke: InputEvent,
     callback?: {
-      succeeded?: (automaton: U) => void;
-      failed?: (automaton: U) => void;
-      finished?: (automaton: U) => void;
-      ignored?: (automaton: U) => void;
+      succeeded?: (automaton: T) => void;
+      failed?: (automaton: T) => void;
+      finished?: (automaton: T) => void;
+      ignored?: (automaton: T) => void;
     }
   ) {
-    const finished: U[] = [];
-    const succeeded: U[] = [];
-    const failed: U[] = [];
-    const ignored: U[] = [];
-    const newActive: U[] = [];
+    const finished: T[] = [];
+    const succeeded: T[] = [];
+    const failed: T[] = [];
+    const ignored: T[] = [];
+    const newActive: T[] = [];
     for (const inputtable of this._actives) {
       const result = inputtable.input(stroke);
       if (result.isSucceeded) {
@@ -86,7 +85,7 @@ export class Selector<T extends Comparable<T>, U extends Inputtable<T>> {
    * 指定した item を取り除く
    * ※現在 active な inputtable であっても取り除かれる
    */
-  remove(item: U): void {
+  remove(item: T): void {
     this._items = this._items.filter((v) => v !== item);
     this._actives = this._actives.filter(
       (v) => v !== item
@@ -96,7 +95,7 @@ export class Selector<T extends Comparable<T>, U extends Inputtable<T>> {
    * 指定した inputtable を取り除き、新規の Selector を返す
    * 現在のインスタンスには影響を与えない
    */
-  removed(item: U): Selector<T, U> {
+  removed(item: T): Selector<T> {
     const newItems = this._items.filter((v) => v !== item);
     return new Selector(newItems);
   }
@@ -104,7 +103,7 @@ export class Selector<T extends Comparable<T>, U extends Inputtable<T>> {
    * 指定した item を取り除き、新しい item を追加する
    * activated が true の場合、新しい item は即座に active な状態になる
    */
-  replace(item: U, newItem: U, activated: boolean = false): void {
+  replace(item: T, newItem: T, activated: boolean = false): void {
     this.remove(item);
     if (activated) {
       this._actives = this._actives.concat(newItem);
@@ -114,7 +113,7 @@ export class Selector<T extends Comparable<T>, U extends Inputtable<T>> {
    * 指定した item を取り除き、新しい item を追加して、新規の Selector を返す
    * 現在のインスタンスには影響を与えない
    */
-  replaced(item: U, newItem: U): Selector<T, U> {
+  replaced(item: T, newItem: T): Selector<T> {
     const newAutomatons = this._items.filter((v) => v !== item);
     return new Selector(newAutomatons.concat(newItem));
   }
@@ -122,7 +121,7 @@ export class Selector<T extends Comparable<T>, U extends Inputtable<T>> {
    * 新しい item を追加する
    * activated が true の場合、新しい item は即座に active な状態になる
    */
-  push(newItem: U, activated: boolean = false): void {
+  push(newItem: T, activated: boolean = false): void {
     this._items = this._items.concat(newItem);
     if (activated) {
       this._actives = this._actives.concat(newItem);
@@ -132,7 +131,7 @@ export class Selector<T extends Comparable<T>, U extends Inputtable<T>> {
    * 新しい item を追加した新規の Selector を返す
    * 現在のインスタンスには影響を与えない
    */
-  pushed(newItem: U): Selector<T, U> {
+  pushed(newItem: T): Selector<T> {
     return new Selector(this._items.concat(newItem));
   }
 }

@@ -3,22 +3,21 @@ import { Rule, RuleEntry } from "../core/rule";
 import { RuleStroke } from "../core/ruleStroke";
 import { product } from "../utils/itertools";
 import { defaultKanaNormalize } from "./charNormalizer";
-import { VirtualKey } from "./virtualKey";
 
 export function loadMozcRule(
   name: string,
   text: string,
-  layout: KeyboardLayout<VirtualKey>
-): Rule<VirtualKey> {
+  layout: KeyboardLayout
+): Rule {
   /*
-		a	あ	
-		ta	た	
-		tt	っ	t
-		*/
+    a	あ	
+    ta	た	
+    tt	っ	t
+    */
   text = text.replace(/\r\n/g, "\n");
   text = text.replace(/\r/g, "\n");
   const lines = text.split("\n");
-  const entries: RuleEntry<VirtualKey>[] = [];
+  const entries: RuleEntry[] = [];
   for (let line of lines) {
     line = line.trim();
     if (line.length == 0) {
@@ -32,11 +31,11 @@ export function loadMozcRule(
       cols.push("");
     }
     // キーボードレイアウトによっては1つの文字を打つために複数のキー候補がありえる
-    const inputs: RuleStroke<VirtualKey>[][] = [...cols[0]].map((c) =>
+    const inputs: RuleStroke[][] = [...cols[0]].map((c) =>
       toStrokesFromChar(layout, c)
     );
     const output = cols[1];
-    const nextInput: RuleStroke<VirtualKey>[] = [...cols[2]].map(
+    const nextInput: RuleStroke[] = [...cols[2]].map(
       (c) => toStrokesFromChar(layout, c)[0]
     );
     Array.from(product(inputs)).forEach((input) => {
@@ -54,9 +53,9 @@ export function loadMozcRule(
 }
 
 function toStrokesFromChar(
-  layout: KeyboardLayout<VirtualKey>,
+  layout: KeyboardLayout,
   key: string
-): RuleStroke<VirtualKey>[] {
+): RuleStroke[] {
   const strokes = layout.getStrokesByChar(key);
   if (!strokes) {
     throw new Error("invalid key: " + key);
