@@ -2,50 +2,28 @@ import "./App.css";
 import * as emiel from "emiel";
 import { useEffect, useState } from "react";
 
-const words = ["おをひく", "こんとん", "がっこう", "aから@"];
-
 export function Typing(props: {
   layout: emiel.KeyboardLayout;
+  automaton: emiel.Automaton;
   onWordFinished: (
     a: emiel.Automaton,
     displayedAt: Date,
-    missCount: number
   ) => void;
-  onFinished: () => void;
 }) {
-  const [automatons] = useState(
-    words.map((w) => {
-      return emiel.rule.getRoman(props.layout).build(w);
-    })
-  );
-  const [wordIndex, setWordIndex] = useState(0);
-  const [wordDisplayedAt, setWordDisplayedAt] = useState(new Date());
-  const [missCount, setMissCount] = useState(0);
   const [lastInputKey, setLastInputKey] = useState<
     emiel.InputStroke | undefined
   >();
-  const automaton = automatons[wordIndex];
+  const automaton = props.automaton;
   useEffect(() => {
-    setWordDisplayedAt(new Date());
+    const wordDisplayedAt = new Date();
     return emiel.activate(window, (e) => {
-      console.log("missCount in activate: ", missCount);
       setLastInputKey(e.input);
       const result = automaton.input(e);
       if (result.isFinished) {
-        console.log("missCount in: ", missCount);
-        props.onWordFinished(automaton, wordDisplayedAt, missCount);
-        if (wordIndex === words.length - 1) {
-          props.onFinished();
-        }
-        setWordIndex((current) => current + 1);
-        setWordDisplayedAt(new Date());
-        setMissCount(0);
-      }
-      if (result.isFailed) {
-        setMissCount((current) => current + 1);
+        props.onWordFinished(automaton, wordDisplayedAt);
       }
     });
-  }, [wordIndex]);
+  }, [automaton]);
   return (
     <>
       <h1>
@@ -59,7 +37,7 @@ export function Typing(props: {
       <h2>
         Miss:{" "}
         <code>
-          {missCount}
+          {automaton.failedInputCount}
         </code>
       </h2>
       <h2>

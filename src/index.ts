@@ -62,3 +62,4 @@ export const rule = {
   loadJson: loadJsonRule,
   loadMozcRule: loadMozcRule,
 };
+export { stats } from "./impl/stats";

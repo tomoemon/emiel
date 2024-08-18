@@ -50,13 +50,17 @@ export class InputResult {
   }
 }
 
+type edgeHistory = {
+  // 遷移のきっかけになった成功した入力イベント
+  event: InputEvent;
+  // 今回の遷移で利用されたエッジ（この Edge をたどると startNode まで戻れる）
+  previousEdge: StrokeEdge;
+  // 今回の遷移に成功するまでに失敗した入力イベント
+  // failedEvents[0], failedEvents[1], ..., event(入力成功) という時系列
+  failedEvents: InputEvent[];
+};
 
 export class Automaton {
-  private _currentNode: StrokeNode;
-  private _succeededInputs: {
-    event: InputEvent;
-    lastEdge: StrokeEdge;
-  }[] = [];
   /**
    * @param word かな文字列（配列定義 Rule で使用可能な文字で構成される文字列）
    * @param startNode 打鍵を受け付ける開始ノード
@@ -64,24 +68,45 @@ export class Automaton {
   constructor(readonly word: string, readonly startNode: StrokeNode) {
     this._currentNode = startNode;
   }
-  // 入力が完了したかな文字列
+  private _currentNode: StrokeNode;
+  /** 入力成功して遷移した履歴 */
+  private _edgeHistories: edgeHistory[] = [];
+  /** 現在のノード入力中に失敗した入力イベント。次のノードに遷移するとリセットされる */
+  private _failedEventsAtCurrentNode: InputEvent[] = [];
+  /**
+   * 入力が完了したかな文字列
+   */
   get finishedWord(): string {
     return this.word.substring(0, this._currentNode.kanaIndex);
   }
-  // 入力が完了していないかな文字列
+  /**
+   * 入力が完了していないかな文字列
+   */
   get pendingWord(): string {
     return this.word.substring(this._currentNode.kanaIndex);
   }
+  /**
+   * 入力が完了したローマ字列
+   */
   get finishedRoman(): string {
-    return this.succeededInputs.map((v) => v.matchedStroke.romanChar).join("");
+    return this._edgeHistories.map((v) => v.previousEdge.input.romanChar).join("");
   }
+  /**
+   * 入力が完了していないローマ字列
+   */
   get pendingRoman(): string {
-    return this.shortestPendingStrokes.map((v) => v.romanChar).join("");
+    return this.pendingStroke.map((v) => v.romanChar).join("");
+  }
+  /**
+   * 入力が完了したキーストローク列
+   */
+  get finishedStroke(): RuleStroke[] {
+    return this._edgeHistories.map((v) => v.previousEdge.input);
   }
   /**
    * 現在の入力状態から最短ストローク数で打ち切れるストローク列を返す
    */
-  get shortestPendingStrokes(): RuleStroke[] {
+  get pendingStroke(): RuleStroke[] {
     let node = this.currentNode;
     const result: RuleStroke[] = [];
     while (node.nextEdges.length > 0) {
@@ -91,45 +116,73 @@ export class Automaton {
     return result;
   }
   /**
+   * 入力履歴
+   */
+  get histories(): edgeHistory[] {
+    return this._edgeHistories;
+  }
+  /**
+   * 1打目の入力時刻
+   */
+  get firstInputTime(): Date {
+    return this._edgeHistories[0].event.timestamp;
+  }
+  /**
+   * 最後の入力時刻
+   */
+  get lastInputTime(): Date {
+    return this._edgeHistories[this._edgeHistories.length - 1].event.timestamp;
+  }
+  /**
+   * ミス入力数の合計
+   */
+  get failedInputCount(): number {
+    return this._failedEventsAtCurrentNode.length + this._edgeHistories.reduce((acc, v) => acc + v.failedEvents.length, 0);
+  }
+  /**
+   * ミス入力も含めた打鍵数の合計
+   */
+  get totalInputCount(): number {
+    return this._failedEventsAtCurrentNode.length + this._edgeHistories.reduce((acc, v) => acc + v.failedEvents.length, 0) + this._edgeHistories.length;
+  }
+  /**
    * 入力状態をリセットする
    */
   reset(): void {
     this._currentNode = this.startNode;
-    this._succeededInputs = [];
+    this._edgeHistories = [];
+    this._failedEventsAtCurrentNode = [];
   }
   get currentNode(): StrokeNode {
     return this._currentNode;
-  }
-  get succeededInputs(): {
-    event: InputEvent;
-    matchedStroke: RuleStroke;
-  }[] {
-    return this._succeededInputs.map((v) => ({
-      event: v.event,
-      matchedStroke: v.lastEdge.input,
-    }));
   }
   /**
    * 1 stroke 分の入力を戻す
    */
   back(): void {
     if (this._currentNode !== this.startNode) {
-      const history = this._succeededInputs.pop();
+      const history = this._edgeHistories.pop();
       if (history) {
-        this._currentNode = history.lastEdge.previous;
+        this._currentNode = history.previousEdge.previous;
       }
     }
+    this._failedEventsAtCurrentNode = [];
   }
+  /**
+   * 入力が完了しているかどうか
+   */
   get isFinished(): boolean {
     return this._currentNode.nextEdges.length === 0;
   }
   /**
    * 状態遷移せずに、入力が成功するかどうかをテストする
+   * 
+   * @returns [result, apply] result: 入力結果, apply: 状態遷移を適用する関数
    */
-  testInput(stroke: InputEvent): {
-    result: InputResult;
-    acceptedEdge: StrokeEdge | undefined;
-  } {
+  testInput(stroke: InputEvent): [
+    InputResult,
+    () => void
+  ] {
     const lastKanaIndex = this._currentNode.kanaIndex;
     const acceptedEdges = this._currentNode.nextEdges.filter(
       (edge) => stroke.match(edge) === "matched"
@@ -138,52 +191,66 @@ export class Automaton {
       const acceptedEdge = acceptedEdges[0];
       if (lastKanaIndex < acceptedEdge.next.kanaIndex) {
         if (acceptedEdge.next.nextEdges.length === 0) {
-          return {
-            result: InputResult.FINISHED,
-            acceptedEdge: acceptedEdge,
-          };
+          return [
+            InputResult.FINISHED,
+            () => {
+              this.applyState(stroke, InputResult.FINISHED, acceptedEdge);
+            }
+          ];
         }
-        return {
-          result: InputResult.KANA_SUCCEEDED,
-          acceptedEdge: acceptedEdge,
-        };
+        return [
+          InputResult.KANA_SUCCEEDED,
+          () => {
+            this.applyState(stroke, InputResult.KANA_SUCCEEDED, acceptedEdge);
+          }
+        ];
       }
-      return {
-        result: InputResult.KEY_SUCCEEDED,
-        acceptedEdge: acceptedEdge,
-      };
+      return [
+        InputResult.KEY_SUCCEEDED,
+        () => {
+          this.applyState(stroke, InputResult.KEY_SUCCEEDED, acceptedEdge);
+        }
+      ];
     }
     // ローマ字入力における Shift キーの単独押下などの場合は無視する
     const ignoredEdges = this._currentNode.nextEdges.filter(
       (edge) => stroke.match(edge) === "ignored"
     );
     if (ignoredEdges.length > 0) {
-      return { result: InputResult.IGNORED, acceptedEdge: undefined };
+      return [InputResult.IGNORED, () => { }];
     }
-    return { result: InputResult.FAILED, acceptedEdge: undefined };
+    return [
+      InputResult.FAILED, () => {
+        this.applyState(stroke, InputResult.FAILED, undefined);
+      }
+    ];
   }
   /**
-   * キー入力して状態遷移し、入力が成功するかどうかを返す
+   * キー入力して状態遷移し、入力が成功したかどうかを返す
    */
   input(stroke: InputEvent): InputResult {
-    const { result, acceptedEdge } = this.testInput(stroke);
-    this.applyState(stroke, result, acceptedEdge);
+    const [result, apply] = this.testInput(stroke);
+    apply();
     return result;
   }
   /**
    * testInput の結果を適用して内部の状態を変更する
    */
-  protected applyState(
+  private applyState(
     stroke: InputEvent,
     result: InputResult,
     acceptedEdge: StrokeEdge | undefined
   ) {
     if (result.isSucceeded) {
-      this._succeededInputs.push({
+      this._edgeHistories.push({
         event: stroke,
-        lastEdge: acceptedEdge!,
+        previousEdge: acceptedEdge!,
+        failedEvents: this._failedEventsAtCurrentNode,
       });
       this._currentNode = acceptedEdge!.next;
+      this._failedEventsAtCurrentNode = [];
+    } else if (result.isFailed) {
+      this._failedEventsAtCurrentNode.push(stroke);
     }
   }
 }

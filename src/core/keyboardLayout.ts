@@ -7,6 +7,13 @@ export class KeyboardLayout {
   readonly strokesByChar: Map<string, RuleStroke[]>;
   private readonly charByStroke: Map<string, string>;
   private readonly charByStrokeWithoutShift: Map<string, string>;
+  /**
+   * 
+   * @param name キーボードレイアウトの名前
+   * @param mapping [output, stroke] の配列。例：["A", RuleStroke(VirtualKeys.A, shift, [])]
+   * @param modifiers 
+   * @param shiftKeys 
+   */
   constructor(
     readonly name: string,
     readonly mapping: [string, RuleStroke][],

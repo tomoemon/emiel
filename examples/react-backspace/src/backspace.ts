@@ -12,7 +12,7 @@ export class BackspaceRequirdAutomaton {
 	}
 
 	input(stroke: InputEvent): InputResult {
-		const { result, acceptedEdge } = this.base.testInput(stroke);
+		const [result, apply] = this.base.testInput(stroke);
 		if (result.isIgnored) {
 			return result;
 		}
@@ -25,7 +25,7 @@ export class BackspaceRequirdAutomaton {
 			this._failedInputs.push(stroke);
 		}
 		// 状態遷移する
-		this.base.applyState(stroke, result, acceptedEdge);
+		apply()
 		return result;
 	}
 
