@@ -1,6 +1,15 @@
 import { KeyboardStateReader } from "./keyboardState";
 import { VirtualKey } from "./virtualKey";
 
+export interface Modifier {
+  accept(state: KeyboardStateReader): boolean;
+}
+
+/**
+ * 同じ修飾キーを表す1つのグループ
+ * いずれか1つのキーが押されていればそのグループの修飾キーが押されていると扱う
+ * 例：modifiers: [ShiftLeft, ShiftRight]
+ */
 export class ModifierGroup {
   constructor(readonly modifiers: VirtualKey[]) { }
   accept(state: KeyboardStateReader): boolean {
@@ -23,6 +32,10 @@ export class ModifierGroup {
   }
 }
 
+/**
+ * 満たすべき修飾キーの集合
+ * 各グループの修飾キーが全て押されているときに accept される
+ */
 export class AndModifier {
   readonly groups: ModifierGroup[];
   constructor(...groups: ModifierGroup[]) {
@@ -42,6 +55,19 @@ export class AndModifier {
       this.groups.length === other.groups.length &&
       this.groups.every((v, i) => v.equals(other.groups[i]))
     );
+  }
+  /**
+   * state で1つ以上のキーが押されている時、そのキーがすべて修飾キーであるかどうか
+   * @param state 
+   * @returns 
+   */
+  onlyModifierDowned(state: KeyboardStateReader): boolean {
+    return state.downedKeys.length > 0 &&
+      state.downedKeys.every((key) =>
+        this.groups.some((v) => {
+          return v.has(key);
+        })
+      );
   }
   toString(): string {
     return `${this.groups.map((v) => v.toString()).join("&")}`;

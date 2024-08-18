@@ -16,15 +16,12 @@ export class InputEvent {
     readonly timestamp: Date
   ) { }
   match(edge: StrokeEdge): "ignored" | "matched" | "failed" {
-    const necessaryModifiers = edge.input.requiredModifier.groups;
-    const unnecessaryModifiers = edge.input.unnecessaryModifiers;
-
     // 入力されたキーがマッチし、
     if (this.input.key === edge.input.key) {
       // 必要な modifier がすべて押されていて、
-      if (necessaryModifiers.every((v) => v.accept(this.keyboardState))) {
+      if (edge.input.requiredModifier.accept(this.keyboardState)) {
         // 不要な modifier が1つも押されていないときに成功
-        if (!unnecessaryModifiers.some((v) => v.accept(this.keyboardState))) {
+        if (!edge.input.unnecessaryModifiers.some((v) => v.accept(this.keyboardState))) {
           return "matched";
         }
       }
@@ -53,14 +50,7 @@ export class InputEvent {
     // [無変換 + modifiere(t)] で必要とする modifier が単独で押されていることになるため、無視する。
     // このとき、[t] 単独で「た」が入力された扱いにしてミスとしないための仕様。
     // 厳密には keyup を待ってから判定したりするべきだが、タイピングゲームならではの仕様として許容可能と考える。
-    if (
-      this.keyboardState.downedKeys.length > 0 &&
-      this.keyboardState.downedKeys.every((key) =>
-        necessaryModifiers.some((v) => {
-          return v.has(key);
-        })
-      )
-    ) {
+    if (edge.input.requiredModifier.onlyModifierDowned(this.keyboardState)) {
       return "ignored";
     }
     return "failed";

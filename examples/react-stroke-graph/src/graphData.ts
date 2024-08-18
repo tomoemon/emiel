@@ -6,7 +6,7 @@ export function buildGraphData(startNode: emiel.StrokeNode) {
   walkTree(startNode, nodes, edges);
   return {
     nodesMap: nodes,
-    nodes: Array.from(nodes.entries()).map(([_, id]) => ({
+    nodes: Array.from(nodes.values()).map((id) => ({
       data: {
         id: id.toString(),
         label: id.toString(),
