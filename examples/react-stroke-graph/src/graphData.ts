@@ -127,9 +127,9 @@ function keyToString(key: emiel.VirtualKey): string {
       return "_";
     case emiel.VirtualKeys.Space:
       return "␣";
-    case emiel.VirtualKeys.Lang2:
+    case emiel.VirtualKeys.LangLeft:
       return "親左";
-    case emiel.VirtualKeys.Lang1:
+    case emiel.VirtualKeys.LangRight:
       return "親右";
   }
   return key.toString();

@@ -1,8 +1,8 @@
 {
   "options": {
     "aliasKeys": {
-      "$親指左": "Lang2",
-      "$親指右": "Lang1"
+      "$親指左": "LangLeft",
+      "$親指右": "LangRight"
     }
   },
   "extendCommonPrefixEntry": false,

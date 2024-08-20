@@ -82,9 +82,9 @@ const physicalKeyboardLayouts: PhysicalKeyboardLayout[] = [
 				VirtualKeys.ShiftRight,
 			],
 			[
-				VirtualKeys.Lang2,
+				VirtualKeys.LangLeft,
 				VirtualKeys.Space,
-				VirtualKeys.Lang1,
+				VirtualKeys.LangRight,
 			]
 		],
 		// 段ごとの左端からのマージン（単位は keyWidthUnit）
@@ -99,8 +99,8 @@ const physicalKeyboardLayouts: PhysicalKeyboardLayout[] = [
 		keyWidth: Object.fromEntries<number>([
 			[VirtualKeys.ShiftLeft.toString(), 2.0],
 			[VirtualKeys.ShiftRight.toString(), 2.0],
-			[VirtualKeys.Lang2.toString(), 1.5],
-			[VirtualKeys.Lang1.toString(), 1.5],
+			[VirtualKeys.LangLeft.toString(), 1.5],
+			[VirtualKeys.LangRight.toString(), 1.5],
 			[VirtualKeys.Space.toString(), 4.0],
 		])
 	},
