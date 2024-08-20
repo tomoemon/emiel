@@ -32,35 +32,20 @@ type modifierGroup = {
   name: string;
   keys: string[];
 };
-type options = {
-  aliasKeys?: { [key: string]: string };
-};
 type jsonSchema = {
-  options?: options;
   extendCommonPrefixEntry: boolean;
   modifierGroups: modifierGroup[];
   entries: entry[];
 };
 
-function getKeyFromStringWithAliasKeysMap(
-  key: string,
-  aliasKeysMap: Map<string, VirtualKey>
-): VirtualKey {
-  if (aliasKeysMap.has(key)) {
-    return aliasKeysMap.get(key)!;
-  }
-  return VirtualKey.getFromString(key);
-}
-
 function loadModifierGroups(
   jsonModifierGroups: modifierGroup[],
-  aliasKeysMap: Map<string, VirtualKey>
 ): Map<string, ModifierGroup> {
   const modifierGroups = new Map<string, ModifierGroup>();
   jsonModifierGroups.forEach((v) => {
     const modifiers: VirtualKey[] = [];
     v.keys.forEach((key) => {
-      modifiers.push(getKeyFromStringWithAliasKeysMap(key, aliasKeysMap));
+      modifiers.push(VirtualKey.getFromString(key));
     });
     modifierGroups.set(v.name, new ModifierGroup(modifiers));
   });
@@ -70,11 +55,10 @@ function loadModifierGroups(
 function loadStroke(
   json: stroke,
   modifierGroupMap: Map<string, ModifierGroup>,
-  aliasKeysMap: Map<string, VirtualKey>
 ): RuleStroke[] {
   const keys: VirtualKey[] = [];
   json.keys.forEach((key) => {
-    keys.push(getKeyFromStringWithAliasKeysMap(key, aliasKeysMap));
+    keys.push(VirtualKey.getFromString(key));
   });
   if (keys.length === 0) {
     throw new Error("empty keys: " + json.toString());
@@ -133,7 +117,6 @@ function loadStroke(
 function loadInput(
   input: stroke[],
   modifierGroupMap: Map<string, ModifierGroup>,
-  aliasKeysMap: Map<string, VirtualKey>
 ): RuleStroke[][] {
   /**
    * aとbの同時打鍵の後に、cとdの同時打鍵が必要な場合
@@ -141,7 +124,7 @@ function loadInput(
    * strokeGroups: [[a+mod(b),b+mod(a)], [c+mod(d),d+mod(c)]]
    */
   const strokeGroups = input.map((v) =>
-    loadStroke(v, modifierGroupMap, aliasKeysMap)
+    loadStroke(v, modifierGroupMap)
   );
   // strokeGroups の直積を作って返す
   return Array.from(product(strokeGroups));
@@ -151,14 +134,13 @@ function loadEntries(
   jsonEntries: entry[],
   jsonExtendablePrefixCommon: boolean,
   modifierGroupMap: Map<string, ModifierGroup>,
-  aliasKeysMap: Map<string, VirtualKey>
 ): RuleEntry[] {
   const entries: RuleEntry[] = [];
   jsonEntries.forEach((v) => {
-    const inputExtended = loadInput(v.input, modifierGroupMap, aliasKeysMap);
+    const inputExtended = loadInput(v.input, modifierGroupMap);
     const output = v.output;
     // 次の入力として使用するものは具体化されたもの1つだけなので、配列の先頭を取得する
-    const nextInput = loadInput(v.nextInput, modifierGroupMap, aliasKeysMap)[0];
+    const nextInput = loadInput(v.nextInput, modifierGroupMap)[0];
     inputExtended.forEach((input) => {
       entries.push(
         new RuleEntry(
@@ -173,19 +155,6 @@ function loadEntries(
   return entries;
 }
 
-function loadAliasKeys(jsonOptions?: options): Map<string, VirtualKey> {
-  const aliasKeys = jsonOptions?.aliasKeys;
-  if (!aliasKeys) {
-    return new Map();
-  }
-  const aliasMap = new Map<string, VirtualKey>();
-  Object.entries(aliasKeys).forEach(([aliasName, key]) => {
-    const vKey = VirtualKey.getFromString(key);
-    aliasMap.set(aliasName, vKey);
-  });
-  return aliasMap;
-}
-
 export function loadJsonRule(
   name: string,
   jsonRule: jsonSchema | string
@@ -194,16 +163,13 @@ export function loadJsonRule(
     const schema = JSON.parse(jsonRule as string) as jsonSchema;
     return loadJsonRule(name, schema);
   }
-  const aliasKeysMap = loadAliasKeys(jsonRule.options);
   const modifierGroupMap = loadModifierGroups(
     jsonRule.modifierGroups,
-    aliasKeysMap
   );
   const entries = loadEntries(
     jsonRule.entries,
     jsonRule.extendCommonPrefixEntry,
     modifierGroupMap,
-    aliasKeysMap
   );
   return new Rule(
     name,
