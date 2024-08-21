@@ -14,7 +14,7 @@ export function TypingGraph(props: {
   onFinished: () => void;
 }) {
   const automaton = props.automaton;
-  const graphData = buildGraphData(automaton.currentNode);
+  const graphData = buildGraphData(automaton.startNode);
   const htmlElem = useRef(null);
   const [, setLastInputKey] = useState<emiel.InputStroke | undefined>();
   useEffect(() => {
@@ -30,7 +30,7 @@ export function TypingGraph(props: {
     // @ts-expect-error rankDir is not defined in cytoscape
     cy.layout({ name: "dagre", rankDir: "LR" }).run();
 
-    const deactivate = emiel.activate(window, (e) => {
+    return emiel.activate(window, (e) => {
       setLastInputKey(e.input);
       const result = automaton.input(e);
       if (result.isFinished) {
@@ -43,8 +43,7 @@ export function TypingGraph(props: {
         cy.elements(`#${nodeId}`).addClass("miss");
       }
     });
-    return deactivate;
-  }, [automaton, graphData.edges, graphData.nodes, graphData.nodesMap, props, props.automaton]);
+  }, [props]);
 
   const finishedRomanSubstr = automaton.finishedRoman;
   const pendingRomanSubstr = automaton.pendingRoman;

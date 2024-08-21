@@ -24,17 +24,10 @@ export function mergeRule(
       return true;
     }
   });
-  // すでに存在する Modifier 以外をマージする
-  const newModifiers = [
-    ...thisRule.modifierGroups,
-    ...other.modifierGroups.filter(
-      (v) => !thisRule.modifierGroups.some((w) => w.equals(v))
-    ),
-  ];
   const newRule = new Rule(
     thisRule.name,
     [...thisRule.entries, ...toBeAddedEntries],
-    newModifiers,
+    thisRule.modifierGroup.merge(other.modifierGroup),
     (v: string) => other.normalize(thisRule.normalize(v))
   );
   validateRule(newRule);

@@ -49,7 +49,7 @@ export function loadMozcRule(
       );
     });
   }
-  return new Rule(name, entries, layout.modifiers, defaultKanaNormalize);
+  return new Rule(name, entries, layout.modifierGroup, defaultKanaNormalize);
 }
 
 function toStrokesFromChar(

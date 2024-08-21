@@ -147,11 +147,11 @@ const codeToVirtualKey: { [key: string]: VirtualKey } = {
   MetaLeft: VirtualKeys.MetaLeft,
   MetaRight: VirtualKeys.MetaRight,
   Space: VirtualKeys.Space,
-  Lang2: VirtualKeys.Lang2,
-  Lang1: VirtualKeys.Lang1,
-  NonConvert: VirtualKeys.Lang2, // Windows
-  Convert: VirtualKeys.Lang1, // Windows
-  KanaMode: VirtualKeys.Lang1, // Windows
+  Lang2: VirtualKeys.LangLeft,
+  Lang1: VirtualKeys.LangRight,
+  NonConvert: VirtualKeys.LangLeft, // Windows
+  Convert: VirtualKeys.LangRight, // Windows
+  KanaMode: VirtualKeys.LangRight, // Windows
   OSLeft: VirtualKeys.MetaLeft, // Gecko
   OSRight: VirtualKeys.MetaRight, // Gecko
 };

@@ -1,17 +1,6 @@
 {
-  "options": {
-    "aliasKeys": {
-      "$親指左": "Lang2",
-      "$親指右": "Lang1"
-    }
-  },
   "extendCommonPrefixEntry": false,
-  "modifierGroups": [
-    {
-      "name": "$shift",
-      "keys": ["ShiftLeft", "ShiftRight"]
-    }
-  ],
+  "modifiers": ["LangLeft", "LangRight", "ShiftLeft", "ShiftRight"],
   "entries": [
     {
       "input": [{ "keys": ["Q"] }],
@@ -164,327 +153,327 @@
       "nextInput": []
     },
     {
-      "input": [{ "keys": ["Digit1", "$親指左"] }],
+      "input": [{ "keys": ["Digit1", "LangLeft"] }],
       "output": "?",
       "nextInput": []
     },
     {
-      "input": [{ "keys": ["Digit2", "$親指左"] }],
+      "input": [{ "keys": ["Digit2", "LangLeft"] }],
       "output": "/",
       "nextInput": []
     },
     {
-      "input": [{ "keys": ["Digit3", "$親指左"] }],
+      "input": [{ "keys": ["Digit3", "LangLeft"] }],
       "output": "~",
       "nextInput": []
     },
     {
-      "input": [{ "keys": ["Digit4", "$親指左"] }],
+      "input": [{ "keys": ["Digit4", "LangLeft"] }],
       "output": "[",
       "nextInput": []
     },
     {
-      "input": [{ "keys": ["Digit5", "$親指左"] }],
+      "input": [{ "keys": ["Digit5", "LangLeft"] }],
       "output": "]",
       "nextInput": []
     },
     {
-      "input": [{ "keys": ["Digit6", "$親指右"] }],
+      "input": [{ "keys": ["Digit6", "LangRight"] }],
       "output": "[",
       "nextInput": []
     },
     {
-      "input": [{ "keys": ["Digit7", "$親指右"] }],
+      "input": [{ "keys": ["Digit7", "LangRight"] }],
       "output": "]",
       "nextInput": []
     },
     {
-      "input": [{ "keys": ["Digit8", "$親指右"] }],
+      "input": [{ "keys": ["Digit8", "LangRight"] }],
       "output": "(",
       "nextInput": []
     },
     {
-      "input": [{ "keys": ["Digit9", "$親指右"] }],
+      "input": [{ "keys": ["Digit9", "LangRight"] }],
       "output": ")",
       "nextInput": []
     },
     {
-      "input": [{ "keys": ["Q", "$親指左"] }],
+      "input": [{ "keys": ["Q", "LangLeft"] }],
       "output": "ぁ",
       "nextInput": []
     },
     {
-      "input": [{ "keys": ["W", "$親指左"] }],
+      "input": [{ "keys": ["W", "LangLeft"] }],
       "output": "え",
       "nextInput": []
     },
     {
-      "input": [{ "keys": ["E", "$親指左"] }],
+      "input": [{ "keys": ["E", "LangLeft"] }],
       "output": "り",
       "nextInput": []
     },
     {
-      "input": [{ "keys": ["R", "$親指左"] }],
+      "input": [{ "keys": ["R", "LangLeft"] }],
       "output": "ゃ",
       "nextInput": []
     },
     {
-      "input": [{ "keys": ["T", "$親指左"] }],
+      "input": [{ "keys": ["T", "LangLeft"] }],
       "output": "れ",
       "nextInput": []
     },
     {
-      "input": [{ "keys": ["Y", "$親指右"] }],
+      "input": [{ "keys": ["Y", "LangRight"] }],
       "output": "よ",
       "nextInput": []
     },
     {
-      "input": [{ "keys": ["U", "$親指右"] }],
+      "input": [{ "keys": ["U", "LangRight"] }],
       "output": "に",
       "nextInput": []
     },
     {
-      "input": [{ "keys": ["I", "$親指右"] }],
+      "input": [{ "keys": ["I", "LangRight"] }],
       "output": "る",
       "nextInput": []
     },
     {
-      "input": [{ "keys": ["O", "$親指右"] }],
+      "input": [{ "keys": ["O", "LangRight"] }],
       "output": "ま",
       "nextInput": []
     },
     {
-      "input": [{ "keys": ["P", "$親指右"] }],
+      "input": [{ "keys": ["P", "LangRight"] }],
       "output": "ぇ",
       "nextInput": []
     },
     {
-      "input": [{ "keys": ["A", "$親指左"] }],
+      "input": [{ "keys": ["A", "LangLeft"] }],
       "output": "を",
       "nextInput": []
     },
     {
-      "input": [{ "keys": ["S", "$親指左"] }],
+      "input": [{ "keys": ["S", "LangLeft"] }],
       "output": "あ",
       "nextInput": []
     },
     {
-      "input": [{ "keys": ["D", "$親指左"] }],
+      "input": [{ "keys": ["D", "LangLeft"] }],
       "output": "な",
       "nextInput": []
     },
     {
-      "input": [{ "keys": ["F", "$親指左"] }],
+      "input": [{ "keys": ["F", "LangLeft"] }],
       "output": "ゅ",
       "nextInput": []
     },
     {
-      "input": [{ "keys": ["G", "$親指左"] }],
+      "input": [{ "keys": ["G", "LangLeft"] }],
       "output": "も",
       "nextInput": []
     },
     {
-      "input": [{ "keys": ["H", "$親指右"] }],
+      "input": [{ "keys": ["H", "LangRight"] }],
       "output": "み",
       "nextInput": []
     },
     {
-      "input": [{ "keys": ["J", "$親指右"] }],
+      "input": [{ "keys": ["J", "LangRight"] }],
       "output": "お",
       "nextInput": []
     },
     {
-      "input": [{ "keys": ["K", "$親指右"] }],
+      "input": [{ "keys": ["K", "LangRight"] }],
       "output": "の",
       "nextInput": []
     },
     {
-      "input": [{ "keys": ["L", "$親指右"] }],
+      "input": [{ "keys": ["L", "LangRight"] }],
       "output": "ょ",
       "nextInput": []
     },
     {
-      "input": [{ "keys": ["Semicolon", "$親指右"] }],
+      "input": [{ "keys": ["Semicolon", "LangRight"] }],
       "output": "っ",
       "nextInput": []
     },
     {
-      "input": [{ "keys": ["Z", "$親指左"] }],
+      "input": [{ "keys": ["Z", "LangLeft"] }],
       "output": "ぅ",
       "nextInput": []
     },
     {
-      "input": [{ "keys": ["X", "$親指左"] }],
+      "input": [{ "keys": ["X", "LangLeft"] }],
       "output": "-",
       "nextInput": []
     },
     {
-      "input": [{ "keys": ["C", "$親指左"] }],
+      "input": [{ "keys": ["C", "LangLeft"] }],
       "output": "ろ",
       "nextInput": []
     },
     {
-      "input": [{ "keys": ["V", "$親指左"] }],
+      "input": [{ "keys": ["V", "LangLeft"] }],
       "output": "や",
       "nextInput": []
     },
     {
-      "input": [{ "keys": ["B", "$親指左"] }],
+      "input": [{ "keys": ["B", "LangLeft"] }],
       "output": "ぃ",
       "nextInput": []
     },
     {
-      "input": [{ "keys": ["N", "$親指右"] }],
+      "input": [{ "keys": ["N", "LangRight"] }],
       "output": "ぬ",
       "nextInput": []
     },
     {
-      "input": [{ "keys": ["M", "$親指右"] }],
+      "input": [{ "keys": ["M", "LangRight"] }],
       "output": "ゆ",
       "nextInput": []
     },
     {
-      "input": [{ "keys": ["Semicolon", "$親指右"] }],
+      "input": [{ "keys": ["Semicolon", "LangRight"] }],
       "output": "む",
       "nextInput": []
     },
     {
-      "input": [{ "keys": ["Period", "$親指右"] }],
+      "input": [{ "keys": ["Period", "LangRight"] }],
       "output": "わ",
       "nextInput": []
     },
     {
-      "input": [{ "keys": ["Slash", "$親指右"] }],
+      "input": [{ "keys": ["Slash", "LangRight"] }],
       "output": "ぉ",
       "nextInput": []
     },
     {
-      "input": [{ "keys": ["W", "$親指右"] }],
+      "input": [{ "keys": ["W", "LangRight"] }],
       "output": "が",
       "nextInput": []
     },
     {
-      "input": [{ "keys": ["E", "$親指右"] }],
+      "input": [{ "keys": ["E", "LangRight"] }],
       "output": "だ",
       "nextInput": []
     },
     {
-      "input": [{ "keys": ["R", "$親指右"] }],
+      "input": [{ "keys": ["R", "LangRight"] }],
       "output": "ご",
       "nextInput": []
     },
     {
-      "input": [{ "keys": ["T", "$親指右"] }],
+      "input": [{ "keys": ["T", "LangRight"] }],
       "output": "ざ",
       "nextInput": []
     },
     {
-      "input": [{ "keys": ["Y", "$親指左"] }],
+      "input": [{ "keys": ["Y", "LangLeft"] }],
       "output": "ぱ",
       "nextInput": []
     },
     {
-      "input": [{ "keys": ["U", "$親指左"] }],
+      "input": [{ "keys": ["U", "LangLeft"] }],
       "output": "ぢ",
       "nextInput": []
     },
     {
-      "input": [{ "keys": ["I", "$親指左"] }],
+      "input": [{ "keys": ["I", "LangLeft"] }],
       "output": "ぐ",
       "nextInput": []
     },
     {
-      "input": [{ "keys": ["O", "$親指左"] }],
+      "input": [{ "keys": ["O", "LangLeft"] }],
       "output": "づ",
       "nextInput": []
     },
     {
-      "input": [{ "keys": ["P", "$親指左"] }],
+      "input": [{ "keys": ["P", "LangLeft"] }],
       "output": "ぴ",
       "nextInput": []
     },
     {
-      "input": [{ "keys": ["A", "$親指右"] }],
+      "input": [{ "keys": ["A", "LangRight"] }],
       "output": "ヴ",
       "nextInput": []
     },
     {
-      "input": [{ "keys": ["S", "$親指右"] }],
+      "input": [{ "keys": ["S", "LangRight"] }],
       "output": "じ",
       "nextInput": []
     },
     {
-      "input": [{ "keys": ["D", "$親指右"] }],
+      "input": [{ "keys": ["D", "LangRight"] }],
       "output": "で",
       "nextInput": []
     },
     {
-      "input": [{ "keys": ["F", "$親指右"] }],
+      "input": [{ "keys": ["F", "LangRight"] }],
       "output": "げ",
       "nextInput": []
     },
     {
-      "input": [{ "keys": ["G", "$親指右"] }],
+      "input": [{ "keys": ["G", "LangRight"] }],
       "output": "ぜ",
       "nextInput": []
     },
     {
-      "input": [{ "keys": ["H", "$親指左"] }],
+      "input": [{ "keys": ["H", "LangLeft"] }],
       "output": "ば",
       "nextInput": []
     },
     {
-      "input": [{ "keys": ["J", "$親指左"] }],
+      "input": [{ "keys": ["J", "LangLeft"] }],
       "output": "ど",
       "nextInput": []
     },
     {
-      "input": [{ "keys": ["K", "$親指左"] }],
+      "input": [{ "keys": ["K", "LangLeft"] }],
       "output": "ぎ",
       "nextInput": []
     },
     {
-      "input": [{ "keys": ["L", "$親指左"] }],
+      "input": [{ "keys": ["L", "LangLeft"] }],
       "output": "ぽ",
       "nextInput": []
     },
     {
-      "input": [{ "keys": ["X", "$親指右"] }],
+      "input": [{ "keys": ["X", "LangRight"] }],
       "output": "び",
       "nextInput": []
     },
     {
-      "input": [{ "keys": ["C", "$親指右"] }],
+      "input": [{ "keys": ["C", "LangRight"] }],
       "output": "ず",
       "nextInput": []
     },
     {
-      "input": [{ "keys": ["V", "$親指右"] }],
+      "input": [{ "keys": ["V", "LangRight"] }],
       "output": "ぶ",
       "nextInput": []
     },
     {
-      "input": [{ "keys": ["B", "$親指右"] }],
+      "input": [{ "keys": ["B", "LangRight"] }],
       "output": "べ",
       "nextInput": []
     },
     {
-      "input": [{ "keys": ["N", "$親指左"] }],
+      "input": [{ "keys": ["N", "LangLeft"] }],
       "output": "ぷ",
       "nextInput": []
     },
     {
-      "input": [{ "keys": ["M", "$親指左"] }],
+      "input": [{ "keys": ["M", "LangLeft"] }],
       "output": "ぞ",
       "nextInput": []
     },
     {
-      "input": [{ "keys": ["Semicolon", "$親指左"] }],
+      "input": [{ "keys": ["Semicolon", "LangLeft"] }],
       "output": "ぺ",
       "nextInput": []
     },
     {
-      "input": [{ "keys": ["Period", "$親指左"] }],
+      "input": [{ "keys": ["Period", "LangLeft"] }],
       "output": "ぼ",
       "nextInput": []
     }

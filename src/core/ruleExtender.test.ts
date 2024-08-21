@@ -2,21 +2,19 @@ import { expect, test } from "vitest";
 import { RuleEntry } from "./rule";
 import { RuleStroke } from "./ruleStroke";
 import { extendCommonPrefixOverlappedEntriesDeeply } from "./ruleExtender";
-import { AndModifier } from "./modifier";
+import { AndModifier, ModifierGroup } from "./modifier";
 import { VirtualKeys } from "./virtualKey";
-
-const nullModifier = new AndModifier();
 
 test("英数字は展開しない", () => {
   const entries = [
     new RuleEntry(
-      [new RuleStroke(VirtualKeys.A, nullModifier, [])],
+      [new RuleStroke(VirtualKeys.A, AndModifier.empty, ModifierGroup.empty)],
       "a",
       [],
       true
     ),
     new RuleEntry(
-      [new RuleStroke(VirtualKeys.B, nullModifier, [])],
+      [new RuleStroke(VirtualKeys.B, AndModifier.empty, ModifierGroup.empty)],
       "b",
       [],
       true
@@ -29,15 +27,15 @@ test("英数字は展開しない", () => {
 test("んの展開", () => {
   const entries = [
     new RuleEntry(
-      [new RuleStroke(VirtualKeys.N, nullModifier, [])],
+      [new RuleStroke(VirtualKeys.N, AndModifier.empty, ModifierGroup.empty)],
       "ん",
       [],
       true
     ),
     new RuleEntry(
       [
-        new RuleStroke(VirtualKeys.N, nullModifier, []),
-        new RuleStroke(VirtualKeys.A, nullModifier, []),
+        new RuleStroke(VirtualKeys.N, AndModifier.empty, ModifierGroup.empty),
+        new RuleStroke(VirtualKeys.A, AndModifier.empty, ModifierGroup.empty),
       ],
       "な",
       [],
@@ -45,8 +43,8 @@ test("んの展開", () => {
     ),
     new RuleEntry(
       [
-        new RuleStroke(VirtualKeys.K, nullModifier, []),
-        new RuleStroke(VirtualKeys.A, nullModifier, []),
+        new RuleStroke(VirtualKeys.K, AndModifier.empty, ModifierGroup.empty),
+        new RuleStroke(VirtualKeys.A, AndModifier.empty, ModifierGroup.empty),
       ],
       "か",
       [],

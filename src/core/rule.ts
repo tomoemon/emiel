@@ -85,12 +85,18 @@ khi/き
 nk/ん/k
 */
 export class Rule {
+  /**
+   * 
+   * @param name 入力ルールの名前
+   * @param entries 入力ルールのエントリ
+   * @param modifierGroup この入力ルールで修飾キーとして使われるキーのグループ
+   * @param normalize 入力ワードのかな文字を正規化する関数
+   */
   constructor(
     readonly name: string,
     readonly entries: RuleEntry[],
-    // このルールの中で使われうる Modifier のリスト
-    readonly modifierGroups: ModifierGroup[],
-    readonly normalize: normalizerFunc
+    readonly modifierGroup: ModifierGroup,
+    readonly normalize: normalizerFunc,
   ) {
     this.entries = extendCommonPrefixOverlappedEntriesDeeply(entries);
   }
