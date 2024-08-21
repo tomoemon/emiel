@@ -6,8 +6,6 @@ import { KeyboardState } from "./keyboardState";
 import { StrokeEdge, StrokeNode } from "./builderStrokeGraph";
 import { VirtualKeys } from "./virtualKey";
 
-const nullModifier = new AndModifier();
-
 test("シンプルな入力で matched", () => {
   const is = new InputStroke(VirtualKeys.A, "keydown");
   const st = new KeyboardState([VirtualKeys.A]);
@@ -16,8 +14,8 @@ test("シンプルな入力で matched", () => {
   const dummyNode1 = new StrokeNode(0, [], []);
   const dummyNode2 = new StrokeNode(0, [], []);
   const edge = new StrokeEdge(
-    new Rule("dummy-rule", [], [], (v) => v),
-    new RuleStroke(VirtualKeys.A, nullModifier, []),
+    new Rule("dummy-rule", [], ModifierGroup.empty, (v) => v),
+    new RuleStroke(VirtualKeys.A, AndModifier.empty, ModifierGroup.empty),
     dummyNode1,
     dummyNode2
   );
@@ -33,8 +31,8 @@ test("シンプルな入力で failed", () => {
   const dummyNode1 = new StrokeNode(0, [], []);
   const dummyNode2 = new StrokeNode(0, [], []);
   const edge = new StrokeEdge(
-    new Rule("dummy-rule", [], [], (v) => v),
-    new RuleStroke(VirtualKeys.A, nullModifier, []),
+    new Rule("dummy-rule", [], ModifierGroup.empty, (v) => v),
+    new RuleStroke(VirtualKeys.A, AndModifier.empty, ModifierGroup.empty),
     dummyNode1,
     dummyNode2
   );
@@ -53,10 +51,10 @@ test("シフトキー単打で ignored", () => {
     new Rule(
       "dummy-rule",
       [],
-      [new ModifierGroup([VirtualKeys.ShiftLeft])],
+      new ModifierGroup([VirtualKeys.ShiftLeft]),
       (v) => v
     ),
-    new RuleStroke(VirtualKeys.A, nullModifier, []),
+    new RuleStroke(VirtualKeys.A, AndModifier.empty, ModifierGroup.empty),
     dummyNode1,
     dummyNode2
   );

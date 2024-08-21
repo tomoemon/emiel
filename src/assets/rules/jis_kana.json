@@ -1,11 +1,6 @@
 {
   "extendCommonPrefixEntry": false,
-  "modifierGroups": [
-    {
-      "name": "$shift",
-      "keys": ["ShiftLeft", "ShiftRight"]
-    }
-  ],
+  "modifiers": ["ShiftLeft", "ShiftRight"],
   "entries": [
     {
       "input": [
@@ -471,7 +466,7 @@
       "input": [
         {
           "keys": ["Digit3"],
-          "modifiers": ["$shift"]
+          "modifiers": [["ShiftLeft", "ShiftRight"]]
         }
       ],
       "output": "ぁ",
@@ -481,7 +476,7 @@
       "input": [
         {
           "keys": ["Digit4"],
-          "modifiers": ["$shift"]
+          "modifiers": [["ShiftLeft", "ShiftRight"]]
         }
       ],
       "output": "ぅ",
@@ -491,7 +486,7 @@
       "input": [
         {
           "keys": ["Digit5"],
-          "modifiers": ["$shift"]
+          "modifiers": [["ShiftLeft", "ShiftRight"]]
         }
       ],
       "output": "ぇ",
@@ -501,7 +496,7 @@
       "input": [
         {
           "keys": ["Digit6"],
-          "modifiers": ["$shift"]
+          "modifiers": [["ShiftLeft", "ShiftRight"]]
         }
       ],
       "output": "ぉ",
@@ -511,7 +506,7 @@
       "input": [
         {
           "keys": ["Digit7"],
-          "modifiers": ["$shift"]
+          "modifiers": [["ShiftLeft", "ShiftRight"]]
         }
       ],
       "output": "ゃ",
@@ -521,7 +516,7 @@
       "input": [
         {
           "keys": ["Digit8"],
-          "modifiers": ["$shift"]
+          "modifiers": [["ShiftLeft", "ShiftRight"]]
         }
       ],
       "output": "ゅ",
@@ -531,7 +526,7 @@
       "input": [
         {
           "keys": ["Digit9"],
-          "modifiers": ["$shift"]
+          "modifiers": [["ShiftLeft", "ShiftRight"]]
         }
       ],
       "output": "ょ",
@@ -541,7 +536,7 @@
       "input": [
         {
           "keys": ["Digit0"],
-          "modifiers": ["$shift"]
+          "modifiers": [["ShiftLeft", "ShiftRight"]]
         }
       ],
       "output": "を",
@@ -551,7 +546,7 @@
       "input": [
         {
           "keys": ["E"],
-          "modifiers": ["$shift"]
+          "modifiers": [["ShiftLeft", "ShiftRight"]]
         }
       ],
       "output": "ぃ",
@@ -561,7 +556,7 @@
       "input": [
         {
           "keys": ["Quote"],
-          "modifiers": ["$shift"]
+          "modifiers": [["ShiftLeft", "ShiftRight"]]
         }
       ],
       "output": "ヶ",
@@ -571,7 +566,7 @@
       "input": [
         {
           "keys": ["Z"],
-          "modifiers": ["$shift"]
+          "modifiers": [["ShiftLeft", "ShiftRight"]]
         }
       ],
       "output": "っ",

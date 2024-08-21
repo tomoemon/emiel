@@ -20,8 +20,8 @@ export function loadJsonKeyboardLayout(
       v.output,
       new RuleStroke(
         VirtualKey.getFromString(v.input.key),
-        v.input.shift ? modifierGroupSet.shift : nullModifier,
-        v.input.shift ? modifiersExceptShift : allAvailableModifiers,
+        v.input.shift ? shiftModifier : AndModifier.empty,
+        v.input.shift ? ModifierGroup.empty : shiftModifier.groups[0],
         v.output
       ),
     ]
@@ -29,35 +29,11 @@ export function loadJsonKeyboardLayout(
   return new KeyboardLayout(
     jsonLayout.name,
     strokes,
-    allAvailableModifiers,
-    modifierGroupSet.shift.groups[0].modifiers
+    shiftModifier.groups[0],
+    shiftModifier.groups[0].modifiers
   );
 }
 
-const nullModifier = new AndModifier();
-const modifierGroupSet = {
-  shift: new AndModifier(
-    new ModifierGroup([
-      VirtualKeys.ShiftLeft,
-      VirtualKeys.ShiftRight,
-    ])
-  ),
-  control: new AndModifier(
-    new ModifierGroup([
-      VirtualKeys.ControlLeft,
-      VirtualKeys.ControlRight,
-    ])
-  ),
-  alt: new AndModifier(
-    new ModifierGroup([VirtualKeys.AltLeft, VirtualKeys.AltRight])
-  ),
-  meta: new AndModifier(
-    new ModifierGroup([VirtualKeys.MetaLeft, VirtualKeys.MetaRight])
-  ),
-};
-const allAvailableModifiers = Object.values(modifierGroupSet).flatMap(
-  (v) => v.groups
-);
-const modifiersExceptShift = allAvailableModifiers.filter(
-  (v) => !v.equals(modifierGroupSet.shift.groups[0])
+const shiftModifier = new AndModifier(
+  new ModifierGroup([VirtualKeys.ShiftLeft, VirtualKeys.ShiftRight])
 );

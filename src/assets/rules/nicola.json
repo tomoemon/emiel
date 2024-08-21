@@ -1,11 +1,6 @@
 {
   "extendCommonPrefixEntry": false,
-  "modifierGroups": [
-    {
-      "name": "$shift",
-      "keys": ["ShiftLeft", "ShiftRight"]
-    }
-  ],
+  "modifiers": ["LangLeft", "LangRight", "ShiftLeft", "ShiftRight"],
   "entries": [
     {
       "input": [{ "keys": ["Q"] }],

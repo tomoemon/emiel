@@ -21,21 +21,16 @@ export class InputEvent {
       // 必要な modifier がすべて押されていて、
       if (edge.input.requiredModifier.accept(this.keyboardState)) {
         // 不要な modifier が1つも押されていないときに成功
-        if (!edge.input.unnecessaryModifiers.some((v) => v.accept(this.keyboardState))) {
+        if (!edge.input.unnecessaryModifiers.accept(this.keyboardState)) {
           return "matched";
         }
       }
       return "failed";
     }
-    const ruleModifierGroups = edge.rule.modifierGroups;
     // 入力されたキーがマッチせず、
     // 入力ルールで modifier として扱われているキーの入力が来た場合は無視する。
     // 英数字入力における Shift キーの単独押下などの場合が該当する。
-    if (
-      ruleModifierGroups.some((v) => {
-        return v.has(this.input.key);
-      })
-    ) {
+    if (edge.rule.modifierGroup.has(this.input.key)) {
       return "ignored";
     }
     // このStrokeEdgeのみで必要とされる modifier が単独で押されている場合も無視する
@@ -68,17 +63,14 @@ export class RuleStroke {
   constructor(
     readonly key: VirtualKey,
     readonly requiredModifier: AndModifier,
-    readonly unnecessaryModifiers: ModifierGroup[],
+    readonly unnecessaryModifiers: ModifierGroup,
     readonly romanChar: string = ""
   ) { }
   equals(other: RuleStroke): boolean {
     return (
       this.key === other.key &&
       this.requiredModifier.equals(other.requiredModifier) &&
-      this.unnecessaryModifiers.length === other.unnecessaryModifiers.length &&
-      this.unnecessaryModifiers.every((v, i) =>
-        v.equals(other.unnecessaryModifiers[i])
-      )
+      this.unnecessaryModifiers.equals(other.unnecessaryModifiers)
     );
   }
 }

@@ -58,25 +58,25 @@ export const VirtualKeys = {
   BracketLeft: "BracketLeft",
   BracketRight: "BracketRight",
   Enter: "Enter",
-  ControlLeft: "ControlLeft",
+  ControlLeft: "ControlLeft", // Control or ⌃
   Semicolon: "Semicolon",
   Quote: "Quote",
   Backslash: "Backslash",
-  ShiftLeft: "ShiftLeft",
+  ShiftLeft: "ShiftLeft", // Shift or ⇧
   Comma: "Comma",
   Period: "Period",
   Slash: "Slash",
   JpnRo: "JpnRo",
   Backquote: "Backquote",
-  ShiftRight: "ShiftRight",
-  AltLeft: "AltLeft",
-  MetaLeft: "MetaLeft",
-  LangLeft: "LangLeft",
+  ShiftRight: "ShiftRight", // Shift or ⇧
+  AltLeft: "AltLeft", // Alt, Option or ⌥.
+  MetaLeft: "MetaLeft", // The Windows, ⌘, Command or other OS symbol key.
+  LangLeft: "LangLeft", // Korean: Hanja 한자 (hanja) Japanese (Mac keyboard): 英数 (eisu)
   Space: "Space",
-  LangRight: "LangRight",
-  MetaRight: "MetaRight",
-  AltRight: "AltRight",
-  ControlRight: "ControlRight",
+  LangRight: "LangRight", // Korean: HangulMode 한/영 (han/yeong) Japanese (Mac keyboard): かな (kana)
+  MetaRight: "MetaRight", // The Windows, ⌘, Command or other OS symbol key.
+  AltRight: "AltRight", // Alt, Option or ⌥. This is labelled AltGr key on many keyboard layouts.
+  ControlRight: "ControlRight", // Control or ⌃
   CapsLock: "CapsLock",
   Pause: "Pause",
   ScrollLock: "ScrollLock",

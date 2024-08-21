@@ -53,14 +53,9 @@ function compareStroke(
   const requiredModifierResult = thisStroke.requiredModifier.equals(
     other.requiredModifier
   );
-  const thisMods = thisStroke.unnecessaryModifiers.flatMap((v) => v.modifiers);
-  const otherMods = other.unnecessaryModifiers.flatMap((v) => v.modifiers);
-  const unnecesaryModifiersResult =
-    thisMods.length === otherMods.length &&
-    thisMods.every((v) => otherMods.some((v2) => v === v2));
   return {
     keyEquals: keyResult,
     requiredModifierEquals: requiredModifierResult,
-    unnecessaryModifiersEquals: unnecesaryModifiersResult,
+    unnecessaryModifiersEquals: thisStroke.unnecessaryModifiers.equals(other.unnecessaryModifiers),
   };
 }
