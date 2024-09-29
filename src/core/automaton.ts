@@ -86,13 +86,13 @@ export class Automaton {
     return this.word.substring(this._currentNode.kanaIndex);
   }
   /**
-   * 入力が完了したローマ字列
+   * 入力が完了したローマ字列（ローマ字系の Rule の場合のみ）
    */
   get finishedRoman(): string {
     return this._edgeHistories.map((v) => v.previousEdge.input.romanChar).join("");
   }
   /**
-   * 入力が完了していないローマ字列
+   * 入力が完了していないローマ字列（ローマ字系の Rule の場合のみ）
    */
   get pendingRoman(): string {
     return this.pendingStroke.map((v) => v.romanChar).join("");
