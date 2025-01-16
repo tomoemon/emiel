@@ -1,7 +1,7 @@
-import * as emiel from "emiel";
+import { Automaton, calcAccuracy, calcKpm, calcRkpm } from "emiel";
 
 export type WordRecordValue = {
-  automaton: emiel.Automaton;
+  automaton: Automaton;
   displayedAt: Date;
 };
 
@@ -11,14 +11,14 @@ export function Record(props: { wordRecords: WordRecordValue[] }) {
     const automaton = record.automaton;
     const latency =
       automaton.firstInputTime.getTime() - record.displayedAt.getTime();
-    const rkpm = emiel.stats.rkpm(
+    const rkpm = calcRkpm(
       automaton.histories.length,
       automaton.firstInputTime,
       automaton.lastInputTime);
 
     // latency の時間を含めた、1分あたりの打鍵数
-    const kpm = emiel.stats.kpm(automaton.histories.length, record.displayedAt, automaton.lastInputTime);
-    const accuracy = emiel.stats.accuracy(record.automaton.failedInputCount, record.automaton.totalInputCount);
+    const kpm = calcKpm(automaton.histories.length, record.displayedAt, automaton.lastInputTime);
+    const accuracy = calcAccuracy(record.automaton.failedInputCount, record.automaton.totalInputCount);
     return {
       latency,
       kpm,
@@ -37,7 +37,7 @@ export function Record(props: { wordRecords: WordRecordValue[] }) {
     (acc, r) => acc + r.record.automaton.failedInputCount,
     0
   );
-  const totalAccuracy = emiel.stats.accuracy(totalFailedCount, totalSucceededCount);
+  const totalAccuracy = calcAccuracy(totalFailedCount, totalSucceededCount);
   return (
     <div>
       <h1>Finished!</h1>
