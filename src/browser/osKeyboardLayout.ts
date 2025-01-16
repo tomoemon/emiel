@@ -2,7 +2,7 @@ import { VirtualKeys } from "..";
 import { KeyboardLayout } from "../core/keyboardLayout";
 import {
   findMatchedKeyboardLayout,
-  getKeyboardLayout,
+  loadPresetKeyboardLayoutQwertyJis
 } from "../impl/defaultKeyboardLayout";
 
 export async function detectKeyboardLayout(
@@ -12,7 +12,7 @@ export async function detectKeyboardLayout(
   if (!layoutMap) {
     // Chrome, Edge にしか対応していないので、未対応の場合は Qwery JIS として返す
     // https://developer.mozilla.org/en-US/docs/Web/API/Keyboard/getLayoutMap
-    return getKeyboardLayout("qwerty-jis");
+    return loadPresetKeyboardLayoutQwertyJis();
   }
   const layout = findMatchedKeyboardLayout(
     new Map([

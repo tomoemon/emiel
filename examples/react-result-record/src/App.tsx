@@ -1,24 +1,29 @@
-import "./App.css";
-import * as emiel from "emiel";
+import { Automaton, detectKeyboardLayout, KeyboardLayout, loadPresetRuleRoman } from "emiel";
 import { useEffect, useMemo, useState } from "react";
-import { Typing } from "./Typing";
+import "./App.css";
 import { Record, WordRecordValue } from "./Record";
+import { Typing } from "./Typing";
 
 function App() {
-  const [layout, setLayout] = useState<emiel.KeyboardLayout | undefined>();
+  const [layout, setLayout] = useState<KeyboardLayout | undefined>();
   useEffect(() => {
-    emiel.keyboard.detect(window).then(setLayout);
+    detectKeyboardLayout(window).then(setLayout).catch(console.error);
   }, []);
+  return layout ? <TypingRoot layout={layout} /> : <></>;
+}
+
+function TypingRoot(props: { layout: KeyboardLayout }) {
+  const romanRule = useMemo(() => loadPresetRuleRoman(props.layout), [props.layout]);
   const automatons = useMemo(() => {
     const words = ["おをひく", "こんとん", "がっこう", "aから@"];
     return words.map((w) => {
-      return emiel.rule.getRoman(layout).build(w);
+      return romanRule.build(w);
     })
-  }, [layout])
+  }, [props.layout])
   const [wordIndex, setWordIndex] = useState(0);
   const [wordRecords, setWordRecords] = useState<WordRecordValue[]>([]);
   const onWordFinished = (
-    a: emiel.Automaton,
+    a: Automaton,
     displayedAt: Date,
   ) => {
     setWordRecords((wordRecords) => [
@@ -35,19 +40,15 @@ function App() {
       return current + 1;
     });
   };
-  return layout ? (
-    wordIndex >= automatons.length ? (
-      <Record wordRecords={wordRecords} />
-    ) : (
-      <Typing
-        layout={layout}
-        automaton={automatons[wordIndex]}
-        onWordFinished={onWordFinished}
-      />
-    )
+  return wordIndex >= automatons.length ? (
+    <Record wordRecords={wordRecords} />
   ) : (
-    <></>
-  );
+    <Typing
+      layout={props.layout}
+      automaton={automatons[wordIndex]}
+      onWordFinished={onWordFinished}
+    />
+  )
 }
 
 export default App;

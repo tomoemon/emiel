@@ -1,17 +1,18 @@
+import { activate, detectKeyboardLayout, InputStroke, KeyboardLayout, loadPresetRuleRoman } from "emiel";
+import { useEffect, useMemo, useState } from "react";
 import "./App.css";
-import * as emiel from "emiel";
-import { useEffect, useState } from "react";
 import { MixedText, MixedTextAutomaton } from "./MixedGuide";
 
 function App() {
-  const [layout, setLayout] = useState<emiel.KeyboardLayout | undefined>();
+  const [layout, setLayout] = useState<KeyboardLayout | undefined>();
   useEffect(() => {
-    emiel.keyboard.detect(window).then(setLayout).catch(console.error);
+    detectKeyboardLayout(window).then(setLayout).catch(console.error);
   }, []);
   return layout ? <Typing layout={layout} /> : <></>;
 }
 
-function Typing(props: { layout: emiel.KeyboardLayout }) {
+function Typing(props: { layout: KeyboardLayout }) {
+  const romanRule = useMemo(() => loadPresetRuleRoman(props.layout), [props.layout]);
   const words = [
     new MixedText("お,を,ひ,く", "尾,を,引,く"),
     new MixedText("こん,とん", "混,沌"),
@@ -21,17 +22,17 @@ function Typing(props: { layout: emiel.KeyboardLayout }) {
   const [automatons] = useState(
     words.map((w) =>
       new MixedTextAutomaton(
-        emiel.rule.getRoman(props.layout).build(w.kanaText),
+        romanRule.build(w.kanaText),
         w,
       )
     )
   );
   const [index, setIndex] = useState(0);
   const [lastInputKey, setLastInputKey] = useState<
-    emiel.InputStroke | undefined
+    InputStroke | undefined
   >();
   useEffect(() => {
-    return emiel.activate(window, (e) => {
+    return activate(window, (e) => {
       setLastInputKey(e.input);
       const result = automatons[index].base.input(e);
       if (result.isFinished) {

@@ -2,31 +2,19 @@ import dvorak from "../assets/keyboard_layouts/dvorak.json";
 import qwerty_jis from "../assets/keyboard_layouts/qwerty_jis.json";
 import qwerty_us from "../assets/keyboard_layouts/qwerty_us.json";
 import { KeyboardLayout } from "../core/keyboardLayout";
-import { loadJsonKeyboardLayout } from "./keyboardLayoutLoader";
 import { VirtualKey } from "../core/virtualKey";
+import { loadJsonKeyboardLayout } from "./keyboardLayoutLoader";
 
-const names = ["qwerty-jis", "qwerty-us", "dvorak"];
+export function loadPresetKeyboardLayoutQwertyJis() {
+  return loadJsonKeyboardLayout(qwerty_jis);
+}
 
-const layoutCache = new Map<string, KeyboardLayout>();
+export function loadPresetKeyboardLayoutQwertyUs() {
+  return loadJsonKeyboardLayout(qwerty_us);
+}
 
-export function getKeyboardLayout(
-  name: string
-): KeyboardLayout {
-  const layout = layoutCache.get(name);
-  if (!layout) {
-    switch (name) {
-      case "qwerty-jis":
-        layoutCache.set(name, loadJsonKeyboardLayout(qwerty_jis));
-        break;
-      case "qwerty-us":
-        layoutCache.set(name, loadJsonKeyboardLayout(qwerty_us));
-        break;
-      case "dvorak":
-        layoutCache.set(name, loadJsonKeyboardLayout(dvorak));
-        break;
-    }
-  }
-  return layoutCache.get(name)!;
+export function loadPresetKeyboardLayoutDvorak() {
+  return loadJsonKeyboardLayout(dvorak);
 }
 
 /**
@@ -37,10 +25,14 @@ export function findMatchedKeyboardLayout(
 ): KeyboardLayout {
   if (keyToCharMap.size === 0) {
     // default
-    return getKeyboardLayout("qwerty-jis");
+    return loadPresetKeyboardLayoutQwertyJis();
   }
-  for (const layoutName of names) {
-    const layout = getKeyboardLayout(layoutName);
+  for (const layoutLoader of [
+    loadPresetKeyboardLayoutQwertyJis,
+    loadPresetKeyboardLayoutQwertyUs,
+    loadPresetKeyboardLayoutDvorak
+  ]) {
+    const layout = layoutLoader();
     if (
       Array.from(keyToCharMap.entries()).every(([key, char]) => {
         const charByLayout = layout.getCharByKey(key, false);
@@ -51,5 +43,5 @@ export function findMatchedKeyboardLayout(
     }
   }
   // default
-  return getKeyboardLayout("qwerty-jis");
+  return loadPresetKeyboardLayoutQwertyJis();
 }

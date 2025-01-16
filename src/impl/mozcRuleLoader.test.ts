@@ -1,10 +1,10 @@
-import { VirtualKeys } from "../core/virtualKey";
-import { getKeyboardLayout } from "./defaultKeyboardLayout";
-import { loadMozcRule } from "./mozcRuleLoader";
 import { expect, test } from "vitest";
+import { VirtualKeys } from "../core/virtualKey";
+import { loadPresetKeyboardLayoutQwertyJis } from "./defaultKeyboardLayout";
+import { loadMozcRule } from "./mozcRuleLoader";
 
 test("load google ime empty rule", () => {
-  const rule = loadMozcRule("test-rule", ``, getKeyboardLayout("qwerty-jis"));
+  const rule = loadMozcRule("test-rule", ``, loadPresetKeyboardLayoutQwertyJis());
   expect(rule.entries.length).toBe(0);
 });
 
@@ -12,7 +12,7 @@ test("load google ime single rule", () => {
   const rule = loadMozcRule(
     "test-rule",
     `a	あ`,
-    getKeyboardLayout("qwerty-jis")
+    loadPresetKeyboardLayoutQwertyJis()
   );
   const entries = rule.entries;
   expect(entries.length).toBe(1);
@@ -25,7 +25,7 @@ test("load google ime next rule", () => {
   const rule = loadMozcRule(
     "test-rule",
     `tt	っ	t`,
-    getKeyboardLayout("qwerty-jis")
+    loadPresetKeyboardLayoutQwertyJis()
   );
   const entries = rule.entries;
   expect(entries.length).toBe(1);
@@ -43,7 +43,7 @@ test("load google ime double rule", () => {
     `a	あ
 i	い
 `,
-    getKeyboardLayout("qwerty-jis")
+    loadPresetKeyboardLayoutQwertyJis()
   );
   const entries = rule.entries;
   expect(entries.length).toBe(2);

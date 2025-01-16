@@ -1,34 +1,35 @@
+import { activate, detectKeyboardLayout, InputStroke, KeyboardLayout, loadPresetRuleRoman, VirtualKeys } from "emiel";
+import { useEffect, useMemo, useState } from "react";
 import "./App.css";
-import * as emiel from "emiel";
-import { useEffect, useState } from "react";
 import { BackspaceRequirdAutomaton } from "./backspace";
 
 function App() {
-  const [layout, setLayout] = useState<emiel.KeyboardLayout | undefined>();
+  const [layout, setLayout] = useState<KeyboardLayout | undefined>();
   useEffect(() => {
-    emiel.keyboard.detect(window).then(setLayout).catch(console.error);
+    detectKeyboardLayout(window).then(setLayout).catch(console.error);
   }, []);
   return layout ? <Typing layout={layout} /> : <></>;
 }
 
-function Typing(props: { layout: emiel.KeyboardLayout }) {
+function Typing(props: { layout: KeyboardLayout }) {
+  const romanRule = useMemo(() => loadPresetRuleRoman(props.layout), [props.layout]);
   const words = ["おをひく", "こんとん", "がっこう", "aから@"];
   const [automatons] = useState(
     words.map((w) => {
       return new BackspaceRequirdAutomaton(
-        emiel.rule.getRoman(props.layout).build(w)
+        romanRule.build(w)
       );
     })
   );
   const [index, setIndex] = useState(0);
   const [lastInputKey, setLastInputKey] = useState<
-    emiel.InputStroke | undefined
+    InputStroke | undefined
   >();
   const automaton = automatons[index];
   useEffect(() => {
-    return emiel.activate(window, (e) => {
+    return activate(window, (e) => {
       setLastInputKey(e.input);
-      if (e.input.key === emiel.VirtualKeys.Backspace) {
+      if (e.input.key === VirtualKeys.Backspace) {
         automaton.backFailedInput();
         return;
       }
@@ -71,8 +72,8 @@ function Typing(props: { layout: emiel.KeyboardLayout }) {
                     .getCharByKey(
                       f.input.key,
                       f.keyboardState.isAnyKeyDowned(
-                        emiel.VirtualKeys.ShiftLeft,
-                        emiel.VirtualKeys.ShiftRight
+                        VirtualKeys.ShiftLeft,
+                        VirtualKeys.ShiftRight
                       )
                     )
                     .replace(" ", "_")

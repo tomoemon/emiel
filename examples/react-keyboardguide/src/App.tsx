@@ -1,11 +1,13 @@
-import { KeyRect, KeyTop, KeyboardState, guide, keyboard } from 'emiel'
+import { KeyRect, KeyTop, KeyboardState, KeyboardStateReader, PhysicalKeyboardLayoutName, activate, loadPresetKeyboardGuideJis106Default, loadPresetKeyboardGuideJis106JisKana, loadPresetKeyboardGuideJis106Nicola, loadPresetKeyboardGuideUs101Default, loadPresetKeyboardLayoutDvorak, loadPresetKeyboardLayoutQwertyJis, loadPresetKeyboardLayoutQwertyUs } from 'emiel';
 import { useEffect, useState } from 'react';
-import * as emiel from 'emiel';
+
+type LayoutName = "qwerty-jis" | "qwerty-us" | "dvorak";
+type GuideName = "us_101_default" | "jis_106_default" | "jis_106_jis_kana" | "jis_106_nicola";
 
 function App() {
-  const [keyboardState, setKeyboardState] = useState<emiel.KeyboardStateReader>(new KeyboardState([]));
+  const [keyboardState, setKeyboardState] = useState<KeyboardStateReader>(new KeyboardState([]));
   useEffect(() => {
-    emiel.activate(window, (evt) => {
+    activate(window, (evt) => {
       console.log("down", evt.input.key);
       setKeyboardState(evt.keyboardState)
     }, (evt) => {
@@ -14,15 +16,15 @@ function App() {
     }
     );
   }, []);
-  const [physicalLayoutName, setPhysicalLayoutName] = useState<emiel.PhysicalKeyboardLayoutName>("jis_106");
-  const [layoutName, setLayoutName] = useState("qwerty-jis");
-  const [guideName, setGuideName] = useState("us_101_default");
+  const [physicalLayoutName, setPhysicalLayoutName] = useState<PhysicalKeyboardLayoutName>("jis_106");
+  const [layoutName, setLayoutName] = useState<LayoutName>("qwerty-jis");
+  const [guideName, setGuideName] = useState<GuideName>("us_101_default");
   const [showVirtualKeyCodes, setShowVirtualKeyCodes] = useState(false);
   return <>
     <h1>Keyboard Guide</h1>
     <div style={{ height: "20px" }}></div>
-    <PhysicalLayoutSelector onLayoutChange={(layout: emiel.PhysicalKeyboardLayoutName) => setPhysicalLayoutName(layout)} />
-    <LayoutSelector onLayoutChange={(layoutName: string) => setLayoutName(layoutName)} />
+    <PhysicalLayoutSelector onLayoutChange={(layout: PhysicalKeyboardLayoutName) => setPhysicalLayoutName(layout)} />
+    <LayoutSelector onLayoutChange={(layoutName: LayoutName) => setLayoutName(layoutName)} />
     <GuideSelector onGuideChange={setGuideName} />
     <label><input type="checkbox" onClick={(e) => setShowVirtualKeyCodes(e.currentTarget.checked)} />仮想キーコードの表示</label>
     <div style={{ height: "20px" }}></div>
@@ -31,7 +33,7 @@ function App() {
 }
 
 function PhysicalLayoutSelector(props: {
-  onLayoutChange: (physicalLayoutName: emiel.PhysicalKeyboardLayoutName) => void,
+  onLayoutChange: (physicalLayoutName: PhysicalKeyboardLayoutName) => void,
 }) {
   const [selected, setSelected] = useState(0);
   return <>
@@ -59,7 +61,7 @@ function PhysicalLayoutSelector(props: {
 }
 
 function LayoutSelector(props: {
-  onLayoutChange: (layoutName: string) => void,
+  onLayoutChange: (layoutName: LayoutName) => void,
 }) {
   const [selected, setSelected] = useState(0);
   return <>
@@ -87,7 +89,7 @@ function LayoutSelector(props: {
 }
 
 function GuideSelector(props: {
-  onGuideChange: (guideName: string) => void,
+  onGuideChange: (guideName: GuideName) => void,
 }) {
   const [selected, setSelected] = useState(0);
   return <>
@@ -122,15 +124,24 @@ function GuideSelector(props: {
 }
 
 function KeyboardGuideComponent(props: {
-  layoutName: string,
+  layoutName: LayoutName,
   physicalLayoutName: string,
-  guideName: string,
-  kbdState: emiel.KeyboardStateReader,
+  guideName: GuideName,
+  kbdState: KeyboardStateReader,
   showVirtualKeyCodes: boolean,
 }) {
   // console.log("guide component", props.layout.name, props.kbdGuide.guideData.name);
-  const layout = keyboard.get(props.layoutName);
-  const kbdGuide = guide.get(props.guideName).swapPhysicalLayout(props.physicalLayoutName as emiel.PhysicalKeyboardLayoutName);
+  const layout = {
+    "qwerty-jis": loadPresetKeyboardLayoutQwertyJis,
+    "qwerty-us": loadPresetKeyboardLayoutQwertyUs,
+    "dvorak": loadPresetKeyboardLayoutDvorak
+  }[props.layoutName]();
+  const kbdGuide = {
+    "us_101_default": loadPresetKeyboardGuideUs101Default,
+    "jis_106_default": loadPresetKeyboardGuideJis106Default,
+    "jis_106_jis_kana": loadPresetKeyboardGuideJis106JisKana,
+    "jis_106_nicola": loadPresetKeyboardGuideJis106Nicola,
+  }[props.guideName]().swapPhysicalLayout(props.physicalLayoutName as PhysicalKeyboardLayoutName);
   return (
     <>
       <div style={{ position: "relative" }}>
