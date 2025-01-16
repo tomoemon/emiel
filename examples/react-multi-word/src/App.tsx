@@ -85,7 +85,7 @@ function Typing(props: { layout: KeyboardLayout }) {
         },
       });
     });
-  }, [selector]);
+  }, [selector, romanRule]);
 
   return (
     <>

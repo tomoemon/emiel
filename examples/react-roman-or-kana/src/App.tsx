@@ -51,7 +51,7 @@ function Typing(props: { layout: KeyboardLayout }) {
         },
       });
     });
-  }, [wordIndex]);
+  }, [wordIndex, selectors, words.length]);
 
   const selector = selectors[wordIndex];
   console.log("selector", selector);

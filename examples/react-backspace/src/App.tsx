@@ -13,7 +13,7 @@ function App() {
 
 function Typing(props: { layout: KeyboardLayout }) {
   const romanRule = useMemo(() => loadPresetRuleRoman(props.layout), [props.layout]);
-  const words = ["おをひく", "こんとん", "がっこう", "aから@"];
+  const words = useMemo(() => ["おをひく", "こんとん", "がっこう", "aから@"], []);
   const [automatons] = useState(
     words.map((w) => {
       return new BackspaceRequirdAutomaton(
@@ -39,7 +39,7 @@ function Typing(props: { layout: KeyboardLayout }) {
         setIndex((current) => (current + 1) % words.length);
       }
     });
-  }, [index]);
+  }, [index, automaton, words]);
   return (
     <>
       <h1>
