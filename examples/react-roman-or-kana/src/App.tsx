@@ -34,21 +34,20 @@ function Typing(props: { layout: KeyboardLayout }) {
         selectors[wordIndex].reset();
         return;
       }
-      selectors[wordIndex].input(e, {
-        finished: (a) => {
-          console.log("finished", a);
-          setWordIndex((current) => {
-            const newWordIndex = (current + 1) % words.length;
-            selectors[newWordIndex].reset();
-            return newWordIndex;
-          });
-        },
-        succeeded: (a) => {
-          console.log("succeeded", a);
-        },
-        failed: (a) => {
-          console.log("failed", a);
-        },
+      const { finished, succeeded, failed } = selectors[wordIndex].input(e);
+      finished.forEach((a) => {
+        console.log("finished", a);
+        setWordIndex((current) => {
+          const newWordIndex = (current + 1) % words.length;
+          selectors[newWordIndex].reset();
+          return newWordIndex;
+        });
+      });
+      succeeded.forEach((a) => {
+        console.log("succeeded", a);
+      });
+      failed.forEach((a) => {
+        console.log("failed", a);
       });
     });
   }, [wordIndex, selectors, words.length]);

@@ -67,22 +67,21 @@ function Typing(props: { layout: KeyboardLayout }) {
         selector.reset();
         return;
       }
-      selector.input(e, {
-        finished: (a) => {
-          console.log("finished", a);
-          const newAutomaton =
-            new PositionAutomaton(
-              romanRule.build(wordGen.next().value),
-              a.position
-            );
-          setSelector((current) => current.replaced(a, newAutomaton));
-        },
-        succeeded: (a) => {
-          console.log("succeeded", a);
-        },
-        failed: (a) => {
-          console.log("failed", a);
-        },
+      const { finished, succeeded, failed } = selector.input(e);
+      finished.forEach((a) => {
+        console.log("finished", a);
+        const newAutomaton =
+          new PositionAutomaton(
+            romanRule.build(wordGen.next().value),
+            a.position
+          );
+        setSelector((current) => current.replaced(a, newAutomaton));
+      });
+      succeeded.forEach((a) => {
+        console.log("succeeded", a);
+      });
+      failed.forEach((a) => {
+        console.log("failed", a);
       });
     });
   }, [selector, romanRule]);
