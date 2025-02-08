@@ -14,11 +14,17 @@ export default defineConfig({
       entry: resolve(__dirname, "src/index.ts"),
       name: "emiel",
       fileName: "index",
-      formats: ["es", "cjs"],
+      formats: ["es"],
     },
     rollupOptions: {
-      external: [],
-      output: {},
+      external: ["@base2/pretty-print-object"],
+      output: {
+        preserveModules: true,
+        preserveModulesRoot: "src",
+        entryFileNames: ({ name: fileName }) => {
+          return `${fileName}.js`;
+        },
+      },
       plugins: [],
     },
   },

@@ -1,35 +1,35 @@
-import "./App.css";
-import * as emiel from "emiel";
-import { useEffect, useState } from "react";
-import dagre from "cytoscape-dagre";
 import cytoscape from "cytoscape";
+import dagre from "cytoscape-dagre";
+import { Automaton, detectKeyboardLayout, KeyboardLayout, loadPresetRuleJisKana, loadPresetRuleNicola, loadPresetRuleRoman } from "emiel";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import "./App.css";
 import { TypingGraph } from "./typingGraph";
 
 // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
 cytoscape.use(dagre);
 
 function App() {
-  const [layout, setLayout] = useState<emiel.KeyboardLayout | undefined>();
+  const [layout, setLayout] = useState<KeyboardLayout | undefined>();
   useEffect(() => {
-    emiel.keyboard.detect(window).then(setLayout).catch(console.error);
+    detectKeyboardLayout(window).then(setLayout).catch(console.error);
   }, []);
   return layout ? <Typing layout={layout} /> : <></>;
 }
 
-function Typing(props: { layout: emiel.KeyboardLayout }) {
-  const rules = [
-    { name: "ローマ字", rule: emiel.rule.get("roman", props.layout) },
-    { name: "JISかな", rule: emiel.rule.get("jis-kana", props.layout) },
-    { name: "NICOLA", rule: emiel.rule.get("nicola", props.layout) },
-  ];
-  const words = ["おをひく", "こんとん", "がっこう", "aから@"];
-  const [automaton, setAutomaton] = useState<emiel.Automaton | undefined>(
+function Typing(props: { layout: KeyboardLayout }) {
+  const rules = useMemo(() => [
+    { name: "ローマ字", rule: loadPresetRuleRoman(props.layout) },
+    { name: "JISかな", rule: loadPresetRuleJisKana(props.layout) },
+    { name: "NICOLA", rule: loadPresetRuleNicola(props.layout) },
+  ], [props.layout]);
+  const [automaton, setAutomaton] = useState<Automaton | undefined>(
     undefined
   );
   const [ruleName, setRuleName] = useState("");
   const [wordIndex, setWordIndex] = useState(0);
   const [ruleIndex, setRuleIndex] = useState(0);
-  const onFinished = () => {
+  const onFinished = useCallback(() => {
+    const words = ["おをひく", "こんとん", "がっこう", "aから@"];
     const automaton = rules[ruleIndex].rule.build(words[wordIndex]);
     setAutomaton(automaton);
     setRuleName(rules[ruleIndex].name);
@@ -43,12 +43,12 @@ function Typing(props: { layout: emiel.KeyboardLayout }) {
         setRuleIndex(0);
       }
     }
-  };
+  }, [ruleIndex, rules, wordIndex]);
   useEffect(() => {
     if (wordIndex === 0) {
       onFinished();
     }
-  }, []);
+  }, [onFinished, wordIndex]);
   return (
     <>
       {automaton ? (

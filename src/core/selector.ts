@@ -26,13 +26,7 @@ export class Selector<T extends Inputtable> {
   }
   input(
     stroke: InputEvent,
-    callback?: {
-      succeeded?: (automaton: T) => void;
-      failed?: (automaton: T) => void;
-      finished?: (automaton: T) => void;
-      ignored?: (automaton: T) => void;
-    }
-  ) {
+  ): { succeeded: T[], finished: T[], failed: T[], ignored: T[] } {
     const finished: T[] = [];
     const succeeded: T[] = [];
     const failed: T[] = [];
@@ -54,24 +48,13 @@ export class Selector<T extends Inputtable> {
         ignored.push(inputtable);
       }
     }
-    if (callback?.succeeded) {
-      succeeded.forEach((v) => callback.succeeded!(v));
-    }
-    if (callback?.finished) {
-      finished.forEach((v) => callback.finished!(v));
-    }
-    if (callback?.failed) {
-      failed.forEach((v) => callback.failed!(v));
-    }
-    if (callback?.ignored) {
-      ignored.forEach((v) => callback.ignored!(v));
-    }
     if (succeeded.length > 0) {
       this._actives = newActive;
       // 1つでも成功したものがあるとき、それ以外の item はすべて reset する
       failed.forEach((v) => v.reset());
       ignored.forEach((v) => v.reset());
     }
+    return { succeeded, finished, failed, ignored };
   }
   /**
    * すべての item をリセットして、すべてを active な状態に戻す

@@ -1,55 +1,56 @@
+import { activate, detectKeyboardLayout, InputStroke, KeyboardLayout, loadPresetRuleJisKana, loadPresetRuleRoman, Selector, VirtualKeys } from "emiel";
+import { useEffect, useMemo, useState } from "react";
 import "./App.css";
-import * as emiel from "emiel";
-import { useEffect, useState } from "react";
 
 function App() {
-  const [layout, setLayout] = useState<emiel.KeyboardLayout | undefined>();
+  const [layout, setLayout] = useState<KeyboardLayout | undefined>();
   useEffect(() => {
-    emiel.keyboard.detect(window).then(setLayout).catch(console.error);
+    detectKeyboardLayout(window).then(setLayout).catch(console.error);
   }, []);
   return layout ? <Typing layout={layout} /> : <></>;
 }
 
-function Typing(props: { layout: emiel.KeyboardLayout }) {
+function Typing(props: { layout: KeyboardLayout }) {
   const words = ["おをひく", "こんとん", "がっこう", "aから@"];
+  const romanRule = useMemo(() => loadPresetRuleRoman(props.layout), [props.layout]);
+  const kanaRule = useMemo(() => loadPresetRuleJisKana(props.layout), [props.layout]);
   const [selectors] = useState(
     words.map(
       (w) =>
-        new emiel.Selector([
-          emiel.rule.getRoman(props.layout).build(w),
-          emiel.rule.getJisKana(props.layout).build(w),
+        new Selector([
+          romanRule.build(w),
+          kanaRule.build(w),
         ])
     )
   );
   const [lastInputKey, setLastInputKey] = useState<
-    emiel.InputStroke | undefined
+    InputStroke | undefined
   >();
   const [wordIndex, setWordIndex] = useState(0);
   useEffect(() => {
-    return emiel.activate(window, (e) => {
+    return activate(window, (e) => {
       setLastInputKey(e.input);
-      if (e.input.key === emiel.VirtualKeys.Escape) {
+      if (e.input.key === VirtualKeys.Escape) {
         selectors[wordIndex].reset();
         return;
       }
-      selectors[wordIndex].input(e, {
-        finished: (a) => {
-          console.log("finished", a);
-          setWordIndex((current) => {
-            const newWordIndex = (current + 1) % words.length;
-            selectors[newWordIndex].reset();
-            return newWordIndex;
-          });
-        },
-        succeeded: (a) => {
-          console.log("succeeded", a);
-        },
-        failed: (a) => {
-          console.log("failed", a);
-        },
+      const { finished, succeeded, failed } = selectors[wordIndex].input(e);
+      finished.forEach((a) => {
+        console.log("finished", a);
+        setWordIndex((current) => {
+          const newWordIndex = (current + 1) % words.length;
+          selectors[newWordIndex].reset();
+          return newWordIndex;
+        });
+      });
+      succeeded.forEach((a) => {
+        console.log("succeeded", a);
+      });
+      failed.forEach((a) => {
+        console.log("failed", a);
       });
     });
-  }, [wordIndex]);
+  }, [wordIndex, selectors, words.length]);
 
   const selector = selectors[wordIndex];
   console.log("selector", selector);

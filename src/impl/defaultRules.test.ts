@@ -1,6 +1,6 @@
-import { getKeyboardLayout } from "./defaultKeyboardLayout";
-import { rules } from "./defaultRules";
 import { expect, test } from "vitest";
+import { loadPresetKeyboardLayoutQwertyJis } from "./defaultKeyboardLayout";
+import { loadPresetRuleJisKana, loadPresetRuleNicola, loadPresetRuleRoman } from "./defaultRules";
 
 // function entryToString(entry: RuleEntry<VirtualKey>): string {
 //   return (
@@ -13,7 +13,7 @@ import { expect, test } from "vitest";
 // }
 
 test("load google ime roman rule", () => {
-  const rule = rules.get("roman", getKeyboardLayout("qwerty-jis"));
+  const rule = loadPresetRuleRoman(loadPresetKeyboardLayoutQwertyJis());
   // rule.entries.forEach((entry) => {
   //   console.log(entryToString(entry));
   // });
@@ -21,11 +21,11 @@ test("load google ime roman rule", () => {
 });
 
 test("load jis kana rule", () => {
-  const rule = rules.get("jis-kana", getKeyboardLayout("qwerty-jis"));
+  const rule = loadPresetRuleJisKana(loadPresetKeyboardLayoutQwertyJis())
   expect(rule.entries.length).toBe(178);
 });
 
 test("load nicola rule", () => {
-  const rule = rules.get("nicola", getKeyboardLayout("qwerty-jis"));
+  const rule = loadPresetRuleNicola(loadPresetKeyboardLayoutQwertyJis())
   expect(rule.entries.length).toBe(256);
 });

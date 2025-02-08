@@ -1,29 +1,30 @@
+import { activate, detectKeyboardLayout, InputStroke, KeyboardLayout, loadPresetRuleRoman } from "emiel";
+import { useEffect, useMemo, useState } from "react";
 import "./App.css";
-import * as emiel from "emiel";
-import { useEffect, useState } from "react";
 
 function App() {
-  const [layout, setLayout] = useState<emiel.KeyboardLayout | undefined>();
+  const [layout, setLayout] = useState<KeyboardLayout | undefined>();
   useEffect(() => {
-    emiel.keyboard.detect(window).then(setLayout).catch(console.error);
+    detectKeyboardLayout(window).then(setLayout).catch(console.error);
   }, []);
   return layout ? <Typing layout={layout} /> : <></>;
 }
 
 const words = ["おをひく", "こんとん", "がっこう", "aから@"];
 
-function Typing(props: { layout: emiel.KeyboardLayout }) {
+function Typing(props: { layout: KeyboardLayout }) {
+  const romanRule = useMemo(() => loadPresetRuleRoman(props.layout), [props.layout]);
   const [automatons] = useState(
     words.map((w) => {
-      return emiel.rule.getRoman(props.layout).build(w);
+      return romanRule.build(w);
     })
   );
   const [wordIndex, setWordIndex] = useState(0);
   const [lastInputKey, setLastInputKey] = useState<
-    emiel.InputStroke | undefined
+    InputStroke | undefined
   >();
   useEffect(() => {
-    return emiel.activate(window, (e) => {
+    return activate(window, (e) => {
       setLastInputKey(e.input);
       const result = automatons[wordIndex].input(e);
       if (result.isFinished) {

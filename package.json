@@ -2,7 +2,7 @@
   "name": "emiel",
   "author": "tomoemon",
   "packageManager": "pnpm@9.11.0",
-  "version": "0.1.6",
+  "version": "0.1.7",
   "type": "module",
   "license": "MIT",
   "repository": {
@@ -16,15 +16,11 @@
     "dist"
   ],
   "module": "./dist/index.js",
-  "main": "./dist/index.cjs",
+  "sideEffects": false,
   "exports": {
     "import": {
       "types": "./dist/types/index.d.ts",
       "default": "./dist/index.js"
-    },
-    "require": {
-      "types": "./dist/types/index.d.ts",
-      "default": "./dist/index.cjs"
     }
   },
   "scripts": {

@@ -1,6 +1,6 @@
+import { activate, Automaton, detectKeyboardLayout, InputEvent, InputResult, InputStroke, Inputtable, KeyboardLayout, loadPresetRuleRoman, Selector, VirtualKeys } from "emiel";
+import { useEffect, useMemo, useState } from "react";
 import "./App.css";
-import * as emiel from "emiel";
-import { useEffect, useState } from "react";
 import { Word } from "./word";
 
 // 繰り返し次のワードを生成するジェネレータ
@@ -22,10 +22,10 @@ const wordGen = (function* wordGenerator(): Generator<string, string> {
 // 初期ワード3つ
 const initialWords = Array.from({ length: 3 }, () => wordGen.next().value);
 
-class PositionAutomaton implements emiel.Inputtable {
-  constructor(readonly base: emiel.Automaton, readonly position: number) {
+class PositionAutomaton implements Inputtable {
+  constructor(readonly base: Automaton, readonly position: number) {
   }
-  input(stroke: emiel.InputEvent): emiel.InputResult {
+  input(stroke: InputEvent): InputResult {
     return this.base.input(stroke);
   }
   reset(): void {
@@ -34,57 +34,57 @@ class PositionAutomaton implements emiel.Inputtable {
 }
 
 function App() {
-  const [layout, setLayout] = useState<emiel.KeyboardLayout | undefined>();
+  const [layout, setLayout] = useState<KeyboardLayout | undefined>();
   useEffect(() => {
-    emiel.keyboard.detect(window).then(setLayout).catch(console.error);
+    detectKeyboardLayout(window).then(setLayout).catch(console.error);
   }, []);
   return layout ? <Typing layout={layout} /> : <></>;
 }
 
-function Typing(props: { layout: emiel.KeyboardLayout }) {
+function Typing(props: { layout: KeyboardLayout }) {
+  const romanRule = useMemo(() => loadPresetRuleRoman(props.layout), [props.layout]);
   const [selector, setSelector] = useState(
-    new emiel.Selector(
+    new Selector(
       // 各 automaton の metadata として表示位置をもたせる
       initialWords.map(
         (w, i) =>
           new PositionAutomaton(
-            emiel.rule.getRoman(props.layout).build(w),
+            romanRule.build(w),
             i
           )
       )
     )
   );
   const [lastInputKey, setLastInputKey] = useState<
-    emiel.InputStroke | undefined
+    InputStroke | undefined
   >();
   useEffect(() => {
-    return emiel.activate(window, (e) => {
+    return activate(window, (e) => {
       setLastInputKey(e.input);
       console.log("input:", e);
-      if (e.input.key === emiel.VirtualKeys.Escape) {
+      if (e.input.key === VirtualKeys.Escape) {
         console.log("reset");
         selector.reset();
         return;
       }
-      selector.input(e, {
-        finished: (a) => {
-          console.log("finished", a);
-          const newAutomaton =
-            new PositionAutomaton(
-              emiel.rule.getRoman(props.layout).build(wordGen.next().value),
-              a.position
-            );
-          setSelector((current) => current.replaced(a, newAutomaton));
-        },
-        succeeded: (a) => {
-          console.log("succeeded", a);
-        },
-        failed: (a) => {
-          console.log("failed", a);
-        },
+      const { finished, succeeded, failed } = selector.input(e);
+      finished.forEach((a) => {
+        console.log("finished", a);
+        const newAutomaton =
+          new PositionAutomaton(
+            romanRule.build(wordGen.next().value),
+            a.position
+          );
+        setSelector((current) => current.replaced(a, newAutomaton));
+      });
+      succeeded.forEach((a) => {
+        console.log("succeeded", a);
+      });
+      failed.forEach((a) => {
+        console.log("failed", a);
       });
     });
-  }, [selector]);
+  }, [selector, romanRule]);
 
   return (
     <>
