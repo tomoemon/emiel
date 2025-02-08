@@ -1,9 +1,9 @@
 import { expect, test } from "vitest";
-import { getAlphaNumericRuleByLayout } from "./alphaNumericRule";
+import { newAlphaNumericRuleByLayout } from "./alphaNumericRule";
 import { loadPresetKeyboardLayoutQwertyJis } from "./defaultKeyboardLayout";
 
 test("import alphaNumericRule", () => {
-  const alphaNumericRule = getAlphaNumericRuleByLayout(
+  const alphaNumericRule = newAlphaNumericRuleByLayout(
     loadPresetKeyboardLayoutQwertyJis()
   );
   expect(alphaNumericRule.entries.length).toBe(96);
