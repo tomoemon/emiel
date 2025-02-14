@@ -4,24 +4,37 @@ import { VirtualKey, VirtualKeys } from "../core/virtualKey";
 
 /**
  * @param target addEventListener,removeEventListener を持つ Window object のような型
- * @param handler キー入力を受け取るハンドラ
+ * @param keyEventHandler キー操作に関するイベントハンドラ
+ * @param options.handleKeyDown キーが押されたときにkeyEventHandlerを呼び出す(default: true)
+ * @param options.handleKeyUp キーが離されたときにkeyEventHandlerを呼び出す(default: false)
+ * @param options.keyMap 入力されたキーを別のキーへ置換するマッピング (default: {})
  * @returns イベントハンドラを解除する関数を返す
  */
 export function activate(
   target: EventTarget,
-  onKeyDown?: (evt: InputEvent) => void,
-  onKeyUp?: (evt: InputEvent) => void,
+  keyEventHandler: (evt: InputEvent) => void,
+  options?: {
+    handleKeyDown?: boolean;
+    handleKeyUp?: boolean;
+    keyMap?: Map<VirtualKey, VirtualKey>,
+  }
 ) {
+  const {
+    handleKeyDown = true,
+    handleKeyUp = false,
+    keyMap = new Map<VirtualKey, VirtualKey>()
+  } = options ?? {};
   const keyboardState = new KeyboardState();
   const keyDownEventHandler = (evt: Event) => {
     const keyStroke = toInputKeyStrokeFromKeyboardEvent(
       "keydown",
-      evt as KeyboardEvent
+      evt as KeyboardEvent,
+      keyMap,
     );
     keyboardState.keydown(keyStroke.key);
-    if (onKeyDown) {
-      const now = new Date();
-      onKeyDown(
+    const now = new Date();
+    if (handleKeyDown) {
+      keyEventHandler(
         new InputEvent(
           keyStroke,
           // キー入力ごとのその時点での KeyboardState を渡す
@@ -34,12 +47,13 @@ export function activate(
   const keyUpEventHandler = (evt: Event) => {
     const keyStroke = toInputKeyStrokeFromKeyboardEvent(
       "keyup",
-      evt as KeyboardEvent
+      evt as KeyboardEvent,
+      keyMap,
     );
     keyboardState.keyup(keyStroke.key);
-    if (onKeyUp) {
+    if (handleKeyUp) {
       const now = new Date();
-      onKeyUp(
+      keyEventHandler(
         new InputEvent(
           keyStroke,
           // キー入力ごとのその時点での KeyboardState を渡す
@@ -59,10 +73,12 @@ export function activate(
 
 function toInputKeyStrokeFromKeyboardEvent(
   evtType: KeyEventType,
-  evt: KeyboardEvent
+  evt: KeyboardEvent,
+  keyMap: Map<VirtualKey, VirtualKey>
 ): InputStroke {
   const vkey = toVirtualKeyFromEventCode(evt.code);
-  return new InputStroke(vkey, evtType);
+  const replaced = keyMap.get(vkey) ?? vkey;
+  return new InputStroke(replaced, evtType);
 }
 
 function toVirtualKeyFromEventCode(code: string): VirtualKey {

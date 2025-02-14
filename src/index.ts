@@ -23,6 +23,7 @@ export { InputResult } from "./core/automaton";
 export { KeyboardGuide, type KeyRect, type KeyTop } from "./impl/keyboardGuide";
 
 export { detectKeyboardLayout } from "./browser/osKeyboardLayout";
+export * from "./impl/alphaNumericRule";
 export * from "./impl/defaultKeyboardLayout";
 export { loadJsonKeyboardLayout } from "./impl/keyboardLayoutLoader";
 
