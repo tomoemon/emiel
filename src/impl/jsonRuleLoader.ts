@@ -1,9 +1,9 @@
 import { AndModifier, ModifierGroup } from "../core/modifier";
 import { Rule, RuleEntry } from "../core/rule";
 import { RuleStroke } from "../core/ruleStroke";
+import { VirtualKey } from "../core/virtualKey";
 import { product } from "../utils/itertools";
 import { defaultKanaNormalize } from "./charNormalizer";
-import { VirtualKey } from "../core/virtualKey";
 
 /*
     {
@@ -23,10 +23,12 @@ type stroke = {
   modifiers?: string[][];
 };
 type entry = {
-  input: stroke[];
-  output: string;
-  nextInput: stroke[];
+  // コメントだけの行も許可するため、undefinedを許容する
+  input?: stroke[];
+  output?: string;
+  nextInput?: stroke[];
   extendCommonPrefixEntry?: boolean;
+  comment?: string;
 };
 type jsonSchema = {
   extendCommonPrefixEntry: boolean;
@@ -57,16 +59,16 @@ function loadStroke(
   return keys.map((key) => {
     // 同時押しの場合は、他のキーをモディファイアとして扱う
     // keys: [A,B] の場合、key=A のとき、A+mod(B)
-    const multipleStrokeModifier = new ModifierGroup(
-      keys.filter((v) => v !== key)
-    );
+    const multipleStrokeModifier = keys
+      .filter((v) => v !== key)
+      .map((v) => new ModifierGroup([v]));
     // この Entry で必要な修飾キー以外の修飾キーは不要な（押してはいけない）修飾キーとして扱う
     const unnecesaryModifiers = ruleModifierGroup.modifiers.filter(
       (v) => !necessaryModifierKeys.includes(v) && !keys.includes(v)
     );
     return new RuleStroke(
       key,
-      new AndModifier(...modifierGroups, multipleStrokeModifier),
+      new AndModifier(...modifierGroups, ...multipleStrokeModifier),
       new ModifierGroup(unnecesaryModifiers),
     );
   });
@@ -123,6 +125,9 @@ function loadEntries(
 ): RuleEntry[] {
   const entries: RuleEntry[] = [];
   jsonEntries.forEach((v) => {
+    if (!v.input || !v.output || !v.nextInput) {
+      return;
+    }
     const inputExtended = loadInput(v.input, ruleModifierGroup);
     const output = v.output;
     // 次の入力として使用するものは具体化されたもの1つだけなので、配列の先頭を取得する
@@ -146,9 +151,13 @@ export function loadJsonRule(
   jsonRule: jsonSchema | string
 ): Rule {
   if (jsonRule instanceof String || typeof jsonRule === "string") {
+    console.log("jsonRule is string", name);
     const schema = JSON.parse(jsonRule as string) as jsonSchema;
+    console.log(schema);
     return loadJsonRule(name, schema);
   }
+  console.log("jsonRule is jsonSchema", name);
+  console.log("jsonRule.modifiers", JSON.stringify(jsonRule.modifiers));
   const modifierGroup = loadModifiers(
     jsonRule.modifiers,
   );

@@ -15,7 +15,7 @@ export class InputEvent {
     readonly keyboardState: KeyboardStateReader,
     readonly timestamp: Date
   ) { }
-  match(edge: StrokeEdge): "ignored" | "matched" | "failed" {
+  match(edge: StrokeEdge): "ignored" | "matched" | "modified" | "failed" {
     // 入力されたキーがマッチし、
     if (this.input.key === edge.input.key) {
       // 必要な modifier がすべて押されていて、
@@ -27,13 +27,13 @@ export class InputEvent {
       }
       return "failed";
     }
-    // 入力されたキーがマッチせず、
-    // 入力ルールで modifier として扱われているキーの入力が来た場合は無視する。
-    // 英数字入力における Shift キーの単独押下などの場合が該当する。
-    if (edge.rule.modifierGroup.has(this.input.key)) {
-      return "ignored";
-    }
-    // このStrokeEdgeのみで必要とされる modifier が単独で押されている場合も無視する
+
+    // 今回の入力がいずれかの entry の最初の入力に match したもの
+    const otherEntries = edge.rule.entriesByKey(this.input.key).filter((entry) => {
+      return entry.input[0].requiredModifier.accept(this.keyboardState);
+    });
+
+    // このStrokeEdgeで必要とされる modifier のみが押されている場合
     // 例えば同時押し系配列の場合、
     // [t]:た
     // [t | 無変換]:ち
@@ -42,13 +42,16 @@ export class InputEvent {
     // [t + modifier(無変換)]:ち
     // [無変換 + modifier(t)]: ち
     // として扱われる。このとき、「ち」を打つべきタイミングで、t を単独で押した場合、
-    // [無変換 + modifiere(t)] で必要とする modifier が単独で押されていることになるため、無視する。
-    // このとき、[t] 単独で「た」が入力された扱いにしてミスとしないための仕様。
-    // 厳密には keyup を待ってから判定したりするべきだが、タイピングゲームならではの仕様として許容可能と考える。
-    if (edge.input.requiredModifier.onlyModifierDowned(this.keyboardState)) {
+    // [無変換 + modifiere(t)] で必要とする modifier が単独で押されていることになる。
+    if (otherEntries.length > 0) {
+      if (edge.input.requiredModifier.onlyModifierDowned(this.keyboardState) && otherEntries.length > 0) {
+        return "modified";
+      }
+      // いずれかの entry の最初の入力に match した場合はミス入力として扱う
+      return "failed";
+    } else {
       return "ignored";
     }
-    return "failed";
   }
 }
 

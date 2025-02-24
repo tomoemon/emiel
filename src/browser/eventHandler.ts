@@ -13,17 +13,8 @@ import { VirtualKey, VirtualKeys } from "../core/virtualKey";
 export function activate(
   target: EventTarget,
   keyEventHandler: (evt: InputEvent) => void,
-  options?: {
-    handleKeyDown?: boolean;
-    handleKeyUp?: boolean;
-    keyMap?: Map<VirtualKey, VirtualKey>,
-  }
+  keyMap: Map<VirtualKey, VirtualKey> = new Map<VirtualKey, VirtualKey>(),
 ) {
-  const {
-    handleKeyDown = true,
-    handleKeyUp = false,
-    keyMap = new Map<VirtualKey, VirtualKey>()
-  } = options ?? {};
   const keyboardState = new KeyboardState();
   const keyDownEventHandler = (evt: Event) => {
     const keyStroke = toInputKeyStrokeFromKeyboardEvent(
@@ -33,16 +24,14 @@ export function activate(
     );
     keyboardState.keydown(keyStroke.key);
     const now = new Date();
-    if (handleKeyDown) {
-      keyEventHandler(
-        new InputEvent(
-          keyStroke,
-          // キー入力ごとのその時点での KeyboardState を渡す
-          new KeyboardState([...keyboardState.downedKeys]),
-          now
-        )
-      );
-    }
+    keyEventHandler(
+      new InputEvent(
+        keyStroke,
+        // キー入力ごとのその時点での KeyboardState を渡す
+        new KeyboardState([...keyboardState.downedKeys]),
+        now
+      )
+    );
   };
   const keyUpEventHandler = (evt: Event) => {
     const keyStroke = toInputKeyStrokeFromKeyboardEvent(
@@ -51,17 +40,15 @@ export function activate(
       keyMap,
     );
     keyboardState.keyup(keyStroke.key);
-    if (handleKeyUp) {
-      const now = new Date();
-      keyEventHandler(
-        new InputEvent(
-          keyStroke,
-          // キー入力ごとのその時点での KeyboardState を渡す
-          new KeyboardState([...keyboardState.downedKeys]),
-          now
-        )
-      );
-    }
+    const now = new Date();
+    keyEventHandler(
+      new InputEvent(
+        keyStroke,
+        // キー入力ごとのその時点での KeyboardState を渡す
+        new KeyboardState([...keyboardState.downedKeys]),
+        now
+      )
+    );
   };
   target.addEventListener("keydown", keyDownEventHandler);
   target.addEventListener("keyup", keyUpEventHandler);

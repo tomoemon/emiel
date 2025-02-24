@@ -1,5 +1,5 @@
-import { InputEvent, RuleStroke } from "./ruleStroke";
 import { StrokeEdge, StrokeNode } from "./builderStrokeGraph";
+import { InputEvent, RuleStroke } from "./ruleStroke";
 
 export class InputResult {
   constructor(
@@ -9,6 +9,7 @@ export class InputResult {
       | "key_succeeded" // 1打鍵の成功
       | "kana_succeeded" // かな1文字の成功
       | "finished" // 完了
+      | "staged" // 仮確定状態
   ) { }
 
   static readonly IGNORED = new InputResult("ignored");
@@ -16,6 +17,7 @@ export class InputResult {
   static readonly KEY_SUCCEEDED = new InputResult("key_succeeded");
   static readonly KANA_SUCCEEDED = new InputResult("kana_succeeded");
   static readonly FINISHED = new InputResult("finished");
+  static readonly STAGED = new InputResult("staged");
 
   toString(): string {
     return this.type;
@@ -23,6 +25,9 @@ export class InputResult {
   // 今回の打鍵が無視されたかどうか（シフトキー等のモディファイアキーの単独入力の場合）
   get isIgnored(): boolean {
     return this.type === "ignored";
+  }
+  get isStaged(): boolean {
+    return this.type === "staged";
   }
   // 今回の1打鍵が入力ミスだったかどうか
   get isFailed(): boolean {
@@ -174,6 +179,11 @@ export class Automaton {
   get isFinished(): boolean {
     return this._currentNode.nextEdges.length === 0;
   }
+
+  /**
+   * 仮確定状態のエッジ、または入力イベント
+   */
+  private stagedEdge: StrokeEdge | InputEvent | undefined = undefined;
   /**
    * 状態遷移せずに、入力が成功するかどうかをテストする
    * 
@@ -183,32 +193,60 @@ export class Automaton {
     InputResult,
     () => void
   ] {
-    const lastKanaIndex = this._currentNode.kanaIndex;
-    const acceptedEdges = this._currentNode.nextEdges.filter(
-      (edge) => stroke.match(edge) === "matched"
-    );
-    if (acceptedEdges.length > 0) {
-      const acceptedEdge = acceptedEdges[0];
-      if (lastKanaIndex < acceptedEdge.next.kanaIndex) {
-        if (acceptedEdge.next.nextEdges.length === 0) {
+    if (stroke.input.type === "keyup") {
+      // 仮確定状態があるときに keyup が発生したら、それを確定させる
+      if (this.stagedEdge) {
+        if (this.stagedEdge instanceof StrokeEdge) {
+          const acceptedEdge = this.stagedEdge;
+          const resultType = this.edgeToResultType(this._currentNode.kanaIndex, acceptedEdge);
           return [
-            InputResult.FINISHED,
+            resultType,
             () => {
-              this.applyState(stroke, InputResult.FINISHED, acceptedEdge);
+              this.applyState(stroke, resultType, acceptedEdge);
             }
           ];
         }
         return [
-          InputResult.KANA_SUCCEEDED,
+          InputResult.FAILED,
           () => {
-            this.applyState(stroke, InputResult.KANA_SUCCEEDED, acceptedEdge);
+            this.applyState(stroke, InputResult.FAILED, undefined);
           }
         ];
       }
+      return [InputResult.IGNORED, () => { }];
+    }
+    const matchResult = this._currentNode.nextEdges.map((edge) => {
+      const result = stroke.match(edge); return { edge, result }
+    });
+    const acceptedEdges = matchResult
+      .filter((match) => match.result === "matched")
+      .map((match) => match.edge);
+    const modifiedEdges = matchResult
+      .filter((match) => match.result === "modified")
+      .map((match) => match.edge);
+    // modifiedEdges が1個以上ある場合は、仮確定状態にする
+    // このとき、acceptedEdges が1個以上ある場合は、それを仮確定状態にする
+    // acceptedEdges が0個の場合は、単発キーを仮確定状態にする
+    console.log("modifiedEdges", modifiedEdges);
+    console.log("acceptedEdges", acceptedEdges);
+    if (modifiedEdges.length > 0) {
+      if (acceptedEdges.length > 0) {
+        return [InputResult.STAGED, () => {
+          this.stagedEdge = acceptedEdges[0];
+        }];
+      }
+      return [InputResult.STAGED, () => {
+        this.stagedEdge = stroke;
+      }];
+    }
+
+    if (acceptedEdges.length > 0) {
+      const acceptedEdge = acceptedEdges[0];
+      const resultType = this.edgeToResultType(this._currentNode.kanaIndex, acceptedEdge);
       return [
-        InputResult.KEY_SUCCEEDED,
+        resultType,
         () => {
-          this.applyState(stroke, InputResult.KEY_SUCCEEDED, acceptedEdge);
+          this.applyState(stroke, resultType, acceptedEdge);
         }
       ];
     }
@@ -241,6 +279,9 @@ export class Automaton {
     result: InputResult,
     acceptedEdge: StrokeEdge | undefined
   ) {
+    // 仮確定状態解除
+    this.stagedEdge = undefined;
+
     if (result.isSucceeded) {
       this._edgeHistories.push({
         event: stroke,
@@ -252,5 +293,15 @@ export class Automaton {
     } else if (result.isFailed) {
       this._failedEventsAtCurrentNode.push(stroke);
     }
+  }
+
+  private edgeToResultType(currentKanaIndex: number, acceptedEdge: StrokeEdge): InputResult {
+    if (currentKanaIndex < acceptedEdge.next.kanaIndex) {
+      if (acceptedEdge.next.nextEdges.length === 0) {
+        return InputResult.FINISHED;
+      }
+      return InputResult.KANA_SUCCEEDED;
+    }
+    return InputResult.KEY_SUCCEEDED;
   }
 }

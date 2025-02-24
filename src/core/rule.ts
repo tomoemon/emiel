@@ -3,6 +3,7 @@ import { build } from "./automatonBuilder";
 import { ModifierGroup } from "./modifier";
 import { extendCommonPrefixOverlappedEntriesDeeply } from "./ruleExtender";
 import { RuleStroke } from "./ruleStroke";
+import { VirtualKey } from "./virtualKey";
 
 export type normalizerFunc = (value: string) => string;
 
@@ -99,6 +100,22 @@ export class Rule {
     readonly normalize: normalizerFunc,
   ) {
     this.entries = extendCommonPrefixOverlappedEntriesDeeply(entries);
+
+    this.entries.forEach((entry) => {
+      const firstInputKey = entry.input[0].key;
+      const currentEntries = this.mapEntriesByFirstInputKey.get(firstInputKey);
+      if (!currentEntries) {
+        this.mapEntriesByFirstInputKey.set(firstInputKey, [entry]);
+      } else {
+        currentEntries.push(entry);
+      }
+    });
+  }
+
+  private mapEntriesByFirstInputKey: Map<VirtualKey, RuleEntry[]> = new Map();
+
+  entriesByKey(inputKey: VirtualKey): RuleEntry[] {
+    return this.mapEntriesByFirstInputKey.get(inputKey) ?? [];
   }
 
   build(kanaText: string): Automaton {
