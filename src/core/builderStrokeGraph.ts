@@ -1,6 +1,5 @@
 import { setDefault } from "../utils/map";
 import { KanaNode } from "./builderKanaGraph";
-import { Rule } from "./rule";
 import { RuleStroke } from "./ruleStroke";
 
 export class StrokeNode {
@@ -25,7 +24,6 @@ export class StrokeNode {
 
 export class StrokeEdge {
   constructor(
-    readonly rule: Rule, // このグラフ生成元になった Rule
     readonly input: RuleStroke,
     readonly previous: StrokeNode,
     readonly next: StrokeNode
@@ -33,7 +31,6 @@ export class StrokeEdge {
 }
 
 export function buildStrokeNode(
-  rule: Rule,
   endKanaNode: KanaNode
 ): StrokeNode {
   // KanaNode の index に対応する StrokeNode
@@ -72,7 +69,6 @@ export function buildStrokeNode(
                 ? nextKanaStrokeNode
                 : new StrokeNode(edgeInputs[index + 1].kanaIndex, [], []);
             const strokeEdge = new StrokeEdge(
-              rule,
               input.input,
               previousStrokeNode,
               nextStrokeNode

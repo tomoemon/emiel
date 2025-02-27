@@ -1,5 +1,5 @@
+import { InputEvent, InputStroke, KeyEventType } from "../core/inputEvent";
 import { KeyboardState } from "../core/keyboardState";
-import { InputEvent, InputStroke, KeyEventType } from "../core/ruleStroke";
 import { VirtualKey, VirtualKeys } from "../core/virtualKey";
 
 /**

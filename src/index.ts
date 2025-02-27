@@ -2,6 +2,7 @@ export { Automaton } from "./core/automaton";
 export {
   StrokeEdge, StrokeNode
 } from "./core/builderStrokeGraph";
+export { InputEvent, InputStroke } from "./core/inputEvent";
 export { KeyboardLayout } from "./core/keyboardLayout";
 export {
   KeyboardState,
@@ -13,7 +14,7 @@ export {
 } from "./core/modifier";
 export { Rule, RuleEntry } from "./core/rule";
 export {
-  InputEvent, InputStroke, RuleStroke
+  RuleStroke
 } from "./core/ruleStroke";
 export { Selector, type Inputtable } from "./core/selector";
 export { VirtualKey, VirtualKeys } from "./core/virtualKey";

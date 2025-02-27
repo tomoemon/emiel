@@ -1,5 +1,4 @@
 import { Rule, RuleEntry } from "./rule";
-import { validateRule } from "./ruleValidator";
 
 // entires と modifierGroups を結合した新しい Rule を返す
 export function mergeRule(
@@ -27,9 +26,7 @@ export function mergeRule(
   const newRule = new Rule(
     thisRule.name,
     [...thisRule.entries, ...toBeAddedEntries],
-    thisRule.modifierGroup.merge(other.modifierGroup),
     (v: string) => other.normalize(thisRule.normalize(v))
   );
-  validateRule(newRule);
   return newRule;
 }
