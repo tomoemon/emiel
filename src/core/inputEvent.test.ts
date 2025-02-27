@@ -1,9 +1,10 @@
 import { expect, test } from "vitest";
 import { StrokeEdge, StrokeNode } from "./builderStrokeGraph";
+import { InputEvent, InputStroke, matchCandidateEdge } from "./inputEvent";
 import { KeyboardState } from "./keyboardState";
 import { AndModifier } from "./modifier";
 import { Rule } from "./rule";
-import { InputEvent, InputStroke, RuleStroke } from "./ruleStroke";
+import { RuleStroke } from "./ruleStroke";
 import { VirtualKeys } from "./virtualKey";
 
 test("シンプルな入力で matched", () => {
@@ -13,14 +14,14 @@ test("シンプルな入力で matched", () => {
 
   const dummyNode1 = new StrokeNode(0, [], []);
   const dummyNode2 = new StrokeNode(0, [], []);
+  const rule = new Rule("dummy-rule", [], (v) => v);
   const edge = new StrokeEdge(
-    new Rule("dummy-rule", [], (v) => v),
     new RuleStroke(VirtualKeys.A, AndModifier.empty),
     dummyNode1,
     dummyNode2
   );
 
-  expect(ev.match(edge)).toEqual(["matched", 1]);
+  expect(matchCandidateEdge(ev, edge)).toEqual({ type: "matched", keyCount: 1 });
 });
 
 test("シンプルな入力で failed", () => {
@@ -30,14 +31,13 @@ test("シンプルな入力で failed", () => {
 
   const dummyNode1 = new StrokeNode(0, [], []);
   const dummyNode2 = new StrokeNode(0, [], []);
+  const rule = new Rule("dummy-rule", [], (v) => v);
   const edge = new StrokeEdge(
-    new Rule("dummy-rule", [], (v) => v),
     new RuleStroke(VirtualKeys.A, AndModifier.empty),
     dummyNode1,
     dummyNode2
   );
-
-  expect(ev.match(edge)).toEqual(["failed", 0]);
+  expect(matchCandidateEdge(ev, edge)).toEqual({ type: "failed", keyCount: 0 });
 });
 
 test("シフトキー単打で failed", () => {
@@ -47,17 +47,13 @@ test("シフトキー単打で failed", () => {
 
   const dummyNode1 = new StrokeNode(0, [], []);
   const dummyNode2 = new StrokeNode(0, [], []);
+  const rule = new Rule("dummy-rule", [], (v) => v);
   const edge = new StrokeEdge(
-    new Rule(
-      "dummy-rule",
-      [],
-      (v) => v
-    ),
     new RuleStroke(VirtualKeys.A, AndModifier.empty),
     dummyNode1,
     dummyNode2
   );
 
   // 配列のすべての要素が一致するかどうかを比較する
-  expect(ev.match(edge)).toEqual(["failed", 0]);
+  expect(matchCandidateEdge(ev, edge)).toEqual({ type: "failed", keyCount: 0 });
 });

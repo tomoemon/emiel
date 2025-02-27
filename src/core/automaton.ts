@@ -1,5 +1,7 @@
 import { StrokeEdge, StrokeNode } from "./builderStrokeGraph";
-import { InputEvent, RuleStroke } from "./ruleStroke";
+import { InputEvent, matchCandidateEdge, matchOtherEdge } from "./inputEvent";
+import { Rule } from "./rule";
+import { RuleStroke } from "./ruleStroke";
 
 export class InputResult {
   constructor(
@@ -69,8 +71,9 @@ export class Automaton {
   /**
    * @param word かな文字列（配列定義 Rule で使用可能な文字で構成される文字列）
    * @param startNode 打鍵を受け付ける開始ノード
+   * @param rule このAutomatonを生成した入力ルール
    */
-  constructor(readonly word: string, readonly startNode: StrokeNode) {
+  constructor(readonly word: string, readonly startNode: StrokeNode, readonly rule: Rule) {
     this._currentNode = startNode;
   }
   private _currentNode: StrokeNode;
@@ -247,23 +250,23 @@ export class Automaton {
     }
 
     const matchResults = this._currentNode.nextEdges.map((edge) => {
-      const result = stroke.match(edge); return { edge, result }
+      const result = matchCandidateEdge(stroke, edge); return { edge, result }
     });
     const acceptedEdges = matchResults
-      .filter((match) => match.result[0] === "matched")
-      .map(({ edge, result }) => ({ edge: edge, matchedCount: result[1] }));
+      .filter((match) => match.result.type === "matched")
+      .map(({ edge, result }) => ({ edge: edge, keyCount: result.keyCount }));
     const modifiedEdges = matchResults
-      .filter((match) => match.result[0] === "modified")
+      .filter((match) => match.result.type === "modified")
       .map((match) => match.edge);
-    const otherMatched = stroke.matchOther(this._currentNode.nextEdges);
+    const otherMatched = matchOtherEdge(stroke, this.rule, this._currentNode.nextEdges);
     console.log("accepted", acceptedEdges);
     console.log("modified", modifiedEdges);
     console.log("other", otherMatched);
 
     if (acceptedEdges.length > 0) {
       if (modifiedEdges.length > 0) {
-        if (otherMatched[0] === "matched") {
-          if (otherMatched[1] >= acceptedEdges[0].matchedCount) {
+        if (otherMatched.type === "matched") {
+          if (otherMatched.keyCount >= acceptedEdges[0].keyCount) {
             return [InputResult.FAILED, () => {
               this.applyState(stroke, InputResult.FAILED, undefined);
             }]
@@ -272,7 +275,7 @@ export class Automaton {
               this.stagedEdge = acceptedEdges[0].edge;
             }];
           }
-        } else if (otherMatched[0] === "modified") {
+        } else if (otherMatched.type === "modified") {
           return [InputResult.STAGED, () => {
             this.stagedEdge = acceptedEdges[0].edge;
           }];
@@ -282,8 +285,8 @@ export class Automaton {
           }];
         }
       } else {
-        if (otherMatched[0] === "matched") {
-          if (otherMatched[1] >= acceptedEdges[0].matchedCount) {
+        if (otherMatched.type === "matched") {
+          if (otherMatched.keyCount >= acceptedEdges[0].keyCount) {
             return [InputResult.FAILED, () => {
               this.applyState(stroke, InputResult.FAILED, undefined);
             }]
@@ -292,7 +295,7 @@ export class Automaton {
               this.stagedEdge = acceptedEdges[0].edge;
             }];
           }
-        } else if (otherMatched[0] === "modified") {
+        } else if (otherMatched.type === "modified") {
           return [InputResult.STAGED, () => {
             this.stagedEdge = acceptedEdges[0].edge;
           }];
@@ -309,21 +312,21 @@ export class Automaton {
       }
     } else {
       if (modifiedEdges.length > 0) {
-        if (otherMatched[0] === "matched") {
+        if (otherMatched.type === "matched") {
           return [InputResult.STAGED, () => {
             this.stagedEdge = stroke;
           }]
-        } else if (otherMatched[0] === "modified") {
+        } else if (otherMatched.type === "modified") {
           return [InputResult.IGNORED, () => { }];
         } else {
           return [InputResult.IGNORED, () => { }];
         }
       } else {
-        if (otherMatched[0] === "matched") {
+        if (otherMatched.type === "matched") {
           return [InputResult.FAILED, () => {
             this.applyState(stroke, InputResult.FAILED, undefined);
           }]
-        } else if (otherMatched[0] === "modified") {
+        } else if (otherMatched.type === "modified") {
           return [InputResult.IGNORED, () => { }];
         } else {
           return [InputResult.IGNORED, () => { }];
