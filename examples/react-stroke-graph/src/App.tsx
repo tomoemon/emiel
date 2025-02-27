@@ -1,6 +1,6 @@
 import cytoscape from "cytoscape";
 import dagre from "cytoscape-dagre";
-import { Automaton, detectKeyboardLayout, KeyboardLayout, loadPresetRuleNaginatashikiV15 } from "emiel";
+import { Automaton, detectKeyboardLayout, KeyboardLayout, loadPresetRuleJisKana, loadPresetRuleNaginatashikiV15, loadPresetRuleNicola, loadPresetRuleRoman } from "emiel";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import "./App.css";
 import { TypingGraph } from "./typingGraph";
@@ -18,10 +18,10 @@ function App() {
 
 function Typing(props: { layout: KeyboardLayout }) {
   const rules = useMemo(() => [
+    { name: "ローマ字", rule: loadPresetRuleRoman(props.layout) },
+    { name: "JISかな", rule: loadPresetRuleJisKana(props.layout) },
+    { name: "NICOLA", rule: loadPresetRuleNicola(props.layout) },
     { name: "薙刀式", rule: loadPresetRuleNaginatashikiV15(props.layout) },
-    // { name: "ローマ字", rule: loadPresetRuleRoman(props.layout) },
-    // { name: "JISかな", rule: loadPresetRuleJisKana(props.layout) },
-    // { name: "NICOLA", rule: loadPresetRuleNicola(props.layout) },
   ], [props.layout]);
   const [automaton, setAutomaton] = useState<Automaton | undefined>(
     undefined
