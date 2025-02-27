@@ -52,13 +52,13 @@ function strokeToString(stroke: emiel.StrokeEdge): string {
             v === emiel.VirtualKeys.ShiftLeft ||
             v === emiel.VirtualKeys.ShiftRight
           ) {
-            return "Sft";
+            return "⇧";
           }
           return keyToString(v);
         })
     )
-  ).join(",");
-  return keyToString(key) + (modStr.length > 0 ? `/${modStr}` : "");
+  ).join("|");
+  return (modStr.length > 0 ? `${modStr}|` : "") + keyToString(key);
 }
 
 function keyToString(key: emiel.VirtualKey): string {

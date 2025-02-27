@@ -1,9 +1,9 @@
+import cytoscape from "cytoscape";
+import dagre from "cytoscape-dagre";
+import * as emiel from "emiel";
 import { useEffect, useRef, useState } from "react";
 import { buildGraphData } from "./graphData";
-import dagre from "cytoscape-dagre";
-import cytoscape from "cytoscape";
 import { cyStylesheet } from "./grpahStyle";
-import * as emiel from "emiel";
 
 // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
 cytoscape.use(dagre);
@@ -33,6 +33,7 @@ export function TypingGraph(props: {
     return emiel.activate(window, (e) => {
       setLastInputKey(e.input);
       const result = automaton.input(e);
+      console.log(e.input.key.toString(), e.input.type, result);
       if (result.isFinished) {
         props.onFinished();
       } else if (result.isSucceeded) {

@@ -27,6 +27,7 @@ function Typing(props: { layout: KeyboardLayout }) {
     return activate(window, (e) => {
       setLastInputKey(e.input);
       const result = automatons[wordIndex].input(e);
+      console.log(e.input.key.toString(), e.input.type, result);
       if (result.isFinished) {
         automatons[wordIndex].reset();
         setWordIndex((current) => (current + 1) % words.length);
@@ -34,7 +35,6 @@ function Typing(props: { layout: KeyboardLayout }) {
     });
   }, [wordIndex, automatons]);
   const automaton = automatons[wordIndex];
-  console.log(automaton);
   return (
     <>
       <h1>

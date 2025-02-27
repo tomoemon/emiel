@@ -1,6 +1,6 @@
 import cytoscape from "cytoscape";
 import dagre from "cytoscape-dagre";
-import { Automaton, detectKeyboardLayout, KeyboardLayout, loadPresetRuleJisKana, loadPresetRuleNicola, loadPresetRuleRoman } from "emiel";
+import { Automaton, detectKeyboardLayout, KeyboardLayout, loadPresetRuleJisKana, loadPresetRuleNaginatashikiV15, loadPresetRuleNicola, loadPresetRuleRoman } from "emiel";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import "./App.css";
 import { TypingGraph } from "./typingGraph";
@@ -21,6 +21,7 @@ function Typing(props: { layout: KeyboardLayout }) {
     { name: "ローマ字", rule: loadPresetRuleRoman(props.layout) },
     { name: "JISかな", rule: loadPresetRuleJisKana(props.layout) },
     { name: "NICOLA", rule: loadPresetRuleNicola(props.layout) },
+    { name: "薙刀式", rule: loadPresetRuleNaginatashikiV15(props.layout) },
   ], [props.layout]);
   const [automaton, setAutomaton] = useState<Automaton | undefined>(
     undefined
@@ -29,7 +30,7 @@ function Typing(props: { layout: KeyboardLayout }) {
   const [wordIndex, setWordIndex] = useState(0);
   const [ruleIndex, setRuleIndex] = useState(0);
   const onFinished = useCallback(() => {
-    const words = ["おをひく", "こんとん", "がっこう", "aから@"];
+    const words = ["じょをひく", "しるため", "しょうがっこう"];
     const automaton = rules[ruleIndex].rule.build(words[wordIndex]);
     setAutomaton(automaton);
     setRuleName(rules[ruleIndex].name);

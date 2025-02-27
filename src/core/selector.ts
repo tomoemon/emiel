@@ -1,5 +1,5 @@
 import { InputResult } from "./automaton";
-import { InputEvent } from "./ruleStroke";
+import { InputEvent } from "./inputEvent";
 
 export interface Inputtable {
   input(stroke: InputEvent): InputResult;

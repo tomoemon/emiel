@@ -1,8 +1,8 @@
 import { Automaton } from "./automaton";
 import { build } from "./automatonBuilder";
-import { ModifierGroup } from "./modifier";
 import { extendCommonPrefixOverlappedEntriesDeeply } from "./ruleExtender";
 import { RuleStroke } from "./ruleStroke";
+import { VirtualKey } from "./virtualKey";
 
 export type normalizerFunc = (value: string) => string;
 
@@ -89,16 +89,49 @@ export class Rule {
    * 
    * @param name 入力ルールの名前
    * @param entries 入力ルールのエントリ
-   * @param modifierGroup この入力ルールで修飾キーとして使われるキーのグループ
    * @param normalize 入力ワードのかな文字を正規化する関数
    */
   constructor(
     readonly name: string,
     readonly entries: RuleEntry[],
-    readonly modifierGroup: ModifierGroup,
     readonly normalize: normalizerFunc,
   ) {
     this.entries = extendCommonPrefixOverlappedEntriesDeeply(entries);
+
+    // init mapEntriesByFirstInputKey
+    this.entries.forEach((entry) => {
+      const firstInputKey = entry.input[0].key;
+      const currentEntries = this.mapEntriesByFirstInputKey.get(firstInputKey);
+      if (!currentEntries) {
+        this.mapEntriesByFirstInputKey.set(firstInputKey, [entry]);
+      } else {
+        currentEntries.push(entry);
+      }
+    });
+    // init mapEntriesByFirstInputModifier
+    this.entries.forEach((entry) => {
+      entry.input[0].requiredModifier.groups.forEach((g) => {
+        g.modifiers.forEach((firstInputModifier) => {
+          const currentEntries = this.mapEntriesByFirstInputModifier.get(firstInputModifier);
+          if (!currentEntries) {
+            this.mapEntriesByFirstInputModifier.set(firstInputModifier, [entry]);
+          } else {
+            currentEntries.push(entry);
+          }
+        });
+      });
+    });
+  }
+
+  private mapEntriesByFirstInputKey: Map<VirtualKey, RuleEntry[]> = new Map();
+  private mapEntriesByFirstInputModifier: Map<VirtualKey, RuleEntry[]> = new Map();
+
+  entriesByKey(inputKey: VirtualKey): RuleEntry[] {
+    return this.mapEntriesByFirstInputKey.get(inputKey) ?? [];
+  }
+
+  entriesByModifier(modifierKey: VirtualKey): RuleEntry[] {
+    return this.mapEntriesByFirstInputModifier.get(modifierKey) ?? [];
   }
 
   build(kanaText: string): Automaton {
