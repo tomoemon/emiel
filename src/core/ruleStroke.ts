@@ -1,6 +1,6 @@
 import { StrokeEdge } from "./builderStrokeGraph";
 import { KeyboardStateReader } from "./keyboardState";
-import { AndModifier, ModifierGroup } from "./modifier";
+import { AndModifier } from "./modifier";
 import { VirtualKey } from "./virtualKey";
 
 export type KeyEventType = "keyup" | "keydown";
@@ -15,43 +15,50 @@ export class InputEvent {
     readonly keyboardState: KeyboardStateReader,
     readonly timestamp: Date
   ) { }
-  match(edge: StrokeEdge): "ignored" | "matched" | "modified" | "failed" {
+  match(edge: StrokeEdge): ["matched" | "modified" | "failed", number] {
     // 入力されたキーがマッチし、
     if (this.input.key === edge.input.key) {
-      // 必要な modifier がすべて押されていて、
+      // 必要な modifier がすべて押されていたら成功
       if (edge.input.requiredModifier.accept(this.keyboardState)) {
-        // 不要な modifier が1つも押されていないときに成功
-        if (!edge.input.unnecessaryModifiers.accept(this.keyboardState)) {
-          return "matched";
-        }
+        return ["matched", edge.input.requiredModifier.groups.length + 1];
       }
-      return "failed";
+      return ["failed", 0];
     }
-
-    // 今回の入力がいずれかの entry の最初の入力に match したもの
-    const otherEntries = edge.rule.entriesByKey(this.input.key).filter((entry) => {
-      return entry.input[0].requiredModifier.accept(this.keyboardState);
+    if (edge.input.requiredModifier.onlyModifierDowned(this.keyboardState)) {
+      return ["modified", 0];
+    }
+    return ["failed", 0];
+  }
+  matchOther(candidateEdges: StrokeEdge[]): ["matched" | "modified" | "ignored", number] {
+    if (candidateEdges.length === 0) {
+      return ["ignored", 0];
+    }
+    const rule = candidateEdges[0].rule;
+    // 今回の入力が Rule 内のいずれかの entry の最初の入力に match する
+    const otherMatched = rule.entriesByKey(this.input.key).filter((entry) => {
+      // いずれかの候補エッジと同じ input を持つ entry は除く
+      // 結果的に同じ input で異なる output を持つ entry も除かれる
+      // 例えば [t: か] という候補エッジがあるとき、[t: t] という entry は除かれる
+      return (!candidateEdges.some((edge) => {
+        return edge.input.equals(entry.input[0]);
+      }) && entry.input[0].requiredModifier.accept(this.keyboardState));
     });
-
-    // このStrokeEdgeで必要とされる modifier のみが押されている場合
-    // 例えば同時押し系配列の場合、
-    // [t]:た
-    // [t | 無変換]:ち
-    // というルールがある場合、
-    // [t]:た
-    // [t + modifier(無変換)]:ち
-    // [無変換 + modifier(t)]: ち
-    // として扱われる。このとき、「ち」を打つべきタイミングで、t を単独で押した場合、
-    // [無変換 + modifiere(t)] で必要とする modifier が単独で押されていることになる。
-    if (otherEntries.length > 0) {
-      if (edge.input.requiredModifier.onlyModifierDowned(this.keyboardState) && otherEntries.length > 0) {
-        return "modified";
-      }
-      // いずれかの entry の最初の入力に match した場合はミス入力として扱う
-      return "failed";
-    } else {
-      return "ignored";
+    // マッチしたもののうちもっとも modifier が多い entry の modifier の数を返す
+    if (otherMatched.length > 0) {
+      const matchedCount = Math.max(...otherMatched.map((e) => e.input[0].requiredModifier.groups.length)) + 1;
+      return ["matched", matchedCount];
     }
+    // 今回の入力が Rule 内のいずれかの entry の最初の入力の modifier に match する
+    const existsModifiedEntries = rule.entriesByModifier(this.input.key).some((entry) => {
+      // 候補エッジは除く
+      return !candidateEdges.some((edge) => {
+        return edge.input.equals(entry.input[0]);
+      });
+    });
+    if (existsModifiedEntries) {
+      return ["modified", 0];
+    }
+    return ["ignored", 0];
   }
 }
 
@@ -60,20 +67,17 @@ export class RuleStroke {
    * 
    * @param key 入力が必要なキー
    * @param requiredModifier key を押下する前に事前に押下しておく必要がある修飾キー
-   * @param unnecessaryModifiers 事前に押下してはいけない修飾キー
    * @param romanChar ローマ字入力系（mozcRule）のルールで作られたRuleStrokeの場合、ローマ字を表す文字を持つ
    */
   constructor(
     readonly key: VirtualKey,
     readonly requiredModifier: AndModifier,
-    readonly unnecessaryModifiers: ModifierGroup,
     readonly romanChar: string = ""
   ) { }
   equals(other: RuleStroke): boolean {
     return (
       this.key === other.key &&
-      this.requiredModifier.equals(other.requiredModifier) &&
-      this.unnecessaryModifiers.equals(other.unnecessaryModifiers)
+      this.requiredModifier.equals(other.requiredModifier)
     );
   }
 }

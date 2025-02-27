@@ -60,7 +60,7 @@ function extendCommonPrefixOverlappedEntries(
     return strokes
       .map(
         (stroke) =>
-          `${stroke.key.toString()}/${stroke.requiredModifier.toString()}/${stroke.unnecessaryModifiers.toString()}`
+          `${stroke.key.toString()}/${stroke.requiredModifier.toString()}`
       )
       .join("-");
   };

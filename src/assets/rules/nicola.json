@@ -1,6 +1,5 @@
 {
   "extendCommonPrefixEntry": false,
-  "modifiers": ["LangLeft", "LangRight", "ShiftLeft", "ShiftRight"],
   "entries": [
     {
       "input": [{ "keys": ["Q"] }],

@@ -193,6 +193,36 @@ export class Automaton {
     InputResult,
     () => void
   ] {
+    // edge1 は現在遷移可能な候補エッジの1つ、edge2 は他の候補エッジ、other edge は Rule 内の他のエントリのエッジ
+    // "edge1", "edge2", "other edge" それぞれについて matched, none, modified の組み合わせがありえる
+    // 
+    // edge1 matched, edge2 none, other edge none: succeeded
+    // edge1 matched, edge2 none, other edge matched: max(edge1,other) score の大きい方を採用
+    // edge1 matched, edge2 none, other edge modified: edge1 staged -> keyup で確定
+    // edge1 matched, edge2 matched, other edge none: MUST NOT EXISTS (conflicted)
+    // edge1 matched, edge2 matched, other edge matched: MUST NOT EXISTS (conflicted)
+    // edge1 matched, edge2 matched, other edge modified: MUST NOT EXISTS (conflicted)
+    // edge1 matched, edge2 modified, other edge none: edge1 staged -> keyup で確定
+    // edge1 matched, edge2 modified, other edge matched: MUST NOT EXISTS (conflicted)
+    // edge1 matched, edge2 modified, other edge modified: edge1 staged -> keyup で確定
+    // edge1 modified, edge2 none, other edge none: ignored
+    // edge1 modified, edge2 none, other edge matched: other edge staged -> keyup で確定
+    // edge1 modified, edge2 none, other edge modified: ignored
+    // edge1 modified, edge2 matched, other edge none: edge1と2 入れ替えたら同上
+    // edge1 modified, edge2 matched, other edge matched: edge1と2 入れ替えたら同上
+    // edge1 modified, edge2 matched, other edge modified: edge1と2 入れ替えたら同上
+    // edge1 modified, edge2 modified, other edge none: ignored
+    // edge1 modified, edge2 modified, other edge matched: other edge staged -> keyup で確定
+    // edge1 modified, edge2 modified, other edge modified: ignored
+    // edge1 none, edge2 none, other edge none: ignored
+    // edge1 none, edge2 none, other edge modified: ignored
+    // edge1 none, edge2 none, other edge matched: failed
+    // edge1 none, edge2 matched, other edge none: edge1と2 入れ替えたら同上
+    // edge1 none, edge2 matched, other edge modified: edge1と2 入れ替えたら同上
+    // edge1 none, edge2 matched, other edge matched: edge1と2 入れ替えたら同上
+    // edge1 none, edge2 modified, other edge none: edge1と2 入れ替えたら同上
+    // edge1 none, edge2 modified, other edge modified: edge1と2 入れ替えたら同上
+    // edge1 none, edge2 modified, other edge matched: edge1と2 入れ替えたら同上
     if (stroke.input.type === "keyup") {
       // 仮確定状態があるときに keyup が発生したら、それを確定させる
       if (this.stagedEdge) {
@@ -215,54 +245,93 @@ export class Automaton {
       }
       return [InputResult.IGNORED, () => { }];
     }
-    const matchResult = this._currentNode.nextEdges.map((edge) => {
+
+    const matchResults = this._currentNode.nextEdges.map((edge) => {
       const result = stroke.match(edge); return { edge, result }
     });
-    const acceptedEdges = matchResult
-      .filter((match) => match.result === "matched")
+    const acceptedEdges = matchResults
+      .filter((match) => match.result[0] === "matched")
+      .map(({ edge, result }) => ({ edge: edge, matchedCount: result[1] }));
+    const modifiedEdges = matchResults
+      .filter((match) => match.result[0] === "modified")
       .map((match) => match.edge);
-    const modifiedEdges = matchResult
-      .filter((match) => match.result === "modified")
-      .map((match) => match.edge);
-    // modifiedEdges が1個以上ある場合は、仮確定状態にする
-    // このとき、acceptedEdges が1個以上ある場合は、それを仮確定状態にする
-    // acceptedEdges が0個の場合は、単発キーを仮確定状態にする
-    console.log("modifiedEdges", modifiedEdges);
-    console.log("acceptedEdges", acceptedEdges);
-    if (modifiedEdges.length > 0) {
-      if (acceptedEdges.length > 0) {
-        return [InputResult.STAGED, () => {
-          this.stagedEdge = acceptedEdges[0];
-        }];
-      }
-      return [InputResult.STAGED, () => {
-        this.stagedEdge = stroke;
-      }];
-    }
+    const otherMatched = stroke.matchOther(this._currentNode.nextEdges);
+    console.log("accepted", acceptedEdges);
+    console.log("modified", modifiedEdges);
+    console.log("other", otherMatched);
 
     if (acceptedEdges.length > 0) {
-      const acceptedEdge = acceptedEdges[0];
-      const resultType = this.edgeToResultType(this._currentNode.kanaIndex, acceptedEdge);
-      return [
-        resultType,
-        () => {
-          this.applyState(stroke, resultType, acceptedEdge);
+      if (modifiedEdges.length > 0) {
+        if (otherMatched[0] === "matched") {
+          if (otherMatched[1] >= acceptedEdges[0].matchedCount) {
+            return [InputResult.FAILED, () => {
+              this.applyState(stroke, InputResult.FAILED, undefined);
+            }]
+          } else {
+            return [InputResult.STAGED, () => {
+              this.stagedEdge = acceptedEdges[0].edge;
+            }];
+          }
+        } else if (otherMatched[0] === "modified") {
+          return [InputResult.STAGED, () => {
+            this.stagedEdge = acceptedEdges[0].edge;
+          }];
+        } else {
+          return [InputResult.STAGED, () => {
+            this.stagedEdge = acceptedEdges[0].edge;
+          }];
         }
-      ];
-    }
-    // ローマ字入力における Shift キーの単独押下などの場合は無視する
-    const ignoredEdges = this._currentNode.nextEdges.filter(
-      (edge) => stroke.match(edge) === "ignored"
-    );
-    if (ignoredEdges.length > 0) {
-      return [InputResult.IGNORED, () => { }];
-    }
-    return [
-      InputResult.FAILED, () => {
-        this.applyState(stroke, InputResult.FAILED, undefined);
+      } else {
+        if (otherMatched[0] === "matched") {
+          if (otherMatched[1] >= acceptedEdges[0].matchedCount) {
+            return [InputResult.FAILED, () => {
+              this.applyState(stroke, InputResult.FAILED, undefined);
+            }]
+          } else {
+            return [InputResult.STAGED, () => {
+              this.stagedEdge = acceptedEdges[0].edge;
+            }];
+          }
+        } else if (otherMatched[0] === "modified") {
+          return [InputResult.STAGED, () => {
+            this.stagedEdge = acceptedEdges[0].edge;
+          }];
+        } else {
+          const acceptedEdge = acceptedEdges[0];
+          const resultType = this.edgeToResultType(this._currentNode.kanaIndex, acceptedEdge.edge);
+          return [
+            resultType,
+            () => {
+              this.applyState(stroke, resultType, acceptedEdge.edge);
+            }
+          ];
+        }
       }
-    ];
+    } else {
+      if (modifiedEdges.length > 0) {
+        if (otherMatched[0] === "matched") {
+          return [InputResult.STAGED, () => {
+            this.stagedEdge = stroke;
+          }]
+        } else if (otherMatched[0] === "modified") {
+          return [InputResult.IGNORED, () => { }];
+        } else {
+          return [InputResult.IGNORED, () => { }];
+        }
+      } else {
+        if (otherMatched[0] === "matched") {
+          return [InputResult.FAILED, () => {
+            this.applyState(stroke, InputResult.FAILED, undefined);
+          }]
+        } else if (otherMatched[0] === "modified") {
+          return [InputResult.IGNORED, () => { }];
+        } else {
+          return [InputResult.IGNORED, () => { }];
+        }
+      }
+    }
   }
+
   /**
    * キー入力して状態遷移し、入力が成功したかどうかを返す
    */

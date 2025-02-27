@@ -1,7 +1,7 @@
+import { KeyboardLayout } from "../core/keyboardLayout";
 import { AndModifier, ModifierGroup } from "../core/modifier";
 import { RuleStroke } from "../core/ruleStroke";
 import { VirtualKey, VirtualKeys } from "../core/virtualKey";
-import { KeyboardLayout } from "../core/keyboardLayout";
 
 type jsonSchema = {
   name: string;
@@ -21,7 +21,6 @@ export function loadJsonKeyboardLayout(
       new RuleStroke(
         VirtualKey.getFromString(v.input.key),
         v.input.shift ? shiftModifier : AndModifier.empty,
-        v.input.shift ? ModifierGroup.empty : shiftModifier.groups[0],
         v.output
       ),
     ]
@@ -29,7 +28,6 @@ export function loadJsonKeyboardLayout(
   return new KeyboardLayout(
     jsonLayout.name,
     strokes,
-    shiftModifier.groups[0],
     shiftModifier.groups[0].modifiers
   );
 }

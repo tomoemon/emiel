@@ -11,7 +11,6 @@ export function newAlphaNumericRuleByLayout(
   return new Rule(
     "alpha-numeric",
     entries,
-    layout.modifierGroup,
     defaultAlphaNumericNormalize
   );
 }

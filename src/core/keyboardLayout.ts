@@ -11,13 +11,11 @@ export class KeyboardLayout {
    * 
    * @param name キーボードレイアウトの名前
    * @param mapping [output, stroke] の配列。例：["A", RuleStroke(VirtualKeys.A, shift, [])]
-   * @param modifierGroup 
    * @param shiftKeys 
    */
   constructor(
     readonly name: string,
     readonly mapping: [string, RuleStroke][],
-    readonly modifierGroup: ModifierGroup,
     readonly shiftKeys: VirtualKey[]
   ) {
     this.strokesByChar = new Map();
@@ -50,7 +48,6 @@ export class KeyboardLayout {
       shifted
         ? new AndModifier(new ModifierGroup(this.shiftKeys))
         : new AndModifier(),
-      new ModifierGroup([])
     );
     return this.getCharByStroke(stroke);
   }

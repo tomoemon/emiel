@@ -1,9 +1,9 @@
 import { expect, test } from "vitest";
-import { Rule } from "./rule";
-import { AndModifier, ModifierGroup } from "./modifier";
-import { InputEvent, InputStroke, RuleStroke } from "./ruleStroke";
-import { KeyboardState } from "./keyboardState";
 import { StrokeEdge, StrokeNode } from "./builderStrokeGraph";
+import { KeyboardState } from "./keyboardState";
+import { AndModifier } from "./modifier";
+import { Rule } from "./rule";
+import { InputEvent, InputStroke, RuleStroke } from "./ruleStroke";
 import { VirtualKeys } from "./virtualKey";
 
 test("シンプルな入力で matched", () => {
@@ -14,13 +14,13 @@ test("シンプルな入力で matched", () => {
   const dummyNode1 = new StrokeNode(0, [], []);
   const dummyNode2 = new StrokeNode(0, [], []);
   const edge = new StrokeEdge(
-    new Rule("dummy-rule", [], ModifierGroup.empty, (v) => v),
-    new RuleStroke(VirtualKeys.A, AndModifier.empty, ModifierGroup.empty),
+    new Rule("dummy-rule", [], (v) => v),
+    new RuleStroke(VirtualKeys.A, AndModifier.empty),
     dummyNode1,
     dummyNode2
   );
 
-  expect(ev.match(edge)).toBe("matched");
+  expect(ev.match(edge)).toEqual(["matched", 1]);
 });
 
 test("シンプルな入力で failed", () => {
@@ -31,16 +31,16 @@ test("シンプルな入力で failed", () => {
   const dummyNode1 = new StrokeNode(0, [], []);
   const dummyNode2 = new StrokeNode(0, [], []);
   const edge = new StrokeEdge(
-    new Rule("dummy-rule", [], ModifierGroup.empty, (v) => v),
-    new RuleStroke(VirtualKeys.A, AndModifier.empty, ModifierGroup.empty),
+    new Rule("dummy-rule", [], (v) => v),
+    new RuleStroke(VirtualKeys.A, AndModifier.empty),
     dummyNode1,
     dummyNode2
   );
 
-  expect(ev.match(edge)).toBe("failed");
+  expect(ev.match(edge)).toEqual(["failed", 0]);
 });
 
-test("シフトキー単打で ignored", () => {
+test("シフトキー単打で failed", () => {
   const is = new InputStroke(VirtualKeys.ShiftLeft, "keydown");
   const st = new KeyboardState([VirtualKeys.ShiftLeft]);
   const ev = new InputEvent(is, st, new Date());
@@ -51,13 +51,13 @@ test("シフトキー単打で ignored", () => {
     new Rule(
       "dummy-rule",
       [],
-      new ModifierGroup([VirtualKeys.ShiftLeft]),
       (v) => v
     ),
-    new RuleStroke(VirtualKeys.A, AndModifier.empty, ModifierGroup.empty),
+    new RuleStroke(VirtualKeys.A, AndModifier.empty),
     dummyNode1,
     dummyNode2
   );
 
-  expect(ev.match(edge)).toBe("ignored");
+  // 配列のすべての要素が一致するかどうかを比較する
+  expect(ev.match(edge)).toEqual(["failed", 0]);
 });

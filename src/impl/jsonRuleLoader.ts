@@ -32,7 +32,6 @@ type entry = {
 };
 type jsonSchema = {
   extendCommonPrefixEntry: boolean;
-  modifiers: string[];
   entries: entry[];
 };
 
@@ -46,7 +45,6 @@ function loadModifiers(
 
 function loadStroke(
   jsonStroke: stroke,
-  ruleModifierGroup: ModifierGroup,
 ): RuleStroke[] {
   const keys: VirtualKey[] = jsonStroke.keys.map((key) => VirtualKey.getFromString(key));
   if (keys.length === 0) {
@@ -55,21 +53,15 @@ function loadStroke(
   const modifierGroups: ModifierGroup[] = jsonStroke.modifiers?.map((modifierKeys) => {
     return loadModifiers(modifierKeys)
   }) || [];
-  const necessaryModifierKeys = modifierGroups.flatMap((v) => v.modifiers);
   return keys.map((key) => {
     // 同時押しの場合は、他のキーをモディファイアとして扱う
     // keys: [A,B] の場合、key=A のとき、A+mod(B)
     const multipleStrokeModifier = keys
       .filter((v) => v !== key)
       .map((v) => new ModifierGroup([v]));
-    // この Entry で必要な修飾キー以外の修飾キーは不要な（押してはいけない）修飾キーとして扱う
-    const unnecesaryModifiers = ruleModifierGroup.modifiers.filter(
-      (v) => !necessaryModifierKeys.includes(v) && !keys.includes(v)
-    );
     return new RuleStroke(
       key,
       new AndModifier(...modifierGroups, ...multipleStrokeModifier),
-      new ModifierGroup(unnecesaryModifiers),
     );
   });
 }
@@ -104,7 +96,6 @@ function loadStroke(
  */
 function loadInput(
   input: stroke[],
-  ruleModifierGroup: ModifierGroup,
 ): RuleStroke[][] {
   /**
    * aとbの同時打鍵の後に、cとdの同時打鍵が必要な場合
@@ -112,7 +103,7 @@ function loadInput(
    * strokeGroups: [[a+mod(b),b+mod(a)], [c+mod(d),d+mod(c)]]
    */
   const strokeGroups = input.map((v) =>
-    loadStroke(v, ruleModifierGroup)
+    loadStroke(v)
   );
   // strokeGroups の直積を作って返す
   return Array.from(product(strokeGroups));
@@ -121,17 +112,16 @@ function loadInput(
 function loadEntries(
   jsonEntries: entry[],
   jsonExtendablePrefixCommon: boolean,
-  ruleModifierGroup: ModifierGroup,
 ): RuleEntry[] {
   const entries: RuleEntry[] = [];
   jsonEntries.forEach((v) => {
     if (!v.input || !v.output || !v.nextInput) {
       return;
     }
-    const inputExtended = loadInput(v.input, ruleModifierGroup);
+    const inputExtended = loadInput(v.input);
     const output = v.output;
     // 次の入力として使用するものは具体化されたもの1つだけなので、配列の先頭を取得する
-    const nextInput = loadInput(v.nextInput, ruleModifierGroup)[0];
+    const nextInput = loadInput(v.nextInput)[0];
     inputExtended.forEach((input) => {
       entries.push(
         new RuleEntry(
@@ -157,19 +147,13 @@ export function loadJsonRule(
     return loadJsonRule(name, schema);
   }
   console.log("jsonRule is jsonSchema", name);
-  console.log("jsonRule.modifiers", JSON.stringify(jsonRule.modifiers));
-  const modifierGroup = loadModifiers(
-    jsonRule.modifiers,
-  );
   const entries = loadEntries(
     jsonRule.entries,
     jsonRule.extendCommonPrefixEntry,
-    modifierGroup,
   );
   return new Rule(
     name,
     entries,
-    modifierGroup,
     defaultKanaNormalize
   );
 }
