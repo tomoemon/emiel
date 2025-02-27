@@ -259,9 +259,6 @@ export class Automaton {
       .filter((match) => match.result.type === "modified")
       .map((match) => match.edge);
     const otherMatched = matchOtherEdge(stroke, this.rule, this._currentNode.nextEdges);
-    console.log("accepted", acceptedEdges);
-    console.log("modified", modifiedEdges);
-    console.log("other", otherMatched);
 
     if (acceptedEdges.length > 0) {
       if (modifiedEdges.length > 0) {
