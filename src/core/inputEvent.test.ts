@@ -24,7 +24,7 @@ test("シンプルな入力で matched", () => {
   expect(matchCandidateEdge(ev, edge)).toEqual({ type: "matched", keyCount: 1 });
 });
 
-test("シンプルな入力で failed", () => {
+test("シンプルな入力で none", () => {
   const is = new InputStroke(VirtualKeys.B, "keydown");
   const st = new KeyboardState([VirtualKeys.B]);
   const ev = new InputEvent(is, st, new Date());
@@ -37,10 +37,10 @@ test("シンプルな入力で failed", () => {
     dummyNode1,
     dummyNode2
   );
-  expect(matchCandidateEdge(ev, edge)).toEqual({ type: "failed", keyCount: 0 });
+  expect(matchCandidateEdge(ev, edge)).toEqual({ type: "none", keyCount: 0 });
 });
 
-test("シフトキー単打で failed", () => {
+test("シフトキー単打で none", () => {
   const is = new InputStroke(VirtualKeys.ShiftLeft, "keydown");
   const st = new KeyboardState([VirtualKeys.ShiftLeft]);
   const ev = new InputEvent(is, st, new Date());
@@ -55,5 +55,5 @@ test("シフトキー単打で failed", () => {
   );
 
   // 配列のすべての要素が一致するかどうかを比較する
-  expect(matchCandidateEdge(ev, edge)).toEqual({ type: "failed", keyCount: 0 });
+  expect(matchCandidateEdge(ev, edge)).toEqual({ type: "none", keyCount: 0 });
 });
