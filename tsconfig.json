@@ -23,7 +23,9 @@
     "noFallthroughCasesInSwitch": true
   },
   "include": ["src"],
-  /* ビルド時に test ファイルの型定義ファイルを作らない */
-  "exclude": ["**/*.test.ts"],
+  // 以下の指定でビルド時に test ファイルの型定義ファイルを作らないようになるが、
+  // exclude すると *.test.ts 内で txt ファイルをインポートすると linter がエラーを出すため、
+  // 一旦コメントアウトしている
+  // "exclude": ["**/*.test.ts"],
   "references": [{ "path": "./tsconfig.node.json" }]
 }

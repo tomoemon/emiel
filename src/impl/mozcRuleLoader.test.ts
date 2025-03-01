@@ -1,16 +1,15 @@
 import { expect, test } from "vitest";
 import { VirtualKeys } from "../core/virtualKey";
-import { loadPresetKeyboardLayoutQwertyJis } from "./defaultKeyboardLayout";
 import { loadMozcRule } from "./mozcRuleLoader";
+import { loadPresetKeyboardLayoutQwertyJis } from "./presetKeyboardLayout";
 
 test("load google ime empty rule", () => {
-  const rule = loadMozcRule("test-rule", ``, loadPresetKeyboardLayoutQwertyJis());
+  const rule = loadMozcRule(``, loadPresetKeyboardLayoutQwertyJis());
   expect(rule.entries.length).toBe(0);
 });
 
 test("load google ime single rule", () => {
   const rule = loadMozcRule(
-    "test-rule",
     `a	あ`,
     loadPresetKeyboardLayoutQwertyJis()
   );
@@ -23,7 +22,6 @@ test("load google ime single rule", () => {
 
 test("load google ime next rule", () => {
   const rule = loadMozcRule(
-    "test-rule",
     `tt	っ	t`,
     loadPresetKeyboardLayoutQwertyJis()
   );
@@ -39,7 +37,6 @@ test("load google ime next rule", () => {
 
 test("load google ime double rule", () => {
   const rule = loadMozcRule(
-    "test-rule",
     `a	あ
 i	い
 `,

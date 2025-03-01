@@ -9,8 +9,8 @@ export function newAlphaNumericRuleByLayout(
     ([key, stroke]) => new RuleEntry([stroke], key, [], false)
   );
   return new Rule(
-    "alpha-numeric",
     entries,
-    defaultAlphaNumericNormalize
+    defaultAlphaNumericNormalize,
+    "alphanumeric",
   );
 }

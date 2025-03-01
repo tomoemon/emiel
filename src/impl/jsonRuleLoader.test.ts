@@ -6,7 +6,7 @@ import { VirtualKeys } from "../core/virtualKey";
 import { loadJsonRule } from "./jsonRuleLoader";
 
 test("empty", () => {
-  const rule = loadJsonRule("rule", {
+  const rule = loadJsonRule({
     extendCommonPrefixEntry: true,
     entries: [],
   });
@@ -14,7 +14,7 @@ test("empty", () => {
 });
 
 test("simple 1 entry", () => {
-  const rule = loadJsonRule("rule", {
+  const rule = loadJsonRule({
     extendCommonPrefixEntry: false,
     entries: [
       {
@@ -48,7 +48,7 @@ test("simple 1 entry", () => {
 });
 
 test("simple 2 entries with modifier (unnecessary modifier)", () => {
-  const rule = loadJsonRule("rule", {
+  const rule = loadJsonRule({
     extendCommonPrefixEntry: false,
     entries: [
       {
@@ -123,7 +123,7 @@ test("simple 2 entries with modifier (unnecessary modifier)", () => {
 });
 
 test("multiple key 2 stroke, 1 entry, no modifier", () => {
-  const rule = loadJsonRule("rule", {
+  const rule = loadJsonRule({
     extendCommonPrefixEntry: false,
     entries: [
       {
@@ -169,7 +169,7 @@ test("multiple key 2 stroke, 1 entry, no modifier", () => {
 });
 
 test("multiple key 1 stroke, 1 entry, with modifier", () => {
-  const rule = loadJsonRule("rule", {
+  const rule = loadJsonRule({
     extendCommonPrefixEntry: false,
     entries: [
       {
@@ -260,7 +260,7 @@ test("multiple key 1 stroke, 1 entry, with modifier", () => {
 });
 
 test("multiple key 2 stroke, 1 entry, no modifier", () => {
-  const rule = loadJsonRule("rule", {
+  const rule = loadJsonRule({
     extendCommonPrefixEntry: false,
     entries: [
       {
@@ -312,7 +312,7 @@ test("multiple key 2 stroke, 1 entry, no modifier", () => {
 });
 
 test("multiple key 1 entry, with modifier", () => {
-  const rule = loadJsonRule("rule", {
+  const rule = loadJsonRule({
     extendCommonPrefixEntry: false,
     entries: [
       {

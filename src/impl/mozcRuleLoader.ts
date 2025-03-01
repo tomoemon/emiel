@@ -5,9 +5,9 @@ import { product } from "../utils/itertools";
 import { defaultKanaNormalize } from "./charNormalizer";
 
 export function loadMozcRule(
-  name: string,
   text: string,
-  layout: KeyboardLayout
+  layout: KeyboardLayout,
+  name: string = "",
 ): Rule {
   /*
     a	あ	
@@ -49,7 +49,7 @@ export function loadMozcRule(
       );
     });
   }
-  return new Rule(name, entries, defaultKanaNormalize);
+  return new Rule(entries, defaultKanaNormalize, name);
 }
 
 function toStrokesFromChar(

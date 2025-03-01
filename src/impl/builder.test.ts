@@ -1,12 +1,11 @@
 import { expect, test } from "vitest";
 import { VirtualKeys } from "..";
 import { buildKanaNode } from "../core/builderKanaGraph";
-import { loadPresetKeyboardLayoutQwertyJis } from "./defaultKeyboardLayout";
 import { loadMozcRule } from "./mozcRuleLoader";
+import { loadPresetKeyboardLayoutQwertyJis } from "./presetKeyboardLayout";
 
 test("build kana node", () => {
   const rule = loadMozcRule(
-    "test-rule",
     `
 a	あ
 i	い
@@ -35,7 +34,6 @@ ltu	っ
 
 test("erase invalid connection test", () => {
   const rule = loadMozcRule(
-    "test-rule",
     `
 a	あ
 x	あいう

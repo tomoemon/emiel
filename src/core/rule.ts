@@ -87,14 +87,14 @@ nk/ん/k
 export class Rule {
   /**
    * 
-   * @param name 入力ルールの名前
    * @param entries 入力ルールのエントリ
    * @param normalize 入力ワードのかな文字を正規化する関数
+   * @param name 入力ルールの名前
    */
   constructor(
-    readonly name: string,
     readonly entries: RuleEntry[],
     readonly normalize: normalizerFunc,
+    readonly name: string = "",
   ) {
     this.entries = extendCommonPrefixOverlappedEntriesDeeply(entries);
 

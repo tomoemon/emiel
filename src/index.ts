@@ -25,14 +25,14 @@ export { KeyboardGuide, type KeyRect, type KeyTop } from "./impl/keyboardGuide";
 
 export { detectKeyboardLayout } from "./browser/osKeyboardLayout";
 export * from "./impl/alphaNumericRule";
-export * from "./impl/defaultKeyboardLayout";
 export { loadJsonKeyboardLayout } from "./impl/keyboardLayoutLoader";
+export * from "./impl/presetKeyboardLayout";
 
 export { loadJsonRule } from "./impl/jsonRuleLoader";
 export { loadMozcRule } from "./impl/mozcRuleLoader";
 
-export * from "./impl/defaultKeyboardGuide";
-export * from "./impl/defaultRules";
 export type { PhysicalKeyboardLayoutName } from "./impl/keyboardGuide";
+export * from "./impl/presetKeyboardGuide";
+export * from "./impl/presetRules";
 export * from "./impl/stats";
 

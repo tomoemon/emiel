@@ -3,7 +3,7 @@ import { KeyboardLayout } from "../core/keyboardLayout";
 import {
   findMatchedKeyboardLayout,
   loadPresetKeyboardLayoutQwertyJis
-} from "../impl/defaultKeyboardLayout";
+} from "../impl/presetKeyboardLayout";
 
 export async function detectKeyboardLayout(
   window: any

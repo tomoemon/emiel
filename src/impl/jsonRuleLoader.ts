@@ -24,22 +24,23 @@ type stroke = {
 };
 type entry = {
   // コメントだけの行も許可するため、undefinedを許容する
-  input?: stroke[];
-  output?: string;
+  input: stroke[];
+  output: string;
   nextInput?: stroke[];
   extendCommonPrefixEntry?: boolean;
   comment?: string;
-};
-type jsonSchema = {
-  extendCommonPrefixEntry: boolean;
+} | { comment?: string; };
+
+export type jsonSchema = {
+  extendCommonPrefixEntry?: boolean;
   entries: entry[];
 };
 
 function loadModifiers(
-  jsonModifiers: string[],
+  modifiers: string[],
 ): ModifierGroup {
   return new ModifierGroup(
-    jsonModifiers.map((key) => VirtualKey.getFromString(key))
+    modifiers.map((key) => VirtualKey.getFromString(key))
   );
 }
 
@@ -115,13 +116,13 @@ function loadEntries(
 ): RuleEntry[] {
   const entries: RuleEntry[] = [];
   jsonEntries.forEach((v) => {
-    if (!v.input || !v.output || !v.nextInput) {
+    if (!("input" in v)) {
       return;
     }
     const inputExtended = loadInput(v.input);
     const output = v.output;
     // 次の入力として使用するものは具体化されたもの1つだけなので、配列の先頭を取得する
-    const nextInput = loadInput(v.nextInput)[0];
+    const nextInput = v.nextInput ? loadInput(v.nextInput)[0] : [];
     inputExtended.forEach((input) => {
       entries.push(
         new RuleEntry(
@@ -137,23 +138,20 @@ function loadEntries(
 }
 
 export function loadJsonRule(
-  name: string,
-  jsonRule: jsonSchema | string
+  jsonRule: jsonSchema | string,
+  name?: string,
 ): Rule {
   if (jsonRule instanceof String || typeof jsonRule === "string") {
-    console.log("jsonRule is string", name);
     const schema = JSON.parse(jsonRule as string) as jsonSchema;
-    console.log(schema);
-    return loadJsonRule(name, schema);
+    return loadJsonRule(schema, name);
   }
-  console.log("jsonRule is jsonSchema", name);
   const entries = loadEntries(
     jsonRule.entries,
-    jsonRule.extendCommonPrefixEntry,
+    jsonRule.extendCommonPrefixEntry ?? false,
   );
   return new Rule(
-    name,
     entries,
-    defaultKanaNormalize
+    defaultKanaNormalize,
+    name,
   );
 }

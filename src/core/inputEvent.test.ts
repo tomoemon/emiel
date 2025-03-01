@@ -3,7 +3,6 @@ import { StrokeEdge, StrokeNode } from "./builderStrokeGraph";
 import { InputEvent, InputStroke, matchCandidateEdge } from "./inputEvent";
 import { KeyboardState } from "./keyboardState";
 import { AndModifier } from "./modifier";
-import { Rule } from "./rule";
 import { RuleStroke } from "./ruleStroke";
 import { VirtualKeys } from "./virtualKey";
 
@@ -14,7 +13,6 @@ test("シンプルな入力で matched", () => {
 
   const dummyNode1 = new StrokeNode(0, [], []);
   const dummyNode2 = new StrokeNode(0, [], []);
-  const rule = new Rule("dummy-rule", [], (v) => v);
   const edge = new StrokeEdge(
     new RuleStroke(VirtualKeys.A, AndModifier.empty),
     dummyNode1,
@@ -31,7 +29,6 @@ test("シンプルな入力で none", () => {
 
   const dummyNode1 = new StrokeNode(0, [], []);
   const dummyNode2 = new StrokeNode(0, [], []);
-  const rule = new Rule("dummy-rule", [], (v) => v);
   const edge = new StrokeEdge(
     new RuleStroke(VirtualKeys.A, AndModifier.empty),
     dummyNode1,
@@ -47,7 +44,6 @@ test("シフトキー単打で none", () => {
 
   const dummyNode1 = new StrokeNode(0, [], []);
   const dummyNode2 = new StrokeNode(0, [], []);
-  const rule = new Rule("dummy-rule", [], (v) => v);
   const edge = new StrokeEdge(
     new RuleStroke(VirtualKeys.A, AndModifier.empty),
     dummyNode1,

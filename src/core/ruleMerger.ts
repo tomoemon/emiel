@@ -1,10 +1,24 @@
 import { Rule, RuleEntry } from "./rule";
 
-// entires と modifierGroups を結合した新しい Rule を返す
+// entries を結合した新しい Rule を返す
 export function mergeRule(
   thisRule: Rule,
-  other: Rule
+  other: Rule,
+  newName: string = "",
 ): Rule {
+  const newRule = new Rule(
+    mergeEntries(thisRule, other),
+    (v: string) => other.normalize(thisRule.normalize(v)),
+    newName,
+  );
+  return newRule;
+}
+
+
+export function mergeEntries(
+  thisRule: Rule,
+  other: Rule
+): RuleEntry[] {
   const thisEntryHashMap = new Map<string, RuleEntry[]>();
   thisRule.entries.forEach((entry) => {
     if (thisEntryHashMap.has(entry.output)) {
@@ -23,10 +37,5 @@ export function mergeRule(
       return true;
     }
   });
-  const newRule = new Rule(
-    thisRule.name,
-    [...thisRule.entries, ...toBeAddedEntries],
-    (v: string) => other.normalize(thisRule.normalize(v))
-  );
-  return newRule;
+  return [...thisRule.entries, ...toBeAddedEntries];
 }

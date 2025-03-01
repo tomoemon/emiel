@@ -6,7 +6,6 @@ import { RuleStroke } from "./ruleStroke";
 import { VirtualKeys } from "./virtualKey";
 
 const defaultRule = new Rule(
-  "test-rule",
   [
     new RuleEntry(
       [new RuleStroke(VirtualKeys.A, AndModifier.empty)],
