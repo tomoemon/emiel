@@ -71,4 +71,5 @@ Tests are written using Vitest and located alongside source files with `.test.ts
 
 When working with code in this repository, please ensure to:
 
+- YOU MUST: conversation in Japanese
 - YOU MUST: use `type` instead of `interface` for type definitions
