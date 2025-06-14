@@ -7,8 +7,8 @@ export class StrokeNode {
   constructor(
     readonly kanaIndex: number, // 今入力しようとしている KanaNode
     readonly previousEdges: StrokeEdge[],
-    readonly nextEdges: StrokeEdge[]
-  ) { }
+    readonly nextEdges: StrokeEdge[],
+  ) {}
   getCost(): number {
     return this.cost;
   }
@@ -26,13 +26,11 @@ export class StrokeEdge {
   constructor(
     readonly input: RuleStroke,
     readonly previous: StrokeNode,
-    readonly next: StrokeNode
-  ) { }
+    readonly next: StrokeNode,
+  ) {}
 }
 
-export function buildStrokeNode(
-  endKanaNode: KanaNode
-): StrokeNode {
+export function buildStrokeNode(endKanaNode: KanaNode): StrokeNode {
   // KanaNode の index に対応する StrokeNode
   const kanaStrokeNodeMap = new Map<number, StrokeNode>();
   let searchingKanaNodes = [endKanaNode];
@@ -45,12 +43,12 @@ export function buildStrokeNode(
         const nextKanaStrokeNode = setDefault(
           kanaStrokeNodeMap,
           kanaNode.startIndex,
-          new StrokeNode(kanaNode.startIndex, [], [])
+          new StrokeNode(kanaNode.startIndex, [], []),
         );
         const previousKanaStrokeNode = setDefault(
           kanaStrokeNodeMap,
           edge.previous.startIndex,
-          new StrokeNode(edge.previous.startIndex, [], [])
+          new StrokeNode(edge.previous.startIndex, [], []),
         );
         const edgeInputs = edge.inputs;
         // このエッジを経由して前のかなノードに到達した場合のコスト
@@ -58,8 +56,8 @@ export function buildStrokeNode(
         previousKanaStrokeNode.updateCostIfLessThan(lastCost);
         let previousStrokeNode = previousKanaStrokeNode;
         edgeInputs.forEach((input, index) => {
-          const reusableEdges = previousStrokeNode.nextEdges.filter(
-            (strokeEdge) => strokeEdge.input.equals(input.input)
+          const reusableEdges = previousStrokeNode.nextEdges.filter((strokeEdge) =>
+            strokeEdge.input.equals(input.input),
           );
           if (reusableEdges.length > 0) {
             previousStrokeNode = reusableEdges[0].next;
@@ -68,11 +66,7 @@ export function buildStrokeNode(
               index === edgeInputs.length - 1
                 ? nextKanaStrokeNode
                 : new StrokeNode(edgeInputs[index + 1].kanaIndex, [], []);
-            const strokeEdge = new StrokeEdge(
-              input.input,
-              previousStrokeNode,
-              nextStrokeNode
-            );
+            const strokeEdge = new StrokeEdge(input.input, previousStrokeNode, nextStrokeNode);
             previousStrokeNode.nextEdges.push(strokeEdge);
             nextStrokeNode.previousEdges.push(strokeEdge);
             previousStrokeNode = nextStrokeNode;

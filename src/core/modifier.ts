@@ -7,7 +7,7 @@ import { VirtualKey } from "./virtualKey";
  * 例：modifiers: [ShiftLeft, ShiftRight]
  */
 export class ModifierGroup {
-  constructor(readonly modifiers: VirtualKey[]) { }
+  constructor(readonly modifiers: VirtualKey[]) {}
   accept(state: KeyboardStateReader): boolean {
     return state.isAnyKeyDowned(...this.modifiers);
   }
@@ -19,7 +19,10 @@ export class ModifierGroup {
   }
   /** 重複を除外してマージし、新しい ModifierGroup を返す */
   merge(other: ModifierGroup): ModifierGroup {
-    return new ModifierGroup([...this.modifiers, ...other.modifiers.filter((v) => !this.modifiers.includes(v))]);
+    return new ModifierGroup([
+      ...this.modifiers,
+      ...other.modifiers.filter((v) => !this.modifiers.includes(v)),
+    ]);
   }
   has(key: VirtualKey): boolean {
     return this.modifiers.some((v) => v === key);
@@ -59,16 +62,18 @@ export class AndModifier {
   }
   /**
    * state で1つ以上のキーが押されている時、そのキーがすべて修飾キーであるかどうか
-   * @param state 
-   * @returns 
+   * @param state
+   * @returns
    */
   onlyModifierDowned(state: KeyboardStateReader): boolean {
-    return state.downedKeys.length > 0 &&
+    return (
+      state.downedKeys.length > 0 &&
       state.downedKeys.every((key) =>
         this.groups.some((v) => {
           return v.has(key);
-        })
-      );
+        }),
+      )
+    );
   }
   toString(): string {
     return `${this.groups.map((v) => v.toString()).join("&")}`;

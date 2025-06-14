@@ -6,7 +6,6 @@ import { KeyboardLayout } from "../core/keyboardLayout";
 import { Rule } from "../core/rule";
 import { loadJsonRuleWithLayout, loadMozcRuleWithLayout } from "./ruleLoaderWithLayout";
 
-
 export function loadPresetRuleRoman(layout: KeyboardLayout): Rule {
   return loadMozcRuleWithLayout(presetRuleGoogleImeRoman, layout);
 }

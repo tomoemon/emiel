@@ -42,8 +42,8 @@ test("simple 1 entry", () => {
       ],
       "あ",
       [],
-      false
-    )
+      false,
+    ),
   );
 });
 
@@ -87,38 +87,26 @@ test("simple 2 entries with modifier (unnecessary modifier)", () => {
   expect(rule.entries[0]).toEqual(
     new RuleEntry(
       [
-        new RuleStroke(VirtualKeys.A,
+        new RuleStroke(
+          VirtualKeys.A,
           new AndModifier(new ModifierGroup(["ShiftLeft", "ShiftRight"])),
         ),
       ],
       "あ",
       [],
-      false
-    )
+      false,
+    ),
   );
   expect(rule.entries[1]).toEqual(
-    new RuleEntry(
-      [
-        new RuleStroke(VirtualKeys.I,
-          AndModifier.empty,
-        ),
-      ],
-      "い",
-      [],
-      false
-    )
+    new RuleEntry([new RuleStroke(VirtualKeys.I, AndModifier.empty)], "い", [], false),
   );
   expect(rule.entries[2]).toEqual(
     new RuleEntry(
-      [
-        new RuleStroke(VirtualKeys.U,
-          new AndModifier(new ModifierGroup(["ShiftLeft"])),
-        ),
-      ],
+      [new RuleStroke(VirtualKeys.U, new AndModifier(new ModifierGroup(["ShiftLeft"])))],
       "う",
       [],
-      false
-    )
+      false,
+    ),
   );
 });
 
@@ -141,30 +129,20 @@ test("multiple key 2 stroke, 1 entry, no modifier", () => {
   expect(rule.entries.length).toBe(2);
   expect(rule.entries[0]).toEqual(
     new RuleEntry(
-      [
-        new RuleStroke(
-          VirtualKeys.A,
-          new AndModifier(new ModifierGroup([VirtualKeys.B])),
-        ),
-      ],
+      [new RuleStroke(VirtualKeys.A, new AndModifier(new ModifierGroup([VirtualKeys.B])))],
       "あ",
       [],
-      false
-    )
+      false,
+    ),
   );
 
   expect(rule.entries[1]).toEqual(
     new RuleEntry(
-      [
-        new RuleStroke(
-          VirtualKeys.B,
-          new AndModifier(new ModifierGroup([VirtualKeys.A])),
-        ),
-      ],
+      [new RuleStroke(VirtualKeys.B, new AndModifier(new ModifierGroup([VirtualKeys.A])))],
       "あ",
       [],
-      false
-    )
+      false,
+    ),
   );
 });
 
@@ -202,14 +180,14 @@ test("multiple key 1 stroke, 1 entry, with modifier", () => {
           VirtualKeys.A,
           new AndModifier(
             new ModifierGroup([VirtualKeys.ShiftLeft, VirtualKeys.ShiftRight]),
-            new ModifierGroup([VirtualKeys.B])
+            new ModifierGroup([VirtualKeys.B]),
           ),
         ),
       ],
       "あ",
       [],
-      false
-    )
+      false,
+    ),
   );
   expect(rule.entries[1]).toEqual(
     new RuleEntry(
@@ -218,44 +196,30 @@ test("multiple key 1 stroke, 1 entry, with modifier", () => {
           VirtualKeys.B,
           new AndModifier(
             new ModifierGroup([VirtualKeys.ShiftLeft, VirtualKeys.ShiftRight]),
-            new ModifierGroup([VirtualKeys.A])
+            new ModifierGroup([VirtualKeys.A]),
           ),
         ),
       ],
       "あ",
       [],
-      false
-    )
+      false,
+    ),
   );
   expect(rule.entries[2]).toEqual(
     new RuleEntry(
-      [
-        new RuleStroke(
-          VirtualKeys.I,
-          new AndModifier(
-            new ModifierGroup([VirtualKeys.ShiftLeft]),
-          ),
-        ),
-      ],
+      [new RuleStroke(VirtualKeys.I, new AndModifier(new ModifierGroup([VirtualKeys.ShiftLeft])))],
       "い",
       [],
-      false
-    )
+      false,
+    ),
   );
   expect(rule.entries[3]).toEqual(
     new RuleEntry(
-      [
-        new RuleStroke(
-          VirtualKeys.ShiftLeft,
-          new AndModifier(
-            new ModifierGroup([VirtualKeys.I]),
-          ),
-        ),
-      ],
+      [new RuleStroke(VirtualKeys.ShiftLeft, new AndModifier(new ModifierGroup([VirtualKeys.I])))],
       "い",
       [],
-      false
-    )
+      false,
+    ),
   );
 });
 
@@ -283,31 +247,25 @@ test("multiple key 2 stroke, 1 entry, no modifier", () => {
   expect(rule.entries[0]).toEqual(
     new RuleEntry(
       [
-        new RuleStroke(
-          VirtualKeys.A,
-          new AndModifier(new ModifierGroup([VirtualKeys.B])),
-        ),
+        new RuleStroke(VirtualKeys.A, new AndModifier(new ModifierGroup([VirtualKeys.B]))),
         new RuleStroke(VirtualKeys.C, AndModifier.empty),
       ],
       "あ",
       [],
-      false
-    )
+      false,
+    ),
   );
 
   expect(rule.entries[1]).toEqual(
     new RuleEntry(
       [
-        new RuleStroke(
-          VirtualKeys.B,
-          new AndModifier(new ModifierGroup([VirtualKeys.A])),
-        ),
+        new RuleStroke(VirtualKeys.B, new AndModifier(new ModifierGroup([VirtualKeys.A]))),
         new RuleStroke(VirtualKeys.C, AndModifier.empty),
       ],
       "あ",
       [],
-      false
-    )
+      false,
+    ),
   );
 });
 
@@ -335,14 +293,14 @@ test("multiple key 1 entry, with modifier", () => {
           VirtualKeys.A,
           new AndModifier(
             new ModifierGroup([VirtualKeys.ShiftLeft, VirtualKeys.ShiftRight]),
-            new ModifierGroup([VirtualKeys.B])
+            new ModifierGroup([VirtualKeys.B]),
           ),
         ),
       ],
       "あ",
       [],
-      false
-    )
+      false,
+    ),
   );
   expect(rule.entries[1]).toEqual(
     new RuleEntry(
@@ -351,13 +309,13 @@ test("multiple key 1 entry, with modifier", () => {
           VirtualKeys.B,
           new AndModifier(
             new ModifierGroup([VirtualKeys.ShiftLeft, VirtualKeys.ShiftRight]),
-            new ModifierGroup([VirtualKeys.A])
+            new ModifierGroup([VirtualKeys.A]),
           ),
         ),
       ],
       "あ",
       [],
-      false
-    )
+      false,
+    ),
   );
 });

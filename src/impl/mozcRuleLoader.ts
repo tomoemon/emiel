@@ -4,11 +4,7 @@ import { RuleStroke } from "../core/ruleStroke";
 import { product } from "../utils/itertools";
 import { defaultKanaNormalize } from "./charNormalizer";
 
-export function loadMozcRule(
-  text: string,
-  layout: KeyboardLayout,
-  name: string = "",
-): Rule {
+export function loadMozcRule(text: string, layout: KeyboardLayout, name: string = ""): Rule {
   /*
     a	あ	
     ta	た	
@@ -31,31 +27,19 @@ export function loadMozcRule(
       cols.push("");
     }
     // キーボードレイアウトによっては1つの文字を打つために複数のキー候補がありえる
-    const inputs: RuleStroke[][] = [...cols[0]].map((c) =>
-      toStrokesFromChar(layout, c)
-    );
+    const inputs: RuleStroke[][] = [...cols[0]].map((c) => toStrokesFromChar(layout, c));
     const output = cols[1];
-    const nextInput: RuleStroke[] = [...cols[2]].map(
-      (c) => toStrokesFromChar(layout, c)[0]
-    );
+    const nextInput: RuleStroke[] = [...cols[2]].map((c) => toStrokesFromChar(layout, c)[0]);
     Array.from(product(inputs)).forEach((input) => {
       entries.push(
-        new RuleEntry(
-          input,
-          output,
-          nextInput,
-          !Array.from(output).some((v) => layout.hasChar(v))
-        )
+        new RuleEntry(input, output, nextInput, !Array.from(output).some((v) => layout.hasChar(v))),
       );
     });
   }
   return new Rule(entries, defaultKanaNormalize, name);
 }
 
-function toStrokesFromChar(
-  layout: KeyboardLayout,
-  key: string
-): RuleStroke[] {
+function toStrokesFromChar(layout: KeyboardLayout, key: string): RuleStroke[] {
   const strokes = layout.getStrokesByChar(key);
   if (!strokes) {
     throw new Error("invalid key: " + key);

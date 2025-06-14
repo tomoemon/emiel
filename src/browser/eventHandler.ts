@@ -17,11 +17,7 @@ export function activate(
 ) {
   const keyboardState = new KeyboardState();
   const keyDownEventHandler = (evt: Event) => {
-    const keyStroke = toInputKeyStrokeFromKeyboardEvent(
-      "keydown",
-      evt as KeyboardEvent,
-      keyMap,
-    );
+    const keyStroke = toInputKeyStrokeFromKeyboardEvent("keydown", evt as KeyboardEvent, keyMap);
     keyboardState.keydown(keyStroke.key);
     const now = new Date();
     keyEventHandler(
@@ -29,16 +25,12 @@ export function activate(
         keyStroke,
         // キー入力ごとのその時点での KeyboardState を渡す
         new KeyboardState([...keyboardState.downedKeys]),
-        now
-      )
+        now,
+      ),
     );
   };
   const keyUpEventHandler = (evt: Event) => {
-    const keyStroke = toInputKeyStrokeFromKeyboardEvent(
-      "keyup",
-      evt as KeyboardEvent,
-      keyMap,
-    );
+    const keyStroke = toInputKeyStrokeFromKeyboardEvent("keyup", evt as KeyboardEvent, keyMap);
     keyboardState.keyup(keyStroke.key);
     const now = new Date();
     keyEventHandler(
@@ -46,8 +38,8 @@ export function activate(
         keyStroke,
         // キー入力ごとのその時点での KeyboardState を渡す
         new KeyboardState([...keyboardState.downedKeys]),
-        now
-      )
+        now,
+      ),
     );
   };
   target.addEventListener("keydown", keyDownEventHandler);
@@ -61,7 +53,7 @@ export function activate(
 function toInputKeyStrokeFromKeyboardEvent(
   evtType: KeyEventType,
   evt: KeyboardEvent,
-  keyMap: Map<VirtualKey, VirtualKey>
+  keyMap: Map<VirtualKey, VirtualKey>,
 ): InputStroke {
   const vkey = toVirtualKeyFromEventCode(evt.code);
   const replaced = keyMap.get(vkey) ?? vkey;

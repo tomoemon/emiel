@@ -22,48 +22,40 @@ type stroke = {
   keys: string[];
   modifiers?: string[][];
 };
-type entry = {
-  // コメントだけの行も許可するため、undefinedを許容する
-  input: stroke[];
-  output: string;
-  nextInput?: stroke[];
-  extendCommonPrefixEntry?: boolean;
-  comment?: string;
-} | { comment?: string; };
+type entry =
+  | {
+      // コメントだけの行も許可するため、undefinedを許容する
+      input: stroke[];
+      output: string;
+      nextInput?: stroke[];
+      extendCommonPrefixEntry?: boolean;
+      comment?: string;
+    }
+  | { comment?: string };
 
 export type jsonSchema = {
   extendCommonPrefixEntry?: boolean;
   entries: entry[];
 };
 
-function loadModifiers(
-  modifiers: string[],
-): ModifierGroup {
-  return new ModifierGroup(
-    modifiers.map((key) => VirtualKey.getFromString(key))
-  );
+function loadModifiers(modifiers: string[]): ModifierGroup {
+  return new ModifierGroup(modifiers.map((key) => VirtualKey.getFromString(key)));
 }
 
-function loadStroke(
-  jsonStroke: stroke,
-): RuleStroke[] {
+function loadStroke(jsonStroke: stroke): RuleStroke[] {
   const keys: VirtualKey[] = jsonStroke.keys.map((key) => VirtualKey.getFromString(key));
   if (keys.length === 0) {
     throw new Error("empty keys: " + jsonStroke.toString());
   }
-  const modifierGroups: ModifierGroup[] = jsonStroke.modifiers?.map((modifierKeys) => {
-    return loadModifiers(modifierKeys)
-  }) || [];
+  const modifierGroups: ModifierGroup[] =
+    jsonStroke.modifiers?.map((modifierKeys) => {
+      return loadModifiers(modifierKeys);
+    }) || [];
   return keys.map((key) => {
     // 同時押しの場合は、他のキーをモディファイアとして扱う
     // keys: [A,B] の場合、key=A のとき、A+mod(B)
-    const multipleStrokeModifier = keys
-      .filter((v) => v !== key)
-      .map((v) => new ModifierGroup([v]));
-    return new RuleStroke(
-      key,
-      new AndModifier(...modifierGroups, ...multipleStrokeModifier),
-    );
+    const multipleStrokeModifier = keys.filter((v) => v !== key).map((v) => new ModifierGroup([v]));
+    return new RuleStroke(key, new AndModifier(...modifierGroups, ...multipleStrokeModifier));
   });
 }
 
@@ -95,25 +87,18 @@ function loadStroke(
  *              [RuleStroke(B+mod(A)),RuleStroke(D+mod(C))],
  *            ]
  */
-function loadInput(
-  input: stroke[],
-): RuleStroke[][] {
+function loadInput(input: stroke[]): RuleStroke[][] {
   /**
    * aとbの同時打鍵の後に、cとdの同時打鍵が必要な場合
    * input: [[a,b], [c,d]]
    * strokeGroups: [[a+mod(b),b+mod(a)], [c+mod(d),d+mod(c)]]
    */
-  const strokeGroups = input.map((v) =>
-    loadStroke(v)
-  );
+  const strokeGroups = input.map((v) => loadStroke(v));
   // strokeGroups の直積を作って返す
   return Array.from(product(strokeGroups));
 }
 
-function loadEntries(
-  jsonEntries: entry[],
-  jsonExtendablePrefixCommon: boolean,
-): RuleEntry[] {
+function loadEntries(jsonEntries: entry[], jsonExtendablePrefixCommon: boolean): RuleEntry[] {
   const entries: RuleEntry[] = [];
   jsonEntries.forEach((v) => {
     if (!("input" in v)) {
@@ -129,29 +114,19 @@ function loadEntries(
           input,
           output,
           nextInput,
-          v.extendCommonPrefixEntry ?? jsonExtendablePrefixCommon ?? false
-        )
+          v.extendCommonPrefixEntry ?? jsonExtendablePrefixCommon ?? false,
+        ),
       );
     });
   });
   return entries;
 }
 
-export function loadJsonRule(
-  jsonRule: jsonSchema | string,
-  name?: string,
-): Rule {
+export function loadJsonRule(jsonRule: jsonSchema | string, name?: string): Rule {
   if (jsonRule instanceof String || typeof jsonRule === "string") {
     const schema = JSON.parse(jsonRule as string) as jsonSchema;
     return loadJsonRule(schema, name);
   }
-  const entries = loadEntries(
-    jsonRule.entries,
-    jsonRule.extendCommonPrefixEntry ?? false,
-  );
-  return new Rule(
-    entries,
-    defaultKanaNormalize,
-    name,
-  );
+  const entries = loadEntries(jsonRule.entries, jsonRule.extendCommonPrefixEntry ?? false);
+  return new Rule(entries, defaultKanaNormalize, name);
 }

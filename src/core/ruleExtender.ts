@@ -5,15 +5,9 @@ export function extendCommonPrefixOverlappedEntriesDeeply(entries: RuleEntry[]):
   return recursiveExtendCommontPrefixOverlappedEntries(entries);
 }
 
-function recursiveExtendCommontPrefixOverlappedEntries(
-  entries: RuleEntry[]
-): RuleEntry[] {
-  let extendableEntries = entries.filter(
-    (entry) => entry.extendCommonPrefixCommonEntry
-  );
-  const unextendableEntries = entries.filter(
-    (entry) => !entry.extendCommonPrefixCommonEntry
-  );
+function recursiveExtendCommontPrefixOverlappedEntries(entries: RuleEntry[]): RuleEntry[] {
+  let extendableEntries = entries.filter((entry) => entry.extendCommonPrefixCommonEntry);
+  const unextendableEntries = entries.filter((entry) => !entry.extendCommonPrefixCommonEntry);
   while (true) {
     const { extendRequiredEntries, extendedNewEntries } =
       extendCommonPrefixOverlappedEntries(extendableEntries);
@@ -27,9 +21,7 @@ function recursiveExtendCommontPrefixOverlappedEntries(
     //   })
     // );
     // extend された entry は除外する
-    extendableEntries = extendableEntries.filter(
-      (entry) => !extendRequiredEntries.has(entry)
-    );
+    extendableEntries = extendableEntries.filter((entry) => !extendRequiredEntries.has(entry));
     // console.log(
     //   extendedNewEntries.map((v) => {
     //     return {
@@ -48,9 +40,7 @@ function recursiveExtendCommontPrefixOverlappedEntries(
   return [...unextendableEntries, ...extendableEntries];
 }
 
-function extendCommonPrefixOverlappedEntries(
-  entries: RuleEntry[]
-): {
+function extendCommonPrefixOverlappedEntries(entries: RuleEntry[]): {
   extendRequiredEntries: Set<RuleEntry>;
   extendedNewEntries: RuleEntry[];
 } {
@@ -58,10 +48,7 @@ function extendCommonPrefixOverlappedEntries(
   // Map のキーにするために、RuleStroke を文字列に変換する
   const strokeToHash = (...strokes: RuleStroke[]): string => {
     return strokes
-      .map(
-        (stroke) =>
-          `${stroke.key.toString()}/${stroke.requiredModifier.toString()}`
-      )
+      .map((stroke) => `${stroke.key.toString()}/${stroke.requiredModifier.toString()}`)
       .join("-");
   };
 
@@ -125,7 +112,7 @@ function extendCommonPrefixOverlappedEntries(
         const usedStrokeHashes = new Set<string>(
           entryMapByInputPrefix
             .get(prefixHash)
-            ?.map((prefixEntry) => strokeToHash(prefixEntry.input[i]))
+            ?.map((prefixEntry) => strokeToHash(prefixEntry.input[i])),
         );
         usedStrokeHashes.add(strokeToHash(entry.input[0]));
         // console.log("usedStrokeHashes", usedStrokeHashes);
@@ -134,7 +121,7 @@ function extendCommonPrefixOverlappedEntries(
           entries.filter((entry) => {
             const firstHash = strokeToHash(entry.input[0]);
             return !usedStrokeHashes.has(firstHash);
-          })
+          }),
         );
       }
     }
@@ -149,10 +136,7 @@ function extendCommonPrefixOverlappedEntries(
       extendRequiredEntries.add(expandRequiredEntry);
       availableEntries.forEach((availableEntry) => {
         if (availableEntry.input.length === 1) {
-          const newInput = [
-            ...expandRequiredEntry.input,
-            ...availableEntry.input,
-          ];
+          const newInput = [...expandRequiredEntry.input, ...availableEntry.input];
           const newInputHash = strokeToHash(...newInput);
           extendedNewEntries.set(
             newInputHash,
@@ -160,14 +144,11 @@ function extendCommonPrefixOverlappedEntries(
               newInput,
               expandRequiredEntry.output + availableEntry.output,
               availableEntry.nextInput,
-              true
-            )
+              true,
+            ),
           );
         } else {
-          const newInput = [
-            ...expandRequiredEntry.input,
-            availableEntry.input[0],
-          ];
+          const newInput = [...expandRequiredEntry.input, availableEntry.input[0]];
           const newInputHash = strokeToHash(...newInput);
           extendedNewEntries.set(
             newInputHash,
@@ -175,8 +156,8 @@ function extendCommonPrefixOverlappedEntries(
               [...expandRequiredEntry.input, availableEntry.input[0]],
               expandRequiredEntry.output,
               [availableEntry.input[0]],
-              true
-            )
+              true,
+            ),
           );
         }
       });

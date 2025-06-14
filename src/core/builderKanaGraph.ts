@@ -7,19 +7,15 @@ export class KanaNode {
   constructor(
     readonly startIndex: number,
     readonly nextEdges: KanaEdge[],
-    readonly previousEdges: KanaEdge[]
-  ) { }
+    readonly previousEdges: KanaEdge[],
+  ) {}
   connectEdgesWithNextInput(previousNode: KanaNode, entry: RuleEntry) {
     this.nextEdges
       .filter((edge) => edge.canConnectWithNextInput(entry.nextInput))
       .forEach((edge) => {
         // この段階では「次の入力」の分を次のEntryの「入力」から削除することはしない
         // StrokeNode 構築時に、edge の inputs の重なる部分が除去される
-        const newEdge = new KanaEdge(
-          [entry, ...edge.entries],
-          edge.next,
-          previousNode
-        );
+        const newEdge = new KanaEdge([entry, ...edge.entries], edge.next, previousNode);
         previousNode.nextEdges.push(newEdge);
         edge.next.previousEdges.push(newEdge);
       });
@@ -39,8 +35,8 @@ export class KanaEdge {
   constructor(
     readonly entries: RuleEntry[],
     readonly next: KanaNode,
-    readonly previous: KanaNode
-  ) { }
+    readonly previous: KanaNode,
+  ) {}
 
   /**
    * entries に含まれる input を結合して返す
@@ -87,15 +83,10 @@ export class KanaEdge {
    ya            tti
    ya           cchi
 */
-export function buildKanaNode(
-  rule: Rule,
-  kanaText: string
-): [KanaNode, KanaNode] {
+export function buildKanaNode(rule: Rule, kanaText: string): [KanaNode, KanaNode] {
   const normalizedKanaText = rule.normalize(kanaText);
   // かなテキスト1文字1文字に対応する KanaNode を作成する
-  const kanaNodes = [...normalizedKanaText].map(
-    (_, i) => new KanaNode(i, [], [])
-  );
+  const kanaNodes = [...normalizedKanaText].map((_, i) => new KanaNode(i, [], []));
   const endNode = new KanaNode(normalizedKanaText.length, [], []); // 終端ノード
   const kanaNodesWithEnd = [...kanaNodes, endNode];
   if (normalizedKanaText.length === 0) {
@@ -116,14 +107,11 @@ export function buildKanaNode(
     const kanaPrefix = normalizedKanaText.substring(0, i);
     const nextNode = kanaNodesWithEnd[i];
     for (let entry of rule.entries) {
-      const normalizedEntryOutput = setDefaultFunc(
-        normalizedEntryOutputMap,
-        entry,
-        () => rule.normalize(entry.output)
+      const normalizedEntryOutput = setDefaultFunc(normalizedEntryOutputMap, entry, () =>
+        rule.normalize(entry.output),
       );
       if (kanaPrefix.endsWith(normalizedEntryOutput)) {
-        const previousNode =
-          kanaNodesWithEnd[kanaPrefix.length - entry.output.length];
+        const previousNode = kanaNodesWithEnd[kanaPrefix.length - entry.output.length];
         if (entry.hasNextInput) {
           // 「次の入力」を持つエントリの場合、「次の入力」の値が次の KanaNode と組み合わせ可能な場合のみ連結する
           nextNode.connectEdgesWithNextInput(previousNode, entry);
@@ -141,9 +129,7 @@ export function buildKanaNode(
 
   // 初期ノードから遷移する候補がない場合はオートマトン生成に失敗したらエラーを返す
   if (kanaNodes[0].nextEdges.length === 0) {
-    throw new Error(
-      `Rule ${rule.name} can't generate an automaton for "${kanaText}"`
-    );
+    throw new Error(`Rule ${rule.name} can't generate an automaton for "${kanaText}"`);
   }
   return [kanaNodes[0], endNode];
 }

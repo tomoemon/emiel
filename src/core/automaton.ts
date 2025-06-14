@@ -11,8 +11,8 @@ export class InputResult {
       | "key_succeeded" // 1打鍵の成功
       | "kana_succeeded" // かな1文字の成功
       | "finished" // 完了
-      | "staged" // 仮確定状態
-  ) { }
+      | "staged", // 仮確定状態
+  ) {}
 
   static readonly IGNORED = new InputResult("ignored");
   static readonly FAILED = new InputResult("failed");
@@ -38,9 +38,7 @@ export class InputResult {
   // 今回の入力に成功したかどうか
   get isSucceeded(): boolean {
     return (
-      this.type === "key_succeeded" ||
-      this.type === "kana_succeeded" ||
-      this.type === "finished"
+      this.type === "key_succeeded" || this.type === "kana_succeeded" || this.type === "finished"
     );
   }
   // isSucceeded:true の場合の詳細な情報: 今回の1打鍵でかな1文字分の遷移はしていない
@@ -73,7 +71,11 @@ export class Automaton {
    * @param startNode 打鍵を受け付ける開始ノード
    * @param rule このAutomatonを生成した入力ルール
    */
-  constructor(readonly word: string, readonly startNode: StrokeNode, readonly rule: Rule) {
+  constructor(
+    readonly word: string,
+    readonly startNode: StrokeNode,
+    readonly rule: Rule,
+  ) {
     this._currentNode = startNode;
   }
   private _currentNode: StrokeNode;
@@ -145,13 +147,20 @@ export class Automaton {
    * ミス入力数の合計
    */
   get failedInputCount(): number {
-    return this._failedEventsAtCurrentNode.length + this._edgeHistories.reduce((acc, v) => acc + v.failedEvents.length, 0);
+    return (
+      this._failedEventsAtCurrentNode.length +
+      this._edgeHistories.reduce((acc, v) => acc + v.failedEvents.length, 0)
+    );
   }
   /**
    * ミス入力も含めた打鍵数の合計
    */
   get totalInputCount(): number {
-    return this._failedEventsAtCurrentNode.length + this._edgeHistories.reduce((acc, v) => acc + v.failedEvents.length, 0) + this._edgeHistories.length;
+    return (
+      this._failedEventsAtCurrentNode.length +
+      this._edgeHistories.reduce((acc, v) => acc + v.failedEvents.length, 0) +
+      this._edgeHistories.length
+    );
   }
   /**
    * 入力状態をリセットする
@@ -189,16 +198,13 @@ export class Automaton {
   private stagedEdge: StrokeEdge | InputEvent | undefined = undefined;
   /**
    * 状態遷移せずに、入力が成功するかどうかをテストする
-   * 
+   *
    * @returns [result, apply] result: 入力結果, apply: 状態遷移を適用する関数
    */
-  testInput(stroke: InputEvent): [
-    InputResult,
-    () => void
-  ] {
+  testInput(stroke: InputEvent): [InputResult, () => void] {
     // edge1 は現在遷移可能な候補エッジの1つ、edge2 は他の候補エッジ、other edge は Rule 内の他のエントリのエッジ
     // "edge1", "edge2", "other edge" それぞれについて matched, none, modified の組み合わせがありえる
-    // 
+    //
     // edge1 matched, edge2 none, other edge none: succeeded
     // edge1 matched, edge2 none, other edge matched: max(edge1,other) score の大きい方を採用
     // edge1 matched, edge2 none, other edge modified: edge1 staged -> keyup で確定
@@ -236,21 +242,22 @@ export class Automaton {
             resultType,
             () => {
               this.applyState(stroke, resultType, acceptedEdge);
-            }
+            },
           ];
         }
         return [
           InputResult.FAILED,
           () => {
             this.applyState(stroke, InputResult.FAILED, undefined);
-          }
+          },
         ];
       }
-      return [InputResult.IGNORED, () => { }];
+      return [InputResult.IGNORED, () => {}];
     }
 
     const matchResults = this._currentNode.nextEdges.map((edge) => {
-      const result = matchCandidateEdge(stroke, edge); return { edge, result }
+      const result = matchCandidateEdge(stroke, edge);
+      return { edge, result };
     });
     const acceptedEdges = matchResults
       .filter((match) => match.result.type === "matched")
@@ -264,38 +271,59 @@ export class Automaton {
       if (modifiedEdges.length > 0) {
         if (otherMatched.type === "matched") {
           if (otherMatched.keyCount >= acceptedEdges[0].keyCount) {
-            return [InputResult.FAILED, () => {
-              this.applyState(stroke, InputResult.FAILED, undefined);
-            }]
+            return [
+              InputResult.FAILED,
+              () => {
+                this.applyState(stroke, InputResult.FAILED, undefined);
+              },
+            ];
           } else {
-            return [InputResult.STAGED, () => {
-              this.stagedEdge = acceptedEdges[0].edge;
-            }];
+            return [
+              InputResult.STAGED,
+              () => {
+                this.stagedEdge = acceptedEdges[0].edge;
+              },
+            ];
           }
         } else if (otherMatched.type === "modified") {
-          return [InputResult.STAGED, () => {
-            this.stagedEdge = acceptedEdges[0].edge;
-          }];
+          return [
+            InputResult.STAGED,
+            () => {
+              this.stagedEdge = acceptedEdges[0].edge;
+            },
+          ];
         } else {
-          return [InputResult.STAGED, () => {
-            this.stagedEdge = acceptedEdges[0].edge;
-          }];
+          return [
+            InputResult.STAGED,
+            () => {
+              this.stagedEdge = acceptedEdges[0].edge;
+            },
+          ];
         }
       } else {
         if (otherMatched.type === "matched") {
           if (otherMatched.keyCount >= acceptedEdges[0].keyCount) {
-            return [InputResult.FAILED, () => {
-              this.applyState(stroke, InputResult.FAILED, undefined);
-            }]
+            return [
+              InputResult.FAILED,
+              () => {
+                this.applyState(stroke, InputResult.FAILED, undefined);
+              },
+            ];
           } else {
-            return [InputResult.STAGED, () => {
-              this.stagedEdge = acceptedEdges[0].edge;
-            }];
+            return [
+              InputResult.STAGED,
+              () => {
+                this.stagedEdge = acceptedEdges[0].edge;
+              },
+            ];
           }
         } else if (otherMatched.type === "modified") {
-          return [InputResult.STAGED, () => {
-            this.stagedEdge = acceptedEdges[0].edge;
-          }];
+          return [
+            InputResult.STAGED,
+            () => {
+              this.stagedEdge = acceptedEdges[0].edge;
+            },
+          ];
         } else {
           const acceptedEdge = acceptedEdges[0];
           const resultType = this.edgeToResultType(this._currentNode.kanaIndex, acceptedEdge.edge);
@@ -303,30 +331,36 @@ export class Automaton {
             resultType,
             () => {
               this.applyState(stroke, resultType, acceptedEdge.edge);
-            }
+            },
           ];
         }
       }
     } else {
       if (modifiedEdges.length > 0) {
         if (otherMatched.type === "matched") {
-          return [InputResult.STAGED, () => {
-            this.stagedEdge = stroke;
-          }]
+          return [
+            InputResult.STAGED,
+            () => {
+              this.stagedEdge = stroke;
+            },
+          ];
         } else if (otherMatched.type === "modified") {
-          return [InputResult.IGNORED, () => { }];
+          return [InputResult.IGNORED, () => {}];
         } else {
-          return [InputResult.IGNORED, () => { }];
+          return [InputResult.IGNORED, () => {}];
         }
       } else {
         if (otherMatched.type === "matched") {
-          return [InputResult.FAILED, () => {
-            this.applyState(stroke, InputResult.FAILED, undefined);
-          }]
+          return [
+            InputResult.FAILED,
+            () => {
+              this.applyState(stroke, InputResult.FAILED, undefined);
+            },
+          ];
         } else if (otherMatched.type === "modified") {
-          return [InputResult.IGNORED, () => { }];
+          return [InputResult.IGNORED, () => {}];
         } else {
-          return [InputResult.IGNORED, () => { }];
+          return [InputResult.IGNORED, () => {}];
         }
       }
     }
@@ -346,7 +380,7 @@ export class Automaton {
   private applyState(
     stroke: InputEvent,
     result: InputResult,
-    acceptedEdge: StrokeEdge | undefined
+    acceptedEdge: StrokeEdge | undefined,
   ) {
     // 仮確定状態解除
     this.stagedEdge = undefined;

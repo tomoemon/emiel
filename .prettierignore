@@ -1,0 +1,23 @@
+# Dependencies
+node_modules/
+pnpm-lock.yaml
+
+# Build output
+dist/
+build/
+*.tsbuildinfo
+
+# Coverage
+coverage/
+
+# IDE
+.vscode/
+.idea/
+
+# Assets
+src/assets/
+
+# Examples build output
+examples/**/dist/
+examples/**/build/
+examples/**/node_modules/

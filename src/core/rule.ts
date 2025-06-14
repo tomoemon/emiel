@@ -18,8 +18,8 @@ export class RuleEntry {
     readonly output: string,
     readonly nextInput: RuleStroke[],
     // 共通プレフィックスエントリを展開するかどうか
-    readonly extendCommonPrefixCommonEntry: boolean
-  ) { }
+    readonly extendCommonPrefixCommonEntry: boolean,
+  ) {}
   get hasNextInput(): boolean {
     return this.nextInput.length > 0;
   }
@@ -86,7 +86,7 @@ nk/ん/k
 */
 export class Rule {
   /**
-   * 
+   *
    * @param entries 入力ルールのエントリ
    * @param normalize 入力ワードのかな文字を正規化する関数
    * @param name 入力ルールの名前

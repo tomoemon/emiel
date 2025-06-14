@@ -208,15 +208,13 @@ const alphaNumericNormalizeBaseMap = {
 const kanaNormalizeMap = Object.assign(
   {},
   kanaNormalizeBaseMap,
-  Object.fromEntries(Object.values(kanaNormalizeBaseMap).map((v) => [v, v]))
+  Object.fromEntries(Object.values(kanaNormalizeBaseMap).map((v) => [v, v])),
 );
 
 const alphaNumericNormalizeMap = Object.assign(
   {},
   alphaNumericNormalizeBaseMap,
-  Object.fromEntries(
-    Object.values(alphaNumericNormalizeBaseMap).map((v) => [v, v])
-  )
+  Object.fromEntries(Object.values(alphaNumericNormalizeBaseMap).map((v) => [v, v])),
 );
 
 export function defaultKanaNormalize(value: string): string {

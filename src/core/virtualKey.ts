@@ -104,5 +104,5 @@ export const VirtualKey = {
       return key as VirtualKey;
     }
     throw new Error(`invalid key: ${key}`);
-  }
+  },
 } as const;

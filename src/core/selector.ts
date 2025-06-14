@@ -24,9 +24,12 @@ export class Selector<T extends Inputtable> {
   get activeItems(): readonly T[] {
     return this._actives;
   }
-  input(
-    stroke: InputEvent,
-  ): { succeeded: T[], finished: T[], failed: T[], ignored: T[] } {
+  input(stroke: InputEvent): {
+    succeeded: T[];
+    finished: T[];
+    failed: T[];
+    ignored: T[];
+  } {
     const finished: T[] = [];
     const succeeded: T[] = [];
     const failed: T[] = [];
@@ -70,9 +73,7 @@ export class Selector<T extends Inputtable> {
    */
   remove(item: T): void {
     this._items = this._items.filter((v) => v !== item);
-    this._actives = this._actives.filter(
-      (v) => v !== item
-    );
+    this._actives = this._actives.filter((v) => v !== item);
   }
   /**
    * 指定した inputtable を取り除き、新規の Selector を返す

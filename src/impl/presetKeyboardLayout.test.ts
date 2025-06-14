@@ -12,8 +12,8 @@ test("dvorak", () => {
       new Map([
         [VirtualKeys.A, "a"],
         [VirtualKeys.F, "u"],
-      ])
-    ).name
+      ]),
+    ).name,
   ).toBe("DVORAK");
 });
 
@@ -23,8 +23,8 @@ test("qwerty us", () => {
       new Map([
         [VirtualKeys.A, "a"],
         [VirtualKeys.BracketLeft, "["],
-      ])
-    ).name
+      ]),
+    ).name,
   ).toBe("QWERTY US");
 });
 
@@ -34,7 +34,7 @@ test("qwerty jis", () => {
       new Map([
         [VirtualKeys.A, "a"],
         [VirtualKeys.BracketLeft, "@"],
-      ])
-    ).name
+      ]),
+    ).name,
   ).toBe("QWERTY JIS");
 });

@@ -7,18 +7,8 @@ import { VirtualKeys } from "./virtualKey";
 
 test("英数字は展開しない", () => {
   const entries = [
-    new RuleEntry(
-      [new RuleStroke(VirtualKeys.A, AndModifier.empty)],
-      "a",
-      [],
-      true
-    ),
-    new RuleEntry(
-      [new RuleStroke(VirtualKeys.B, AndModifier.empty)],
-      "b",
-      [],
-      true
-    ),
+    new RuleEntry([new RuleStroke(VirtualKeys.A, AndModifier.empty)], "a", [], true),
+    new RuleEntry([new RuleStroke(VirtualKeys.B, AndModifier.empty)], "b", [], true),
   ];
   const result = extendCommonPrefixOverlappedEntriesDeeply(entries);
   expect(result.length).toBe(2);
@@ -26,12 +16,7 @@ test("英数字は展開しない", () => {
 
 test("んの展開", () => {
   const entries = [
-    new RuleEntry(
-      [new RuleStroke(VirtualKeys.N, AndModifier.empty)],
-      "ん",
-      [],
-      true
-    ),
+    new RuleEntry([new RuleStroke(VirtualKeys.N, AndModifier.empty)], "ん", [], true),
     new RuleEntry(
       [
         new RuleStroke(VirtualKeys.N, AndModifier.empty),
@@ -39,7 +24,7 @@ test("んの展開", () => {
       ],
       "な",
       [],
-      true
+      true,
     ),
     new RuleEntry(
       [
@@ -48,7 +33,7 @@ test("んの展開", () => {
       ],
       "か",
       [],
-      true
+      true,
     ),
   ];
   const result = extendCommonPrefixOverlappedEntriesDeeply(entries);

@@ -20,9 +20,7 @@ export function loadPresetKeyboardLayoutDvorak() {
 /**
  * 実際に入力されたキーと文字のマッピングから、キーボードレイアウトを推定する。
  */
-export function findMatchedKeyboardLayout(
-  keyToCharMap: Map<VirtualKey, string>
-): KeyboardLayout {
+export function findMatchedKeyboardLayout(keyToCharMap: Map<VirtualKey, string>): KeyboardLayout {
   if (keyToCharMap.size === 0) {
     // default
     return loadPresetKeyboardLayoutQwertyJis();
@@ -30,7 +28,7 @@ export function findMatchedKeyboardLayout(
   for (const layoutLoader of [
     loadPresetKeyboardLayoutQwertyJis,
     loadPresetKeyboardLayoutQwertyUs,
-    loadPresetKeyboardLayoutDvorak
+    loadPresetKeyboardLayoutDvorak,
   ]) {
     const layout = layoutLoader();
     if (

@@ -26,7 +26,9 @@
   "scripts": {
     "build": "vite build && tsc",
     "lint": "eslint src --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
-    "test": "vitest"
+    "test": "vitest",
+    "fmt": "prettier --write \"src/**/*.{ts,js,tsx,json}\"",
+    "fmt:check": "prettier --check \"src/**/*.{ts,js,tsx,json}\""
   },
   "devDependencies": {
     "@base2/pretty-print-object": "^1.0.2",
@@ -35,6 +37,7 @@
     "@typescript-eslint/eslint-plugin": "^8.0.1",
     "@typescript-eslint/parser": "^8.0.1",
     "eslint": "^8.8.0",
+    "prettier": "^3.5.3",
     "typescript": "^5.6.2",
     "vite": "^5.4.8",
     "vitest": "^2.1.1"

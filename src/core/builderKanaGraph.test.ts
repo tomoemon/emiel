@@ -7,12 +7,7 @@ import { VirtualKeys } from "./virtualKey";
 
 const defaultRule = new Rule(
   [
-    new RuleEntry(
-      [new RuleStroke(VirtualKeys.A, AndModifier.empty)],
-      "あ",
-      [],
-      true
-    ),
+    new RuleEntry([new RuleStroke(VirtualKeys.A, AndModifier.empty)], "あ", [], true),
     new RuleEntry(
       [
         new RuleStroke(VirtualKeys.T, AndModifier.empty),
@@ -20,7 +15,7 @@ const defaultRule = new Rule(
       ],
       "た",
       [],
-      true
+      true,
     ),
     new RuleEntry(
       [
@@ -30,7 +25,7 @@ const defaultRule = new Rule(
       ],
       "っ",
       [],
-      true
+      true,
     ),
     new RuleEntry(
       [
@@ -39,16 +34,11 @@ const defaultRule = new Rule(
       ],
       "っ",
       [new RuleStroke(VirtualKeys.T, AndModifier.empty)],
-      true
+      true,
     ),
-    new RuleEntry(
-      [new RuleStroke(VirtualKeys.X, AndModifier.empty)],
-      "あい",
-      [],
-      true
-    ),
+    new RuleEntry([new RuleStroke(VirtualKeys.X, AndModifier.empty)], "あい", [], true),
   ],
-  (v) => v
+  (v) => v,
 );
 
 test("test buildKanaNode: empty text", () => {
@@ -61,12 +51,7 @@ test("test buildKanaNode: あ", () => {
   expect(startNode).not.toBe(endNode);
   expect(startNode.nextEdges.length).toBe(1);
   expect(startNode.nextEdges[0].entries).toEqual([
-    new RuleEntry(
-      [new RuleStroke(VirtualKeys.A, AndModifier.empty)],
-      "あ",
-      [],
-      true
-    ),
+    new RuleEntry([new RuleStroke(VirtualKeys.A, AndModifier.empty)], "あ", [], true),
   ]);
   expect(startNode.nextEdges[0].next).toBe(endNode);
 });
@@ -76,12 +61,7 @@ test("test buildKanaNode: あっ", () => {
   expect(startNode).not.toBe(endNode);
   expect(startNode.nextEdges.length).toBe(1);
   expect(startNode.nextEdges[0].entries).toEqual([
-    new RuleEntry(
-      [new RuleStroke(VirtualKeys.A, AndModifier.empty)],
-      "あ",
-      [],
-      true
-    ),
+    new RuleEntry([new RuleStroke(VirtualKeys.A, AndModifier.empty)], "あ", [], true),
   ]);
   const secondNode = startNode.nextEdges[0].next;
   expect(secondNode.nextEdges.length).toBe(1);
@@ -94,7 +74,7 @@ test("test buildKanaNode: あっ", () => {
       ],
       "っ",
       [],
-      true
+      true,
     ),
   ]);
   expect(secondNode.nextEdges[0].next).toBe(endNode);
@@ -105,12 +85,7 @@ test("test buildKanaNode: あった", () => {
   expect(startNode).not.toBe(endNode);
   expect(startNode.nextEdges.length).toBe(1);
   expect(startNode.nextEdges[0].entries).toEqual([
-    new RuleEntry(
-      [new RuleStroke(VirtualKeys.A, AndModifier.empty)],
-      "あ",
-      [],
-      true
-    ),
+    new RuleEntry([new RuleStroke(VirtualKeys.A, AndModifier.empty)], "あ", [], true),
   ]);
   const secondNode = startNode.nextEdges[0].next;
   expect(secondNode.nextEdges.length).toBe(2);
@@ -123,7 +98,7 @@ test("test buildKanaNode: あった", () => {
       ],
       "っ",
       [],
-      true
+      true,
     ),
   ]);
   const thirdNode = secondNode.nextEdges[0].next;
@@ -136,7 +111,7 @@ test("test buildKanaNode: あった", () => {
       ],
       "た",
       [],
-      true
+      true,
     ),
   ]);
   expect(thirdNode.nextEdges[0].next).toBe(endNode);
@@ -148,7 +123,7 @@ test("test buildKanaNode: あった", () => {
       ],
       "っ",
       [new RuleStroke(VirtualKeys.T, AndModifier.empty)],
-      true
+      true,
     ),
     new RuleEntry(
       [
@@ -157,7 +132,7 @@ test("test buildKanaNode: あった", () => {
       ],
       "た",
       [],
-      true
+      true,
     ),
   ]);
   expect(secondNode.nextEdges[1].next).toBe(endNode);
@@ -171,12 +146,7 @@ test("test buildKanaNode: あいた, erase あ->い edge", () => {
   expect(startNode).not.toBe(endNode);
   expect(startNode.nextEdges.length).toBe(1);
   expect(startNode.nextEdges[0].entries).toEqual([
-    new RuleEntry(
-      [new RuleStroke(VirtualKeys.X, AndModifier.empty)],
-      "あい",
-      [],
-      true
-    ),
+    new RuleEntry([new RuleStroke(VirtualKeys.X, AndModifier.empty)], "あい", [], true),
   ]);
   const secondNode = startNode.nextEdges[0].next;
   expect(secondNode.nextEdges.length).toBe(1);
@@ -188,20 +158,14 @@ test("test buildKanaNode: あいた, erase あ->い edge", () => {
       ],
       "た",
       [],
-      true
+      true,
     ),
   ]);
   expect(secondNode.nextEdges[0].next).toBe(endNode);
 });
 
 test("test buildKanaNode: can't generate error", () => {
-  expect(() => buildKanaNode(defaultRule, "ほげ")).toThrowError(
-    "can't generate"
-  );
-  expect(() => buildKanaNode(defaultRule, "あっち")).toThrowError(
-    "can't generate"
-  );
-  expect(() => buildKanaNode(defaultRule, "ちあっ")).toThrowError(
-    "can't generate"
-  );
+  expect(() => buildKanaNode(defaultRule, "ほげ")).toThrowError("can't generate");
+  expect(() => buildKanaNode(defaultRule, "あっち")).toThrowError("can't generate");
+  expect(() => buildKanaNode(defaultRule, "ちあっ")).toThrowError("can't generate");
 });

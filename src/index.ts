@@ -1,21 +1,11 @@
 export { Automaton } from "./core/automaton";
-export {
-  StrokeEdge, StrokeNode
-} from "./core/builderStrokeGraph";
+export { StrokeEdge, StrokeNode } from "./core/builderStrokeGraph";
 export { InputEvent, InputStroke } from "./core/inputEvent";
 export { KeyboardLayout } from "./core/keyboardLayout";
-export {
-  KeyboardState,
-  type KeyboardStateReader
-} from "./core/keyboardState";
-export {
-  AndModifier,
-  ModifierGroup
-} from "./core/modifier";
+export { KeyboardState, type KeyboardStateReader } from "./core/keyboardState";
+export { AndModifier, ModifierGroup } from "./core/modifier";
 export { Rule, RuleEntry } from "./core/rule";
-export {
-  RuleStroke
-} from "./core/ruleStroke";
+export { RuleStroke } from "./core/ruleStroke";
 export { Selector, type Inputtable } from "./core/selector";
 export { VirtualKey, VirtualKeys } from "./core/virtualKey";
 
@@ -35,4 +25,3 @@ export type { PhysicalKeyboardLayoutName } from "./impl/keyboardGuide";
 export * from "./impl/presetKeyboardGuide";
 export * from "./impl/presetRules";
 export * from "./impl/stats";
-

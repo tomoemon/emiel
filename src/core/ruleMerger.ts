@@ -1,11 +1,7 @@
 import { Rule, RuleEntry } from "./rule";
 
 // entries を結合した新しい Rule を返す
-export function mergeRule(
-  thisRule: Rule,
-  other: Rule,
-  newName: string = "",
-): Rule {
+export function mergeRule(thisRule: Rule, other: Rule, newName: string = ""): Rule {
   const newRule = new Rule(
     mergeEntries(thisRule, other),
     (v: string) => other.normalize(thisRule.normalize(v)),
@@ -14,11 +10,7 @@ export function mergeRule(
   return newRule;
 }
 
-
-export function mergeEntries(
-  thisRule: Rule,
-  other: Rule
-): RuleEntry[] {
+export function mergeEntries(thisRule: Rule, other: Rule): RuleEntry[] {
   const thisEntryHashMap = new Map<string, RuleEntry[]>();
   thisRule.entries.forEach((entry) => {
     if (thisEntryHashMap.has(entry.output)) {

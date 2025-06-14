@@ -17,7 +17,7 @@ export class KeyboardState implements KeyboardStateReader {
   // Javascript の仕様で、Set<T> にオブジェクトをセットする場合は、
   // オブジェクトの同値性ではなく（その方法がない）、同一性で比較されるため、重複した値がセットされてしまう恐れがある
   // そのため、ここでは配列として持った上で equals で明示的に同値チェックを行っている
-  constructor(private _downedKeys: VirtualKey[] = []) { }
+  constructor(private _downedKeys: VirtualKey[] = []) {}
   get downedKeys(): readonly VirtualKey[] {
     return this._downedKeys;
   }

@@ -5,7 +5,6 @@ import us_101_default from "../assets/keyboard_guides/us_101_default.json";
 import us_hhkb_default from "../assets/keyboard_guides/us_hhkb_default.json";
 import { loadJsonKeyboardGuide } from "./keyboardGuideLoader";
 
-
 export function loadPresetKeyboardGuideJis106Default() {
   return loadJsonKeyboardGuide(jis_106_default);
 }

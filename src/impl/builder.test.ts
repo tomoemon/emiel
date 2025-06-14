@@ -16,7 +16,7 @@ tt	っ	t
 ta	た
 ltu	っ
 `,
-    loadPresetKeyboardLayoutQwertyJis()
+    loadPresetKeyboardLayoutQwertyJis(),
   );
   const [startNode, endKanaNode] = buildKanaNode(rule, "おった");
   expect(startNode.nextEdges[0].entries[0].output).toBe("お");
@@ -38,7 +38,7 @@ test("erase invalid connection test", () => {
 a	あ
 x	あいう
 `,
-    loadPresetKeyboardLayoutQwertyJis()
+    loadPresetKeyboardLayoutQwertyJis(),
   );
   const [startNode, endNode] = buildKanaNode(rule, "あいう");
   expect(startNode.nextEdges.length).toBe(1);

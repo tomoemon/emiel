@@ -26,7 +26,7 @@ test("2 element 2 item", () => {
     product([
       [1, 2],
       [3, 4],
-    ])
+    ]),
   );
   expect(result).toEqual([
     [1, 3],

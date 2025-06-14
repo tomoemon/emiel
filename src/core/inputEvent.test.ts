@@ -16,10 +16,13 @@ test("シンプルな入力で matched", () => {
   const edge = new StrokeEdge(
     new RuleStroke(VirtualKeys.A, AndModifier.empty),
     dummyNode1,
-    dummyNode2
+    dummyNode2,
   );
 
-  expect(matchCandidateEdge(ev, edge)).toEqual({ type: "matched", keyCount: 1 });
+  expect(matchCandidateEdge(ev, edge)).toEqual({
+    type: "matched",
+    keyCount: 1,
+  });
 });
 
 test("シンプルな入力で none", () => {
@@ -32,7 +35,7 @@ test("シンプルな入力で none", () => {
   const edge = new StrokeEdge(
     new RuleStroke(VirtualKeys.A, AndModifier.empty),
     dummyNode1,
-    dummyNode2
+    dummyNode2,
   );
   expect(matchCandidateEdge(ev, edge)).toEqual({ type: "none", keyCount: 0 });
 });
@@ -47,7 +50,7 @@ test("シフトキー単打で none", () => {
   const edge = new StrokeEdge(
     new RuleStroke(VirtualKeys.A, AndModifier.empty),
     dummyNode1,
-    dummyNode2
+    dummyNode2,
   );
 
   // 配列のすべての要素が一致するかどうかを比較する
