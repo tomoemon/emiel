@@ -61,25 +61,25 @@ function Typing(props: { layout: KeyboardLayout }) {
       <h1>
         {/* 課題文かな表示 */}
         <span style={{ color: "gray" }}>
-          {selector.activeItems[0].finishedWord}
+          {selector.activeItems[0].getFinishedWord()}
         </span>{" "}
-        {selector.activeItems[0].pendingWord}
+        {selector.activeItems[0].getPendingWord()}
       </h1>
       {/* ローマ字入力 */}
       <h1>
         <p style={{ fontSize: "1rem" }}>ローマ字入力</p>
         <span style={{ color: "gray" }}>
-          {romanAutomaton.finishedRoman}
+          {romanAutomaton.getFinishedRoman()}
         </span>{" "}
-        {romanAutomaton.pendingRoman}
+        {romanAutomaton.getPendingRoman()}
       </h1>
       {/* かな入力 */}
       <h1>
         <p style={{ fontSize: "1rem" }}>かな入力</p>
         <span style={{ color: "gray" }}>
-          {kanaAutomaton.finishedWord}
+          {kanaAutomaton.getFinishedWord()}
         </span>{" "}
-        {kanaAutomaton.pendingWord}
+        {kanaAutomaton.getPendingWord()}
       </h1>
       <h2>
         Key:{" "}

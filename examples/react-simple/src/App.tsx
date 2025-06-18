@@ -38,12 +38,12 @@ function Typing(props: { layout: KeyboardLayout }) {
   return (
     <>
       <h1>
-        <span style={{ color: "gray" }}>{automaton.finishedWord}</span>{" "}
-        {automaton.pendingWord}
+        <span style={{ color: "gray" }}>{automaton.getFinishedWord()}</span>{" "}
+        {automaton.getPendingWord()}
       </h1>
       <h1>
-        <span style={{ color: "gray" }}>{automaton.finishedRoman}</span>{" "}
-        {automaton.pendingRoman}
+        <span style={{ color: "gray" }}>{automaton.getFinishedRoman()}</span>{" "}
+        {automaton.getPendingRoman()}
       </h1>
       <h2>
         Key:{" "}

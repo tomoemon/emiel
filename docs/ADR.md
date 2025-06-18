@@ -350,36 +350,51 @@ J は Rule.modifiers に含まれていないため、「ざ」を入力する�
 
 結果として、Rule.modifiers のキーを特別扱いする必要もなくなり、Rule.modifiers という定義そのものが不要になるはず。
 
-# 20250222
+# 20250617 Automaton クラスのリファクタリング
 
-「しる」を打つべきシーンで R↓I↓I↑R↑ という順に打つと「しょ」になって本来はミス。
-成功になってしまっている。
+## 背景
 
-# 参考資料
+Automaton クラスに getter 系の関数が集中し、クラスが肥大化していた。また、ユーザーが独自の統計関数や参照系関数を追加したい場合に対応できなかった。
 
-Microsoft キーボード入力の概要（真ん中以下にスキャンコード表がある）
-https://learn.microsoft.com/ja-jp/windows/win32/inputdev/about-keyboard-input
+## 決定事項
 
-W3C Writing System Keys（キーの名前）
-https://www.w3.org/TR/uievents-code/#key-alphanumeric-writing-system
+- Automaton の内部状態を `AutomatonState` インターフェースとして分離
+- getter 系関数を `automatonGetters.ts` にグローバル関数として分離
+- 動的な機能拡張のための `with()` メソッドを実装
 
-Windows のキーボードレイアウト一覧
-http://kbdlayout.info/
+## 実装詳細
 
-USB キーボードと PS/2 キーボードの違い
-https://ascii.jp/elem/000/004/031/4031629/
+### 拡張メカニズム
 
-ブラウザのキーボードイベントの詳細確認ツール
-https://www.toptal.com/developers/keycode
+```typescript
+// 拡張の定義
+const statsExtension = {
+  getKPM: (state: AutomatonState) => {
+    /* ... */
+  },
+  getAccuracy: (state: AutomatonState) => {
+    /* ... */
+  },
+};
 
-Keyboard Event Viewer(IME の状態による違いも確認できる)
-https://w3c.github.io/uievents/tools/key-event-viewer.html
+// 使用方法
+const automaton = rule.build("こんにちは");
+const extended = automaton.with(statsExtension);
+console.log(extended.getKPM()); // 型安全に拡張メソッドを使用
+```
 
-OS・ブラウザ別の code 一覧
-https://developer.mozilla.org/en-US/docs/Web/API/UI_Events/Keyboard_event_code_values
+### Proxy を使用した理由
 
-USB HID Usage ID の Scancode 変換と対応するキー
-https://bsakatu.net/doc/usb-hid-to-scancode/
+- 拡張メソッドが常に最新の Automaton の状態を参照できる
+- メモリ効率が良い（新しいオブジェクトを作成しない）
+- 型安全性を保ちながら動的に機能を追加できる
 
-USB HID Usage Tables ver.1.5
-https://www.usb.org/document-library/hid-usage-tables-15
+### デフォルト拡張
+
+`rule.build()` はデフォルトで基本的な getter を含む `defaultExtension` を適用する。これにより、既存のコードとの後方互換性を維持。
+
+## 結果
+
+- Automaton クラスの責務が明確になった（状態管理と入力処理に特化）
+- ユーザーが必要な機能だけを選択的に使用可能
+- 独自の拡張を簡単に追加できるようになった

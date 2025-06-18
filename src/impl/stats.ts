@@ -5,7 +5,7 @@
  * @param succeededCount 正しく入力できた打鍵数
  * @returns
  */
-export function calcAccuracy(failedCount: number, succeededCount: number): number {
+export function getAccuracy(failedCount: number, succeededCount: number): number {
   return succeededCount / (succeededCount + failedCount);
 }
 /**
@@ -16,7 +16,7 @@ export function calcAccuracy(failedCount: number, succeededCount: number): numbe
  * @param finishedAt 終了時刻（一般的にワードの入力が完了した時刻）
  * @returns
  */
-export function calcKpm(succeededCount: number, startedAt: Date, finishedAt: Date): number {
+export function getKpm(succeededCount: number, startedAt: Date, finishedAt: Date): number {
   return Math.trunc((succeededCount / (finishedAt.getTime() - startedAt.getTime())) * 1000 * 60);
 }
 
@@ -30,7 +30,7 @@ export function calcKpm(succeededCount: number, startedAt: Date, finishedAt: Dat
  * @param finishedAt 終了時刻（一般的にワードの入力が完了した時刻）
  * @returns
  */
-export function calcRkpm(succeededCount: number, firstInputtedAt: Date, finishedAt: Date): number {
+export function getRkpm(succeededCount: number, firstInputtedAt: Date, finishedAt: Date): number {
   return Math.trunc(
     ((succeededCount - 1) / (finishedAt.getTime() - firstInputtedAt.getTime())) * 1000 * 60,
   );

@@ -8,11 +8,13 @@ function App() {
   const [keyboardState, setKeyboardState] = useState<KeyboardStateReader>(new KeyboardState([]));
   useEffect(() => {
     activate(window, (evt) => {
-      console.log("down", evt.input.key);
-      setKeyboardState(evt.keyboardState)
-    }, (evt) => {
-      console.log("up", evt.input.key);
-      setKeyboardState(evt.keyboardState)
+      if (evt.input.type === "keydown") {
+        console.log("down", evt.input.key);
+        setKeyboardState(evt.keyboardState)
+      } else {
+        console.log("up", evt.input.key);
+        setKeyboardState(evt.keyboardState)
+      }
     }
     );
   }, []);

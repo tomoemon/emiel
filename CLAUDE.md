@@ -13,13 +13,13 @@ emiel is a universal Japanese typing game library written in pure TypeScript wit
 pnpm install
 
 # Build the library
-pnpm build
+pnpm run build
 
 # Run tests
-pnpm test
+pnpm run test
 
 # Run linting
-pnpm lint
+pnpm run lint
 
 # Publish the package
 make publish

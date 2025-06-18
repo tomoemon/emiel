@@ -1,4 +1,5 @@
-export { Automaton } from "./core/automaton";
+export * as AutomatonGetters from "./core/automatonGetters";
+export type { AutomatonState, EdgeHistory } from "./core/automatonState";
 export { StrokeEdge, StrokeNode } from "./core/builderStrokeGraph";
 export { InputEvent, InputStroke } from "./core/inputEvent";
 export { KeyboardLayout } from "./core/keyboardLayout";
@@ -25,3 +26,5 @@ export type { PhysicalKeyboardLayoutName } from "./impl/keyboardGuide";
 export * from "./impl/presetKeyboardGuide";
 export * from "./impl/presetRules";
 export * from "./impl/stats";
+
+export type { Automaton } from "./core/automatonBuilder";

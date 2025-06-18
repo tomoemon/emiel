@@ -1,4 +1,4 @@
-import { activate, Automaton, detectKeyboardLayout, InputEvent, InputResult, InputStroke, Inputtable, KeyboardLayout, loadPresetRuleRoman, Selector, VirtualKeys } from "emiel";
+import { activate, Automaton, detectKeyboardLayout, InputStroke, KeyboardLayout, loadPresetRuleRoman, Selector, VirtualKeys } from "emiel";
 import { useEffect, useMemo, useState } from "react";
 import "./App.css";
 import { Word } from "./word";
@@ -22,16 +22,16 @@ const wordGen = (function* wordGenerator(): Generator<string, string> {
 // 初期ワード3つ
 const initialWords = Array.from({ length: 3 }, () => wordGen.next().value);
 
-class PositionAutomaton implements Inputtable {
-  constructor(readonly base: Automaton, readonly position: number) {
-  }
-  input(stroke: InputEvent): InputResult {
-    return this.base.input(stroke);
-  }
-  reset(): void {
-    this.base.reset();
-  }
+type PositionAutomaton = Automaton & {
+  getPosition: () => number;
 }
+
+function withPosition(automaton: Automaton, position: number): PositionAutomaton {
+  return automaton.with({
+    getPosition: () => position,
+  });
+}
+
 
 function App() {
   const [layout, setLayout] = useState<KeyboardLayout | undefined>();
@@ -48,7 +48,7 @@ function Typing(props: { layout: KeyboardLayout }) {
       // 各 automaton の metadata として表示位置をもたせる
       initialWords.map(
         (w, i) =>
-          new PositionAutomaton(
+          withPosition(
             romanRule.build(w),
             i
           )
@@ -70,11 +70,10 @@ function Typing(props: { layout: KeyboardLayout }) {
       const { finished, succeeded, failed } = selector.input(e);
       finished.forEach((a) => {
         console.log("finished", a);
-        const newAutomaton =
-          new PositionAutomaton(
-            romanRule.build(wordGen.next().value),
-            a.position
-          );
+        const newAutomaton = withPosition(
+          romanRule.build(wordGen.next().value),
+          a.getPosition()
+        );
         setSelector((current) => current.replaced(a, newAutomaton));
       });
       succeeded.forEach((a) => {
@@ -90,10 +89,10 @@ function Typing(props: { layout: KeyboardLayout }) {
     <>
       <ul style={{ display: "flex", gap: "2rem", listStyle: "none" }}>
         {[...selector.items]
-          .sort((a, b) => a.position - b.position)
+          .sort((a, b) => a.getPosition() - b.getPosition())
           .map((a, i) => (
-            <li key={a.base.word + i.toString()}>
-              <Word automaton={a.base} />
+            <li key={a.word + i.toString()}>
+              <Word automaton={a} />
             </li>
           ))}
       </ul>

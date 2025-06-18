@@ -44,26 +44,26 @@ function Typing(props: { layout: KeyboardLayout }) {
     <>
       <h1>
         <div style={{ display: "flex" }}>
-          <div style={{ color: "gray" }}>{automaton.base.finishedWord}</div>
+          <div style={{ color: "gray" }}>{automaton.base.getFinishedWord()}</div>
           <div
             style={{
-              marginLeft: automaton.base.finishedWord ? "0.5rem" : "0",
+              marginLeft: automaton.base.getFinishedWord() ? "0.5rem" : "0",
             }}
           >
-            {automaton.base.pendingWord}
+            {automaton.base.getPendingWord()}
           </div>
         </div>
       </h1>
       <h1>
         <div style={{ display: "flex" }}>
-          <div style={{ color: "gray" }}>{automaton.base.finishedRoman}</div>
+          <div style={{ color: "gray" }}>{automaton.base.getFinishedRoman()}</div>
           <div
             style={{
-              marginLeft: automaton.base.finishedRoman ? "0.5rem" : "0",
+              marginLeft: automaton.base.getFinishedRoman() ? "0.5rem" : "0",
               textAlign: "left",
             }}
           >
-            {automaton.base.pendingRoman}
+            {automaton.base.getPendingRoman()}
             <br />
             <span style={{ color: "yellow" }}>
               {automaton.failedInputs

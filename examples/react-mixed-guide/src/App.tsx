@@ -1,7 +1,7 @@
 import { activate, detectKeyboardLayout, InputStroke, KeyboardLayout, loadPresetRuleRoman } from "emiel";
 import { useEffect, useMemo, useState } from "react";
 import "./App.css";
-import { MixedText, MixedTextAutomaton } from "./MixedGuide";
+import { MixedText, withMixedText } from "./MixedGuide";
 
 function App() {
   const [layout, setLayout] = useState<KeyboardLayout | undefined>();
@@ -21,7 +21,7 @@ function Typing(props: { layout: KeyboardLayout }) {
   ];
   const [automatons] = useState(
     words.map((w) =>
-      new MixedTextAutomaton(
+      withMixedText(
         romanRule.build(w.kanaText),
         w,
       )
@@ -34,11 +34,11 @@ function Typing(props: { layout: KeyboardLayout }) {
   useEffect(() => {
     return activate(window, (e) => {
       setLastInputKey(e.input);
-      const result = automatons[index].base.input(e);
+      const result = automatons[index].input(e);
       if (result.isFinished) {
         setIndex((current) => {
           const newIndex = (current + 1) % automatons.length;
-          automatons[newIndex].base.reset();
+          automatons[newIndex].reset();
           return newIndex;
         });
       }
@@ -49,16 +49,16 @@ function Typing(props: { layout: KeyboardLayout }) {
   return (
     <>
       <h1>
-        <span style={{ color: "gray" }}>{automaton.finishedMixedSubstr}</span>{" "}
-        {automaton.pendingMixedSubstr}
+        <span style={{ color: "gray" }}>{automaton.getFinishedMixedSubstr()}</span>{" "}
+        {automaton.getPendingMixedSubstr()}
       </h1>
       <h1>
-        <span style={{ color: "gray" }}>{automaton.base.finishedWord}</span>{" "}
-        {automaton.base.pendingWord}
+        <span style={{ color: "gray" }}>{automaton.getFinishedWord()}</span>{" "}
+        {automaton.getPendingWord()}
       </h1>
       <h1>
-        <span style={{ color: "gray" }}>{automaton.base.finishedRoman}</span>{" "}
-        {automaton.base.pendingRoman}
+        <span style={{ color: "gray" }}>{automaton.getFinishedRoman()}</span>{" "}
+        {automaton.getPendingRoman()}
       </h1>
       <h2>
         Key:{" "}
