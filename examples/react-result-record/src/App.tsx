@@ -31,9 +31,9 @@ function TypingRoot(props: { layout: KeyboardLayout }) {
       {
         automaton: a,
         displayedAt,
-        firstInputtedAt: a.histories[0].event.timestamp,
+        firstInputtedAt: a.edgeHistories[0].event.timestamp,
         finishedAt:
-          a.histories[a.histories.length - 1].event.timestamp,
+          a.edgeHistories[a.edgeHistories.length - 1].event.timestamp,
       },
     ]);
     setWordIndex((current) => {

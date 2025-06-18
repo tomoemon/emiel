@@ -1,4 +1,3 @@
-import { Automaton } from "./automaton";
 import { build } from "./automatonBuilder";
 import { extendCommonPrefixOverlappedEntriesDeeply } from "./ruleExtender";
 import { RuleStroke } from "./ruleStroke";
@@ -134,7 +133,7 @@ export class Rule {
     return this.mapEntriesByFirstInputModifier.get(modifierKey) ?? [];
   }
 
-  build(kanaText: string): Automaton {
+  build(kanaText: string) {
     return build(this, kanaText);
   }
 }

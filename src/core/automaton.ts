@@ -1,7 +1,7 @@
+import { AutomatonState, EdgeHistory } from "./automatonState";
 import { StrokeEdge, StrokeNode } from "./builderStrokeGraph";
 import { InputEvent, matchCandidateEdge, matchOtherEdge } from "./inputEvent";
 import { Rule } from "./rule";
-import { RuleStroke } from "./ruleStroke";
 
 export class InputResult {
   constructor(
@@ -55,17 +55,7 @@ export class InputResult {
   }
 }
 
-type edgeHistory = {
-  // 遷移のきっかけになった成功した入力イベント
-  event: InputEvent;
-  // 今回の遷移で利用されたエッジ（この Edge をたどると startNode まで戻れる）
-  previousEdge: StrokeEdge;
-  // 今回の遷移に成功するまでに失敗した入力イベント
-  // failedEvents[0], failedEvents[1], ..., event(入力成功) という時系列
-  failedEvents: InputEvent[];
-};
-
-export class Automaton {
+export class AutomatonImpl implements AutomatonState {
   /**
    * @param word かな文字列（配列定義 Rule で使用可能な文字で構成される文字列）
    * @param startNode 打鍵を受け付ける開始ノード
@@ -76,120 +66,32 @@ export class Automaton {
     readonly startNode: StrokeNode,
     readonly rule: Rule,
   ) {
-    this._currentNode = startNode;
+    this.currentNode = startNode;
   }
-  private _currentNode: StrokeNode;
+  currentNode: StrokeNode;
   /** 入力成功して遷移した履歴 */
-  private _edgeHistories: edgeHistory[] = [];
+  edgeHistories: EdgeHistory[] = [];
   /** 現在のノード入力中に失敗した入力イベント。次のノードに遷移するとリセットされる */
-  private _failedEventsAtCurrentNode: InputEvent[] = [];
-  /**
-   * 入力が完了したかな文字列
-   */
-  get finishedWord(): string {
-    return this.word.substring(0, this._currentNode.kanaIndex);
-  }
-  /**
-   * 入力が完了していないかな文字列
-   */
-  get pendingWord(): string {
-    return this.word.substring(this._currentNode.kanaIndex);
-  }
-  /**
-   * 入力が完了したローマ字列（ローマ字系の Rule の場合のみ）
-   */
-  get finishedRoman(): string {
-    return this._edgeHistories.map((v) => v.previousEdge.input.romanChar).join("");
-  }
-  /**
-   * 入力が完了していないローマ字列（ローマ字系の Rule の場合のみ）
-   */
-  get pendingRoman(): string {
-    return this.pendingStroke.map((v) => v.romanChar).join("");
-  }
-  /**
-   * 入力が完了したキーストローク列
-   */
-  get finishedStroke(): RuleStroke[] {
-    return this._edgeHistories.map((v) => v.previousEdge.input);
-  }
-  /**
-   * 現在の入力状態から最短ストローク数で打ち切れるストローク列を返す
-   */
-  get pendingStroke(): RuleStroke[] {
-    let node = this.currentNode;
-    const result: RuleStroke[] = [];
-    while (node.nextEdges.length > 0) {
-      result.push(node.nextEdges[0].input);
-      node = node.nextEdges[0].next;
-    }
-    return result;
-  }
-  /**
-   * 入力履歴
-   */
-  get histories(): edgeHistory[] {
-    return this._edgeHistories;
-  }
-  /**
-   * 1打目の入力時刻
-   */
-  get firstInputTime(): Date {
-    return this._edgeHistories[0].event.timestamp;
-  }
-  /**
-   * 最後の入力時刻
-   */
-  get lastInputTime(): Date {
-    return this._edgeHistories[this._edgeHistories.length - 1].event.timestamp;
-  }
-  /**
-   * ミス入力数の合計
-   */
-  get failedInputCount(): number {
-    return (
-      this._failedEventsAtCurrentNode.length +
-      this._edgeHistories.reduce((acc, v) => acc + v.failedEvents.length, 0)
-    );
-  }
-  /**
-   * ミス入力も含めた打鍵数の合計
-   */
-  get totalInputCount(): number {
-    return (
-      this._failedEventsAtCurrentNode.length +
-      this._edgeHistories.reduce((acc, v) => acc + v.failedEvents.length, 0) +
-      this._edgeHistories.length
-    );
-  }
+  failedEventsAtCurrentNode: InputEvent[] = [];
   /**
    * 入力状態をリセットする
    */
   reset(): void {
-    this._currentNode = this.startNode;
-    this._edgeHistories = [];
-    this._failedEventsAtCurrentNode = [];
-  }
-  get currentNode(): StrokeNode {
-    return this._currentNode;
+    this.currentNode = this.startNode;
+    this.edgeHistories = [];
+    this.failedEventsAtCurrentNode = [];
   }
   /**
    * 1 stroke 分の入力を戻す
    */
   back(): void {
-    if (this._currentNode !== this.startNode) {
-      const history = this._edgeHistories.pop();
+    if (this.currentNode !== this.startNode) {
+      const history = this.edgeHistories.pop();
       if (history) {
-        this._currentNode = history.previousEdge.previous;
+        this.currentNode = history.previousEdge.previous;
       }
     }
-    this._failedEventsAtCurrentNode = [];
-  }
-  /**
-   * 入力が完了しているかどうか
-   */
-  get isFinished(): boolean {
-    return this._currentNode.nextEdges.length === 0;
+    this.failedEventsAtCurrentNode = [];
   }
 
   /**
@@ -237,7 +139,7 @@ export class Automaton {
       if (this.stagedEdge) {
         if (this.stagedEdge instanceof StrokeEdge) {
           const acceptedEdge = this.stagedEdge;
-          const resultType = this.edgeToResultType(this._currentNode.kanaIndex, acceptedEdge);
+          const resultType = this.edgeToResultType(this.currentNode.kanaIndex, acceptedEdge);
           return [
             resultType,
             () => {
@@ -255,7 +157,7 @@ export class Automaton {
       return [InputResult.IGNORED, () => {}];
     }
 
-    const matchResults = this._currentNode.nextEdges.map((edge) => {
+    const matchResults = this.currentNode.nextEdges.map((edge) => {
       const result = matchCandidateEdge(stroke, edge);
       return { edge, result };
     });
@@ -265,7 +167,7 @@ export class Automaton {
     const modifiedEdges = matchResults
       .filter((match) => match.result.type === "modified")
       .map((match) => match.edge);
-    const otherMatched = matchOtherEdge(stroke, this.rule, this._currentNode.nextEdges);
+    const otherMatched = matchOtherEdge(stroke, this.rule, this.currentNode.nextEdges);
 
     if (acceptedEdges.length > 0) {
       if (modifiedEdges.length > 0) {
@@ -326,7 +228,7 @@ export class Automaton {
           ];
         } else {
           const acceptedEdge = acceptedEdges[0];
-          const resultType = this.edgeToResultType(this._currentNode.kanaIndex, acceptedEdge.edge);
+          const resultType = this.edgeToResultType(this.currentNode.kanaIndex, acceptedEdge.edge);
           return [
             resultType,
             () => {
@@ -386,15 +288,15 @@ export class Automaton {
     this.stagedEdge = undefined;
 
     if (result.isSucceeded) {
-      this._edgeHistories.push({
+      this.edgeHistories.push({
         event: stroke,
         previousEdge: acceptedEdge!,
-        failedEvents: this._failedEventsAtCurrentNode,
+        failedEvents: this.failedEventsAtCurrentNode,
       });
-      this._currentNode = acceptedEdge!.next;
-      this._failedEventsAtCurrentNode = [];
+      this.currentNode = acceptedEdge!.next;
+      this.failedEventsAtCurrentNode = [];
     } else if (result.isFailed) {
-      this._failedEventsAtCurrentNode.push(stroke);
+      this.failedEventsAtCurrentNode.push(stroke);
     }
   }
 
@@ -406,5 +308,43 @@ export class Automaton {
       return InputResult.KANA_SUCCEEDED;
     }
     return InputResult.KEY_SUCCEEDED;
+  }
+
+  /**
+   * 拡張メソッドを追加して Automaton の Proxy を返す
+   *
+   * 参照系の関数はいくらでも追加する可能性があるため、Automaton 自体に持たせるのではなく、
+   * 利用者側の必要に応じて拡張してもらえるようにする。
+   * state の情報を取得するだけでなく、
+   * クロージャで Automaton に任意の情報を付加して、あとから参照することも可能。
+   * (automaton.test.ts 参照)
+   *
+   * @example
+   * ```typescript
+   * const extended = automaton.with({
+   *   getProgress: (state) => (state.currentNode.kanaIndex / state.word.length) * 100,
+   *   getKPM: (state) => {
+   *     const duration = getLastInputTime(state).getTime() - getFirstInputTime(state).getTime();
+   *     return (state.edgeHistories.length / duration) * 60000;
+   *   }
+   * });
+   *
+   * console.log(extended.getProgress()); // number
+   * console.log(extended.getKPM()); // number
+   * ```
+   */
+  with<T extends Record<string, (state: AutomatonState) => any>>(
+    extension: T,
+  ): this & { [K in keyof T]: () => ReturnType<T[K]> } {
+    const self = this;
+    const proxy = new Proxy(this, {
+      get(target, prop) {
+        if (prop in extension) {
+          return () => extension[prop as keyof T](self);
+        }
+        return target[prop as keyof typeof target];
+      },
+    });
+    return proxy as this & { [K in keyof T]: () => ReturnType<T[K]> };
   }
 }

@@ -1,6 +1,6 @@
-import "./App.css";
 import * as emiel from "emiel";
 import { useEffect, useState } from "react";
+import "./App.css";
 
 export function Typing(props: {
   layout: emiel.KeyboardLayout;
@@ -27,17 +27,17 @@ export function Typing(props: {
   return (
     <>
       <h1>
-        <span style={{ color: "gray" }}>{automaton.finishedWord}</span>{" "}
-        {automaton.pendingWord}
+        <span style={{ color: "gray" }}>{automaton.getFinishedWord()}</span>{" "}
+        {automaton.getPendingWord()}
       </h1>
       <h1>
-        <span style={{ color: "gray" }}>{automaton.finishedRoman}</span>{" "}
-        {automaton.pendingRoman}
+        <span style={{ color: "gray" }}>{automaton.getFinishedRoman()}</span>{" "}
+        {automaton.getPendingRoman()}
       </h1>
       <h2>
         Miss:{" "}
         <code>
-          {automaton.failedInputCount}
+          {automaton.getFailedInputCount()}
         </code>
       </h2>
       <h2>

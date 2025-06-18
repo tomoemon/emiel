@@ -1,6 +1,6 @@
 import cytoscape from "cytoscape";
 import dagre from "cytoscape-dagre";
-import * as emiel from "emiel";
+import { activate, Automaton, InputStroke } from "emiel";
 import { useEffect, useRef, useState } from "react";
 import { buildGraphData } from "./graphData";
 import { cyStylesheet } from "./grpahStyle";
@@ -9,14 +9,14 @@ import { cyStylesheet } from "./grpahStyle";
 cytoscape.use(dagre);
 
 export function TypingGraph(props: {
-  automaton: emiel.Automaton;
+  automaton: Automaton;
   ruleName: string;
   onFinished: () => void;
 }) {
   const automaton = props.automaton;
   const graphData = buildGraphData(automaton.startNode);
   const htmlElem = useRef(null);
-  const [, setLastInputKey] = useState<emiel.InputStroke | undefined>();
+  const [, setLastInputKey] = useState<InputStroke | undefined>();
   useEffect(() => {
     const cy = cytoscape({
       container: htmlElem.current!,
@@ -30,7 +30,7 @@ export function TypingGraph(props: {
     // @ts-expect-error rankDir is not defined in cytoscape
     cy.layout({ name: "dagre", rankDir: "LR" }).run();
 
-    return emiel.activate(window, (e) => {
+    return activate(window, (e) => {
       setLastInputKey(e.input);
       const result = automaton.input(e);
       console.log(e.input.key.toString(), e.input.type, result);
@@ -46,19 +46,19 @@ export function TypingGraph(props: {
     });
   }, [props]);
 
-  const finishedRomanSubstr = automaton.finishedRoman;
-  const pendingRomanSubstr = automaton.pendingRoman;
+  const finishedRomanSubstr = automaton.getFinishedRoman();
+  const pendingRomanSubstr = automaton.getPendingRoman();
   return (
     <>
       <h2>{props.ruleName}</h2>
       <h1>
-        <span style={{ color: "gray" }}>{automaton.finishedWord}</span>{" "}
-        {automaton.pendingWord}
+        <span style={{ color: "gray" }}>{automaton.getFinishedWord()}</span>{" "}
+        {automaton.getPendingWord()}
       </h1>
       {finishedRomanSubstr || pendingRomanSubstr ? (
         <h1>
-          <span style={{ color: "gray" }}>{automaton.finishedRoman}</span>{" "}
-          {automaton.pendingRoman}
+          <span style={{ color: "gray" }}>{automaton.getFinishedRoman()}</span>{" "}
+          {automaton.getPendingRoman()}
         </h1>
       ) : (
         <></>
