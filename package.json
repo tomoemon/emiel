@@ -25,6 +25,7 @@
   },
   "scripts": {
     "build": "vite build && tsc",
+    "build:all": "pnpm run build && pnpm -r --filter \"./examples/*\" run build",
     "lint": "oxlint --deny-warnings src",
     "lint:fix": "oxlint --fix src",
     "test": "vitest",

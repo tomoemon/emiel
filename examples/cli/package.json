@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "node index.js",
+    "build": "node --check index.js && node index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",

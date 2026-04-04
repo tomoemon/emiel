@@ -7,9 +7,9 @@
           {
             "type": "command",
             "if": "Bash(git commit *)",
-            "command": "pnpm run fmt && pnpm run lint && pnpm run test || exit 2",
-            "timeout": 120,
-            "statusMessage": "Running fmt, lint and test..."
+            "command": "pnpm run fmt && pnpm run lint && pnpm run test && pnpm run build:all || exit 2",
+            "timeout": 300,
+            "statusMessage": "Running fmt, lint, test and build:all..."
           }
         ]
       }
