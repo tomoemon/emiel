@@ -1,170 +1,120 @@
 import { RuleEntry } from "./rule";
 import type { RuleStroke } from "./ruleStroke";
 
-export function extendCommonPrefixOverlappedEntriesDeeply(entries: RuleEntry[]): RuleEntry[] {
-  return recursiveExtendCommontPrefixOverlappedEntries(entries);
+// プレフィックス競合の展開
+//
+// 日本語入力ルールでは、あるエントリの input が別のエントリの input の
+// 真のプレフィックスになっている場合がある。例：
+//   n → ん, na → な, ka → か
+// このとき n を打っただけでは「ん」を確定できない（次が a なら na → な になる）。
+// この関数は、そうしたプレフィックス競合を事前に解消し、
+// オートマトンが単純な最長一致で動作できるようにする。
+//
+// アルゴリズム:
+//   1. 全エントリを Map<inputHash, RuleEntry> に格納する
+//   2. Map 内で「自身の input が他エントリの input の真のプレフィックスになっている」
+//      エントリ（競合エントリ）を1つ探す
+//   3. 見つからなければ終了
+//   4. 競合エントリを Map から削除し、競合しないエントリと結合した拡張エントリを生成して追加する
+//   5. 2 に戻る
+//
+// 拡張エントリの生成ルール（競合エントリ E と結合先エントリ F について）:
+//   - F が1ストロークの場合: input=E.input+F.input, output=E.output+F.output
+//     例: n/ん + k/き → nk/んき
+//   - F が複数ストロークの場合: input=E.input+F.input[0], output=E.output, nextInput=[F.input[0]]
+//     例: n/ん + ka/か → nk/ん/[k]（nk まで打つと「ん」が確定し、k が次の入力として戻される）
+//
+// 結合先の選定:
+//   競合エントリ n/ん に対し、na/な の2打目 a は「取られたストローク」となる。
+//   a で始まるエントリは結合先にできない（na と区別できないため）。
+//   また n 自身の先頭ストローク n も除外する。
+//   残った先頭ストロークを持つエントリのみが結合先となる。
+//
+// 具体例:
+//   入力: n/ん, na/な, ka/か
+//   → n は na のプレフィックス。取られたストローク = {a, n}
+//   → 結合先: ka（先頭 k は取られていない、複数ストローク）
+//   → 拡張: nk/ん/[k]
+//   結果: nk/ん/[k], na/な, ka/か
+//
+// 停止性:
+//   各イテレーションで1エントリが削除され、追加されるエントリは元より長い input を持つ。
+//   ストロークの組み合わせは有限なので必ず停止する。
+
+export function expandPrefixRules(entries: RuleEntry[]): RuleEntry[] {
+  const unextendable = entries.filter((e) => !e.extendCommonPrefixCommonEntry);
+  const extendable = entries.filter((e) => e.extendCommonPrefixCommonEntry);
+  return [...unextendable, ...resolvePrefixConflicts(extendable)];
 }
 
-function recursiveExtendCommontPrefixOverlappedEntries(entries: RuleEntry[]): RuleEntry[] {
-  let extendableEntries = entries.filter((entry) => entry.extendCommonPrefixCommonEntry);
-  const unextendableEntries = entries.filter((entry) => !entry.extendCommonPrefixCommonEntry);
-  while (true) {
-    const { extendRequiredEntries, extendedNewEntries } =
-      extendCommonPrefixOverlappedEntries(extendableEntries);
-    // console.log(
-    //   Array.from(extendRequiredEntries).map((v) => {
-    //     return {
-    //       input: v.input.map((i) => i.keys[0]).join("|"),
-    //       output: v.output,
-    //       nextInput: v.nextInput.map((i) => i.keys[0]).join("|"),
-    //     };
-    //   })
-    // );
-    // extend された entry は除外する
-    extendableEntries = extendableEntries.filter((entry) => !extendRequiredEntries.has(entry));
-    // console.log(
-    //   extendedNewEntries.map((v) => {
-    //     return {
-    //       input: v.input.map((i) => i.keys[0]).join("|"),
-    //       output: v.output,
-    //       nextInput: v.nextInput.map((i) => i.keys[0]).join("|"),
-    //     };
-    //   })
-    // );
-    // new entries を追加する
-    extendableEntries.push(...extendedNewEntries);
-    if (extendRequiredEntries.size === 0) {
-      break;
+function strokeHash(...strokes: RuleStroke[]): string {
+  return strokes.map((s) => `${s.key.toString()}/${s.requiredModifier.toString()}`).join("-");
+}
+
+// Map 内で最初に見つかったプレフィックス競合を返す。
+// takenStrokes: 競合エントリの次の位置で使われているストロークと自身の先頭ストロークの集合。
+// これらのストロークで始まるエントリは結合先にできない。
+function findPrefixConflict(entryMap: Map<string, RuleEntry>): {
+  entry: RuleEntry;
+  hash: string;
+  takenStrokes: Set<string>;
+} | null {
+  for (const [hash, entry] of entryMap) {
+    const takenStrokes = new Set<string>();
+    let hasConflict = false;
+    for (const other of entryMap.values()) {
+      if (other.input.length <= entry.input.length) continue;
+      if (strokeHash(...other.input.slice(0, entry.input.length)) === hash) {
+        takenStrokes.add(strokeHash(other.input[entry.input.length]));
+        hasConflict = true;
+      }
+    }
+    if (hasConflict) {
+      takenStrokes.add(strokeHash(entry.input[0]));
+      return { entry, hash, takenStrokes };
     }
   }
-  return [...unextendableEntries, ...extendableEntries];
+  return null;
 }
 
-function extendCommonPrefixOverlappedEntries(entries: RuleEntry[]): {
-  extendRequiredEntries: Set<RuleEntry>;
-  extendedNewEntries: RuleEntry[];
-} {
-  // console.log("called extendCommonPrefixOverlappedEntries");
-  // Map のキーにするために、RuleStroke を文字列に変換する
-  const strokeToHash = (...strokes: RuleStroke[]): string => {
-    return strokes
-      .map((stroke) => `${stroke.key.toString()}/${stroke.requiredModifier.toString()}`)
-      .join("-");
-  };
+function resolvePrefixConflicts(entries: RuleEntry[]): RuleEntry[] {
+  const entryMap = new Map<string, RuleEntry>();
+  for (const e of entries) {
+    entryMap.set(strokeHash(...e.input), e);
+  }
 
-  const entryMapByInput = new Map<string, RuleEntry[]>();
-  const entryMapByInputPrefix = new Map<string, RuleEntry[]>();
-  entries.forEach((entry) => {
-    // 各エントリの input をキーにして entry を Map に登録する
-    const hash = strokeToHash(...entry.input);
-    if (entryMapByInput.has(hash)) {
-      entryMapByInput.get(hash)?.push(entry);
-    } else {
-      entryMapByInput.set(hash, [entry]);
-    }
-    // 各エントリの input prefix をキーにして entry を Map に登録する
-    for (let i = 1; i < entry.input.length; i++) {
-      const prefixHash = strokeToHash(...entry.input.slice(0, i));
-      if (entryMapByInputPrefix.has(prefixHash)) {
-        entryMapByInputPrefix.get(prefixHash)?.push(entry);
+  while (true) {
+    const conflict = findPrefixConflict(entryMap);
+    if (!conflict) break;
+
+    const { entry, hash, takenStrokes } = conflict;
+
+    // 取られたストロークで始まらないエントリを結合先として集める
+    const availableEntries = [...entryMap.values()].filter(
+      (e) => !takenStrokes.has(strokeHash(e.input[0])),
+    );
+
+    // 競合エントリを削除し、結合先ごとに拡張エントリを生成
+    entryMap.delete(hash);
+
+    for (const avail of availableEntries) {
+      if (avail.input.length === 1) {
+        // 1ストロークの結合先: output を結合する
+        const newInput = [...entry.input, ...avail.input];
+        entryMap.set(
+          strokeHash(...newInput),
+          new RuleEntry(newInput, entry.output + avail.output, avail.nextInput, true),
+        );
       } else {
-        entryMapByInputPrefix.set(prefixHash, [entry]);
-      }
-    }
-  });
-  // console.log("entryMapByInput", entryMapByInput);
-  // console.log("entryMapByInputPrefix", entryMapByInputPrefix);
-  const extendRequiredInput = new Map<string, RuleEntry[]>();
-  entries.forEach((entry) => {
-    // 各エントリの input の prefix に一致するものが entryMap にある場合、
-    // そのまま使うことはできないので、展開する
-    // 例： n/ん, na/な, ka/か
-    // このとき、n 単独で「ん」を打つことはできず、
-    // nka のときのみ「んか」となって「ん」を n 一打で打つことができる
-    // ※2打鍵目が a 以外でなければならず、a 以外で始まるエントリと結合する
-    //
-    // 展開対象が複数ある場合、展開されたものがさらに展開を要することもある
-    // 例：n/ん, na/な, ka/か, s/さ, si/し
-    // n/ん → nk/ん/k, ns/んさ, ns/ん/s となる
-    // ns/んさ → nsna/んさな, nska/んさか
-    // s/さ → sn/さん, sna/さな, ska/さか
-    // 最終的に
-    // nk/ん/k, nsna/んさな, nska/んさか, sn/さん, sna/さな, ska/さか, si/し, ka/か, na/な
-    // となる
-    // 疑問：展開されたことによって、すでにチェック済みのもの（上で言えば na/な とか）が
-    // あらためて展開が必要になることはあるか？
-    // →展開されると、重複しないように prefix が伸びていくので、一度展開不要となったエントリが
-    // あらためて展開必要になることはないはず
-    // nnn/ななな, nn/なぬ, n/ん, ka/か
-    // n/ん → nk/ん/k
-    // nn/なぬ → nnk/なぬ/k
-    for (let i = 1; i < entry.input.length; i++) {
-      const prefixHash = strokeToHash(...entry.input.slice(0, i));
-      if (!entryMapByInput.has(prefixHash)) {
-        // prefix と同じ入力を持つものがないときは展開不要
-        continue;
-      }
-      // console.log(prefixHash);
-      if (!extendRequiredInput.has(prefixHash)) {
-        // 同じ prefix を持つエントリ集合を P とする (entry=na の場合, na, ni, nu, ...)
-        // P に含まれないエントリのうち、「P に含まれるエントリの input[i] で使われていないキー」を
-        // 1打鍵目に持つエントリのみ、この後の展開で使うことができる
-        const usedStrokeHashes = new Set<string>(
-          entryMapByInputPrefix
-            .get(prefixHash)
-            ?.map((prefixEntry) => strokeToHash(prefixEntry.input[i])),
-        );
-        usedStrokeHashes.add(strokeToHash(entry.input[0]));
-        // console.log("usedStrokeHashes", usedStrokeHashes);
-        extendRequiredInput.set(
-          prefixHash,
-          entries.filter((entry) => {
-            const firstHash = strokeToHash(entry.input[0]);
-            return !usedStrokeHashes.has(firstHash);
-          }),
+        // 複数ストロークの結合先: 先頭1ストロークだけ取り、nextInput として戻す
+        const newInput = [...entry.input, avail.input[0]];
+        entryMap.set(
+          strokeHash(...newInput),
+          new RuleEntry(newInput, entry.output, [avail.input[0]], true),
         );
       }
     }
-  });
-  // console.log("extendRequiredInput", extendRequiredInput);
-  const extendRequiredEntries = new Set<RuleEntry>();
-  const extendedNewEntries = new Map<string, RuleEntry>();
-  extendRequiredInput.forEach((availableEntries, hash) => {
-    // 展開が必要なエントリ（例：n/ん）
-    const prefixOverlapEntries = entryMapByInput.get(hash) as RuleEntry[];
-    prefixOverlapEntries.forEach((expandRequiredEntry) => {
-      extendRequiredEntries.add(expandRequiredEntry);
-      availableEntries.forEach((availableEntry) => {
-        if (availableEntry.input.length === 1) {
-          const newInput = [...expandRequiredEntry.input, ...availableEntry.input];
-          const newInputHash = strokeToHash(...newInput);
-          extendedNewEntries.set(
-            newInputHash,
-            new RuleEntry(
-              newInput,
-              expandRequiredEntry.output + availableEntry.output,
-              availableEntry.nextInput,
-              true,
-            ),
-          );
-        } else {
-          const newInput = [...expandRequiredEntry.input, availableEntry.input[0]];
-          const newInputHash = strokeToHash(...newInput);
-          extendedNewEntries.set(
-            newInputHash,
-            new RuleEntry(
-              [...expandRequiredEntry.input, availableEntry.input[0]],
-              expandRequiredEntry.output,
-              [availableEntry.input[0]],
-              true,
-            ),
-          );
-        }
-      });
-    });
-  });
-  return {
-    extendRequiredEntries: extendRequiredEntries,
-    extendedNewEntries: Array.from(extendedNewEntries.values()),
-  };
+  }
+
+  return [...entryMap.values()];
 }

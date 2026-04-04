@@ -185,51 +185,35 @@
       "output": "ろ"
     },
     {
-      "input": [
-        { "keys": ["Digit3"], "modifiers": [["ShiftLeft", "ShiftRight"]] }
-      ],
+      "input": [{ "keys": ["Digit3"], "modifiers": [["ShiftLeft", "ShiftRight"]] }],
       "output": "ぁ"
     },
     {
-      "input": [
-        { "keys": ["Digit4"], "modifiers": [["ShiftLeft", "ShiftRight"]] }
-      ],
+      "input": [{ "keys": ["Digit4"], "modifiers": [["ShiftLeft", "ShiftRight"]] }],
       "output": "ぅ"
     },
     {
-      "input": [
-        { "keys": ["Digit5"], "modifiers": [["ShiftLeft", "ShiftRight"]] }
-      ],
+      "input": [{ "keys": ["Digit5"], "modifiers": [["ShiftLeft", "ShiftRight"]] }],
       "output": "ぇ"
     },
     {
-      "input": [
-        { "keys": ["Digit6"], "modifiers": [["ShiftLeft", "ShiftRight"]] }
-      ],
+      "input": [{ "keys": ["Digit6"], "modifiers": [["ShiftLeft", "ShiftRight"]] }],
       "output": "ぉ"
     },
     {
-      "input": [
-        { "keys": ["Digit7"], "modifiers": [["ShiftLeft", "ShiftRight"]] }
-      ],
+      "input": [{ "keys": ["Digit7"], "modifiers": [["ShiftLeft", "ShiftRight"]] }],
       "output": "ゃ"
     },
     {
-      "input": [
-        { "keys": ["Digit8"], "modifiers": [["ShiftLeft", "ShiftRight"]] }
-      ],
+      "input": [{ "keys": ["Digit8"], "modifiers": [["ShiftLeft", "ShiftRight"]] }],
       "output": "ゅ"
     },
     {
-      "input": [
-        { "keys": ["Digit9"], "modifiers": [["ShiftLeft", "ShiftRight"]] }
-      ],
+      "input": [{ "keys": ["Digit9"], "modifiers": [["ShiftLeft", "ShiftRight"]] }],
       "output": "ょ"
     },
     {
-      "input": [
-        { "keys": ["Digit0"], "modifiers": [["ShiftLeft", "ShiftRight"]] }
-      ],
+      "input": [{ "keys": ["Digit0"], "modifiers": [["ShiftLeft", "ShiftRight"]] }],
       "output": "を"
     },
     {
@@ -237,9 +221,7 @@
       "output": "ぃ"
     },
     {
-      "input": [
-        { "keys": ["Quote"], "modifiers": [["ShiftLeft", "ShiftRight"]] }
-      ],
+      "input": [{ "keys": ["Quote"], "modifiers": [["ShiftLeft", "ShiftRight"]] }],
       "output": "ヶ"
     },
     {
