@@ -26,7 +26,9 @@ export function getFinishedRoman(state: AutomatonState): string {
  * 入力が完了していないローマ字列（ローマ字系の Rule の場合のみ）
  */
 export function getPendingRoman(state: AutomatonState): string {
-  return getPendingStroke(state).map((v) => v.romanChar).join("");
+  return getPendingStroke(state)
+    .map((v) => v.romanChar)
+    .join("");
 }
 
 /**
