@@ -75,16 +75,16 @@ test("複数の独立したプレフィックス競合", () => {
   const nk = nExpanded.find(
     (e) => inputKeys(e).join(",") === [VirtualKeys.N, VirtualKeys.K].join(","),
   );
-  expect(nk).toBeDefined();
-  expect(nextInputKeys(nk!)).toEqual([VirtualKeys.K]);
+  if (nk === undefined) throw new Error("nk not found");
+  expect(nextInputKeys(nk)).toEqual([VirtualKeys.K]);
 
   // s の展開: sk→さ/[k] が存在する
   const sExpanded = findByOutput(result, "さ");
   const sk = sExpanded.find(
     (e) => inputKeys(e).join(",") === [VirtualKeys.S, VirtualKeys.K].join(","),
   );
-  expect(sk).toBeDefined();
-  expect(nextInputKeys(sk!)).toEqual([VirtualKeys.K]);
+  if (sk === undefined) throw new Error("sk not found");
+  expect(nextInputKeys(sk)).toEqual([VirtualKeys.K]);
 });
 
 test("プレフィックスの連鎖", () => {
@@ -166,17 +166,17 @@ test("1ストロークの結合先はoutputがマージされる", () => {
   const nk = result.find(
     (e) => inputKeys(e).join(",") === [VirtualKeys.N, VirtualKeys.K].join(","),
   );
-  expect(nk).toBeDefined();
-  expect(nk!.output).toBe("んき");
-  expect(nk!.nextInput.length).toBe(0);
+  if (nk === undefined) throw new Error("nk not found");
+  expect(nk.output).toBe("んき");
+  expect(nk.nextInput.length).toBe(0);
 
   // nb→んぶ (1ストロークb→ぶとの結合でoutputがマージ)
   const nb = result.find(
     (e) => inputKeys(e).join(",") === [VirtualKeys.N, VirtualKeys.B].join(","),
   );
-  expect(nb).toBeDefined();
-  expect(nb!.output).toBe("んぶ");
-  expect(nb!.nextInput.length).toBe(0);
+  if (nb === undefined) throw new Error("nb not found");
+  expect(nb.output).toBe("んぶ");
+  expect(nb.nextInput.length).toBe(0);
 
   // k→き, b→ぶ はそのまま残る
   expect(findByOutput(result, "き").length).toBe(1);

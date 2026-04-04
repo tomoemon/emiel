@@ -3,11 +3,11 @@
     "PreToolUse": [
       {
         "matcher": "Bash",
-        "if": "Bash(git commit *)",
         "hooks": [
           {
             "type": "command",
-            "command": "pnpm run fmt && pnpm run lint && pnpm run test",
+            "if": "Bash(git commit *)",
+            "command": "pnpm run fmt && pnpm run lint && pnpm run test || exit 2",
             "timeout": 120,
             "statusMessage": "Running fmt, lint and test..."
           }
