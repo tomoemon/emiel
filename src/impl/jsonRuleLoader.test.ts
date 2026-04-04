@@ -1,4 +1,5 @@
-import { expect, test } from "vitest";
+import * as v from "valibot";
+import { describe, expect, test } from "vitest";
 import { AndModifier, ModifierGroup } from "../core/modifier";
 import { RuleEntry } from "../core/rule";
 import { RuleStroke } from "../core/ruleStroke";
@@ -318,4 +319,60 @@ test("multiple key 1 entry, with modifier", () => {
       false,
     ),
   );
+});
+
+describe("validation errors", () => {
+  // バリデーションテストでは意図的に不正なデータを渡すため unknown にキャスト
+  const load = loadJsonRule as (data: unknown) => ReturnType<typeof loadJsonRule>;
+
+  test("entries is missing", () => {
+    expect(() => load({})).toThrow(v.ValiError);
+  });
+
+  test("entries is not an array", () => {
+    expect(() => load({ entries: "not array" })).toThrow(v.ValiError);
+  });
+
+  test("entry.output is missing", () => {
+    expect(() =>
+      load({
+        entries: [{ input: [{ keys: ["A"] }] }],
+      }),
+    ).toThrow(v.ValiError);
+  });
+
+  test("entry.output is not a string", () => {
+    expect(() =>
+      load({
+        entries: [{ input: [{ keys: ["A"] }], output: 123 }],
+      }),
+    ).toThrow(v.ValiError);
+  });
+
+  test("unknown virtual key", () => {
+    expect(() =>
+      load({
+        entries: [{ input: [{ keys: ["InvalidKey"] }], output: "あ" }],
+      }),
+    ).toThrow(v.ValiError);
+  });
+
+  test("empty keys array", () => {
+    expect(() =>
+      load({
+        entries: [{ input: [{ keys: [] }], output: "あ" }],
+      }),
+    ).toThrow(v.ValiError);
+  });
+
+  test("JSON string with invalid data", () => {
+    expect(() => loadJsonRule('{"entries": "not array"}')).toThrow(v.ValiError);
+  });
+
+  test("comment-only entry is valid", () => {
+    const rule = loadJsonRule({
+      entries: [{ comment: "this is a comment" }],
+    });
+    expect(rule.entries.length).toBe(0);
+  });
 });
