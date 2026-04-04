@@ -1,56 +1,50 @@
+import * as v from "valibot";
 import { AndModifier, ModifierGroup } from "../core/modifier";
 import { Rule, RuleEntry } from "../core/rule";
 import { RuleStroke } from "../core/ruleStroke";
-import { VirtualKey } from "../core/virtualKey";
+import { virtualKeySchema } from "../core/virtualKey";
 import { product } from "../utils/itertools";
 import { defaultKanaNormalize } from "./charNormalizer";
 
-/*
-    {
-      "input": [
-        {
-          "keys": ["Digit1"],
-          "modifiers": []
-        }
-      ],
-      "output": "ぬ",
-      "nextInput": []
-    },
-*/
+const strokeSchema = v.object({
+  // 同時に押すキー（1つ以上）
+  keys: v.pipe(v.array(virtualKeySchema), v.minLength(1)),
+  // 修飾キーのグループ（各グループ内のいずれか1つが押されていればよい）
+  modifiers: v.optional(v.array(v.array(virtualKeySchema))),
+});
 
-type stroke = {
-  keys: string[];
-  modifiers?: string[][];
-};
-type entry =
-  | {
-      // コメントだけの行も許可するため、undefinedを許容する
-      input: stroke[];
-      output: string;
-      nextInput?: stroke[];
-      extendCommonPrefixEntry?: boolean;
-      comment?: string;
-    }
-  | { comment?: string };
+const entryWithInputSchema = v.object({
+  // 打鍵列
+  input: v.array(strokeSchema),
+  // 入力結果として出力されるかな文字列
+  output: v.string(),
+  // 次の入力の先頭として扱う打鍵列
+  nextInput: v.optional(v.array(strokeSchema)),
+  // 共通プレフィックスを持つエントリを自動拡張するか
+  extendCommonPrefixEntry: v.optional(v.boolean()),
+  comment: v.optional(v.string()),
+});
 
-export type jsonSchema = {
-  extendCommonPrefixEntry?: boolean;
-  entries: entry[];
-};
+const commentOnlyEntrySchema = v.object({
+  comment: v.string(),
+});
 
-function loadModifiers(modifiers: string[]): ModifierGroup {
-  return new ModifierGroup(modifiers.map((key) => VirtualKey.getFromString(key)));
-}
+const entrySchema = v.union([entryWithInputSchema, commentOnlyEntrySchema]);
 
-function loadStroke(jsonStroke: stroke): RuleStroke[] {
-  const keys: VirtualKey[] = jsonStroke.keys.map((key) => VirtualKey.getFromString(key));
-  if (keys.length === 0) {
-    throw new Error("empty keys: " + jsonStroke.toString());
-  }
+export const jsonRuleSchema = v.object({
+  // 全エントリに対するデフォルトの共通プレフィックス拡張設定
+  extendCommonPrefixEntry: v.optional(v.boolean()),
+  entries: v.array(entrySchema),
+});
+
+export type JsonRuleSchema = v.InferOutput<typeof jsonRuleSchema>;
+export type JsonRuleInput = v.InferInput<typeof jsonRuleSchema>;
+type Stroke = v.InferOutput<typeof strokeSchema>;
+
+function loadStroke(jsonStroke: Stroke): RuleStroke[] {
+  const keys = jsonStroke.keys;
   const modifierGroups: ModifierGroup[] =
-    jsonStroke.modifiers?.map((modifierKeys) => {
-      return loadModifiers(modifierKeys);
-    }) || [];
+    jsonStroke.modifiers?.map((modifierKeys) => new ModifierGroup(modifierKeys)) || [];
   return keys.map((key) => {
     // 同時押しの場合は、他のキーをモディファイアとして扱う
     // keys: [A,B] の場合、key=A のとき、A+mod(B)
@@ -87,7 +81,7 @@ function loadStroke(jsonStroke: stroke): RuleStroke[] {
  *              [RuleStroke(B+mod(A)),RuleStroke(D+mod(C))],
  *            ]
  */
-function loadInput(input: stroke[]): RuleStroke[][] {
+function loadInput(input: Stroke[]): RuleStroke[][] {
   /**
    * aとbの同時打鍵の後に、cとdの同時打鍵が必要な場合
    * input: [[a,b], [c,d]]
@@ -98,7 +92,10 @@ function loadInput(input: stroke[]): RuleStroke[][] {
   return Array.from(product(strokeGroups));
 }
 
-function loadEntries(jsonEntries: entry[], jsonExtendablePrefixCommon: boolean): RuleEntry[] {
+function loadEntries(
+  jsonEntries: v.InferOutput<typeof entrySchema>[],
+  jsonExtendablePrefixCommon: boolean,
+): RuleEntry[] {
   const entries: RuleEntry[] = [];
   jsonEntries.forEach((v) => {
     if (!("input" in v)) {
@@ -122,11 +119,11 @@ function loadEntries(jsonEntries: entry[], jsonExtendablePrefixCommon: boolean):
   return entries;
 }
 
-export function loadJsonRule(jsonRule: jsonSchema | string, name?: string): Rule {
-  if (jsonRule instanceof String || typeof jsonRule === "string") {
-    const schema = JSON.parse(jsonRule as string) as jsonSchema;
-    return loadJsonRule(schema, name);
+export function loadJsonRule(jsonRule: JsonRuleInput | string, name?: string): Rule {
+  if (typeof jsonRule === "string") {
+    return loadJsonRule(JSON.parse(jsonRule), name);
   }
-  const entries = loadEntries(jsonRule.entries, jsonRule.extendCommonPrefixEntry ?? false);
+  const validated = v.parse(jsonRuleSchema, jsonRule);
+  const entries = loadEntries(validated.entries, validated.extendCommonPrefixEntry ?? false);
   return new Rule(entries, defaultKanaNormalize, name);
 }

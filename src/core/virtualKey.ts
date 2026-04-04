@@ -1,3 +1,5 @@
+import * as v from "valibot";
+
 // ブラウザから渡される Keyboard Event とは直接関係のない仮想的なキー一覧
 // Rule を json ファイル等で定義するときに使うキーはここで定義されている値を文字列として使う
 export const VirtualKeys = {
@@ -106,3 +108,8 @@ export const VirtualKey = {
     throw new Error(`invalid key: ${key}`);
   },
 } as const;
+
+export const virtualKeySchema = v.pipe(
+  v.string(),
+  v.check((key) => key in VirtualKeys, "unknown virtual key"),
+) as v.GenericSchema<string, VirtualKey>;

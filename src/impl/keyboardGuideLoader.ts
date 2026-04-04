@@ -1,58 +1,53 @@
-import { VirtualKey } from "../core/virtualKey";
-import type { KeyboardGuideLabel} from "./keyboardGuide";
+import * as v from "valibot";
+import { virtualKeySchema } from "../core/virtualKey";
 import { KeyboardGuide } from "./keyboardGuide";
 
-type jsonSchema = {
-  name: string;
-  physicalLayout: string;
-  entries: {
-    key: string;
-    labels: {
-      position: string;
-      label: string;
-    }[];
-  }[];
-};
+const jsonKeyboardGuideSchema = v.object({
+  // ガイド名
+  name: v.string(),
+  // 物理キーボードレイアウト名（例: "jis_106", "us_101"）
+  physicalLayout: v.string(),
+  entries: v.array(
+    v.object({
+      // 物理キー
+      key: virtualKeySchema,
+      // キートップに表示するラベル
+      labels: v.array(
+        v.object({
+          // ラベルの表示位置
+          position: v.picklist([
+            "topLeft",
+            "top",
+            "topRight",
+            "left",
+            "center",
+            "right",
+            "bottomLeft",
+            "bottom",
+            "bottomRight",
+          ]),
+          // 表示文字列
+          label: v.string(),
+        }),
+      ),
+    }),
+  ),
+});
 
-export function loadJsonKeyboardGuide(jsonGuide: jsonSchema | string): KeyboardGuide {
-  if (jsonGuide instanceof String || typeof jsonGuide === "string") {
-    const schema = JSON.parse(jsonGuide as string) as jsonSchema;
-    return loadJsonKeyboardGuide(schema);
+export type JsonKeyboardGuideSchema = v.InferOutput<typeof jsonKeyboardGuideSchema>;
+
+export function loadJsonKeyboardGuide(jsonGuide: unknown): KeyboardGuide {
+  if (typeof jsonGuide === "string") {
+    return loadJsonKeyboardGuide(JSON.parse(jsonGuide));
   }
-  const entries = jsonGuide.entries.map((v) => {
-    return {
-      key: VirtualKey.getFromString(v.key),
-      labels: v.labels.map(loadLabel),
-    };
-  });
+  const validated = v.parse(jsonKeyboardGuideSchema, jsonGuide);
+  const entries = validated.entries.map((entry) => ({
+    key: entry.key,
+    labels: entry.labels,
+  }));
   return new KeyboardGuide({
-    name: jsonGuide.name,
-    physicalLayout: jsonGuide.physicalLayout,
+    name: validated.name,
+    physicalLayout: validated.physicalLayout,
     entries: entries,
   });
-}
-
-function loadLabel(jsonLabel: { position: string; label: string }): KeyboardGuideLabel {
-  // position が正しいかどうかのチェックする
-  const position = jsonLabel.position;
-  if (
-    position !== "topLeft" &&
-    position !== "top" &&
-    position !== "topRight" &&
-    position !== "left" &&
-    position !== "center" &&
-    position !== "right" &&
-    position !== "bottomLeft" &&
-    position !== "bottom" &&
-    position !== "bottomRight"
-  ) {
-    throw new Error(`Invalid position: ${position}`);
-  }
-  if (typeof jsonLabel.label !== "string") {
-    throw new Error(`Invalid label: ${jsonLabel.label}`);
-  }
-  return {
-    position: jsonLabel.position as KeyboardGuideLabel["position"],
-    label: jsonLabel.label,
-  };
 }

@@ -22,6 +22,7 @@ export * from "./impl/presetKeyboardLayout";
 export { loadJsonRule } from "./impl/jsonRuleLoader";
 export { loadMozcRule } from "./impl/mozcRuleLoader";
 
+export { loadJsonKeyboardGuide } from "./impl/keyboardGuideLoader";
 export type { PhysicalKeyboardLayoutName } from "./impl/keyboardGuide";
 export * from "./impl/presetKeyboardGuide";
 export * from "./impl/presetRules";
