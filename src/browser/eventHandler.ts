@@ -1,6 +1,8 @@
-import { InputEvent, InputStroke, KeyEventType } from "../core/inputEvent";
+import type { KeyEventType } from "../core/inputEvent";
+import { InputEvent, InputStroke } from "../core/inputEvent";
 import { KeyboardState } from "../core/keyboardState";
-import { VirtualKey, VirtualKeys } from "../core/virtualKey";
+import type { VirtualKey } from "../core/virtualKey";
+import { VirtualKeys } from "../core/virtualKey";
 
 /**
  * @param target addEventListener,removeEventListener を持つ Window object のような型
@@ -62,7 +64,7 @@ function toInputKeyStrokeFromKeyboardEvent(
 
 function toVirtualKeyFromEventCode(code: string): VirtualKey {
   const key = codeToVirtualKey[code];
-  if (key == undefined) {
+  if (key === undefined) {
     throw new Error("invalid code: " + code);
   }
   return key;

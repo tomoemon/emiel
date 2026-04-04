@@ -2,8 +2,8 @@ import presetRuleGoogleImeRoman from "../assets/rules/google_ime_default_roman.t
 import presetRuleJisKana from "../assets/rules/jis_kana.json";
 import presetRuleNaginatashikiV15 from "../assets/rules/naginatashiki_v15.json";
 import presetRuleNicola from "../assets/rules/nicola.json";
-import { KeyboardLayout } from "../core/keyboardLayout";
-import { Rule } from "../core/rule";
+import type { KeyboardLayout } from "../core/keyboardLayout";
+import type { Rule } from "../core/rule";
 import { loadJsonRuleWithLayout, loadMozcRuleWithLayout } from "./ruleLoaderWithLayout";
 
 export function loadPresetRuleRoman(layout: KeyboardLayout): Rule {

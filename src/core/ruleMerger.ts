@@ -1,4 +1,5 @@
-import { Rule, RuleEntry } from "./rule";
+import type { RuleEntry } from "./rule";
+import { Rule } from "./rule";
 
 // entries を結合した新しい Rule を返す
 export function mergeRule(thisRule: Rule, other: Rule, newName: string = ""): Rule {

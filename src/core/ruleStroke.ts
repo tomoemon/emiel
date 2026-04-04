@@ -1,5 +1,5 @@
-import { AndModifier } from "./modifier";
-import { VirtualKey } from "./virtualKey";
+import type { AndModifier } from "./modifier";
+import type { VirtualKey } from "./virtualKey";
 
 export class RuleStroke {
   /**

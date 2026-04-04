@@ -1,6 +1,6 @@
-import { KeyboardLayout } from "../core/keyboardLayout";
+import type { KeyboardLayout } from "../core/keyboardLayout";
 import { Rule, RuleEntry } from "../core/rule";
-import { RuleStroke } from "../core/ruleStroke";
+import type { RuleStroke } from "../core/ruleStroke";
 import { product } from "../utils/itertools";
 import { defaultKanaNormalize } from "./charNormalizer";
 
@@ -16,7 +16,7 @@ export function loadMozcRule(text: string, layout: KeyboardLayout, name: string 
   const entries: RuleEntry[] = [];
   for (let line of lines) {
     line = line.trim();
-    if (line.length == 0) {
+    if (line.length === 0) {
       continue;
     }
     const cols = line.split("\t");

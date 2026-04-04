@@ -1,5 +1,5 @@
-import { KeyboardLayout } from "../core/keyboardLayout";
-import { VirtualKey, VirtualKeys } from "../core/virtualKey";
+import type { KeyboardLayout } from "../core/keyboardLayout";
+import { type VirtualKey, VirtualKeys } from "../core/virtualKey";
 
 export type PhysicalKeyboardLayoutName = "jis_106" | "us_101" | "us_hhkb";
 

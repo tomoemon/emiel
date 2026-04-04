@@ -1,7 +1,7 @@
-import { StrokeEdge } from "./builderStrokeGraph";
-import { KeyboardStateReader } from "./keyboardState";
-import { Rule } from "./rule";
-import { VirtualKey } from "./virtualKey";
+import type { StrokeEdge } from "./builderStrokeGraph";
+import type { KeyboardStateReader } from "./keyboardState";
+import type { Rule } from "./rule";
+import type { VirtualKey } from "./virtualKey";
 
 export type KeyEventType = "keyup" | "keydown";
 export class InputStroke {

@@ -1,12 +1,12 @@
-import { StrokeNode } from "./builderStrokeGraph";
-import { InputEvent } from "./inputEvent";
-import { Rule } from "./rule";
+import type { StrokeEdge, StrokeNode } from "./builderStrokeGraph";
+import type { InputEvent } from "./inputEvent";
+import type { Rule } from "./rule";
 
 export type EdgeHistory = {
   // 遷移のきっかけになった成功した入力イベント
   event: InputEvent;
   // 今回の遷移で利用されたエッジ（この Edge をたどると startNode まで戻れる）
-  previousEdge: import("./builderStrokeGraph").StrokeEdge;
+  previousEdge: StrokeEdge;
   // 今回の遷移に成功するまでに失敗した入力イベント
   // failedEvents[0], failedEvents[1], ..., event(入力成功) という時系列
   failedEvents: InputEvent[];

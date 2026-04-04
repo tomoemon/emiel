@@ -1,5 +1,6 @@
 import { VirtualKey } from "../core/virtualKey";
-import { KeyboardGuideLabel, KeyboardGuide } from "./keyboardGuide";
+import type { KeyboardGuideLabel} from "./keyboardGuide";
+import { KeyboardGuide } from "./keyboardGuide";
 
 type jsonSchema = {
   name: string;

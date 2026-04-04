@@ -1,7 +1,7 @@
 import { build } from "./automatonBuilder";
 import { extendCommonPrefixOverlappedEntriesDeeply } from "./ruleExtender";
-import { RuleStroke } from "./ruleStroke";
-import { VirtualKey } from "./virtualKey";
+import type { RuleStroke } from "./ruleStroke";
+import type { VirtualKey } from "./virtualKey";
 
 export type normalizerFunc = (value: string) => string;
 

@@ -25,7 +25,7 @@
   },
   "scripts": {
     "build": "vite build && tsc",
-    "lint": "oxlint src",
+    "lint": "oxlint --deny-warnings src",
     "lint:fix": "oxlint --fix src",
     "test": "vitest",
     "fmt": "oxfmt --write src",

@@ -1,4 +1,4 @@
-import { StylesheetStyle } from "cytoscape";
+import type { StylesheetStyle } from "cytoscape";
 
 export const cyStylesheet: StylesheetStyle[] = [
   {

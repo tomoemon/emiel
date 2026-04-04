@@ -1,4 +1,4 @@
-import { KeyboardLayout } from "../core/keyboardLayout";
+import type { KeyboardLayout } from "../core/keyboardLayout";
 import { Rule, RuleEntry } from "../core/rule";
 import { defaultAlphaNumericNormalize } from "./charNormalizer";
 

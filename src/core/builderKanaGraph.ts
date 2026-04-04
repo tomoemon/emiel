@@ -1,6 +1,6 @@
 import { setDefaultFunc } from "../utils/map";
-import { Rule, RuleEntry } from "./rule";
-import { RuleStroke } from "./ruleStroke";
+import type { Rule, RuleEntry } from "./rule";
+import type { RuleStroke } from "./ruleStroke";
 
 // build 中にのみ使用する
 export class KanaNode {

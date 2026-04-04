@@ -1,6 +1,6 @@
 import { setDefault } from "../utils/map";
-import { KanaNode } from "./builderKanaGraph";
-import { RuleStroke } from "./ruleStroke";
+import type { KanaNode } from "./builderKanaGraph";
+import type { RuleStroke } from "./ruleStroke";
 
 export class StrokeNode {
   private cost: number = 0; // このノードから打ち切るまでの最短ストローク数
