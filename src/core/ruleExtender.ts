@@ -1,5 +1,5 @@
 import { RuleEntry } from "./rule";
-import { RuleStroke } from "./ruleStroke";
+import type { RuleStroke } from "./ruleStroke";
 
 export function extendCommonPrefixOverlappedEntriesDeeply(entries: RuleEntry[]): RuleEntry[] {
   return recursiveExtendCommontPrefixOverlappedEntries(entries);

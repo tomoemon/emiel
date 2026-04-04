@@ -1,5 +1,5 @@
-import { AutomatonState } from "./automatonState";
-import { RuleStroke } from "./ruleStroke";
+import type { AutomatonState } from "./automatonState";
+import type { RuleStroke } from "./ruleStroke";
 
 /**
  * 入力が完了したかな文字列

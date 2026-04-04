@@ -1,8 +1,8 @@
 import dvorak from "../assets/keyboard_layouts/dvorak.json";
 import qwerty_jis from "../assets/keyboard_layouts/qwerty_jis.json";
 import qwerty_us from "../assets/keyboard_layouts/qwerty_us.json";
-import { KeyboardLayout } from "../core/keyboardLayout";
-import { VirtualKey } from "../core/virtualKey";
+import type { KeyboardLayout } from "../core/keyboardLayout";
+import type { VirtualKey } from "../core/virtualKey";
 import { loadJsonKeyboardLayout } from "./keyboardLayoutLoader";
 
 export function loadPresetKeyboardLayoutQwertyJis() {

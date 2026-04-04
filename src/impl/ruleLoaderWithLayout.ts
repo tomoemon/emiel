@@ -1,8 +1,9 @@
-import { KeyboardLayout } from "../core/keyboardLayout";
-import { Rule } from "../core/rule";
+import type { KeyboardLayout } from "../core/keyboardLayout";
+import type { Rule } from "../core/rule";
 import { mergeRule } from "../core/ruleMerger";
 import { newAlphaNumericRuleByLayout } from "./alphaNumericRule";
-import { jsonSchema, loadJsonRule } from "./jsonRuleLoader";
+import type { jsonSchema} from "./jsonRuleLoader";
+import { loadJsonRule } from "./jsonRuleLoader";
 import { loadMozcRule } from "./mozcRuleLoader";
 
 export function loadMozcRuleWithLayout(

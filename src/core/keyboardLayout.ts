@@ -1,7 +1,7 @@
 import { setDefault } from "../utils/map";
 import { AndModifier, ModifierGroup } from "./modifier";
 import { RuleStroke } from "./ruleStroke";
-import { VirtualKey } from "./virtualKey";
+import type { VirtualKey } from "./virtualKey";
 
 export class KeyboardLayout {
   readonly strokesByChar: Map<string, RuleStroke[]>;

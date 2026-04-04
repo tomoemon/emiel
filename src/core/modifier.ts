@@ -1,5 +1,5 @@
-import { KeyboardStateReader } from "./keyboardState";
-import { VirtualKey } from "./virtualKey";
+import type { KeyboardStateReader } from "./keyboardState";
+import type { VirtualKey } from "./virtualKey";
 
 /**
  * 同じ修飾キーを表す1つのグループ

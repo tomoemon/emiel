@@ -1,7 +1,7 @@
-import { AutomatonState, EdgeHistory } from "./automatonState";
-import { StrokeEdge, StrokeNode } from "./builderStrokeGraph";
-import { InputEvent, matchCandidateEdge, matchOtherEdge } from "./inputEvent";
-import { Rule } from "./rule";
+import type { AutomatonState, EdgeHistory } from "./automatonState";
+import { StrokeEdge, type StrokeNode } from "./builderStrokeGraph";
+import { type InputEvent, matchCandidateEdge, matchOtherEdge } from "./inputEvent";
+import type { Rule } from "./rule";
 
 export class InputResult {
   constructor(
@@ -287,13 +287,13 @@ export class AutomatonImpl implements AutomatonState {
     // 仮確定状態解除
     this.stagedEdge = undefined;
 
-    if (result.isSucceeded) {
+    if (result.isSucceeded && acceptedEdge) {
       this.edgeHistories.push({
         event: stroke,
-        previousEdge: acceptedEdge!,
+        previousEdge: acceptedEdge,
         failedEvents: this.failedEventsAtCurrentNode,
       });
-      this.currentNode = acceptedEdge!.next;
+      this.currentNode = acceptedEdge.next;
       this.failedEventsAtCurrentNode = [];
     } else if (result.isFailed) {
       this.failedEventsAtCurrentNode.push(stroke);
@@ -333,14 +333,13 @@ export class AutomatonImpl implements AutomatonState {
    * console.log(extended.getKPM()); // number
    * ```
    */
-  with<T extends Record<string, (state: AutomatonState) => any>>(
+  with<T extends Record<string, (state: AutomatonState) => unknown>>(
     extension: T,
   ): this & { [K in keyof T]: () => ReturnType<T[K]> } {
-    const self = this;
     const proxy = new Proxy(this, {
-      get(target, prop) {
+      get: (target, prop) => {
         if (prop in extension) {
-          return () => extension[prop as keyof T](self);
+          return () => extension[prop as keyof T](this);
         }
         return target[prop as keyof typeof target];
       },

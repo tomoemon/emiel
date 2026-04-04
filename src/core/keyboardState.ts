@@ -1,4 +1,4 @@
-import { VirtualKey } from "./virtualKey";
+import type { VirtualKey } from "./virtualKey";
 
 export interface KeyboardStateReader {
   get downedKeys(): readonly VirtualKey[];

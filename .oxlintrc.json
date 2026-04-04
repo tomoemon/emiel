@@ -1,0 +1,9 @@
+{
+  "rules": {
+    "typescript/consistent-type-imports": "warn",
+    "typescript/no-explicit-any": "warn",
+    "no-non-null-assertion": "warn",
+    "no-this-alias": "warn",
+    "eqeqeq": "warn"
+  }
+}

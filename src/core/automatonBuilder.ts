@@ -1,10 +1,10 @@
 import { AutomatonImpl } from "./automaton";
 import * as AutomatonGetters from "./automatonGetters";
-import { AutomatonState } from "./automatonState";
+import type { AutomatonState } from "./automatonState";
 import { buildKanaNode } from "./builderKanaGraph";
 import { buildStrokeNode } from "./builderStrokeGraph";
-import { Rule } from "./rule";
-import { RuleStroke } from "./ruleStroke";
+import type { Rule } from "./rule";
+import type { RuleStroke } from "./ruleStroke";
 
 export type Automaton = AutomatonImpl & DefaultExtensionType;
 
