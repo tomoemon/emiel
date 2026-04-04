@@ -2,7 +2,7 @@ import type { KeyboardLayout } from "../core/keyboardLayout";
 import type { Rule } from "../core/rule";
 import { mergeRule } from "../core/ruleMerger";
 import { newAlphaNumericRuleByLayout } from "./alphaNumericRule";
-import type { jsonSchema} from "./jsonRuleLoader";
+import type { JsonRuleInput } from "./jsonRuleLoader";
 import { loadJsonRule } from "./jsonRuleLoader";
 import { loadMozcRule } from "./mozcRuleLoader";
 
@@ -15,7 +15,7 @@ export function loadMozcRuleWithLayout(
 }
 
 export function loadJsonRuleWithLayout(
-  ruleData: string | jsonSchema,
+  ruleData: JsonRuleInput | string,
   layout: KeyboardLayout,
   name: string = "",
 ): Rule {

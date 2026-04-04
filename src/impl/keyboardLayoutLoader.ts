@@ -1,27 +1,42 @@
+import * as v from "valibot";
 import { KeyboardLayout } from "../core/keyboardLayout";
 import { AndModifier, ModifierGroup } from "../core/modifier";
 import { RuleStroke } from "../core/ruleStroke";
-import { VirtualKey, VirtualKeys } from "../core/virtualKey";
+import { VirtualKeys, virtualKeySchema } from "../core/virtualKey";
 
-type jsonSchema = {
-  name: string;
-  entries: { output: string; input: { key: string; shift: boolean } }[];
-};
+const jsonKeyboardLayoutSchema = v.object({
+  // レイアウト名（例: "QWERTY JIS"）
+  name: v.string(),
+  entries: v.array(
+    v.object({
+      // キー押下で出力される文字
+      output: v.string(),
+      input: v.object({
+        // 物理キー
+        key: virtualKeySchema,
+        // Shift キーが必要か
+        shift: v.boolean(),
+      }),
+    }),
+  ),
+});
 
-export function loadJsonKeyboardLayout(jsonLayout: jsonSchema | string): KeyboardLayout {
-  if (jsonLayout instanceof String || typeof jsonLayout === "string") {
-    const schema = JSON.parse(jsonLayout as string) as jsonSchema;
-    return loadJsonKeyboardLayout(schema);
+export type JsonKeyboardLayoutSchema = v.InferOutput<typeof jsonKeyboardLayoutSchema>;
+
+export function loadJsonKeyboardLayout(jsonLayout: unknown): KeyboardLayout {
+  if (typeof jsonLayout === "string") {
+    return loadJsonKeyboardLayout(JSON.parse(jsonLayout));
   }
-  const strokes: [string, RuleStroke][] = jsonLayout.entries.map((v) => [
-    v.output,
+  const validated = v.parse(jsonKeyboardLayoutSchema, jsonLayout);
+  const strokes: [string, RuleStroke][] = validated.entries.map((entry) => [
+    entry.output,
     new RuleStroke(
-      VirtualKey.getFromString(v.input.key),
-      v.input.shift ? shiftModifier : AndModifier.empty,
-      v.output,
+      entry.input.key,
+      entry.input.shift ? shiftModifier : AndModifier.empty,
+      entry.output,
     ),
   ]);
-  return new KeyboardLayout(jsonLayout.name, strokes, shiftModifier.groups[0].modifiers);
+  return new KeyboardLayout(validated.name, strokes, shiftModifier.groups[0].modifiers);
 }
 
 const shiftModifier = new AndModifier(
