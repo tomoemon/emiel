@@ -1,29 +1,21 @@
 # ローカルでの examples の動作確認
 
-pnpm の link 機能を使って、examples 側からローカルの emiel を参照します。
-※examples 内のコードはあくまでもそれぞれが独立したプロジェクトであるという前提で書かれています。
-
-https://pnpm.io/ja/cli/link
-
-emiel のルートディレクトリで以下のコマンドを実行します。
+pnpm workspace を使って、examples 側からローカルの emiel を参照しています。
+各 examples の `package.json` では `"emiel": "workspace:*"` と指定されており、ルートの emiel パッケージが自動的にリンクされます。
 
 ```
-pnpm link --global
-```
+# ルートで依存関係をインストール（全ワークスペースが対象）
+pnpm install
 
-次に、各 examples のディレクトリで以下のコマンドを実行します。
+# emiel をビルド（examples から参照される dist/ が生成される）
+pnpm run build
 
-```
+# examples の開発サーバーを起動
 cd examples/react-simple
-pnpm link --global emiel
+pnpm dev
 ```
 
-これで react-simple が参照する emiel パッケージはローカルにあるプロジェクトになります。
-vite は事前に依存パッケージの最適化等を行っているため、誤って npm の emiel をインストールしてしまったりすると、npm 側の emiel のコードがずっと使われてしまうことがあります。link を変更してもうまく動かなくない場合は、以下のコマンドでリセットできます。
-
-```
-pnpm exec vite optimize --force
-```
+emiel 側のコードを変更した場合は `pnpm run build` で再ビルドすると examples 側に反映されます。
 
 # 参考資料
 

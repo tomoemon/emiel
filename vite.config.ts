@@ -1,6 +1,5 @@
-/// <reference types="vitest" />
-import { resolve } from "path";
-import { defineConfig } from "vite";
+import { resolve } from "node:path";
+import { defineConfig } from "vitest/config";
 
 // https://vitejs.dev/config/
 export default defineConfig({
@@ -11,18 +10,18 @@ export default defineConfig({
   build: {
     sourcemap: true,
     lib: {
-      entry: resolve(__dirname, "src/index.ts"),
+      entry: resolve(import.meta.dirname, "src/index.ts"),
       name: "emiel",
       fileName: "index",
       formats: ["es"],
     },
-    rollupOptions: {
+    rolldownOptions: {
       external: ["@base2/pretty-print-object"],
       output: {
         preserveModules: true,
         preserveModulesRoot: "src",
         entryFileNames: ({ name: fileName }) => {
-          return `${fileName}.js`;
+          return `${fileName.replace(/\?raw$/, "")}.js`;
         },
       },
       plugins: [],

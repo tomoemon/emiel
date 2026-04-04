@@ -1,75 +1,33 @@
 # CLAUDE.md
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
-
 ## Project Overview
 
-emiel is a universal Japanese typing game library written in pure TypeScript with no external dependencies. It supports various Japanese input methods (Romaji, Kana, AZIK, NICOLA, etc.) and keyboard layouts (QWERTY, Dvorak, Colemak).
+emiel - 日本語タイピングゲーム用ライブラリ（純粋TypeScript、外部依存なし）
 
-## Development Commands
+## Commands
 
 ```bash
-# Install dependencies
-pnpm install
-
-# Build the library
-pnpm run build
-
-# Run tests
-pnpm run test
-
-# Run linting
-pnpm run lint
-
-# Publish the package
-make publish
+pnpm install        # 依存関係インストール（全ワークスペース対象）
+pnpm run build      # ライブラリビルド（vite build && tsc）
+pnpm run test       # テスト（vitest）
+pnpm run lint       # リント（oxlint）
+pnpm run fmt        # フォーマット（oxfmt）
+pnpm run fmt:check  # フォーマットチェック
+make publish        # パッケージ公開
 ```
 
-## Architecture
+## Structure
 
-### Core Components (`/src/core/`)
-
-- **Automaton**: Central class managing word keyboard input for typing games
-- **Rule**: Represents input methods (Romaji, Kana input, etc.)
-- **KeyboardLayout**: Handles different keyboard layouts (QWERTY JIS/US, Dvorak, etc.)
-- **InputEvent/KeyboardState**: Manage keyboard input and state
-
-### Implementation (`/src/impl/`)
-
-- Preset rules and keyboard layouts
-- Rule loaders supporting JSON and Mozc format
-- Keyboard guide functionality
-- Statistics tracking
-
-### Assets (`/src/assets/`)
-
-- Keyboard layout definitions (JSON format)
-- Input rule definitions (Mozc-compatible format)
-- Keyboard guide images
-
-### Examples (`/examples/`)
-
-Multiple React-based examples demonstrating different features. Each example has its own package.json and can be run independently.
-
-## Key Design Principles
-
-1. **Pure TypeScript**: No external dependencies, framework-agnostic design
-2. **Mozc Compatibility**: Full support for Google Japanese Input (Mozc) Romaji table format
-3. **Extensibility**: Rules and keyboard layouts can be easily extended via JSON or Mozc format
-4. **Browser-First**: Designed for web-based typing games with proper browser compatibility
+- `/src/core/` - Automaton, Rule, KeyboardLayout 等のコアロジック
+- `/src/impl/` - プリセットルール、ローダー、統計
+- `/src/assets/` - キーボードレイアウト定義、入力ルール定義
+- `/examples/` - React ベースのサンプル（pnpm workspace でローカル emiel を参照）
 
 ## Testing
 
-Tests are written using Vitest and located alongside source files with `.test.ts` extension. Focus areas include:
+テストは Vitest、ソースと同じディレクトリに `.test.ts` で配置
 
-- Rule validation and conversion
-- Keyboard input handling
-- Automaton state management
-- Preset rule correctness
+## Rules
 
-# Note for Claude Code
-
-When working with code in this repository, please ensure to:
-
-- YOU MUST: conversation in Japanese
-- YOU MUST: use `type` instead of `interface` for type definitions
+- 会話は日本語で行うこと
+- 型定義には `interface` ではなく `type` を使うこと
