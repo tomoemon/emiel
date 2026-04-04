@@ -7,9 +7,9 @@
         "hooks": [
           {
             "type": "command",
-            "command": "pnpm run lint && pnpm run test",
+            "command": "pnpm run fmt && pnpm run lint && pnpm run test",
             "timeout": 120,
-            "statusMessage": "Running lint and test..."
+            "statusMessage": "Running fmt, lint and test..."
           }
         ]
       }
