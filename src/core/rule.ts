@@ -1,5 +1,5 @@
 import { build } from "./automatonBuilder";
-import { extendCommonPrefixOverlappedEntriesDeeply } from "./ruleExtender";
+import { expandPrefixRules } from "./ruleExtender";
 import type { RuleStroke } from "./ruleStroke";
 import type { VirtualKey } from "./virtualKey";
 
@@ -95,7 +95,7 @@ export class Rule {
     readonly normalize: normalizerFunc,
     readonly name: string = "",
   ) {
-    this.entries = extendCommonPrefixOverlappedEntriesDeeply(entries);
+    this.entries = expandPrefixRules(entries);
 
     // init mapEntriesByFirstInputKey
     this.entries.forEach((entry) => {

@@ -7,7 +7,7 @@ test("load google ime roman rule", () => {
   // rule.entries.forEach((entry) => {
   //   console.log(entryToString(entry));
   // });
-  expect(rule.entries.length).toBe(421);
+  expect(rule.entries.length).toBe(420);
 });
 
 test("load jis kana rule", () => {
