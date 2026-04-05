@@ -17,5 +17,7 @@ test("load jis kana rule", () => {
 
 test("load nicola rule", () => {
   const rule = loadPresetRuleNicola(loadPresetKeyboardLayoutQwertyJis());
-  expect(rule.entries.length).toBe(256);
+  // 以前は相互モディファイア展開により 1 エントリを 2 エントリに膨らませていたが、
+  // SimultaneousStroke として 1 エントリで扱うようになったため件数が減少している
+  expect(rule.entries.length).toBe(191);
 });

@@ -1,21 +1,21 @@
 import { setDefault } from "../utils/map";
 import { AndModifier, ModifierGroup } from "./modifier";
-import { RuleStroke } from "./ruleStroke";
+import { ModifierStroke } from "./ruleStroke";
 import type { VirtualKey } from "./virtualKey";
 
 export class KeyboardLayout {
-  readonly strokesByChar: Map<string, RuleStroke[]>;
+  readonly strokesByChar: Map<string, ModifierStroke[]>;
   private readonly charByStroke: Map<string, string>;
   private readonly charByStrokeWithoutShift: Map<string, string>;
   /**
    *
    * @param name キーボードレイアウトの名前
-   * @param mapping [output, stroke] の配列。例：["A", RuleStroke(VirtualKeys.A, shift, [])]
+   * @param mapping [output, stroke] の配列。例：["A", ModifierStroke(VirtualKeys.A, shift, [])]
    * @param shiftKeys
    */
   constructor(
     readonly name: string,
-    readonly mapping: [string, RuleStroke][],
+    readonly mapping: [string, ModifierStroke][],
     readonly shiftKeys: VirtualKey[],
   ) {
     this.strokesByChar = new Map();
@@ -27,7 +27,7 @@ export class KeyboardLayout {
       setDefault(this.charByStrokeWithoutShift, strokeToString(stroke, true, this.shiftKeys), char);
     });
   }
-  getStrokesByChar(char: string): RuleStroke[] {
+  getStrokesByChar(char: string): ModifierStroke[] {
     const strokes = this.strokesByChar.get(char);
     if (!strokes) {
       throw new Error("invalid char: " + char);
@@ -35,13 +35,13 @@ export class KeyboardLayout {
     return strokes;
   }
   getCharByKey(key: VirtualKey, shifted: boolean): string {
-    const stroke = new RuleStroke(
+    const stroke = new ModifierStroke(
       key,
       shifted ? new AndModifier(new ModifierGroup(this.shiftKeys)) : new AndModifier(),
     );
     return this.getCharByStroke(stroke);
   }
-  getCharByStroke(stroke: RuleStroke): string {
+  getCharByStroke(stroke: ModifierStroke): string {
     const char = this.charByStroke.get(strokeToString(stroke, false, this.shiftKeys));
     if (char) {
       return char;
@@ -55,7 +55,11 @@ export class KeyboardLayout {
   }
 }
 
-function strokeToString(stroke: RuleStroke, ignoreShift: boolean, shiftKeys: VirtualKey[]): string {
+function strokeToString(
+  stroke: ModifierStroke,
+  ignoreShift: boolean,
+  shiftKeys: VirtualKey[],
+): string {
   if (ignoreShift) {
     return stroke.key.toString();
   }

@@ -48,7 +48,18 @@ export function expandPrefixRules(entries: RuleEntry[]): RuleEntry[] {
 }
 
 function strokeHash(...strokes: RuleStroke[]): string {
-  return strokes.map((s) => `${s.key.toString()}/${s.requiredModifier.toString()}`).join("-");
+  return strokes
+    .map((s) => {
+      if (s.kind === "modifier") {
+        return `m:${s.key.toString()}/${s.requiredModifier.toString()}`;
+      }
+      // simultaneous: 順不同なのでキーをソートしてハッシュ化
+      return `s:${[...s.keys]
+        .map((k) => k.toString())
+        .sort()
+        .join("+")}`;
+    })
+    .join("-");
 }
 
 // Map 内で最初に見つかったプレフィックス競合を返す。

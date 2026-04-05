@@ -1,9 +1,8 @@
 import * as v from "valibot";
 import { AndModifier, ModifierGroup } from "../core/modifier";
 import { Rule, RuleEntry } from "../core/rule";
-import { RuleStroke } from "../core/ruleStroke";
+import { ModifierStroke, type RuleStroke, SimultaneousStroke } from "../core/ruleStroke";
 import { virtualKeySchema } from "../core/virtualKey";
-import { product } from "../utils/itertools";
 import { defaultKanaNormalize } from "./charNormalizer";
 
 const strokeSchema = v.object({
@@ -41,55 +40,41 @@ export type JsonRuleSchema = v.InferOutput<typeof jsonRuleSchema>;
 export type JsonRuleInput = v.InferInput<typeof jsonRuleSchema>;
 type Stroke = v.InferOutput<typeof strokeSchema>;
 
-function loadStroke(jsonStroke: Stroke): RuleStroke[] {
+/**
+ * 1つの JSON ストロークを RuleStroke に変換する。
+ *
+ * - keys が 1 個: ModifierStroke を生成 (modifiers は AndModifier として事前押下必須のキー)
+ * - keys が 2 個以上: SimultaneousStroke を生成 (順不同の同時押し)。
+ *   modifiers がある場合は SimultaneousStroke の requiredModifier として扱う
+ *   (例: naginata の「A+J 同時押し + Space 先押し」)
+ */
+function loadStroke(jsonStroke: Stroke): RuleStroke {
   const keys = jsonStroke.keys;
   const modifierGroups: ModifierGroup[] =
     jsonStroke.modifiers?.map((modifierKeys) => new ModifierGroup(modifierKeys)) || [];
-  return keys.map((key) => {
-    // 同時押しの場合は、他のキーをモディファイアとして扱う
-    // keys: [A,B] の場合、key=A のとき、A+mod(B)
-    const multipleStrokeModifier = keys.filter((v) => v !== key).map((v) => new ModifierGroup([v]));
-    return new RuleStroke(key, new AndModifier(...modifierGroups, ...multipleStrokeModifier));
-  });
+  const modifier = new AndModifier(...modifierGroups);
+  if (keys.length >= 2) {
+    return new SimultaneousStroke(keys, modifier);
+  }
+  return new ModifierStroke(keys[0], modifier);
 }
 
 /**
- * input の配列を読み込み、RuleStroke の配列の配列を返す。
+ * input の配列を読み込み、RuleStroke の配列を返す。
+ * 各 JSON ストロークは単一の RuleStroke にマップされるため、展開は不要。
  *
- * eg. 単打の連続の場合は1要素の配列を返す
+ * eg. 単打の連続
  *    input: [{keys: ["A"]},{keys: ["B"]}]
- *    output: [[RuleStroke(A),RuleStroke(B)]]
- * eg. 同時打ちの場合は相互にモディファイアとするRuleStrokeを生成し複数要素の配列を返す
+ *    output: [ModifierStroke(A), ModifierStroke(B)]
+ * eg. 同時押し (2 キー以上)
  *    input: [{keys: ["A","B"]}]
- *    output: [
- *              [RuleStroke(A+mod(B))],
- *              [RuleStroke(B+mod(A))],
- *            ]
- * eg. 3つ同時打ちの場合は相互にモディファイアとするRuleStrokeを生成し複数要素の配列を返す
- *    input: [{keys: ["A","B","C"]}]
- *    output: [
- *              [RuleStroke(A+mod(B)+mod(C))],
- *              [RuleStroke(B+mod(A)+mod(C))],
- *              [RuleStroke(C+mod(A)+mod(B))],
- *            ]
- * eg. 同時打ちの打鍵列の全組み合わせで相互にモディファイアとするRuleStrokeを生成し複数要素の配列を返す
- *    input: [{keys: ["A","B"]}, {keys: ["C","D"]}]
- *    output: [
- *              [RuleStroke(A+mod(B)),RuleStroke(C+mod(D))],
- *              [RuleStroke(B+mod(A)),RuleStroke(C+mod(D))],
- *              [RuleStroke(A+mod(B)),RuleStroke(D+mod(C))],
- *              [RuleStroke(B+mod(A)),RuleStroke(D+mod(C))],
- *            ]
+ *    output: [SimultaneousStroke([A, B])]
+ * eg. 修飾キー付き単打
+ *    input: [{keys: ["A"], modifiers: [["ShiftLeft", "ShiftRight"]]}]
+ *    output: [ModifierStroke(A, shift)]
  */
-function loadInput(input: Stroke[]): RuleStroke[][] {
-  /**
-   * aとbの同時打鍵の後に、cとdの同時打鍵が必要な場合
-   * input: [[a,b], [c,d]]
-   * strokeGroups: [[a+mod(b),b+mod(a)], [c+mod(d),d+mod(c)]]
-   */
-  const strokeGroups = input.map((v) => loadStroke(v));
-  // strokeGroups の直積を作って返す
-  return Array.from(product(strokeGroups));
+function loadInput(input: Stroke[]): RuleStroke[] {
+  return input.map((v) => loadStroke(v));
 }
 
 function loadEntries(
@@ -101,20 +86,17 @@ function loadEntries(
     if (!("input" in v)) {
       return;
     }
-    const inputExtended = loadInput(v.input);
+    const input = loadInput(v.input);
     const output = v.output;
-    // 次の入力として使用するものは具体化されたもの1つだけなので、配列の先頭を取得する
-    const nextInput = v.nextInput ? loadInput(v.nextInput)[0] : [];
-    inputExtended.forEach((input) => {
-      entries.push(
-        new RuleEntry(
-          input,
-          output,
-          nextInput,
-          v.extendCommonPrefixEntry ?? jsonExtendablePrefixCommon ?? false,
-        ),
-      );
-    });
+    const nextInput = v.nextInput ? loadInput(v.nextInput) : [];
+    entries.push(
+      new RuleEntry(
+        input,
+        output,
+        nextInput,
+        v.extendCommonPrefixEntry ?? jsonExtendablePrefixCommon ?? false,
+      ),
+    );
   });
   return entries;
 }

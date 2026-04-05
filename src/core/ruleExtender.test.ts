@@ -2,11 +2,11 @@ import { expect, test } from "vitest";
 import { AndModifier } from "./modifier";
 import { RuleEntry } from "./rule";
 import { expandPrefixRules } from "./ruleExtender";
-import { RuleStroke } from "./ruleStroke";
+import { ModifierStroke } from "./ruleStroke";
 import type { VirtualKey } from "./virtualKey";
 import { VirtualKeys } from "./virtualKey";
 
-const s = (key: VirtualKey) => new RuleStroke(key, AndModifier.empty);
+const s = (key: VirtualKey) => new ModifierStroke(key, AndModifier.empty);
 const entry = (input: VirtualKey[], output: string, nextInput: VirtualKey[] = [], extend = true) =>
   new RuleEntry(input.map(s), output, nextInput.map(s), extend);
 
@@ -15,11 +15,11 @@ function findByOutput(entries: RuleEntry[], output: string): RuleEntry[] {
 }
 
 function inputKeys(entry: RuleEntry): string[] {
-  return entry.input.map((i) => i.key);
+  return entry.input.map((i) => (i as ModifierStroke).key);
 }
 
 function nextInputKeys(entry: RuleEntry): string[] {
-  return entry.nextInput.map((i) => i.key);
+  return entry.nextInput.map((i) => (i as ModifierStroke).key);
 }
 
 test("英数字は展開しない", () => {

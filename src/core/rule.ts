@@ -1,6 +1,6 @@
-import { build } from "./automatonBuilder";
+import { build } from "./automaton";
 import { expandPrefixRules } from "./ruleExtender";
-import type { RuleStroke } from "./ruleStroke";
+import { ruleStrokeKeys, type RuleStroke } from "./ruleStroke";
 import type { VirtualKey } from "./virtualKey";
 
 export type normalizerFunc = (value: string) => string;
@@ -98,18 +98,26 @@ export class Rule {
     this.entries = expandPrefixRules(entries);
 
     // init mapEntriesByFirstInputKey
+    // SimultaneousStroke の場合は keys の全要素を登録キーとする
     this.entries.forEach((entry) => {
-      const firstInputKey = entry.input[0].key;
-      const currentEntries = this.mapEntriesByFirstInputKey.get(firstInputKey);
-      if (!currentEntries) {
-        this.mapEntriesByFirstInputKey.set(firstInputKey, [entry]);
-      } else {
-        currentEntries.push(entry);
+      const firstStroke = entry.input[0];
+      for (const firstInputKey of ruleStrokeKeys(firstStroke)) {
+        const currentEntries = this.mapEntriesByFirstInputKey.get(firstInputKey);
+        if (!currentEntries) {
+          this.mapEntriesByFirstInputKey.set(firstInputKey, [entry]);
+        } else {
+          currentEntries.push(entry);
+        }
       }
     });
     // init mapEntriesByFirstInputModifier
+    // ModifierStroke のみ requiredModifier を持つ。SimultaneousStroke は対象外。
     this.entries.forEach((entry) => {
-      entry.input[0].requiredModifier.groups.forEach((g) => {
+      const firstStroke = entry.input[0];
+      if (firstStroke.kind !== "modifier") {
+        return;
+      }
+      firstStroke.requiredModifier.groups.forEach((g) => {
         g.modifiers.forEach((firstInputModifier) => {
           const currentEntries = this.mapEntriesByFirstInputModifier.get(firstInputModifier);
           if (!currentEntries) {

@@ -2,7 +2,7 @@ import * as v from "valibot";
 import { describe, expect, test } from "vitest";
 import { AndModifier, ModifierGroup } from "../core/modifier";
 import { RuleEntry } from "../core/rule";
-import { RuleStroke } from "../core/ruleStroke";
+import { ModifierStroke, SimultaneousStroke } from "../core/ruleStroke";
 import { VirtualKeys } from "../core/virtualKey";
 import { loadJsonRule } from "./jsonRuleLoader";
 
@@ -38,8 +38,8 @@ test("simple 1 entry", () => {
   expect(rule.entries[0]).toEqual(
     new RuleEntry(
       [
-        new RuleStroke(VirtualKeys.A, AndModifier.empty),
-        new RuleStroke(VirtualKeys.B, AndModifier.empty),
+        new ModifierStroke(VirtualKeys.A, AndModifier.empty),
+        new ModifierStroke(VirtualKeys.B, AndModifier.empty),
       ],
       "あ",
       [],
@@ -88,7 +88,7 @@ test("simple 2 entries with modifier (unnecessary modifier)", () => {
   expect(rule.entries[0]).toEqual(
     new RuleEntry(
       [
-        new RuleStroke(
+        new ModifierStroke(
           VirtualKeys.A,
           new AndModifier(new ModifierGroup(["ShiftLeft", "ShiftRight"])),
         ),
@@ -99,11 +99,11 @@ test("simple 2 entries with modifier (unnecessary modifier)", () => {
     ),
   );
   expect(rule.entries[1]).toEqual(
-    new RuleEntry([new RuleStroke(VirtualKeys.I, AndModifier.empty)], "い", [], false),
+    new RuleEntry([new ModifierStroke(VirtualKeys.I, AndModifier.empty)], "い", [], false),
   );
   expect(rule.entries[2]).toEqual(
     new RuleEntry(
-      [new RuleStroke(VirtualKeys.U, new AndModifier(new ModifierGroup(["ShiftLeft"])))],
+      [new ModifierStroke(VirtualKeys.U, new AndModifier(new ModifierGroup(["ShiftLeft"])))],
       "う",
       [],
       false,
@@ -111,7 +111,7 @@ test("simple 2 entries with modifier (unnecessary modifier)", () => {
   );
 });
 
-test("multiple key 2 stroke, 1 entry, no modifier", () => {
+test("simultaneous stroke, 1 entry, no modifier", () => {
   const rule = loadJsonRule({
     extendCommonPrefixEntry: false,
     entries: [
@@ -127,27 +127,16 @@ test("multiple key 2 stroke, 1 entry, no modifier", () => {
       },
     ],
   });
-  expect(rule.entries.length).toBe(2);
+  // 新仕様: 複数キーは SimultaneousStroke 1 個として読み込まれる (相互モディファイア展開はしない)
+  expect(rule.entries.length).toBe(1);
   expect(rule.entries[0]).toEqual(
-    new RuleEntry(
-      [new RuleStroke(VirtualKeys.A, new AndModifier(new ModifierGroup([VirtualKeys.B])))],
-      "あ",
-      [],
-      false,
-    ),
-  );
-
-  expect(rule.entries[1]).toEqual(
-    new RuleEntry(
-      [new RuleStroke(VirtualKeys.B, new AndModifier(new ModifierGroup([VirtualKeys.A])))],
-      "あ",
-      [],
-      false,
-    ),
+    new RuleEntry([new SimultaneousStroke([VirtualKeys.A, VirtualKeys.B])], "あ", [], false),
   );
 });
 
-test("multiple key 1 stroke, 1 entry, with modifier", () => {
+test("simultaneous stroke with modifier: 同時押し + 先押し modifier", () => {
+  // naginata の A+J 同時押し + Space 先押しのようなケース。
+  // SimultaneousStroke が requiredModifier を持つ 1 エントリとして読み込まれる。
   const rule = loadJsonRule({
     extendCommonPrefixEntry: false,
     entries: [
@@ -155,76 +144,31 @@ test("multiple key 1 stroke, 1 entry, with modifier", () => {
         input: [
           {
             keys: ["A", "B"],
-            modifiers: [["ShiftLeft", "ShiftRight"]],
+            modifiers: [["Space"]],
           },
         ],
         output: "あ",
         nextInput: [],
       },
-      {
-        input: [
-          {
-            keys: ["I", "ShiftLeft"],
-            modifiers: [],
-          },
-        ],
-        output: "い",
-        nextInput: [],
-      },
     ],
   });
-  expect(rule.entries.length).toBe(4);
+  expect(rule.entries.length).toBe(1);
   expect(rule.entries[0]).toEqual(
     new RuleEntry(
       [
-        new RuleStroke(
-          VirtualKeys.A,
-          new AndModifier(
-            new ModifierGroup([VirtualKeys.ShiftLeft, VirtualKeys.ShiftRight]),
-            new ModifierGroup([VirtualKeys.B]),
-          ),
+        new SimultaneousStroke(
+          [VirtualKeys.A, VirtualKeys.B],
+          new AndModifier(new ModifierGroup([VirtualKeys.Space])),
         ),
       ],
       "あ",
-      [],
-      false,
-    ),
-  );
-  expect(rule.entries[1]).toEqual(
-    new RuleEntry(
-      [
-        new RuleStroke(
-          VirtualKeys.B,
-          new AndModifier(
-            new ModifierGroup([VirtualKeys.ShiftLeft, VirtualKeys.ShiftRight]),
-            new ModifierGroup([VirtualKeys.A]),
-          ),
-        ),
-      ],
-      "あ",
-      [],
-      false,
-    ),
-  );
-  expect(rule.entries[2]).toEqual(
-    new RuleEntry(
-      [new RuleStroke(VirtualKeys.I, new AndModifier(new ModifierGroup([VirtualKeys.ShiftLeft])))],
-      "い",
-      [],
-      false,
-    ),
-  );
-  expect(rule.entries[3]).toEqual(
-    new RuleEntry(
-      [new RuleStroke(VirtualKeys.ShiftLeft, new AndModifier(new ModifierGroup([VirtualKeys.I])))],
-      "い",
       [],
       false,
     ),
   );
 });
 
-test("multiple key 2 stroke, 1 entry, no modifier", () => {
+test("simultaneous stroke followed by single-key stroke, 1 entry", () => {
   const rule = loadJsonRule({
     extendCommonPrefixEntry: false,
     entries: [
@@ -244,75 +188,13 @@ test("multiple key 2 stroke, 1 entry, no modifier", () => {
       },
     ],
   });
-  expect(rule.entries.length).toBe(2);
+  // 新仕様: SimultaneousStroke と ModifierStroke を並べた 1 エントリ
+  expect(rule.entries.length).toBe(1);
   expect(rule.entries[0]).toEqual(
     new RuleEntry(
       [
-        new RuleStroke(VirtualKeys.A, new AndModifier(new ModifierGroup([VirtualKeys.B]))),
-        new RuleStroke(VirtualKeys.C, AndModifier.empty),
-      ],
-      "あ",
-      [],
-      false,
-    ),
-  );
-
-  expect(rule.entries[1]).toEqual(
-    new RuleEntry(
-      [
-        new RuleStroke(VirtualKeys.B, new AndModifier(new ModifierGroup([VirtualKeys.A]))),
-        new RuleStroke(VirtualKeys.C, AndModifier.empty),
-      ],
-      "あ",
-      [],
-      false,
-    ),
-  );
-});
-
-test("multiple key 1 entry, with modifier", () => {
-  const rule = loadJsonRule({
-    extendCommonPrefixEntry: false,
-    entries: [
-      {
-        input: [
-          {
-            keys: ["A", "B"],
-            modifiers: [["ShiftLeft", "ShiftRight"]],
-          },
-        ],
-        output: "あ",
-        nextInput: [],
-      },
-    ],
-  });
-  expect(rule.entries.length).toBe(2);
-  expect(rule.entries[0]).toEqual(
-    new RuleEntry(
-      [
-        new RuleStroke(
-          VirtualKeys.A,
-          new AndModifier(
-            new ModifierGroup([VirtualKeys.ShiftLeft, VirtualKeys.ShiftRight]),
-            new ModifierGroup([VirtualKeys.B]),
-          ),
-        ),
-      ],
-      "あ",
-      [],
-      false,
-    ),
-  );
-  expect(rule.entries[1]).toEqual(
-    new RuleEntry(
-      [
-        new RuleStroke(
-          VirtualKeys.B,
-          new AndModifier(
-            new ModifierGroup([VirtualKeys.ShiftLeft, VirtualKeys.ShiftRight]),
-            new ModifierGroup([VirtualKeys.A]),
-          ),
-        ),
+        new SimultaneousStroke([VirtualKeys.A, VirtualKeys.B]),
+        new ModifierStroke(VirtualKeys.C, AndModifier.empty),
       ],
       "あ",
       [],
