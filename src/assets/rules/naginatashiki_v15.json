@@ -1,4 +1,5 @@
 {
+  "backspaces": [{ "keys": ["U"] }],
   "entries": [
     {
       "input": [{ "keys": ["Q"] }],

@@ -1,8 +1,13 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, test } from "vitest";
+import { loadJsonRule } from "../impl/jsonRuleLoader";
 import { loadPresetKeyboardLayoutQwertyJis } from "../impl/presetKeyboardLayout";
-import { loadPresetRuleRoman } from "../impl/presetRules";
+import { loadPresetRuleNaginatashikiV15, loadPresetRuleRoman } from "../impl/presetRules";
 import type { Automaton } from "./automaton";
 import type { AutomatonState } from "./automatonState";
+import { InputEvent, InputStroke } from "./inputEvent";
+import { KeyboardState } from "./keyboardState";
+import type { Rule } from "./rule";
+import { VirtualKeys } from "./virtualKey";
 
 describe("Automaton with extensions", () => {
   const rule = loadPresetRuleRoman(loadPresetKeyboardLayoutQwertyJis());
@@ -145,5 +150,226 @@ describe("Automaton with extensions", () => {
     automaton2.increment();
     expect(automaton1.getCount()).toBe(2);
     expect(automaton2.getCount()).toBe(1);
+  });
+});
+
+/**
+ * テストヘルパ: automaton に一連の keydown/keyup を流し、結果配列を返す。
+ * options 経由で onBackspace を注入できる点が committer.test.ts の runInputs との違い。
+ */
+function runInputsOn(
+  automaton: ReturnType<Rule["build"]>,
+  events: { key: (typeof VirtualKeys)[keyof typeof VirtualKeys]; type: "keydown" | "keyup" }[],
+): string[] {
+  const state = new KeyboardState();
+  const results: string[] = [];
+  for (const ev of events) {
+    if (ev.type === "keydown") {
+      state.keydown(ev.key);
+    } else {
+      state.keyup(ev.key);
+    }
+    const result = automaton.input(
+      new InputEvent(new InputStroke(ev.key, ev.type), state, new Date()),
+    );
+    results.push(result.toString());
+  }
+  return results;
+}
+
+describe("Automaton backspace stroke integration", () => {
+  const simpleRule = () =>
+    loadJsonRule({
+      entries: [
+        { input: [{ keys: ["A"] }], output: "あ" },
+        { input: [{ keys: ["B"] }], output: "い" },
+      ],
+      backspaces: [{ keys: ["U"] }],
+    });
+
+  test("matched backspace stroke fires onBackspace and returns BACK", () => {
+    const rule = simpleRule();
+    let called = 0;
+    const automaton = rule.build("あ", {
+      onBackspace: () => {
+        called++;
+      },
+    });
+    const results = runInputsOn(automaton, [
+      { key: VirtualKeys.U, type: "keydown" },
+      { key: VirtualKeys.U, type: "keyup" },
+    ]);
+    expect(results[0]).toBe("back");
+    expect(called).toBe(1);
+    // 遷移はしない
+    expect(automaton.currentNode).toBe(automaton.startNode);
+    expect(automaton.edgeHistories.length).toBe(0);
+  });
+
+  test("without onBackspace handler, matched backspace returns IGNORED (compat)", () => {
+    const rule = simpleRule();
+    const automaton = rule.build("あ");
+    const results = runInputsOn(automaton, [{ key: VirtualKeys.U, type: "keydown" }]);
+    expect(results[0]).toBe("ignored");
+  });
+
+  test("backspace events are recorded in backspaceEventsAtCurrentNode and then moved to EdgeHistory on next commit", () => {
+    const rule = simpleRule();
+    const automaton = rule.build("あ", {
+      onBackspace: () => {},
+    });
+    // 失敗入力 → backspace → 正規入力 の順
+    runInputsOn(automaton, [
+      { key: VirtualKeys.B, type: "keydown" }, // 「あ」に対して B はミス
+      { key: VirtualKeys.B, type: "keyup" },
+      { key: VirtualKeys.U, type: "keydown" }, // backspace 発火
+      { key: VirtualKeys.U, type: "keyup" },
+    ]);
+    expect(automaton.failedEventsAtCurrentNode.length).toBe(1);
+    expect(automaton.backspaceEventsAtCurrentNode.length).toBe(1);
+    expect(automaton.edgeHistories.length).toBe(0);
+
+    // 正規入力 A で「あ」が確定 → 直前のバッファが EdgeHistory に移る
+    runInputsOn(automaton, [
+      { key: VirtualKeys.A, type: "keydown" },
+      { key: VirtualKeys.A, type: "keyup" },
+    ]);
+    expect(automaton.edgeHistories.length).toBe(1);
+    expect(automaton.edgeHistories[0].failedEvents.length).toBe(1);
+    expect(automaton.edgeHistories[0].backspaceEvents.length).toBe(1);
+    expect(automaton.failedEventsAtCurrentNode.length).toBe(0);
+    expect(automaton.backspaceEventsAtCurrentNode.length).toBe(0);
+  });
+
+  test("multiple backspaces before first commit are all recorded in first EdgeHistory", () => {
+    const rule = simpleRule();
+    const automaton = rule.build("あ", {
+      onBackspace: () => {},
+    });
+    runInputsOn(automaton, [
+      { key: VirtualKeys.U, type: "keydown" },
+      { key: VirtualKeys.U, type: "keyup" },
+      { key: VirtualKeys.U, type: "keydown" },
+      { key: VirtualKeys.U, type: "keyup" },
+      { key: VirtualKeys.U, type: "keydown" },
+      { key: VirtualKeys.U, type: "keyup" },
+      { key: VirtualKeys.A, type: "keydown" },
+      { key: VirtualKeys.A, type: "keyup" },
+    ]);
+    expect(automaton.edgeHistories.length).toBe(1);
+    expect(automaton.edgeHistories[0].backspaceEvents.length).toBe(3);
+  });
+
+  test("back() rewinds EdgeHistory along with its backspaceEvents", () => {
+    const rule = simpleRule();
+    const automaton = rule.build("あ", {
+      onBackspace: () => {},
+    });
+    runInputsOn(automaton, [
+      { key: VirtualKeys.U, type: "keydown" },
+      { key: VirtualKeys.U, type: "keyup" },
+      { key: VirtualKeys.A, type: "keydown" },
+      { key: VirtualKeys.A, type: "keyup" },
+    ]);
+    expect(automaton.edgeHistories.length).toBe(1);
+    expect(automaton.edgeHistories[0].backspaceEvents.length).toBe(1);
+    automaton.back();
+    expect(automaton.edgeHistories.length).toBe(0);
+    expect(automaton.backspaceEventsAtCurrentNode.length).toBe(0);
+  });
+
+  test("empty backspaceStrokes preserves existing behavior", () => {
+    const rule = loadJsonRule({
+      entries: [{ input: [{ keys: ["A"] }], output: "あ" }],
+    });
+    let called = 0;
+    const automaton = rule.build("あ", {
+      onBackspace: () => {
+        called++;
+      },
+    });
+    const results = runInputsOn(automaton, [
+      { key: VirtualKeys.U, type: "keydown" },
+      { key: VirtualKeys.U, type: "keyup" },
+    ]);
+    // U は rule と無関係 → ignored
+    expect(results[0]).toBe("ignored");
+    expect(called).toBe(0);
+  });
+
+  test("testInput does not fire onBackspace on dryRun", () => {
+    const rule = simpleRule();
+    let called = 0;
+    const automaton = rule.build("あ", {
+      onBackspace: () => {
+        called++;
+      },
+    });
+    const state = new KeyboardState();
+    state.keydown(VirtualKeys.U);
+    const [result] = automaton.testInput(
+      new InputEvent(new InputStroke(VirtualKeys.U, "keydown"), state, new Date()),
+    );
+    expect(result.isBack).toBe(true);
+    // dryRun ではハンドラは呼ばれない
+    expect(called).toBe(0);
+    expect(automaton.backspaceEventsAtCurrentNode.length).toBe(0);
+  });
+});
+
+describe("Automaton backspace: naginata 回帰", () => {
+  const rule = loadPresetRuleNaginatashikiV15(loadPresetKeyboardLayoutQwertyJis());
+
+  test("Space+U → さ (通常経路優先: backspace 定義があっても既存 entry が優先)", () => {
+    const automaton = rule.build("さ", {
+      onBackspace: () => {
+        throw new Error("should not be called");
+      },
+    });
+    const results = runInputsOn(automaton, [
+      { key: VirtualKeys.Space, type: "keydown" },
+      { key: VirtualKeys.U, type: "keydown" },
+      { key: VirtualKeys.U, type: "keyup" },
+      { key: VirtualKeys.Space, type: "keyup" },
+    ]);
+    // Space+U で さ が確定する (1 打目が U の keydown)
+    expect(results[1]).toBe("finished");
+    expect(automaton.getFinishedWord()).toBe("さ");
+  });
+
+  test("Space+U+F → ざ (同時押し sim が通常経路で確定)", () => {
+    const automaton = rule.build("ざ", {
+      onBackspace: () => {
+        throw new Error("should not be called");
+      },
+    });
+    runInputsOn(automaton, [
+      { key: VirtualKeys.Space, type: "keydown" },
+      { key: VirtualKeys.U, type: "keydown" },
+      { key: VirtualKeys.F, type: "keydown" },
+      { key: VirtualKeys.U, type: "keyup" },
+      { key: VirtualKeys.F, type: "keyup" },
+      { key: VirtualKeys.Space, type: "keyup" },
+    ]);
+    expect(automaton.isFinished()).toBe(true);
+    expect(automaton.getFinishedWord()).toBe("ざ");
+  });
+
+  test("Space 非押下で U 単独 → BACK 発火", () => {
+    // word は「き」(W 単独) にしておき、U 単独押下が現在ノードの候補に無い状態を作る
+    let called = 0;
+    const automaton = rule.build("き", {
+      onBackspace: () => {
+        called++;
+      },
+    });
+    const results = runInputsOn(automaton, [
+      { key: VirtualKeys.U, type: "keydown" },
+      { key: VirtualKeys.U, type: "keyup" },
+    ]);
+    expect(results[0]).toBe("back");
+    expect(called).toBe(1);
+    // 状態は進まない
+    expect(automaton.currentNode).toBe(automaton.startNode);
   });
 });

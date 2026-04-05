@@ -1,7 +1,8 @@
-import { build } from "./automaton";
+import { type Automaton, type AutomatonOptions, build } from "./automaton";
+import { AndModifier } from "./modifier";
 import { expandPrefixRules } from "./ruleExtender";
-import { ruleStrokeKeys, type RuleStroke } from "./ruleStroke";
-import type { VirtualKey } from "./virtualKey";
+import { ModifierStroke, ruleStrokeKeys, type RuleStroke } from "./ruleStroke";
+import { type VirtualKey, VirtualKeys } from "./virtualKey";
 
 export type normalizerFunc = (value: string) => string;
 
@@ -85,17 +86,36 @@ nk/ん/k
 */
 export class Rule {
   /**
+   * Rule.backspaceStrokes: 入力方式が「特定のキーストロークを backspace として扱う」
+   * ケース (例: naginata 式の U 単独打鍵) を表現するための、現在ノードに依存せず
+   * 常に受理される特殊ストローク群。expandPrefixRules や entriesByKey 等の通常入力
+   * 経路のキャッシュには含まれない。
+   *
+   * 省略時のデフォルトは VirtualKeys.Backspace 単独打鍵のみ。明示的に指定された場合は
+   * その指定がそのまま使われる (Backspace キーを含めるかどうかは呼び出し側の判断)。
+   */
+  readonly backspaceStrokes: readonly RuleStroke[];
+
+  /**
    *
    * @param entries 入力ルールのエントリ
    * @param normalize 入力ワードのかな文字を正規化する関数
    * @param name 入力ルールの名前
+   * @param backspaceStrokes backspace として扱う RuleStroke 群。
+   *                         undefined の場合は VirtualKeys.Backspace 単独打鍵のみが
+   *                         デフォルトとして設定される。明示的に配列を指定した場合は
+   *                         その配列がそのまま使われる (空配列なら backspace 機能無効)
    */
   constructor(
     readonly entries: RuleEntry[],
     readonly normalize: normalizerFunc,
     readonly name: string = "",
+    backspaceStrokes?: readonly RuleStroke[],
   ) {
     this.entries = expandPrefixRules(entries);
+    this.backspaceStrokes = backspaceStrokes ?? [
+      new ModifierStroke(VirtualKeys.Backspace, AndModifier.empty),
+    ];
 
     // init mapEntriesByFirstInputKey
     // SimultaneousStroke の場合は keys の全要素を登録キーとする
@@ -141,7 +161,7 @@ export class Rule {
     return this.mapEntriesByFirstInputModifier.get(modifierKey) ?? [];
   }
 
-  build(kanaText: string) {
-    return build(this, kanaText);
+  build(kanaText: string, options?: AutomatonOptions): Automaton {
+    return build(this, kanaText, options);
   }
 }

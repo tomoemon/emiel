@@ -6,7 +6,8 @@ export class InputResult {
       | "key_succeeded" // 1打鍵の成功
       | "kana_succeeded" // かな1文字の成功
       | "finished" // 完了
-      | "pending", // 確定待ち（同時押しの追加入力や keyup を待機中）
+      | "pending" // 確定待ち（同時押しの追加入力や keyup を待機中）
+      | "back", // Rule.backspaceStrokes に一致して backspace 動作が発火した
   ) {}
 
   static readonly IGNORED = new InputResult("ignored");
@@ -15,6 +16,7 @@ export class InputResult {
   static readonly KANA_SUCCEEDED = new InputResult("kana_succeeded");
   static readonly FINISHED = new InputResult("finished");
   static readonly PENDING = new InputResult("pending");
+  static readonly BACK = new InputResult("back");
 
   toString(): string {
     return this.type;
@@ -47,5 +49,10 @@ export class InputResult {
   // isSucceeded:true の場合の詳細な情報: 今回の1打鍵でワードの入力が完了した
   get isFinished(): boolean {
     return this.type === "finished";
+  }
+  // 今回の入力が Rule.backspaceStrokes にマッチして backspace として処理された
+  // isSucceeded / isFailed / isIgnored のいずれにも属さない独立カテゴリ
+  get isBack(): boolean {
+    return this.type === "back";
   }
 }

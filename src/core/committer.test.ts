@@ -7,9 +7,12 @@ import {
   loadPresetRuleNicola,
   loadPresetRuleRoman,
 } from "../impl/presetRules";
+import { BackspaceMatcher } from "./committer";
 import { InputEvent, InputStroke } from "./inputEvent";
 import { KeyboardState } from "./keyboardState";
+import { AndModifier, ModifierGroup } from "./modifier";
 import type { Rule } from "./rule";
+import { ModifierStroke, type RuleStroke, SimultaneousStroke } from "./ruleStroke";
 import { VirtualKeys } from "./virtualKey";
 
 /**
@@ -298,5 +301,92 @@ describe("StrokeCommitter jis_kana (単打 + Shift modifier)", () => {
     ]);
     expect(automaton.isFinished()).toBe(true);
     expect(automaton.getFinishedWord()).toBe("ぁぅ");
+  });
+});
+
+describe("BackspaceMatcher", () => {
+  function keydown(key: (typeof VirtualKeys)[keyof typeof VirtualKeys], state: KeyboardState) {
+    state.keydown(key);
+    return new InputEvent(new InputStroke(key, "keydown"), state, new Date());
+  }
+  function keyup(key: (typeof VirtualKeys)[keyof typeof VirtualKeys], state: KeyboardState) {
+    state.keyup(key);
+    return new InputEvent(new InputStroke(key, "keyup"), state, new Date());
+  }
+
+  test("empty strokes returns none", () => {
+    const matcher = new BackspaceMatcher();
+    const state = new KeyboardState();
+    expect(matcher.feed(keydown(VirtualKeys.U, state), []).type).toBe("none");
+  });
+
+  test("single-key ModifierStroke matches on keydown", () => {
+    const matcher = new BackspaceMatcher();
+    const strokes: RuleStroke[] = [new ModifierStroke(VirtualKeys.U, AndModifier.empty)];
+    const state = new KeyboardState();
+    expect(matcher.feed(keydown(VirtualKeys.U, state), strokes).type).toBe("matched");
+  });
+
+  test("ModifierStroke with required modifier: matches only when modifier is held", () => {
+    const matcher = new BackspaceMatcher();
+    const strokes: RuleStroke[] = [
+      new ModifierStroke(
+        VirtualKeys.U,
+        new AndModifier(new ModifierGroup([VirtualKeys.ShiftLeft])),
+      ),
+    ];
+    const state = new KeyboardState();
+    // Shift なしでは matched しない
+    expect(matcher.feed(keydown(VirtualKeys.U, state), strokes).type).toBe("none");
+    matcher.reset();
+    state.keyup(VirtualKeys.U);
+    // Shift 押下後なら matched
+    state.keydown(VirtualKeys.ShiftLeft);
+    expect(matcher.feed(keydown(VirtualKeys.U, state), strokes).type).toBe("matched");
+  });
+
+  test("SimultaneousStroke: partial then matched", () => {
+    const matcher = new BackspaceMatcher();
+    const strokes: RuleStroke[] = [
+      new SimultaneousStroke([VirtualKeys.U, VirtualKeys.F], AndModifier.empty),
+    ];
+    const state = new KeyboardState();
+    expect(matcher.feed(keydown(VirtualKeys.U, state), strokes).type).toBe("partial");
+    expect(matcher.feed(keydown(VirtualKeys.F, state), strokes).type).toBe("matched");
+  });
+
+  test("unrelated key does not add to pendingDown", () => {
+    const matcher = new BackspaceMatcher();
+    const strokes: RuleStroke[] = [
+      new SimultaneousStroke([VirtualKeys.U, VirtualKeys.F], AndModifier.empty),
+    ];
+    const state = new KeyboardState();
+    matcher.feed(keydown(VirtualKeys.A, state), strokes); // 無関係
+    expect(matcher.pendingKeys.length).toBe(0);
+  });
+
+  test("dryRun does not mutate state", () => {
+    const matcher = new BackspaceMatcher();
+    const strokes: RuleStroke[] = [
+      new SimultaneousStroke([VirtualKeys.U, VirtualKeys.F], AndModifier.empty),
+    ];
+    const state = new KeyboardState();
+    expect(matcher.dryRun(keydown(VirtualKeys.U, state), strokes).type).toBe("partial");
+    expect(matcher.pendingKeys.length).toBe(0);
+    // 実 feed で初めて状態が進む
+    expect(matcher.feed(keydown(VirtualKeys.U, state), strokes).type).toBe("partial");
+    expect(matcher.pendingKeys.length).toBe(1);
+  });
+
+  test("keyup removes key from pendingDown", () => {
+    const matcher = new BackspaceMatcher();
+    const strokes: RuleStroke[] = [
+      new SimultaneousStroke([VirtualKeys.U, VirtualKeys.F], AndModifier.empty),
+    ];
+    const state = new KeyboardState();
+    matcher.feed(keydown(VirtualKeys.U, state), strokes);
+    expect(matcher.pendingKeys.length).toBe(1);
+    matcher.feed(keyup(VirtualKeys.U, state), strokes);
+    expect(matcher.pendingKeys.length).toBe(0);
   });
 });
