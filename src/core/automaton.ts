@@ -9,40 +9,20 @@ import type { Rule } from "./rule";
 import type { RuleStroke } from "./ruleStroke";
 import type { VirtualKey } from "./virtualKey";
 
-/**
- * Automaton 構築時に渡す任意オプション。
- */
-export type AutomatonOptions = {
-  /**
-   * Rule.backspaceStrokes に一致した入力が発生したときに呼ばれるハンドラ。
-   *
-   * ハンドラ内では automaton.back() で成功ストロークを巻き戻す、外部で保持している
-   * failedInputs 配列を pop する、ミス n 回ごとに 1 回だけ復旧する等、ゲームルールに
-   * 応じた任意の復旧ロジックを実装できる。
-   *
-   * ハンドラ未指定の場合、Rule.backspaceStrokes に一致しても InputResult.IGNORED を返し、
-   * 既存の挙動を維持する。
-   */
-  readonly onBackspace?: (automaton: Automaton) => void;
-};
-
 export class AutomatonImpl implements AutomatonState {
   /**
    * @param word かな文字列（配列定義 Rule で使用可能な文字で構成される文字列）
    * @param startNode 打鍵を受け付ける開始ノード
    * @param rule このAutomatonを生成した入力ルール
-   * @param options onBackspace などの任意オプション
    */
   constructor(
     readonly word: string,
     readonly startNode: StrokeNode,
     readonly rule: Rule,
-    options?: AutomatonOptions,
   ) {
     this.currentNode = startNode;
     this.committer = new StrokeCommitter();
     this.backspaceMatcher = new BackspaceMatcher();
-    this.onBackspace = options?.onBackspace;
   }
   currentNode: StrokeNode;
   /** 入力成功して遷移した履歴 */
@@ -58,8 +38,6 @@ export class AutomatonImpl implements AutomatonState {
   private readonly committer: StrokeCommitter;
   /** Rule.backspaceStrokes の評価を担うマッチャ */
   private readonly backspaceMatcher: BackspaceMatcher;
-  /** backspace 発動時のハンドラ (未指定なら BACK は発火しない) */
-  private readonly onBackspace: ((automaton: Automaton) => void) | undefined;
   /**
    * 現在押下されていてまだ打鍵として確定していないキー集合 (可視化用)。
    * 例: SimultaneousStroke の partial 状態で W だけ押されているとき [W] を返す。
@@ -120,8 +98,8 @@ export class AutomatonImpl implements AutomatonState {
    * - 通常経路が ignored / failed を返す場合にのみ backspace 判定を優先する
    *   (backspace が一致すれば BACK / PENDING を返し、そうでなければ通常経路の結果を返す)
    *
-   * 実装上は両経路に feed し、結果を resolveResult で統合する。
-   * これは通常経路が pending を持つ場合も含めて状態整合性を保つため。
+   * backspace 発動時の「復旧ロジック」(failedInputs を pop する、automaton.back() を
+   * 呼ぶ等) は呼び出し側の責務。Automaton は InputResult.BACK を返すことで通知するのみ。
    */
   input(stroke: InputEvent): InputResult {
     const normalResult = this.committer.feed(stroke, this.currentNode, this.rule);
@@ -135,14 +113,10 @@ export class AutomatonImpl implements AutomatonState {
       return InputResult.PENDING;
     }
 
-    // 通常経路が ignored / failed のとき、backspace 判定を試す
+    // 通常経路が ignored / failed のとき、backspace 判定を優先する
     if (bsResult.type === "matched") {
-      if (this.onBackspace) {
-        this.backspaceEventsAtCurrentNode.push(stroke);
-        this.onBackspace(this as unknown as Automaton);
-        return InputResult.BACK;
-      }
-      // ハンドラ未指定 → 既存挙動互換 (通常経路の結果を返す)
+      this.backspaceEventsAtCurrentNode.push(stroke);
+      return InputResult.BACK;
     }
     if (bsResult.type === "partial") {
       return InputResult.PENDING;
@@ -171,9 +145,7 @@ export class AutomatonImpl implements AutomatonState {
       return InputResult.PENDING;
     }
     if (bsDry.type === "matched") {
-      if (this.onBackspace) {
-        return InputResult.BACK;
-      }
+      return InputResult.BACK;
     }
     if (bsDry.type === "partial") {
       return InputResult.PENDING;
@@ -252,9 +224,9 @@ export class AutomatonImpl implements AutomatonState {
 
 export type Automaton = AutomatonImpl & DefaultExtensionType;
 
-export function build(rule: Rule, kanaText: string, options?: AutomatonOptions): Automaton {
+export function build(rule: Rule, kanaText: string): Automaton {
   const [_, endKanaNode] = buildKanaNode(rule, kanaText);
-  const automaton = new AutomatonImpl(kanaText, buildStrokeNode(endKanaNode), rule, options);
+  const automaton = new AutomatonImpl(kanaText, buildStrokeNode(endKanaNode), rule);
   return automaton.with(defaultExtension);
 }
 

@@ -35,8 +35,8 @@ export const jsonRuleSchema = v.object({
   extendCommonPrefixEntry: v.optional(v.boolean()),
   entries: v.array(entrySchema),
   // Rule.backspaceStrokes に渡す「backspace として扱うキーストローク」の定義。
-  // 現在のノードに関係なく常に受理され、一致すると onBackspace ハンドラが呼ばれる。
-  // 例: naginata 式の U 単独打鍵
+  // 現在のノードに関係なく常に受理され、一致すると Automaton.input() が
+  // InputResult.BACK を返す。例: naginata 式の U 単独打鍵
   backspaces: v.optional(v.array(strokeSchema)),
 });
 

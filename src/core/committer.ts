@@ -301,7 +301,7 @@ export class StrokeCommitter {
 
 /**
  * Rule.backspaceStrokes に対するマッチ結果。
- * - matched: 確定 (コミット相当)。onBackspace を発火する
+ * - matched: 確定 (コミット相当)。Automaton は InputResult.BACK を返す
  * - partial: 同時押し backspace の部分一致。次の入力 (または keyup) まで pending
  * - none: どの backspace ストロークにも該当しない
  */
