@@ -1,59 +1,13 @@
+import * as AutomatonGetters from "./automatonGetters";
 import type { AutomatonState, EdgeHistory } from "./automatonState";
-import { StrokeEdge, type StrokeNode } from "./builderStrokeGraph";
-import { type InputEvent, matchCandidateEdge, matchOtherEdge } from "./inputEvent";
+import { buildKanaNode } from "./builderKanaGraph";
+import { buildStrokeNode, type StrokeEdge, type StrokeNode } from "./builderStrokeGraph";
+import { type CommittedStroke, StrokeCommitter } from "./committer";
+import type { InputEvent } from "./inputEvent";
+import { InputResult } from "./inputResult";
 import type { Rule } from "./rule";
-
-export class InputResult {
-  constructor(
-    private readonly type:
-      | "ignored" // modifier キーの単独入力等で無視された
-      | "failed" // 入力ミス
-      | "key_succeeded" // 1打鍵の成功
-      | "kana_succeeded" // かな1文字の成功
-      | "finished" // 完了
-      | "staged", // 仮確定状態
-  ) {}
-
-  static readonly IGNORED = new InputResult("ignored");
-  static readonly FAILED = new InputResult("failed");
-  static readonly KEY_SUCCEEDED = new InputResult("key_succeeded");
-  static readonly KANA_SUCCEEDED = new InputResult("kana_succeeded");
-  static readonly FINISHED = new InputResult("finished");
-  static readonly STAGED = new InputResult("staged");
-
-  toString(): string {
-    return this.type;
-  }
-  // 今回の打鍵が無視されたかどうか（シフトキー等のモディファイアキーの単独入力の場合）
-  get isIgnored(): boolean {
-    return this.type === "ignored";
-  }
-  get isStaged(): boolean {
-    return this.type === "staged";
-  }
-  // 今回の1打鍵が入力ミスだったかどうか
-  get isFailed(): boolean {
-    return this.type === "failed";
-  }
-  // 今回の入力に成功したかどうか
-  get isSucceeded(): boolean {
-    return (
-      this.type === "key_succeeded" || this.type === "kana_succeeded" || this.type === "finished"
-    );
-  }
-  // isSucceeded:true の場合の詳細な情報: 今回の1打鍵でかな1文字分の遷移はしていない
-  get isKeySucceeded(): boolean {
-    return this.type === "key_succeeded";
-  }
-  // isSucceeded:true の場合の詳細な情報: 今回の1打鍵でかな1文字分以上の遷移をした
-  get isKanaSucceeded(): boolean {
-    return this.type === "kana_succeeded";
-  }
-  // isSucceeded:true の場合の詳細な情報: 今回の1打鍵でワードの入力が完了した
-  get isFinished(): boolean {
-    return this.type === "finished";
-  }
-}
+import type { RuleStroke } from "./ruleStroke";
+import type { VirtualKey } from "./virtualKey";
 
 export class AutomatonImpl implements AutomatonState {
   /**
@@ -67,12 +21,22 @@ export class AutomatonImpl implements AutomatonState {
     readonly rule: Rule,
   ) {
     this.currentNode = startNode;
+    this.committer = new StrokeCommitter();
   }
   currentNode: StrokeNode;
   /** 入力成功して遷移した履歴 */
   edgeHistories: EdgeHistory[] = [];
   /** 現在のノード入力中に失敗した入力イベント。次のノードに遷移するとリセットされる */
   failedEventsAtCurrentNode: InputEvent[] = [];
+  /** 時間方向の判断を担う Committer */
+  private readonly committer: StrokeCommitter;
+  /**
+   * 現在押下されていてまだ打鍵として確定していないキー集合 (可視化用)。
+   * 例: SimultaneousStroke の partial 状態で W だけ押されているとき [W] を返す。
+   */
+  get pendingKeys(): readonly VirtualKey[] {
+    return this.committer.pendingKeys;
+  }
   /**
    * 入力状態をリセットする
    */
@@ -80,6 +44,7 @@ export class AutomatonImpl implements AutomatonState {
     this.currentNode = this.startNode;
     this.edgeHistories = [];
     this.failedEventsAtCurrentNode = [];
+    this.committer.reset();
   }
   /**
    * 1 stroke 分の入力を戻す
@@ -92,211 +57,75 @@ export class AutomatonImpl implements AutomatonState {
       }
     }
     this.failedEventsAtCurrentNode = [];
+    this.committer.reset();
   }
 
-  /**
-   * 仮確定状態のエッジ、または入力イベント
-   */
-  private stagedEdge: StrokeEdge | InputEvent | undefined = undefined;
   /**
    * 状態遷移せずに、入力が成功するかどうかをテストする
    *
    * @returns [result, apply] result: 入力結果, apply: 状態遷移を適用する関数
    */
   testInput(stroke: InputEvent): [InputResult, () => void] {
-    // edge1 は現在遷移可能な候補エッジの1つ、edge2 は他の候補エッジ、other edge は Rule 内の他のエントリのエッジ
-    // "edge1", "edge2", "other edge" それぞれについて matched, none, modified の組み合わせがありえる
-    //
-    // edge1 matched, edge2 none, other edge none: succeeded
-    // edge1 matched, edge2 none, other edge matched: max(edge1,other) score の大きい方を採用
-    // edge1 matched, edge2 none, other edge modified: edge1 staged -> keyup で確定
-    // edge1 matched, edge2 matched, other edge none: MUST NOT EXISTS (conflicted)
-    // edge1 matched, edge2 matched, other edge matched: MUST NOT EXISTS (conflicted)
-    // edge1 matched, edge2 matched, other edge modified: MUST NOT EXISTS (conflicted)
-    // edge1 matched, edge2 modified, other edge none: edge1 staged -> keyup で確定
-    // edge1 matched, edge2 modified, other edge matched: MUST NOT EXISTS (conflicted)
-    // edge1 matched, edge2 modified, other edge modified: edge1 staged -> keyup で確定
-    // edge1 modified, edge2 none, other edge none: ignored
-    // edge1 modified, edge2 none, other edge matched: other edge staged -> keyup で確定
-    // edge1 modified, edge2 none, other edge modified: ignored
-    // edge1 modified, edge2 matched, other edge none: edge1と2 入れ替えたら同上
-    // edge1 modified, edge2 matched, other edge matched: edge1と2 入れ替えたら同上
-    // edge1 modified, edge2 matched, other edge modified: edge1と2 入れ替えたら同上
-    // edge1 modified, edge2 modified, other edge none: ignored
-    // edge1 modified, edge2 modified, other edge matched: other edge staged -> keyup で確定
-    // edge1 modified, edge2 modified, other edge modified: ignored
-    // edge1 none, edge2 none, other edge none: ignored
-    // edge1 none, edge2 none, other edge modified: ignored
-    // edge1 none, edge2 none, other edge matched: failed
-    // edge1 none, edge2 matched, other edge none: edge1と2 入れ替えたら同上
-    // edge1 none, edge2 matched, other edge modified: edge1と2 入れ替えたら同上
-    // edge1 none, edge2 matched, other edge matched: edge1と2 入れ替えたら同上
-    // edge1 none, edge2 modified, other edge none: edge1と2 入れ替えたら同上
-    // edge1 none, edge2 modified, other edge modified: edge1と2 入れ替えたら同上
-    // edge1 none, edge2 modified, other edge matched: edge1と2 入れ替えたら同上
-    if (stroke.input.type === "keyup") {
-      // 仮確定状態があるときに keyup が発生したら、それを確定させる
-      if (this.stagedEdge) {
-        if (this.stagedEdge instanceof StrokeEdge) {
-          const acceptedEdge = this.stagedEdge;
-          const resultType = this.edgeToResultType(this.currentNode.kanaIndex, acceptedEdge);
-          return [
-            resultType,
-            () => {
-              this.applyState(stroke, resultType, acceptedEdge);
-            },
-          ];
-        }
-        return [
-          InputResult.FAILED,
-          () => {
-            this.applyState(stroke, InputResult.FAILED, undefined);
-          },
-        ];
-      }
-      return [InputResult.IGNORED, () => {}];
-    }
-
-    const matchResults = this.currentNode.nextEdges.map((edge) => {
-      const result = matchCandidateEdge(stroke, edge);
-      return { edge, result };
-    });
-    const acceptedEdges = matchResults
-      .filter((match) => match.result.type === "matched")
-      .map(({ edge, result }) => ({ edge: edge, keyCount: result.keyCount }));
-    const modifiedEdges = matchResults
-      .filter((match) => match.result.type === "modified")
-      .map((match) => match.edge);
-    const otherMatched = matchOtherEdge(stroke, this.rule, this.currentNode.nextEdges);
-
-    if (acceptedEdges.length > 0) {
-      if (modifiedEdges.length > 0) {
-        if (otherMatched.type === "matched") {
-          if (otherMatched.keyCount >= acceptedEdges[0].keyCount) {
-            return [
-              InputResult.FAILED,
-              () => {
-                this.applyState(stroke, InputResult.FAILED, undefined);
-              },
-            ];
-          } else {
-            return [
-              InputResult.STAGED,
-              () => {
-                this.stagedEdge = acceptedEdges[0].edge;
-              },
-            ];
-          }
-        } else if (otherMatched.type === "modified") {
-          return [
-            InputResult.STAGED,
-            () => {
-              this.stagedEdge = acceptedEdges[0].edge;
-            },
-          ];
-        } else {
-          return [
-            InputResult.STAGED,
-            () => {
-              this.stagedEdge = acceptedEdges[0].edge;
-            },
-          ];
-        }
-      } else {
-        if (otherMatched.type === "matched") {
-          if (otherMatched.keyCount >= acceptedEdges[0].keyCount) {
-            return [
-              InputResult.FAILED,
-              () => {
-                this.applyState(stroke, InputResult.FAILED, undefined);
-              },
-            ];
-          } else {
-            return [
-              InputResult.STAGED,
-              () => {
-                this.stagedEdge = acceptedEdges[0].edge;
-              },
-            ];
-          }
-        } else if (otherMatched.type === "modified") {
-          return [
-            InputResult.STAGED,
-            () => {
-              this.stagedEdge = acceptedEdges[0].edge;
-            },
-          ];
-        } else {
-          const acceptedEdge = acceptedEdges[0];
-          const resultType = this.edgeToResultType(this.currentNode.kanaIndex, acceptedEdge.edge);
-          return [
-            resultType,
-            () => {
-              this.applyState(stroke, resultType, acceptedEdge.edge);
-            },
-          ];
-        }
-      }
-    } else {
-      if (modifiedEdges.length > 0) {
-        if (otherMatched.type === "matched") {
-          return [
-            InputResult.STAGED,
-            () => {
-              this.stagedEdge = stroke;
-            },
-          ];
-        } else if (otherMatched.type === "modified") {
-          return [InputResult.IGNORED, () => {}];
-        } else {
-          return [InputResult.IGNORED, () => {}];
-        }
-      } else {
-        if (otherMatched.type === "matched") {
-          return [
-            InputResult.FAILED,
-            () => {
-              this.applyState(stroke, InputResult.FAILED, undefined);
-            },
-          ];
-        } else if (otherMatched.type === "modified") {
-          return [InputResult.IGNORED, () => {}];
-        } else {
-          return [InputResult.IGNORED, () => {}];
-        }
-      }
-    }
+    const commitResult = this.committer.dryRun(stroke, this.currentNode, this.rule);
+    const result = this.commitResultToInputResult(commitResult);
+    return [
+      result,
+      () => {
+        this.input(stroke);
+      },
+    ];
   }
 
   /**
    * キー入力して状態遷移し、入力が成功したかどうかを返す
    */
   input(stroke: InputEvent): InputResult {
-    const [result, apply] = this.testInput(stroke);
-    apply();
-    return result;
+    const commitResult = this.committer.feed(stroke, this.currentNode, this.rule);
+    switch (commitResult.type) {
+      case "pending":
+        return InputResult.PENDING;
+      case "ignored":
+        return InputResult.IGNORED;
+      case "failed":
+        this.failedEventsAtCurrentNode.push(commitResult.event);
+        return InputResult.FAILED;
+      case "committed":
+        return this.consume(commitResult.stroke);
+    }
   }
-  /**
-   * testInput の結果を適用して内部の状態を変更する
-   */
-  private applyState(
-    stroke: InputEvent,
-    result: InputResult,
-    acceptedEdge: StrokeEdge | undefined,
-  ) {
-    // 仮確定状態解除
-    this.stagedEdge = undefined;
 
-    if (result.isSucceeded && acceptedEdge) {
-      this.edgeHistories.push({
-        event: stroke,
-        previousEdge: acceptedEdge,
-        failedEvents: this.failedEventsAtCurrentNode,
-      });
-      this.currentNode = acceptedEdge.next;
-      this.failedEventsAtCurrentNode = [];
-    } else if (result.isFailed) {
-      this.failedEventsAtCurrentNode.push(stroke);
+  /**
+   * 確定したストロークを Automaton の状態に反映する。
+   */
+  private consume(committed: CommittedStroke): InputResult {
+    const edge = committed.edge;
+    const resultType = this.edgeToResultType(this.currentNode.kanaIndex, edge);
+    this.edgeHistories.push({
+      event: committed.triggerEvent,
+      previousEdge: edge,
+      failedEvents: this.failedEventsAtCurrentNode,
+    });
+    this.currentNode = edge.next;
+    this.failedEventsAtCurrentNode = [];
+    return resultType;
+  }
+
+  /**
+   * CommitResult を InputResult へ変換する (testInput 用)。
+   * testInput は副作用なしのため、failed の場合も failedEventsAtCurrentNode を更新しない。
+   */
+  private commitResultToInputResult(
+    commitResult: ReturnType<StrokeCommitter["dryRun"]>,
+  ): InputResult {
+    switch (commitResult.type) {
+      case "pending":
+        return InputResult.PENDING;
+      case "ignored":
+        return InputResult.IGNORED;
+      case "failed":
+        return InputResult.FAILED;
+      case "committed":
+        return this.edgeToResultType(this.currentNode.kanaIndex, commitResult.stroke.edge);
     }
   }
 
@@ -347,3 +176,108 @@ export class AutomatonImpl implements AutomatonState {
     return proxy as this & { [K in keyof T]: () => ReturnType<T[K]> };
   }
 }
+
+export type Automaton = AutomatonImpl & DefaultExtensionType;
+
+export function build(rule: Rule, kanaText: string): Automaton {
+  const [_, endKanaNode] = buildKanaNode(rule, kanaText);
+  const automaton = new AutomatonImpl(kanaText, buildStrokeNode(endKanaNode), rule);
+  return automaton.with(defaultExtension);
+}
+
+/**
+ * デフォルトの拡張
+ */
+const defaultExtension = {
+  /**
+   * 入力が完了したかな文字列
+   */
+  getFinishedWord(state: AutomatonState): string {
+    return AutomatonGetters.getFinishedWord(state);
+  },
+
+  /**
+   * 入力が完了していないかな文字列
+   */
+  getPendingWord(state: AutomatonState): string {
+    return AutomatonGetters.getPendingWord(state);
+  },
+
+  /**
+   * 入力が完了したローマ字列(ローマ字系の Rule の場合のみ)
+   */
+  getFinishedRoman(state: AutomatonState): string {
+    return AutomatonGetters.getFinishedRoman(state);
+  },
+
+  /**
+   * 入力が完了していないローマ字列(ローマ字系の Rule の場合のみ)
+   */
+  getPendingRoman(state: AutomatonState): string {
+    return AutomatonGetters.getPendingRoman(state);
+  },
+
+  /**
+   * 入力が完了したキーストローク列
+   */
+  getFinishedStroke(state: AutomatonState): RuleStroke[] {
+    return AutomatonGetters.getFinishedStroke(state);
+  },
+
+  /**
+   * 現在の入力状態から最短ストローク数で打ち切れるストローク列を返す
+   */
+  getPendingStroke(state: AutomatonState): RuleStroke[] {
+    return AutomatonGetters.getPendingStroke(state);
+  },
+
+  /**
+   * 1打目の入力時刻
+   */
+  getFirstInputTime(state: AutomatonState): Date {
+    return AutomatonGetters.getFirstInputTime(state);
+  },
+
+  /**
+   * 最後の入力時刻
+   */
+  getLastInputTime(state: AutomatonState): Date {
+    return AutomatonGetters.getLastInputTime(state);
+  },
+
+  /**
+   * ミス入力数の合計
+   */
+  getFailedInputCount(state: AutomatonState): number {
+    return AutomatonGetters.getFailedInputCount(state);
+  },
+
+  /**
+   * ミス入力も含めた打鍵数の合計
+   */
+  getTotalInputCount(state: AutomatonState): number {
+    return AutomatonGetters.getTotalInputCount(state);
+  },
+
+  /**
+   * 入力が完了しているかどうか
+   */
+  isFinished(state: AutomatonState): boolean {
+    return AutomatonGetters.isFinished(state);
+  },
+} as const;
+
+// デフォルト拡張の型(引数なしバージョン)
+export type DefaultExtensionType = {
+  getFinishedWord(): string;
+  getPendingWord(): string;
+  getFinishedRoman(): string;
+  getPendingRoman(): string;
+  getFinishedStroke(): RuleStroke[];
+  getPendingStroke(): RuleStroke[];
+  getFirstInputTime(): Date;
+  getLastInputTime(): Date;
+  getFailedInputCount(): number;
+  getTotalInputCount(): number;
+  isFinished(): boolean;
+};

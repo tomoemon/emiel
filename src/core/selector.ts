@@ -1,5 +1,5 @@
-import type { InputResult } from "./automaton";
 import type { InputEvent } from "./inputEvent";
+import type { InputResult } from "./inputResult";
 
 export interface Inputtable {
   input(stroke: InputEvent): InputResult;

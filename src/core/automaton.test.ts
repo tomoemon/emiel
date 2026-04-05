@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { loadPresetKeyboardLayoutQwertyJis } from "../impl/presetKeyboardLayout";
 import { loadPresetRuleRoman } from "../impl/presetRules";
-import type { Automaton } from "./automatonBuilder";
+import type { Automaton } from "./automaton";
 import type { AutomatonState } from "./automatonState";
 
 describe("Automaton with extensions", () => {

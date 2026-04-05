@@ -1,6 +1,7 @@
 import { expect, test } from "vitest";
 import { VirtualKeys } from "..";
 import { buildKanaNode } from "../core/builderKanaGraph";
+import type { ModifierStroke } from "../core/ruleStroke";
 import { loadMozcRule } from "./mozcRuleLoader";
 import { loadPresetKeyboardLayoutQwertyJis } from "./presetKeyboardLayout";
 
@@ -42,6 +43,6 @@ x	あいう
   );
   const [startNode, endNode] = buildKanaNode(rule, "あいう");
   expect(startNode.nextEdges.length).toBe(1);
-  expect(startNode.nextEdges[0].entries[0].input[0].key).toBe(VirtualKeys.X);
+  expect((startNode.nextEdges[0].entries[0].input[0] as ModifierStroke).key).toBe(VirtualKeys.X);
   expect(startNode.nextEdges[0].next).toBe(endNode);
 });
