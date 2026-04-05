@@ -1,7 +1,9 @@
-import { Automaton, detectKeyboardLayout, KeyboardLayout, loadPresetRuleRoman } from "emiel";
+import type { Automaton, KeyboardLayout } from "emiel";
+import { detectKeyboardLayout, loadPresetRuleRoman } from "emiel";
 import { useEffect, useMemo, useState } from "react";
 import "./App.css";
-import { Record, WordRecordValue } from "./Record";
+import type { WordRecordValue } from "./Record";
+import { Record } from "./Record";
 import { Typing } from "./Typing";
 
 function App() {
@@ -18,22 +20,18 @@ function TypingRoot(props: { layout: KeyboardLayout }) {
     const words = ["おをひく", "こんとん", "がっこう", "aから@"];
     return words.map((w) => {
       return romanRule.build(w);
-    })
-  }, [props.layout])
+    });
+  }, [props.layout]);
   const [wordIndex, setWordIndex] = useState(0);
   const [wordRecords, setWordRecords] = useState<WordRecordValue[]>([]);
-  const onWordFinished = (
-    a: Automaton,
-    displayedAt: Date,
-  ) => {
+  const onWordFinished = (a: Automaton, displayedAt: Date) => {
     setWordRecords((wordRecords) => [
       ...wordRecords,
       {
         automaton: a,
         displayedAt,
         firstInputtedAt: a.edgeHistories[0].event.timestamp,
-        finishedAt:
-          a.edgeHistories[a.edgeHistories.length - 1].event.timestamp,
+        finishedAt: a.edgeHistories[a.edgeHistories.length - 1].event.timestamp,
       },
     ]);
     setWordIndex((current) => {
@@ -48,7 +46,7 @@ function TypingRoot(props: { layout: KeyboardLayout }) {
       automaton={automatons[wordIndex]}
       onWordFinished={onWordFinished}
     />
-  )
+  );
 }
 
 export default App;

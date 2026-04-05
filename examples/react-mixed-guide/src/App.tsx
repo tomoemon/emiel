@@ -1,4 +1,5 @@
-import { activate, detectKeyboardLayout, InputStroke, KeyboardLayout, loadPresetRuleRoman } from "emiel";
+import type { InputStroke, KeyboardLayout } from "emiel";
+import { activate, detectKeyboardLayout, loadPresetRuleRoman } from "emiel";
 import { useEffect, useMemo, useState } from "react";
 import "./App.css";
 import { MixedText, withMixedText } from "./MixedGuide";
@@ -19,18 +20,9 @@ function Typing(props: { layout: KeyboardLayout }) {
     new MixedText("がっ,こう", "学,校"),
     new MixedText("a,か,ら,@", "a,か,ら,@"),
   ];
-  const [automatons] = useState(
-    words.map((w) =>
-      withMixedText(
-        romanRule.build(w.kanaText),
-        w,
-      )
-    )
-  );
+  const [automatons] = useState(words.map((w) => withMixedText(romanRule.build(w.kanaText), w)));
   const [index, setIndex] = useState(0);
-  const [lastInputKey, setLastInputKey] = useState<
-    InputStroke | undefined
-  >();
+  const [lastInputKey, setLastInputKey] = useState<InputStroke | undefined>();
   useEffect(() => {
     return activate(window, (e) => {
       setLastInputKey(e.input);

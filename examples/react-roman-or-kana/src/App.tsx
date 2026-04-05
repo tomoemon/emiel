@@ -1,4 +1,12 @@
-import { activate, detectKeyboardLayout, InputStroke, KeyboardLayout, loadPresetRuleJisKana, loadPresetRuleRoman, Selector, VirtualKeys } from "emiel";
+import type { InputStroke, KeyboardLayout } from "emiel";
+import {
+  activate,
+  detectKeyboardLayout,
+  loadPresetRuleJisKana,
+  loadPresetRuleRoman,
+  Selector,
+  VirtualKeys,
+} from "emiel";
 import { useEffect, useMemo, useState } from "react";
 import "./App.css";
 
@@ -15,17 +23,9 @@ function Typing(props: { layout: KeyboardLayout }) {
   const romanRule = useMemo(() => loadPresetRuleRoman(props.layout), [props.layout]);
   const kanaRule = useMemo(() => loadPresetRuleJisKana(props.layout), [props.layout]);
   const [selectors] = useState(
-    words.map(
-      (w) =>
-        new Selector([
-          romanRule.build(w),
-          kanaRule.build(w),
-        ])
-    )
+    words.map((w) => new Selector([romanRule.build(w), kanaRule.build(w)])),
   );
-  const [lastInputKey, setLastInputKey] = useState<
-    InputStroke | undefined
-  >();
+  const [lastInputKey, setLastInputKey] = useState<InputStroke | undefined>();
   const [wordIndex, setWordIndex] = useState(0);
   useEffect(() => {
     return activate(window, (e) => {
@@ -60,25 +60,19 @@ function Typing(props: { layout: KeyboardLayout }) {
     <>
       <h1>
         {/* 課題文かな表示 */}
-        <span style={{ color: "gray" }}>
-          {selector.activeItems[0].getFinishedWord()}
-        </span>{" "}
+        <span style={{ color: "gray" }}>{selector.activeItems[0].getFinishedWord()}</span>{" "}
         {selector.activeItems[0].getPendingWord()}
       </h1>
       {/* ローマ字入力 */}
       <h1>
         <p style={{ fontSize: "1rem" }}>ローマ字入力</p>
-        <span style={{ color: "gray" }}>
-          {romanAutomaton.getFinishedRoman()}
-        </span>{" "}
+        <span style={{ color: "gray" }}>{romanAutomaton.getFinishedRoman()}</span>{" "}
         {romanAutomaton.getPendingRoman()}
       </h1>
       {/* かな入力 */}
       <h1>
         <p style={{ fontSize: "1rem" }}>かな入力</p>
-        <span style={{ color: "gray" }}>
-          {kanaAutomaton.getFinishedWord()}
-        </span>{" "}
+        <span style={{ color: "gray" }}>{kanaAutomaton.getFinishedWord()}</span>{" "}
         {kanaAutomaton.getPendingWord()}
       </h1>
       <h2>
