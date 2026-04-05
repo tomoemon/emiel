@@ -1,19 +1,12 @@
-import { activate, Automaton, detectKeyboardLayout, InputStroke, KeyboardLayout, loadPresetRuleRoman, Selector, VirtualKeys } from "emiel";
+import type { Automaton, InputStroke, KeyboardLayout } from "emiel";
+import { activate, detectKeyboardLayout, loadPresetRuleRoman, Selector, VirtualKeys } from "emiel";
 import { useEffect, useMemo, useState } from "react";
 import "./App.css";
 import { Word } from "./word";
 
 // 繰り返し次のワードを生成するジェネレータ
 const wordGen = (function* wordGenerator(): Generator<string, string> {
-  const words = [
-    "こうきょう",
-    "こんとん",
-    "がっこう",
-    "aから@",
-    "トイレ",
-    "でんしゃ",
-    "どうろ",
-  ];
+  const words = ["こうきょう", "こんとん", "がっこう", "aから@", "トイレ", "でんしゃ", "どうろ"];
   for (let i = 0; ; i++) {
     yield words[i % words.length];
   }
@@ -24,14 +17,13 @@ const initialWords = Array.from({ length: 3 }, () => wordGen.next().value);
 
 type PositionAutomaton = Automaton & {
   getPosition: () => number;
-}
+};
 
 function withPosition(automaton: Automaton, position: number): PositionAutomaton {
   return automaton.with({
     getPosition: () => position,
   });
 }
-
 
 function App() {
   const [layout, setLayout] = useState<KeyboardLayout | undefined>();
@@ -46,18 +38,10 @@ function Typing(props: { layout: KeyboardLayout }) {
   const [selector, setSelector] = useState(
     new Selector(
       // 各 automaton の metadata として表示位置をもたせる
-      initialWords.map(
-        (w, i) =>
-          withPosition(
-            romanRule.build(w),
-            i
-          )
-      )
-    )
+      initialWords.map((w, i) => withPosition(romanRule.build(w), i)),
+    ),
   );
-  const [lastInputKey, setLastInputKey] = useState<
-    InputStroke | undefined
-  >();
+  const [lastInputKey, setLastInputKey] = useState<InputStroke | undefined>();
   useEffect(() => {
     return activate(window, (e) => {
       setLastInputKey(e.input);
@@ -70,10 +54,7 @@ function Typing(props: { layout: KeyboardLayout }) {
       const { finished, succeeded, failed } = selector.input(e);
       finished.forEach((a) => {
         console.log("finished", a);
-        const newAutomaton = withPosition(
-          romanRule.build(wordGen.next().value),
-          a.getPosition()
-        );
+        const newAutomaton = withPosition(romanRule.build(wordGen.next().value), a.getPosition());
         setSelector((current) => current.replaced(a, newAutomaton));
       });
       succeeded.forEach((a) => {

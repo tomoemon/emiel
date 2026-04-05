@@ -1,6 +1,7 @@
 import cytoscape from "cytoscape";
 import dagre from "cytoscape-dagre";
-import { activate, Automaton, InputStroke } from "emiel";
+import type { Automaton, InputStroke } from "emiel";
+import { activate } from "emiel";
 import { useEffect, useRef, useState } from "react";
 import { buildGraphData } from "./graphData";
 import { cyStylesheet } from "./grpahStyle";
@@ -18,8 +19,11 @@ export function TypingGraph(props: {
   const htmlElem = useRef(null);
   const [, setLastInputKey] = useState<InputStroke | undefined>();
   useEffect(() => {
+    if (htmlElem.current === null) {
+      return;
+    }
     const cy = cytoscape({
-      container: htmlElem.current!,
+      container: htmlElem.current,
       // @ts-expect-error rankDir is not defined in cytoscape
       layout: { name: "dagre", rankDir: "LR" },
       userZoomingEnabled: false,
@@ -37,11 +41,15 @@ export function TypingGraph(props: {
       if (result.isFinished) {
         props.onFinished();
       } else if (result.isSucceeded) {
-        const nodeId = graphData.nodesMap.get(automaton.currentNode)!;
-        cy.elements(`#${nodeId}`).addClass("success");
+        const nodeId = graphData.nodesMap.get(automaton.currentNode);
+        if (nodeId !== undefined) {
+          cy.elements(`#${nodeId}`).addClass("success");
+        }
       } else if (result.isFailed) {
-        const nodeId = graphData.nodesMap.get(automaton.currentNode)!;
-        cy.elements(`#${nodeId}`).addClass("miss");
+        const nodeId = graphData.nodesMap.get(automaton.currentNode);
+        if (nodeId !== undefined) {
+          cy.elements(`#${nodeId}`).addClass("miss");
+        }
       }
     });
   }, [props]);
@@ -63,10 +71,7 @@ export function TypingGraph(props: {
       ) : (
         <></>
       )}
-      <div
-        ref={htmlElem}
-        style={{ width: "600px", height: "300px", border: "1px solid white" }}
-      />
+      <div ref={htmlElem} style={{ width: "600px", height: "300px", border: "1px solid white" }} />
     </>
   );
 }

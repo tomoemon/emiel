@@ -5,14 +5,9 @@ import "./App.css";
 export function Typing(props: {
   layout: emiel.KeyboardLayout;
   automaton: emiel.Automaton;
-  onWordFinished: (
-    a: emiel.Automaton,
-    displayedAt: Date,
-  ) => void;
+  onWordFinished: (a: emiel.Automaton, displayedAt: Date) => void;
 }) {
-  const [lastInputKey, setLastInputKey] = useState<
-    emiel.InputStroke | undefined
-  >();
+  const [lastInputKey, setLastInputKey] = useState<emiel.InputStroke | undefined>();
   const automaton = props.automaton;
   useEffect(() => {
     const wordDisplayedAt = new Date();
@@ -35,10 +30,7 @@ export function Typing(props: {
         {automaton.getPendingRoman()}
       </h1>
       <h2>
-        Miss:{" "}
-        <code>
-          {automaton.getFailedInputCount()}
-        </code>
+        Miss: <code>{automaton.getFailedInputCount()}</code>
       </h2>
       <h2>
         Key:{" "}

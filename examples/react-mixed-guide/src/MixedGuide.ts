@@ -1,4 +1,4 @@
-import { Automaton } from "emiel";
+import type { Automaton } from "emiel";
 
 export class MixedText {
   readonly kanaText: string;

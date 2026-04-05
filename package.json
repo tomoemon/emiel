@@ -26,11 +26,11 @@
   "scripts": {
     "build": "vite build && tsc",
     "build:all": "pnpm run build && pnpm -r --filter \"./examples/*\" run build",
-    "lint": "oxlint --deny-warnings src",
-    "lint:fix": "oxlint --fix src",
+    "lint": "oxlint --deny-warnings src examples",
+    "lint:fix": "oxlint --fix src examples",
     "test": "vitest",
-    "fmt": "oxfmt --write src",
-    "fmt:check": "oxfmt --check src"
+    "fmt": "oxfmt --write src examples",
+    "fmt:check": "oxfmt --check src examples"
   },
   "devDependencies": {
     "@base2/pretty-print-object": "^1.0.2",

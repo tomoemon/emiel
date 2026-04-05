@@ -14,10 +14,15 @@ export function buildGraphData(startNode: emiel.StrokeNode) {
       classes: id === 0 ? "success" : "",
     })),
     edges: Array.from(edges).map((edge) => {
+      const source = nodes.get(edge.previous);
+      const target = nodes.get(edge.next);
+      if (source === undefined || target === undefined) {
+        throw new Error("Edge references a node that is not in the nodes map");
+      }
       return {
         data: {
-          source: nodes.get(edge.previous)!.toString(),
-          target: nodes.get(edge.next)!.toString(),
+          source: source.toString(),
+          target: target.toString(),
           label: strokeToString(edge),
         },
       };
@@ -28,7 +33,7 @@ export function buildGraphData(startNode: emiel.StrokeNode) {
 function walkTree(
   startNode: emiel.StrokeNode,
   nodes: Map<emiel.StrokeNode, number>,
-  edges: Set<emiel.StrokeEdge>
+  edges: Set<emiel.StrokeEdge>,
 ) {
   if (nodes.has(startNode)) {
     return;
@@ -54,15 +59,12 @@ function strokeToString(stroke: emiel.StrokeEdge): string {
       mod.groups
         .flatMap((v) => v.modifiers)
         .map((v) => {
-          if (
-            v === emiel.VirtualKeys.ShiftLeft ||
-            v === emiel.VirtualKeys.ShiftRight
-          ) {
+          if (v === emiel.VirtualKeys.ShiftLeft || v === emiel.VirtualKeys.ShiftRight) {
             return "⇧";
           }
           return keyToString(v);
-        })
-    )
+        }),
+    ),
   ).join("|");
   return (modStr.length > 0 ? `${modStr}|` : "") + keyToString(key);
 }

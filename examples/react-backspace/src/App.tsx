@@ -1,4 +1,5 @@
-import { activate, detectKeyboardLayout, InputStroke, KeyboardLayout, loadPresetRuleRoman, VirtualKeys } from "emiel";
+import type { InputStroke, KeyboardLayout } from "emiel";
+import { activate, detectKeyboardLayout, loadPresetRuleRoman, VirtualKeys } from "emiel";
 import { useEffect, useMemo, useState } from "react";
 import "./App.css";
 import { BackspaceRequirdAutomaton } from "./backspace";
@@ -16,15 +17,11 @@ function Typing(props: { layout: KeyboardLayout }) {
   const words = useMemo(() => ["おをひく", "こんとん", "がっこう", "aから@"], []);
   const [automatons] = useState(
     words.map((w) => {
-      return new BackspaceRequirdAutomaton(
-        romanRule.build(w)
-      );
-    })
+      return new BackspaceRequirdAutomaton(romanRule.build(w));
+    }),
   );
   const [index, setIndex] = useState(0);
-  const [lastInputKey, setLastInputKey] = useState<
-    InputStroke | undefined
-  >();
+  const [lastInputKey, setLastInputKey] = useState<InputStroke | undefined>();
   const automaton = automatons[index];
   useEffect(() => {
     return activate(window, (e) => {
@@ -71,12 +68,9 @@ function Typing(props: { layout: KeyboardLayout }) {
                   props.layout
                     .getCharByKey(
                       f.input.key,
-                      f.keyboardState.isAnyKeyDowned(
-                        VirtualKeys.ShiftLeft,
-                        VirtualKeys.ShiftRight
-                      )
+                      f.keyboardState.isAnyKeyDowned(VirtualKeys.ShiftLeft, VirtualKeys.ShiftRight),
                     )
-                    .replace(" ", "_")
+                    .replace(" ", "_"),
                 )
                 .join("")}
             </span>

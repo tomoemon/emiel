@@ -1,4 +1,5 @@
-import { Automaton, getAccuracy, getKpm, getRkpm } from "emiel";
+import type { Automaton } from "emiel";
+import { getAccuracy, getKpm, getRkpm } from "emiel";
 
 export type WordRecordValue = {
   automaton: Automaton;
@@ -9,16 +10,23 @@ export function Record(props: { wordRecords: WordRecordValue[] }) {
   const records = props.wordRecords.map((record) => {
     // ワードが表示されてから1打鍵めに成功するまでの経過時間
     const automaton = record.automaton;
-    const latency =
-      automaton.getFirstInputTime().getTime() - record.displayedAt.getTime();
+    const latency = automaton.getFirstInputTime().getTime() - record.displayedAt.getTime();
     const rkpm = getRkpm(
       automaton.edgeHistories.length,
       automaton.getFirstInputTime(),
-      automaton.getLastInputTime());
+      automaton.getLastInputTime(),
+    );
 
     // latency の時間を含めた、1分あたりの打鍵数
-    const kpm = getKpm(automaton.edgeHistories.length, record.displayedAt, automaton.getLastInputTime());
-    const accuracy = getAccuracy(record.automaton.getFailedInputCount(), record.automaton.getTotalInputCount());
+    const kpm = getKpm(
+      automaton.edgeHistories.length,
+      record.displayedAt,
+      automaton.getLastInputTime(),
+    );
+    const accuracy = getAccuracy(
+      record.automaton.getFailedInputCount(),
+      record.automaton.getTotalInputCount(),
+    );
     return {
       latency,
       kpm,
@@ -31,11 +39,11 @@ export function Record(props: { wordRecords: WordRecordValue[] }) {
   const totalLatency = records.reduce((acc, r) => acc + r.latency, 0);
   const totalSucceededCount = records.reduce(
     (acc, r) => acc + r.record.automaton.edgeHistories.length,
-    0
+    0,
   );
   const totalFailedCount = records.reduce(
     (acc, r) => acc + r.record.automaton.getFailedInputCount(),
-    0
+    0,
   );
   const totalAccuracy = getAccuracy(totalFailedCount, totalSucceededCount);
   return (
@@ -57,9 +65,7 @@ export function Record(props: { wordRecords: WordRecordValue[] }) {
           </tr>
           <tr>
             <td>accuracy</td>
-            <td>
-              {(totalAccuracy * 100).toFixed(2)} %
-            </td>
+            <td>{(totalAccuracy * 100).toFixed(2)} %</td>
           </tr>
         </table>
       </div>

@@ -1,4 +1,5 @@
-import { activate, detectKeyboardLayout, InputStroke, KeyboardLayout, loadPresetRuleRoman } from "emiel";
+import type { InputStroke, KeyboardLayout } from "emiel";
+import { activate, detectKeyboardLayout, loadPresetRuleRoman } from "emiel";
 import { useEffect, useMemo, useState } from "react";
 import "./App.css";
 
@@ -17,12 +18,10 @@ function Typing(props: { layout: KeyboardLayout }) {
   const [automatons] = useState(
     words.map((w) => {
       return romanRule.build(w);
-    })
+    }),
   );
   const [wordIndex, setWordIndex] = useState(0);
-  const [lastInputKey, setLastInputKey] = useState<
-    InputStroke | undefined
-  >();
+  const [lastInputKey, setLastInputKey] = useState<InputStroke | undefined>();
   useEffect(() => {
     return activate(window, (e) => {
       setLastInputKey(e.input);
