@@ -353,7 +353,11 @@ function matchCandidateEdge(event: InputEvent, edge: StrokeEdge): MatchResult {
   return { type: "none", keyCount: 0 };
 }
 
-function matchOtherEdge(event: InputEvent, rule: Rule, candidateEdges: readonly StrokeEdge[]): MatchResult {
+function matchOtherEdge(
+  event: InputEvent,
+  rule: Rule,
+  candidateEdges: readonly StrokeEdge[],
+): MatchResult {
   if (candidateEdges.length === 0) {
     return { type: "none", keyCount: 0 };
   }
