@@ -261,9 +261,17 @@ export class StrokeCommitter {
     }
     if (currentState.tentative?.kind === "failure") {
       const newPending = removeFirstOccurrence(preReleasePending, key);
+      // tentative failure はステージ元のキーが release されたときのみ発火する。
+      // 無関係なキーの keyup では tentative を維持し pendingDown だけ更新する。
+      if (key === currentState.tentative.event.input.key) {
+        return {
+          result: { type: "failed", event: currentState.tentative.event },
+          nextState: { pendingDown: newPending, tentative: undefined },
+        };
+      }
       return {
-        result: { type: "failed", event },
-        nextState: { pendingDown: newPending, tentative: undefined },
+        result: { type: "ignored" },
+        nextState: { pendingDown: newPending, tentative: currentState.tentative },
       };
     }
 
