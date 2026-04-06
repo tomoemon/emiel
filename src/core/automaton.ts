@@ -2,12 +2,54 @@ import * as AutomatonGetters from "./automatonGetters";
 import type { AutomatonState, EdgeHistory } from "./automatonState";
 import { buildKanaNode } from "./builderKanaGraph";
 import { buildStrokeNode, type StrokeEdge, type StrokeNode } from "./builderStrokeGraph";
-import { BackspaceMatcher, type CommittedStroke, StrokeCommitter } from "./committer";
+import {
+  BackspaceMatcher,
+  type BackspaceMatchResult,
+  type CommitResult,
+  type CommittedStroke,
+  StrokeCommitter,
+} from "./committer";
 import type { InputEvent } from "./inputEvent";
 import { InputResult } from "./inputResult";
 import type { Rule } from "./rule";
 import type { RuleStroke } from "./ruleStroke";
 import type { VirtualKey } from "./virtualKey";
+
+/**
+ * 通常経路 (StrokeCommitter) と backspace 経路 (BackspaceMatcher) の結果を受け取り、
+ * どちらを採用すべきか判定する純粋関数。
+ *
+ * 判定順序:
+ *  1. 通常経路が committed / pending → 通常経路を最優先 (ルール本体の入力を妨げない)
+ *  2. 通常経路が ignored / failed のとき → backspace 判定を優先
+ *  3. いずれにも該当しなければ通常経路の結果をそのまま採用
+ */
+type InputDecision =
+  | { path: "normal-committed"; stroke: CommittedStroke }
+  | { path: "normal-pending" }
+  | { path: "back" }
+  | { path: "back-pending" }
+  | { path: "normal-failed"; event: InputEvent }
+  | { path: "ignored" };
+
+function decideInputPath(normal: CommitResult, bs: BackspaceMatchResult): InputDecision {
+  if (normal.type === "committed") {
+    return { path: "normal-committed", stroke: normal.stroke };
+  }
+  if (normal.type === "pending") {
+    return { path: "normal-pending" };
+  }
+  if (bs.type === "matched") {
+    return { path: "back" };
+  }
+  if (bs.type === "partial") {
+    return { path: "back-pending" };
+  }
+  if (normal.type === "failed") {
+    return { path: "normal-failed", event: normal.event };
+  }
+  return { path: "ignored" };
+}
 
 export class AutomatonImpl implements AutomatonState {
   /**
@@ -104,56 +146,46 @@ export class AutomatonImpl implements AutomatonState {
   input(stroke: InputEvent): InputResult {
     const normalResult = this.committer.feed(stroke, this.currentNode, this.rule);
     const bsResult = this.backspaceMatcher.feed(stroke, this.rule.backspaceStrokes);
+    const decision = decideInputPath(normalResult, bsResult);
 
-    // 通常経路が確定 → 通常経路を最優先
-    if (normalResult.type === "committed") {
-      return this.consume(normalResult.stroke);
+    switch (decision.path) {
+      case "normal-committed":
+        return this.consume(decision.stroke);
+      case "normal-pending":
+        return InputResult.PENDING;
+      case "back":
+        this.backspaceEventsAtCurrentNode.push(stroke);
+        return InputResult.BACK;
+      case "back-pending":
+        return InputResult.PENDING;
+      case "normal-failed":
+        this.failedEventsAtCurrentNode.push(decision.event);
+        return InputResult.FAILED;
+      case "ignored":
+        return InputResult.IGNORED;
     }
-    if (normalResult.type === "pending") {
-      return InputResult.PENDING;
-    }
-
-    // 通常経路が ignored / failed のとき、backspace 判定を優先する
-    if (bsResult.type === "matched") {
-      this.backspaceEventsAtCurrentNode.push(stroke);
-      return InputResult.BACK;
-    }
-    if (bsResult.type === "partial") {
-      return InputResult.PENDING;
-    }
-
-    // 通常経路の結果を採用
-    if (normalResult.type === "failed") {
-      this.failedEventsAtCurrentNode.push(normalResult.event);
-      return InputResult.FAILED;
-    }
-    return InputResult.IGNORED;
   }
 
   /**
    * testInput の dryRun 結果を InputResult に変換する。
-   * input() の判定ロジックと意味的に同じになるようにする。
+   * decideInputPath() で判定し、副作用なしに InputResult へ変換する。
    */
-  private resolveResult(
-    normalDry: ReturnType<StrokeCommitter["dryRun"]>,
-    bsDry: ReturnType<typeof this.backspaceMatcher.dryRun>,
-  ): InputResult {
-    if (normalDry.type === "committed") {
-      return this.edgeToResultType(this.currentNode.kanaIndex, normalDry.stroke.edge);
+  private resolveResult(normalDry: CommitResult, bsDry: BackspaceMatchResult): InputResult {
+    const decision = decideInputPath(normalDry, bsDry);
+
+    switch (decision.path) {
+      case "normal-committed":
+        return this.edgeToResultType(this.currentNode.kanaIndex, decision.stroke.edge);
+      case "normal-pending":
+      case "back-pending":
+        return InputResult.PENDING;
+      case "back":
+        return InputResult.BACK;
+      case "normal-failed":
+        return InputResult.FAILED;
+      case "ignored":
+        return InputResult.IGNORED;
     }
-    if (normalDry.type === "pending") {
-      return InputResult.PENDING;
-    }
-    if (bsDry.type === "matched") {
-      return InputResult.BACK;
-    }
-    if (bsDry.type === "partial") {
-      return InputResult.PENDING;
-    }
-    if (normalDry.type === "failed") {
-      return InputResult.FAILED;
-    }
-    return InputResult.IGNORED;
   }
 
   /**

@@ -325,9 +325,11 @@ export type BackspaceMatchResult =
  * StrokeEdge / StrokeNode には依存せず「RuleStroke[] のうちどれか」にマッチするかだけを見る。
  * currentNode の遷移候補とは独立に評価される (現在の状態に関係なく常に受理される特殊ストローク)。
  *
- * 通常 committer と同時に同じ keydown を受け取るのは望ましくない (pendingDown が重複するため)。
- * Automaton 側で「通常 committer が ignored を返す場合のみ BackspaceMatcher に feed する」
- * という順序制御を行うことで衝突を避ける。
+ * Automaton は committer と backspaceMatcher の両方を無条件に feed し、
+ * decideInputPath() の優先度判定で結果を選択する。通常経路が committed / pending の場合は
+ * backspace 結果を破棄し、ignored / failed の場合のみ backspace 結果を採用する。
+ * backspace ストロークに該当しないキーは pendingDown に追加されないため、
+ * 両方を無条件に feed しても状態の衝突は発生しない。
  */
 export class BackspaceMatcher {
   private pendingDown: readonly VirtualKey[] = [];
