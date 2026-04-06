@@ -1,7 +1,7 @@
-import type { StrokeEdge } from "./builderStrokeGraph";
+import { StrokeEdge, StrokeNode } from "./builderStrokeGraph";
 import type { InputEvent } from "./inputEvent";
 import type { Rule } from "./rule";
-import type { SimultaneousStroke } from "./ruleStroke";
+import type { RuleStroke, SimultaneousStroke } from "./ruleStroke";
 import type { VirtualKey } from "./virtualKey";
 
 /**
@@ -398,4 +398,57 @@ function matchOtherEdge(
     return { type: "modified", keyCount: 0 };
   }
   return { type: "none", keyCount: 0 };
+}
+
+/**
+ * BackspaceAwareCommitter の feed/dryRun 結果。
+ * CommitResult に backspace 分類を追加したもの。
+ */
+export type BackspaceAwareResult =
+  | CommitResult
+  | { readonly type: "backspace"; readonly stroke: CommittedStroke };
+
+/**
+ * StrokeCommitter をラップし、backspace edge の生成・結果分類を担う。
+ *
+ * Automaton が backspace の仕組み (sentinel ノード, edge マージ) を知らずに済むよう、
+ * 入力分類の責務をこの層に閉じ込める。
+ */
+export class BackspaceAwareCommitter {
+  private readonly inner = new StrokeCommitter();
+  private readonly backspaceSentinel = new StrokeNode(-1, [], []);
+  private readonly backspaceEdges: readonly StrokeEdge[];
+
+  constructor(backspaceStrokes: readonly RuleStroke[]) {
+    this.backspaceEdges = backspaceStrokes.map(
+      (stroke) => new StrokeEdge(stroke, this.backspaceSentinel, this.backspaceSentinel),
+    );
+  }
+
+  feed(event: InputEvent, nodeEdges: readonly StrokeEdge[], rule: Rule): BackspaceAwareResult {
+    const allEdges = [...nodeEdges, ...this.backspaceEdges];
+    const result = this.inner.feed(event, allEdges, rule);
+    return this.classify(result);
+  }
+
+  dryRun(event: InputEvent, nodeEdges: readonly StrokeEdge[], rule: Rule): BackspaceAwareResult {
+    const allEdges = [...nodeEdges, ...this.backspaceEdges];
+    const result = this.inner.dryRun(event, allEdges, rule);
+    return this.classify(result);
+  }
+
+  reset(): void {
+    this.inner.reset();
+  }
+
+  get pendingKeys(): readonly VirtualKey[] {
+    return this.inner.pendingKeys;
+  }
+
+  private classify(result: CommitResult): BackspaceAwareResult {
+    if (result.type === "committed" && result.stroke.edge.next === this.backspaceSentinel) {
+      return { type: "backspace", stroke: result.stroke };
+    }
+    return result;
+  }
 }

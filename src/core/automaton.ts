@@ -1,8 +1,12 @@
 import * as AutomatonGetters from "./automatonGetters";
 import type { AutomatonState, EdgeHistory } from "./automatonState";
 import { buildKanaNode } from "./builderKanaGraph";
-import { StrokeEdge, StrokeNode, buildStrokeNode } from "./builderStrokeGraph";
-import { type CommitResult, type CommittedStroke, StrokeCommitter } from "./committer";
+import { type StrokeEdge, type StrokeNode, buildStrokeNode } from "./builderStrokeGraph";
+import {
+  type BackspaceAwareResult,
+  BackspaceAwareCommitter,
+  type CommittedStroke,
+} from "./committer";
 import type { InputEvent } from "./inputEvent";
 import { InputResult } from "./inputResult";
 import type { Rule } from "./rule";
@@ -21,10 +25,7 @@ export class AutomatonImpl implements AutomatonState {
     readonly rule: Rule,
   ) {
     this.currentNode = startNode;
-    this.committer = new StrokeCommitter();
-    this.backspaceEdges = rule.backspaceStrokes.map(
-      (stroke) => new StrokeEdge(stroke, this.startNode, this.backspaceSentinel),
-    );
+    this.committer = new BackspaceAwareCommitter(rule.backspaceStrokes);
   }
   currentNode: StrokeNode;
   /** 入力成功して遷移した履歴 */
@@ -37,21 +38,13 @@ export class AutomatonImpl implements AutomatonState {
    */
   backspaceEventsAtCurrentNode: InputEvent[] = [];
   /** 時間方向の判断を担う Committer */
-  private readonly committer: StrokeCommitter;
-  /** backspace edge の遷移先を示す sentinel node (通常ノードと区別するため) */
-  private readonly backspaceSentinel = new StrokeNode(-1, [], []);
-  /** Rule.backspaceStrokes から生成した仮想 StrokeEdge 群 */
-  private readonly backspaceEdges: readonly StrokeEdge[];
+  private readonly committer: BackspaceAwareCommitter;
   /**
    * 現在押下されていてまだ打鍵として確定していないキー集合 (可視化用)。
    * 例: SimultaneousStroke の partial 状態で W だけ押されているとき [W] を返す。
    */
   get pendingKeys(): readonly VirtualKey[] {
     return this.committer.pendingKeys;
-  }
-  /** 現在ノードの nextEdges に backspace edge を結合した配列 */
-  private get currentEdges(): readonly StrokeEdge[] {
-    return [...this.currentNode.nextEdges, ...this.backspaceEdges];
   }
   /**
    * 入力状態をリセットする
@@ -84,7 +77,7 @@ export class AutomatonImpl implements AutomatonState {
    * @returns [result, apply] result: 入力結果, apply: 状態遷移を適用する関数
    */
   testInput(stroke: InputEvent): [InputResult, () => void] {
-    const result = this.committer.dryRun(stroke, this.currentEdges, this.rule);
+    const result = this.committer.dryRun(stroke, this.currentNode.nextEdges, this.rule);
     return [
       this.resultToInputResult(result),
       () => {
@@ -104,14 +97,13 @@ export class AutomatonImpl implements AutomatonState {
    * 呼ぶ等) は呼び出し側の責務。Automaton は InputResult.BACK を返すことで通知するのみ。
    */
   input(stroke: InputEvent): InputResult {
-    const result = this.committer.feed(stroke, this.currentEdges, this.rule);
+    const result = this.committer.feed(stroke, this.currentNode.nextEdges, this.rule);
     switch (result.type) {
       case "committed":
-        if (result.stroke.edge.next === this.backspaceSentinel) {
-          this.backspaceEventsAtCurrentNode.push(stroke);
-          return InputResult.BACK;
-        }
         return this.consume(result.stroke);
+      case "backspace":
+        this.backspaceEventsAtCurrentNode.push(stroke);
+        return InputResult.BACK;
       case "pending":
         return InputResult.PENDING;
       case "failed":
@@ -125,13 +117,12 @@ export class AutomatonImpl implements AutomatonState {
   /**
    * CommitResult を副作用なしに InputResult へ変換する (testInput 用)。
    */
-  private resultToInputResult(result: CommitResult): InputResult {
+  private resultToInputResult(result: BackspaceAwareResult): InputResult {
     switch (result.type) {
       case "committed":
-        if (result.stroke.edge.next === this.backspaceSentinel) {
-          return InputResult.BACK;
-        }
         return this.edgeToResultType(this.currentNode.kanaIndex, result.stroke.edge);
+      case "backspace":
+        return InputResult.BACK;
       case "pending":
         return InputResult.PENDING;
       case "failed":
