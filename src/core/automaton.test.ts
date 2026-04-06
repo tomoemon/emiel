@@ -331,4 +331,63 @@ describe("Automaton backspace: naginata 回帰", () => {
     // backspace イベントはバッファに記録される
     expect(automaton.backspaceEventsAtCurrentNode.length).toBe(1);
   });
+
+  test("Space+U がミス位置で FAILED (backspace U より さ が具体的)", () => {
+    // word = "き" (W 単独) → "さ" は期待されない位置
+    const automaton = rule.build("き");
+    const results = runInputsOn(automaton, [
+      { key: VirtualKeys.Space, type: "keydown" },
+      { key: VirtualKeys.U, type: "keydown" },
+      { key: VirtualKeys.U, type: "keyup" },
+      { key: VirtualKeys.Space, type: "keyup" },
+    ]);
+    // Space+U = "さ" (keyCount=2) が backspace U (keyCount=1) より具体的 → ミス入力
+    expect(results[1]).toBe("failed");
+  });
+});
+
+describe("Automaton backspace: 逆パターン (modifier 付き backspace + 単独キー通常入力)", () => {
+  // backspace = Space+U, 通常入力に U 単独 = "う" を定義
+  const rule = loadJsonRule({
+    entries: [
+      { input: [{ keys: ["U"] }], output: "う" },
+      { input: [{ keys: ["A"] }], output: "あ" },
+    ],
+    backspaces: [{ keys: ["U"], modifiers: [["Space"]] }],
+  });
+
+  test("U 単独で 'う' が正しく入力される", () => {
+    const automaton = rule.build("う");
+    const results = runInputsOn(automaton, [
+      { key: VirtualKeys.U, type: "keydown" },
+      { key: VirtualKeys.U, type: "keyup" },
+    ]);
+    expect(results[0]).toBe("finished");
+    expect(automaton.getFinishedWord()).toBe("う");
+  });
+
+  test("Space+U で BACK が発火する (backspace が通常入力より具体的)", () => {
+    const automaton = rule.build("あ");
+    const results = runInputsOn(automaton, [
+      { key: VirtualKeys.Space, type: "keydown" },
+      { key: VirtualKeys.U, type: "keydown" },
+      { key: VirtualKeys.U, type: "keyup" },
+      { key: VirtualKeys.Space, type: "keyup" },
+    ]);
+    // Space+U backspace (keyCount=2) が "う" (keyCount=1) より具体的 → BACK
+    expect(results[1]).toBe("back");
+    expect(automaton.currentNode).toBe(automaton.startNode);
+    expect(automaton.backspaceEventsAtCurrentNode.length).toBe(1);
+  });
+
+  test("U 単独がミス位置で FAILED (backspace は Space なしでは発動しない)", () => {
+    // word = "あ" → "う" は期待されない位置
+    const automaton = rule.build("あ");
+    const results = runInputsOn(automaton, [
+      { key: VirtualKeys.U, type: "keydown" },
+      { key: VirtualKeys.U, type: "keyup" },
+    ]);
+    // Space なし → backspace 条件不成立。"う" はルールに存在するがミス位置 → FAILED
+    expect(results[0]).toBe("failed");
+  });
 });

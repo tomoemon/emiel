@@ -1,55 +1,13 @@
 import * as AutomatonGetters from "./automatonGetters";
 import type { AutomatonState, EdgeHistory } from "./automatonState";
 import { buildKanaNode } from "./builderKanaGraph";
-import { buildStrokeNode, type StrokeEdge, type StrokeNode } from "./builderStrokeGraph";
-import {
-  BackspaceMatcher,
-  type BackspaceMatchResult,
-  type CommitResult,
-  type CommittedStroke,
-  StrokeCommitter,
-} from "./committer";
+import { StrokeEdge, StrokeNode, buildStrokeNode } from "./builderStrokeGraph";
+import { type CommitResult, type CommittedStroke, StrokeCommitter } from "./committer";
 import type { InputEvent } from "./inputEvent";
 import { InputResult } from "./inputResult";
 import type { Rule } from "./rule";
 import type { RuleStroke } from "./ruleStroke";
 import type { VirtualKey } from "./virtualKey";
-
-/**
- * 通常経路 (StrokeCommitter) と backspace 経路 (BackspaceMatcher) の結果を受け取り、
- * どちらを採用すべきか判定する純粋関数。
- *
- * 判定順序:
- *  1. 通常経路が committed / pending → 通常経路を最優先 (ルール本体の入力を妨げない)
- *  2. 通常経路が ignored / failed のとき → backspace 判定を優先
- *  3. いずれにも該当しなければ通常経路の結果をそのまま採用
- */
-type InputDecision =
-  | { path: "normal-committed"; stroke: CommittedStroke }
-  | { path: "normal-pending" }
-  | { path: "back" }
-  | { path: "back-pending" }
-  | { path: "normal-failed"; event: InputEvent }
-  | { path: "ignored" };
-
-function decideInputPath(normal: CommitResult, bs: BackspaceMatchResult): InputDecision {
-  if (normal.type === "committed") {
-    return { path: "normal-committed", stroke: normal.stroke };
-  }
-  if (normal.type === "pending") {
-    return { path: "normal-pending" };
-  }
-  if (bs.type === "matched") {
-    return { path: "back" };
-  }
-  if (bs.type === "partial") {
-    return { path: "back-pending" };
-  }
-  if (normal.type === "failed") {
-    return { path: "normal-failed", event: normal.event };
-  }
-  return { path: "ignored" };
-}
 
 export class AutomatonImpl implements AutomatonState {
   /**
@@ -64,7 +22,9 @@ export class AutomatonImpl implements AutomatonState {
   ) {
     this.currentNode = startNode;
     this.committer = new StrokeCommitter();
-    this.backspaceMatcher = new BackspaceMatcher();
+    this.backspaceEdges = rule.backspaceStrokes.map(
+      (stroke) => new StrokeEdge(stroke, this.startNode, this.backspaceSentinel),
+    );
   }
   currentNode: StrokeNode;
   /** 入力成功して遷移した履歴 */
@@ -78,14 +38,20 @@ export class AutomatonImpl implements AutomatonState {
   backspaceEventsAtCurrentNode: InputEvent[] = [];
   /** 時間方向の判断を担う Committer */
   private readonly committer: StrokeCommitter;
-  /** Rule.backspaceStrokes の評価を担うマッチャ */
-  private readonly backspaceMatcher: BackspaceMatcher;
+  /** backspace edge の遷移先を示す sentinel node (通常ノードと区別するため) */
+  private readonly backspaceSentinel = new StrokeNode(-1, [], []);
+  /** Rule.backspaceStrokes から生成した仮想 StrokeEdge 群 */
+  private readonly backspaceEdges: readonly StrokeEdge[];
   /**
    * 現在押下されていてまだ打鍵として確定していないキー集合 (可視化用)。
    * 例: SimultaneousStroke の partial 状態で W だけ押されているとき [W] を返す。
    */
   get pendingKeys(): readonly VirtualKey[] {
     return this.committer.pendingKeys;
+  }
+  /** 現在ノードの nextEdges に backspace edge を結合した配列 */
+  private get currentEdges(): readonly StrokeEdge[] {
+    return [...this.currentNode.nextEdges, ...this.backspaceEdges];
   }
   /**
    * 入力状態をリセットする
@@ -96,7 +62,6 @@ export class AutomatonImpl implements AutomatonState {
     this.failedEventsAtCurrentNode = [];
     this.backspaceEventsAtCurrentNode = [];
     this.committer.reset();
-    this.backspaceMatcher.reset();
   }
   /**
    * 1 stroke 分の入力を戻す
@@ -111,7 +76,6 @@ export class AutomatonImpl implements AutomatonState {
     this.failedEventsAtCurrentNode = [];
     this.backspaceEventsAtCurrentNode = [];
     this.committer.reset();
-    this.backspaceMatcher.reset();
   }
 
   /**
@@ -120,11 +84,9 @@ export class AutomatonImpl implements AutomatonState {
    * @returns [result, apply] result: 入力結果, apply: 状態遷移を適用する関数
    */
   testInput(stroke: InputEvent): [InputResult, () => void] {
-    const normalDry = this.committer.dryRun(stroke, this.currentNode, this.rule);
-    const bsDry = this.backspaceMatcher.dryRun(stroke, this.rule.backspaceStrokes);
-    const result = this.resolveResult(normalDry, bsDry);
+    const result = this.committer.dryRun(stroke, this.currentEdges, this.rule);
     return [
-      result,
+      this.resultToInputResult(result),
       () => {
         this.input(stroke);
       },
@@ -134,32 +96,26 @@ export class AutomatonImpl implements AutomatonState {
   /**
    * キー入力して状態遷移し、入力が成功したかどうかを返す。
    *
-   * 判定順序の基本思想:
-   * - 通常経路 (StrokeCommitter) が committed / pending を返す場合は通常経路を最優先し、
-   *   backspace は発動しない (ルール本体の入力を妨げない)
-   * - 通常経路が ignored / failed を返す場合にのみ backspace 判定を優先する
-   *   (backspace が一致すれば BACK / PENDING を返し、そうでなければ通常経路の結果を返す)
+   * Rule.backspaceStrokes は仮想 StrokeEdge として currentNode.nextEdges に結合され、
+   * StrokeCommitter の既存の優先度ロジック (modMatched vs otherMatched の keyCount 比較)
+   * で通常エントリと同列に評価される。committed 結果が backspace edge であれば BACK を返す。
    *
    * backspace 発動時の「復旧ロジック」(failedInputs を pop する、automaton.back() を
    * 呼ぶ等) は呼び出し側の責務。Automaton は InputResult.BACK を返すことで通知するのみ。
    */
   input(stroke: InputEvent): InputResult {
-    const normalResult = this.committer.feed(stroke, this.currentNode, this.rule);
-    const bsResult = this.backspaceMatcher.feed(stroke, this.rule.backspaceStrokes);
-    const decision = decideInputPath(normalResult, bsResult);
-
-    switch (decision.path) {
-      case "normal-committed":
-        return this.consume(decision.stroke);
-      case "normal-pending":
+    const result = this.committer.feed(stroke, this.currentEdges, this.rule);
+    switch (result.type) {
+      case "committed":
+        if (result.stroke.edge.next === this.backspaceSentinel) {
+          this.backspaceEventsAtCurrentNode.push(stroke);
+          return InputResult.BACK;
+        }
+        return this.consume(result.stroke);
+      case "pending":
         return InputResult.PENDING;
-      case "back":
-        this.backspaceEventsAtCurrentNode.push(stroke);
-        return InputResult.BACK;
-      case "back-pending":
-        return InputResult.PENDING;
-      case "normal-failed":
-        this.failedEventsAtCurrentNode.push(decision.event);
+      case "failed":
+        this.failedEventsAtCurrentNode.push(result.event);
         return InputResult.FAILED;
       case "ignored":
         return InputResult.IGNORED;
@@ -167,21 +123,18 @@ export class AutomatonImpl implements AutomatonState {
   }
 
   /**
-   * testInput の dryRun 結果を InputResult に変換する。
-   * decideInputPath() で判定し、副作用なしに InputResult へ変換する。
+   * CommitResult を副作用なしに InputResult へ変換する (testInput 用)。
    */
-  private resolveResult(normalDry: CommitResult, bsDry: BackspaceMatchResult): InputResult {
-    const decision = decideInputPath(normalDry, bsDry);
-
-    switch (decision.path) {
-      case "normal-committed":
-        return this.edgeToResultType(this.currentNode.kanaIndex, decision.stroke.edge);
-      case "normal-pending":
-      case "back-pending":
+  private resultToInputResult(result: CommitResult): InputResult {
+    switch (result.type) {
+      case "committed":
+        if (result.stroke.edge.next === this.backspaceSentinel) {
+          return InputResult.BACK;
+        }
+        return this.edgeToResultType(this.currentNode.kanaIndex, result.stroke.edge);
+      case "pending":
         return InputResult.PENDING;
-      case "back":
-        return InputResult.BACK;
-      case "normal-failed":
+      case "failed":
         return InputResult.FAILED;
       case "ignored":
         return InputResult.IGNORED;

@@ -7,12 +7,9 @@ import {
   loadPresetRuleNicola,
   loadPresetRuleRoman,
 } from "../impl/presetRules";
-import { BackspaceMatcher } from "./committer";
 import { InputEvent, InputStroke } from "./inputEvent";
 import { KeyboardState } from "./keyboardState";
-import { AndModifier, ModifierGroup } from "./modifier";
 import type { Rule } from "./rule";
-import { ModifierStroke, type RuleStroke, SimultaneousStroke } from "./ruleStroke";
 import { VirtualKeys } from "./virtualKey";
 
 /**
@@ -307,122 +304,33 @@ describe("StrokeCommitter jis_kana (単打 + Shift modifier)", () => {
 describe("StrokeCommitter tentative failure は元キーの keyup でのみ発火", () => {
   const rule = loadPresetRuleNaginatashikiV15(loadPresetKeyboardLayoutQwertyJis());
 
-  test("Space 先押し → U → 各 keyup で無関係な keyup が failed にならない", () => {
-    // naginata "お" = N+Space。Space 先押し後に U を押すと backspace 判定で back になる。
-    // その後の U keyup, Space keyup は ignored であるべき (tentative failure が
-    // 無関係な keyup で発火しない)。
+  test("Space+U は backspace ではなく failed (さ の方が具体的)", () => {
+    // naginata "お" = N+Space。Space 先押し後に U を押すと、"さ" (Space+U, keyCount=2)
+    // が backspace の U (keyCount=1) より具体的なので failed (ミス入力) になる。
+    // tentative failure は U keydown 時点で解消されるため、以降の keyup は ignored。
     const { results } = runInputs(rule, "お", [
       { key: VirtualKeys.Space, type: "keydown" }, // pending (modifier 候補)
-      { key: VirtualKeys.U, type: "keydown" }, // back (bs matched)
-      { key: VirtualKeys.U, type: "keyup" }, // ignored (元キーは Space)
-      { key: VirtualKeys.Space, type: "keyup" }, // failed (tentative failure 発火)
+      { key: VirtualKeys.U, type: "keydown" }, // failed (Space+U → "さ" がミス入力)
+      { key: VirtualKeys.U, type: "keyup" }, // ignored
+      { key: VirtualKeys.Space, type: "keyup" }, // ignored (tentative は既に解消済み)
     ]);
     expect(results[0]).toBe("pending");
-    expect(results[1]).toBe("back");
+    expect(results[1]).toBe("failed");
     expect(results[2]).toBe("ignored");
-    expect(results[3]).toBe("failed");
+    expect(results[3]).toBe("ignored");
   });
 
-  test("ShiftLeft keyup が failed にならない", () => {
+  test("ShiftLeft keydown/keyup は ignored", () => {
     const { results } = runInputs(rule, "お", [
-      { key: VirtualKeys.Space, type: "keydown" },
-      { key: VirtualKeys.U, type: "keydown" }, // back
-      { key: VirtualKeys.U, type: "keyup" }, // ignored
-      { key: VirtualKeys.Space, type: "keyup" }, // failed
-      { key: VirtualKeys.ShiftLeft, type: "keydown" },
-      { key: VirtualKeys.U, type: "keydown" }, // back
-      { key: VirtualKeys.U, type: "keyup" },
-      { key: VirtualKeys.ShiftLeft, type: "keyup" },
+      { key: VirtualKeys.Space, type: "keydown" }, // [0] pending
+      { key: VirtualKeys.U, type: "keydown" }, // [1] failed
+      { key: VirtualKeys.U, type: "keyup" }, // [2] ignored
+      { key: VirtualKeys.Space, type: "keyup" }, // [3] ignored
+      { key: VirtualKeys.ShiftLeft, type: "keydown" }, // [4] ignored
+      { key: VirtualKeys.ShiftLeft, type: "keyup" }, // [5] ignored
     ]);
-    // ShiftLeft keydown/keyup は ignored
     expect(results[4]).toBe("ignored");
-    expect(results[7]).toBe("ignored");
+    expect(results[5]).toBe("ignored");
   });
 });
 
-describe("BackspaceMatcher", () => {
-  function keydown(key: (typeof VirtualKeys)[keyof typeof VirtualKeys], state: KeyboardState) {
-    state.keydown(key);
-    return new InputEvent(new InputStroke(key, "keydown"), state, new Date());
-  }
-  function keyup(key: (typeof VirtualKeys)[keyof typeof VirtualKeys], state: KeyboardState) {
-    state.keyup(key);
-    return new InputEvent(new InputStroke(key, "keyup"), state, new Date());
-  }
-
-  test("empty strokes returns none", () => {
-    const matcher = new BackspaceMatcher();
-    const state = new KeyboardState();
-    expect(matcher.feed(keydown(VirtualKeys.U, state), []).type).toBe("none");
-  });
-
-  test("single-key ModifierStroke matches on keydown", () => {
-    const matcher = new BackspaceMatcher();
-    const strokes: RuleStroke[] = [new ModifierStroke(VirtualKeys.U, AndModifier.empty)];
-    const state = new KeyboardState();
-    expect(matcher.feed(keydown(VirtualKeys.U, state), strokes).type).toBe("matched");
-  });
-
-  test("ModifierStroke with required modifier: matches only when modifier is held", () => {
-    const matcher = new BackspaceMatcher();
-    const strokes: RuleStroke[] = [
-      new ModifierStroke(
-        VirtualKeys.U,
-        new AndModifier(new ModifierGroup([VirtualKeys.ShiftLeft])),
-      ),
-    ];
-    const state = new KeyboardState();
-    // Shift なしでは matched しない
-    expect(matcher.feed(keydown(VirtualKeys.U, state), strokes).type).toBe("none");
-    matcher.reset();
-    state.keyup(VirtualKeys.U);
-    // Shift 押下後なら matched
-    state.keydown(VirtualKeys.ShiftLeft);
-    expect(matcher.feed(keydown(VirtualKeys.U, state), strokes).type).toBe("matched");
-  });
-
-  test("SimultaneousStroke: partial then matched", () => {
-    const matcher = new BackspaceMatcher();
-    const strokes: RuleStroke[] = [
-      new SimultaneousStroke([VirtualKeys.U, VirtualKeys.F], AndModifier.empty),
-    ];
-    const state = new KeyboardState();
-    expect(matcher.feed(keydown(VirtualKeys.U, state), strokes).type).toBe("partial");
-    expect(matcher.feed(keydown(VirtualKeys.F, state), strokes).type).toBe("matched");
-  });
-
-  test("unrelated key does not add to pendingDown", () => {
-    const matcher = new BackspaceMatcher();
-    const strokes: RuleStroke[] = [
-      new SimultaneousStroke([VirtualKeys.U, VirtualKeys.F], AndModifier.empty),
-    ];
-    const state = new KeyboardState();
-    matcher.feed(keydown(VirtualKeys.A, state), strokes); // 無関係
-    expect(matcher.pendingKeys.length).toBe(0);
-  });
-
-  test("dryRun does not mutate state", () => {
-    const matcher = new BackspaceMatcher();
-    const strokes: RuleStroke[] = [
-      new SimultaneousStroke([VirtualKeys.U, VirtualKeys.F], AndModifier.empty),
-    ];
-    const state = new KeyboardState();
-    expect(matcher.dryRun(keydown(VirtualKeys.U, state), strokes).type).toBe("partial");
-    expect(matcher.pendingKeys.length).toBe(0);
-    // 実 feed で初めて状態が進む
-    expect(matcher.feed(keydown(VirtualKeys.U, state), strokes).type).toBe("partial");
-    expect(matcher.pendingKeys.length).toBe(1);
-  });
-
-  test("keyup removes key from pendingDown", () => {
-    const matcher = new BackspaceMatcher();
-    const strokes: RuleStroke[] = [
-      new SimultaneousStroke([VirtualKeys.U, VirtualKeys.F], AndModifier.empty),
-    ];
-    const state = new KeyboardState();
-    matcher.feed(keydown(VirtualKeys.U, state), strokes);
-    expect(matcher.pendingKeys.length).toBe(1);
-    matcher.feed(keyup(VirtualKeys.U, state), strokes);
-    expect(matcher.pendingKeys.length).toBe(0);
-  });
-});

@@ -1,7 +1,7 @@
-import type { StrokeEdge, StrokeNode } from "./builderStrokeGraph";
+import type { StrokeEdge } from "./builderStrokeGraph";
 import type { InputEvent } from "./inputEvent";
 import type { Rule } from "./rule";
-import type { RuleStroke, SimultaneousStroke } from "./ruleStroke";
+import type { SimultaneousStroke } from "./ruleStroke";
 import type { VirtualKey } from "./virtualKey";
 
 /**
@@ -70,8 +70,8 @@ export class StrokeCommitter {
   /**
    * 入力を受け取り、確定結果を返すと同時に内部状態を更新する。
    */
-  feed(event: InputEvent, currentNode: StrokeNode, rule: Rule): CommitResult {
-    const { result, nextState } = this.evaluate(event, this.state, currentNode, rule);
+  feed(event: InputEvent, edges: readonly StrokeEdge[], rule: Rule): CommitResult {
+    const { result, nextState } = this.evaluate(event, this.state, edges, rule);
     this.state = nextState;
     return result;
   }
@@ -80,8 +80,8 @@ export class StrokeCommitter {
    * 副作用なしで、入力を受け取ったらどういう結果になるかだけを返す。
    * 既存の Automaton.testInput の [result, apply] 契約を維持するために使う。
    */
-  dryRun(event: InputEvent, currentNode: StrokeNode, rule: Rule): CommitResult {
-    const { result } = this.evaluate(event, this.state, currentNode, rule);
+  dryRun(event: InputEvent, edges: readonly StrokeEdge[], rule: Rule): CommitResult {
+    const { result } = this.evaluate(event, this.state, edges, rule);
     return result;
   }
 
@@ -105,27 +105,25 @@ export class StrokeCommitter {
   private evaluate(
     event: InputEvent,
     currentState: CommitterState,
-    currentNode: StrokeNode,
+    edges: readonly StrokeEdge[],
     rule: Rule,
   ): { result: CommitResult; nextState: CommitterState } {
     if (event.input.type === "keyup") {
-      return this.evaluateKeyup(event, currentState, currentNode);
+      return this.evaluateKeyup(event, currentState, edges);
     }
-    return this.evaluateKeydown(event, currentState, currentNode, rule);
+    return this.evaluateKeydown(event, currentState, edges, rule);
   }
 
   private evaluateKeydown(
     event: InputEvent,
     currentState: CommitterState,
-    currentNode: StrokeNode,
+    edges: readonly StrokeEdge[],
     rule: Rule,
   ): { result: CommitResult; nextState: CommitterState } {
     const key = event.input.key;
     const pendingDown: VirtualKey[] = currentState.pendingDown.includes(key)
       ? [...currentState.pendingDown]
       : [...currentState.pendingDown, key];
-
-    const edges = currentNode.nextEdges;
 
     // ---- SimultaneousStroke の評価 ----
     // sim の keys と pendingDown を比較する際、sim.requiredModifier に含まれるキーは
@@ -234,14 +232,14 @@ export class StrokeCommitter {
   private evaluateKeyup(
     event: InputEvent,
     currentState: CommitterState,
-    currentNode: StrokeNode,
+    edges: readonly StrokeEdge[],
   ): { result: CommitResult; nextState: CommitterState } {
     const key = event.input.key;
     const preReleasePending = currentState.pendingDown;
 
     // (A) 同時押しの完全一致判定 (リリース直前の状態で)
     //     requiredModifier を考慮して pendingDown から modifier キーを除いた集合で比較する
-    for (const edge of currentNode.nextEdges) {
+    for (const edge of edges) {
       if (edge.input.kind !== "simultaneous") {
         continue;
       }
@@ -307,171 +305,6 @@ export class StrokeCommitter {
   }
 }
 
-/**
- * Rule.backspaceStrokes に対するマッチ結果。
- * - matched: 確定 (コミット相当)。Automaton は InputResult.BACK を返す
- * - partial: 同時押し backspace の部分一致。次の入力 (または keyup) まで pending
- * - none: どの backspace ストロークにも該当しない
- */
-export type BackspaceMatchResult =
-  | { readonly type: "matched" }
-  | { readonly type: "partial" }
-  | { readonly type: "none" };
-
-/**
- * Rule.backspaceStrokes を評価するための独立マッチャ。
- *
- * StrokeCommitter と同じく同時押し・modifier 付きストロークの両方を扱うが、
- * StrokeEdge / StrokeNode には依存せず「RuleStroke[] のうちどれか」にマッチするかだけを見る。
- * currentNode の遷移候補とは独立に評価される (現在の状態に関係なく常に受理される特殊ストローク)。
- *
- * Automaton は committer と backspaceMatcher の両方を無条件に feed し、
- * decideInputPath() の優先度判定で結果を選択する。通常経路が committed / pending の場合は
- * backspace 結果を破棄し、ignored / failed の場合のみ backspace 結果を採用する。
- * backspace ストロークに該当しないキーは pendingDown に追加されないため、
- * 両方を無条件に feed しても状態の衝突は発生しない。
- */
-export class BackspaceMatcher {
-  private pendingDown: readonly VirtualKey[] = [];
-
-  /**
-   * 入力を受け取り、マッチ結果を返すと同時に内部状態を更新する。
-   */
-  feed(event: InputEvent, strokes: readonly RuleStroke[]): BackspaceMatchResult {
-    const { result, nextPending } = this.evaluate(event, this.pendingDown, strokes);
-    this.pendingDown = nextPending;
-    return result;
-  }
-
-  /**
-   * 副作用なしで、入力を受け取ったらどういう結果になるかだけを返す。
-   */
-  dryRun(event: InputEvent, strokes: readonly RuleStroke[]): BackspaceMatchResult {
-    return this.evaluate(event, this.pendingDown, strokes).result;
-  }
-
-  /**
-   * 内部の pending 状態を完全にリセットする。
-   */
-  reset(): void {
-    this.pendingDown = [];
-  }
-
-  /**
-   * 現在 pending 中のキー集合 (同時押し backspace の partial 時に使用)。
-   */
-  get pendingKeys(): readonly VirtualKey[] {
-    return this.pendingDown;
-  }
-
-  private evaluate(
-    event: InputEvent,
-    currentPending: readonly VirtualKey[],
-    strokes: readonly RuleStroke[],
-  ): { result: BackspaceMatchResult; nextPending: readonly VirtualKey[] } {
-    if (strokes.length === 0) {
-      return { result: { type: "none" }, nextPending: currentPending };
-    }
-    if (event.input.type === "keyup") {
-      return this.evaluateKeyup(event, currentPending, strokes);
-    }
-    return this.evaluateKeydown(event, currentPending, strokes);
-  }
-
-  private evaluateKeydown(
-    event: InputEvent,
-    currentPending: readonly VirtualKey[],
-    strokes: readonly RuleStroke[],
-  ): { result: BackspaceMatchResult; nextPending: readonly VirtualKey[] } {
-    const key = event.input.key;
-    const pendingDown: VirtualKey[] = currentPending.includes(key)
-      ? [...currentPending]
-      : [...currentPending, key];
-
-    // ---- ModifierStroke (単キー + modifier) の完全一致を優先評価 ----
-    for (const stroke of strokes) {
-      if (stroke.kind !== "modifier") {
-        continue;
-      }
-      if (stroke.key !== key) {
-        continue;
-      }
-      if (!stroke.requiredModifier.accept(event.keyboardState)) {
-        continue;
-      }
-      // マッチ: pendingDown からこのキーを除いて確定
-      const remaining = removeFirstOccurrence(pendingDown, stroke.key);
-      return { result: { type: "matched" }, nextPending: remaining };
-    }
-
-    // ---- SimultaneousStroke の完全一致 / 部分一致評価 ----
-    let hasPartial = false;
-    for (const stroke of strokes) {
-      if (stroke.kind !== "simultaneous") {
-        continue;
-      }
-      if (!stroke.requiredModifier.accept(event.keyboardState)) {
-        continue;
-      }
-      const nonModifierPending = pendingDown.filter(
-        (k) => !(stroke as SimultaneousStroke).requiredModifier.has(k),
-      );
-      if (
-        stroke.keys.length === nonModifierPending.length &&
-        isSubset(nonModifierPending, stroke.keys)
-      ) {
-        // full match: 確定に使ったキーを除去
-        const remaining = pendingDown.filter((k) => !stroke.keys.includes(k));
-        return { result: { type: "matched" }, nextPending: remaining };
-      }
-      if (
-        nonModifierPending.length < stroke.keys.length &&
-        isSubset(nonModifierPending, stroke.keys)
-      ) {
-        hasPartial = true;
-      }
-    }
-
-    if (hasPartial) {
-      return { result: { type: "partial" }, nextPending: pendingDown };
-    }
-
-    // どの backspace ストロークにも一致しない。pendingDown には加えない
-    // (backspace と無関係のキーを pending に溜めない)
-    return { result: { type: "none" }, nextPending: currentPending };
-  }
-
-  private evaluateKeyup(
-    event: InputEvent,
-    currentPending: readonly VirtualKey[],
-    strokes: readonly RuleStroke[],
-  ): { result: BackspaceMatchResult; nextPending: readonly VirtualKey[] } {
-    const key = event.input.key;
-    // リリース直前の状態で同時押しの完全一致を再判定 (救済コミット)
-    for (const stroke of strokes) {
-      if (stroke.kind !== "simultaneous") {
-        continue;
-      }
-      if (!stroke.requiredModifier.accept(event.keyboardState)) {
-        continue;
-      }
-      const nonModifierPending = currentPending.filter(
-        (k) => !(stroke as SimultaneousStroke).requiredModifier.has(k),
-      );
-      if (
-        stroke.keys.length === nonModifierPending.length &&
-        isSubset(nonModifierPending, stroke.keys)
-      ) {
-        const remaining = currentPending.filter((k) => !stroke.keys.includes(k));
-        return { result: { type: "matched" }, nextPending: remaining };
-      }
-    }
-    // 通常の keyup: キーを pendingDown から除く
-    const newPending = removeFirstOccurrence(currentPending, key);
-    return { result: { type: "none" }, nextPending: newPending };
-  }
-}
-
 function isSubset(smaller: readonly VirtualKey[], larger: readonly VirtualKey[]): boolean {
   for (const k of smaller) {
     if (!larger.includes(k)) {
@@ -520,7 +353,7 @@ function matchCandidateEdge(event: InputEvent, edge: StrokeEdge): MatchResult {
   return { type: "none", keyCount: 0 };
 }
 
-function matchOtherEdge(event: InputEvent, rule: Rule, candidateEdges: StrokeEdge[]): MatchResult {
+function matchOtherEdge(event: InputEvent, rule: Rule, candidateEdges: readonly StrokeEdge[]): MatchResult {
   if (candidateEdges.length === 0) {
     return { type: "none", keyCount: 0 };
   }
