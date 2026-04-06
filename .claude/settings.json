@@ -6,10 +6,16 @@
         "hooks": [
           {
             "type": "command",
+            "if": "Bash(git add *)",
+            "command": "pnpm run fmt || exit 2",
+            "statusMessage": "Running fmt..."
+          },
+          {
+            "type": "command",
             "if": "Bash(git commit *)",
-            "command": "pnpm run fmt && pnpm run lint && pnpm run test && pnpm run build:all || exit 2",
+            "command": "pnpm run lint && pnpm run test && pnpm run build:all || exit 2",
             "timeout": 300,
-            "statusMessage": "Running fmt, lint, test and build:all..."
+            "statusMessage": "Running lint, test and build:all..."
           }
         ]
       }
