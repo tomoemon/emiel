@@ -1,4 +1,4 @@
-import type { StrokeEdge, StrokeNode } from "./builderStrokeGraph";
+import type { StrokeEdge } from "./builderStrokeGraph";
 import type { InputEvent } from "./inputEvent";
 import type { Rule } from "./rule";
 import type { SimultaneousStroke } from "./ruleStroke";
@@ -70,8 +70,8 @@ export class StrokeCommitter {
   /**
    * 入力を受け取り、確定結果を返すと同時に内部状態を更新する。
    */
-  feed(event: InputEvent, currentNode: StrokeNode, rule: Rule): CommitResult {
-    const { result, nextState } = this.evaluate(event, this.state, currentNode, rule);
+  feed(event: InputEvent, edges: readonly StrokeEdge[], rule: Rule): CommitResult {
+    const { result, nextState } = this.evaluate(event, this.state, edges, rule);
     this.state = nextState;
     return result;
   }
@@ -80,8 +80,8 @@ export class StrokeCommitter {
    * 副作用なしで、入力を受け取ったらどういう結果になるかだけを返す。
    * 既存の Automaton.testInput の [result, apply] 契約を維持するために使う。
    */
-  dryRun(event: InputEvent, currentNode: StrokeNode, rule: Rule): CommitResult {
-    const { result } = this.evaluate(event, this.state, currentNode, rule);
+  dryRun(event: InputEvent, edges: readonly StrokeEdge[], rule: Rule): CommitResult {
+    const { result } = this.evaluate(event, this.state, edges, rule);
     return result;
   }
 
@@ -105,27 +105,25 @@ export class StrokeCommitter {
   private evaluate(
     event: InputEvent,
     currentState: CommitterState,
-    currentNode: StrokeNode,
+    edges: readonly StrokeEdge[],
     rule: Rule,
   ): { result: CommitResult; nextState: CommitterState } {
     if (event.input.type === "keyup") {
-      return this.evaluateKeyup(event, currentState, currentNode);
+      return this.evaluateKeyup(event, currentState, edges);
     }
-    return this.evaluateKeydown(event, currentState, currentNode, rule);
+    return this.evaluateKeydown(event, currentState, edges, rule);
   }
 
   private evaluateKeydown(
     event: InputEvent,
     currentState: CommitterState,
-    currentNode: StrokeNode,
+    edges: readonly StrokeEdge[],
     rule: Rule,
   ): { result: CommitResult; nextState: CommitterState } {
     const key = event.input.key;
     const pendingDown: VirtualKey[] = currentState.pendingDown.includes(key)
       ? [...currentState.pendingDown]
       : [...currentState.pendingDown, key];
-
-    const edges = currentNode.nextEdges;
 
     // ---- SimultaneousStroke の評価 ----
     // sim の keys と pendingDown を比較する際、sim.requiredModifier に含まれるキーは
@@ -234,14 +232,14 @@ export class StrokeCommitter {
   private evaluateKeyup(
     event: InputEvent,
     currentState: CommitterState,
-    currentNode: StrokeNode,
+    edges: readonly StrokeEdge[],
   ): { result: CommitResult; nextState: CommitterState } {
     const key = event.input.key;
     const preReleasePending = currentState.pendingDown;
 
     // (A) 同時押しの完全一致判定 (リリース直前の状態で)
     //     requiredModifier を考慮して pendingDown から modifier キーを除いた集合で比較する
-    for (const edge of currentNode.nextEdges) {
+    for (const edge of edges) {
       if (edge.input.kind !== "simultaneous") {
         continue;
       }
@@ -261,9 +259,17 @@ export class StrokeCommitter {
     }
     if (currentState.tentative?.kind === "failure") {
       const newPending = removeFirstOccurrence(preReleasePending, key);
+      // tentative failure はステージ元のキーが release されたときのみ発火する。
+      // 無関係なキーの keyup では tentative を維持し pendingDown だけ更新する。
+      if (key === currentState.tentative.event.input.key) {
+        return {
+          result: { type: "failed", event: currentState.tentative.event },
+          nextState: { pendingDown: newPending, tentative: undefined },
+        };
+      }
       return {
-        result: { type: "failed", event },
-        nextState: { pendingDown: newPending, tentative: undefined },
+        result: { type: "ignored" },
+        nextState: { pendingDown: newPending, tentative: currentState.tentative },
       };
     }
 
@@ -347,7 +353,7 @@ function matchCandidateEdge(event: InputEvent, edge: StrokeEdge): MatchResult {
   return { type: "none", keyCount: 0 };
 }
 
-function matchOtherEdge(event: InputEvent, rule: Rule, candidateEdges: StrokeEdge[]): MatchResult {
+function matchOtherEdge(event: InputEvent, rule: Rule, candidateEdges: readonly StrokeEdge[]): MatchResult {
   if (candidateEdges.length === 0) {
     return { type: "none", keyCount: 0 };
   }

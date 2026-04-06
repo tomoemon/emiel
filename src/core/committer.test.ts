@@ -300,3 +300,37 @@ describe("StrokeCommitter jis_kana (単打 + Shift modifier)", () => {
     expect(automaton.getFinishedWord()).toBe("ぁぅ");
   });
 });
+
+describe("StrokeCommitter tentative failure は元キーの keyup でのみ発火", () => {
+  const rule = loadPresetRuleNaginatashikiV15(loadPresetKeyboardLayoutQwertyJis());
+
+  test("Space+U は backspace ではなく failed (さ の方が具体的)", () => {
+    // naginata "お" = N+Space。Space 先押し後に U を押すと、"さ" (Space+U, keyCount=2)
+    // が backspace の U (keyCount=1) より具体的なので failed (ミス入力) になる。
+    // tentative failure は U keydown 時点で解消されるため、以降の keyup は ignored。
+    const { results } = runInputs(rule, "お", [
+      { key: VirtualKeys.Space, type: "keydown" }, // pending (modifier 候補)
+      { key: VirtualKeys.U, type: "keydown" }, // failed (Space+U → "さ" がミス入力)
+      { key: VirtualKeys.U, type: "keyup" }, // ignored
+      { key: VirtualKeys.Space, type: "keyup" }, // ignored (tentative は既に解消済み)
+    ]);
+    expect(results[0]).toBe("pending");
+    expect(results[1]).toBe("failed");
+    expect(results[2]).toBe("ignored");
+    expect(results[3]).toBe("ignored");
+  });
+
+  test("ShiftLeft keydown/keyup は ignored", () => {
+    const { results } = runInputs(rule, "お", [
+      { key: VirtualKeys.Space, type: "keydown" }, // [0] pending
+      { key: VirtualKeys.U, type: "keydown" }, // [1] failed
+      { key: VirtualKeys.U, type: "keyup" }, // [2] ignored
+      { key: VirtualKeys.Space, type: "keyup" }, // [3] ignored
+      { key: VirtualKeys.ShiftLeft, type: "keydown" }, // [4] ignored
+      { key: VirtualKeys.ShiftLeft, type: "keyup" }, // [5] ignored
+    ]);
+    expect(results[4]).toBe("ignored");
+    expect(results[5]).toBe("ignored");
+  });
+});
+

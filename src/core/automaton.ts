@@ -1,8 +1,8 @@
 import * as AutomatonGetters from "./automatonGetters";
 import type { AutomatonState, EdgeHistory } from "./automatonState";
 import { buildKanaNode } from "./builderKanaGraph";
-import { buildStrokeNode, type StrokeEdge, type StrokeNode } from "./builderStrokeGraph";
-import { type CommittedStroke, StrokeCommitter } from "./committer";
+import { StrokeEdge, StrokeNode, buildStrokeNode } from "./builderStrokeGraph";
+import { type CommitResult, type CommittedStroke, StrokeCommitter } from "./committer";
 import type { InputEvent } from "./inputEvent";
 import { InputResult } from "./inputResult";
 import type { Rule } from "./rule";
@@ -22,20 +22,36 @@ export class AutomatonImpl implements AutomatonState {
   ) {
     this.currentNode = startNode;
     this.committer = new StrokeCommitter();
+    this.backspaceEdges = rule.backspaceStrokes.map(
+      (stroke) => new StrokeEdge(stroke, this.startNode, this.backspaceSentinel),
+    );
   }
   currentNode: StrokeNode;
   /** 入力成功して遷移した履歴 */
   edgeHistories: EdgeHistory[] = [];
   /** 現在のノード入力中に失敗した入力イベント。次のノードに遷移するとリセットされる */
   failedEventsAtCurrentNode: InputEvent[] = [];
+  /**
+   * 現在のノード入力中に発動した backspace イベント。
+   * 次のノードに遷移するとき EdgeHistory.backspaceEvents に転記される。
+   */
+  backspaceEventsAtCurrentNode: InputEvent[] = [];
   /** 時間方向の判断を担う Committer */
   private readonly committer: StrokeCommitter;
+  /** backspace edge の遷移先を示す sentinel node (通常ノードと区別するため) */
+  private readonly backspaceSentinel = new StrokeNode(-1, [], []);
+  /** Rule.backspaceStrokes から生成した仮想 StrokeEdge 群 */
+  private readonly backspaceEdges: readonly StrokeEdge[];
   /**
    * 現在押下されていてまだ打鍵として確定していないキー集合 (可視化用)。
    * 例: SimultaneousStroke の partial 状態で W だけ押されているとき [W] を返す。
    */
   get pendingKeys(): readonly VirtualKey[] {
     return this.committer.pendingKeys;
+  }
+  /** 現在ノードの nextEdges に backspace edge を結合した配列 */
+  private get currentEdges(): readonly StrokeEdge[] {
+    return [...this.currentNode.nextEdges, ...this.backspaceEdges];
   }
   /**
    * 入力状態をリセットする
@@ -44,6 +60,7 @@ export class AutomatonImpl implements AutomatonState {
     this.currentNode = this.startNode;
     this.edgeHistories = [];
     this.failedEventsAtCurrentNode = [];
+    this.backspaceEventsAtCurrentNode = [];
     this.committer.reset();
   }
   /**
@@ -57,6 +74,7 @@ export class AutomatonImpl implements AutomatonState {
       }
     }
     this.failedEventsAtCurrentNode = [];
+    this.backspaceEventsAtCurrentNode = [];
     this.committer.reset();
   }
 
@@ -66,10 +84,9 @@ export class AutomatonImpl implements AutomatonState {
    * @returns [result, apply] result: 入力結果, apply: 状態遷移を適用する関数
    */
   testInput(stroke: InputEvent): [InputResult, () => void] {
-    const commitResult = this.committer.dryRun(stroke, this.currentNode, this.rule);
-    const result = this.commitResultToInputResult(commitResult);
+    const result = this.committer.dryRun(stroke, this.currentEdges, this.rule);
     return [
-      result,
+      this.resultToInputResult(result),
       () => {
         this.input(stroke);
       },
@@ -77,20 +94,50 @@ export class AutomatonImpl implements AutomatonState {
   }
 
   /**
-   * キー入力して状態遷移し、入力が成功したかどうかを返す
+   * キー入力して状態遷移し、入力が成功したかどうかを返す。
+   *
+   * Rule.backspaceStrokes は仮想 StrokeEdge として currentNode.nextEdges に結合され、
+   * StrokeCommitter の既存の優先度ロジック (modMatched vs otherMatched の keyCount 比較)
+   * で通常エントリと同列に評価される。committed 結果が backspace edge であれば BACK を返す。
+   *
+   * backspace 発動時の「復旧ロジック」(failedInputs を pop する、automaton.back() を
+   * 呼ぶ等) は呼び出し側の責務。Automaton は InputResult.BACK を返すことで通知するのみ。
    */
   input(stroke: InputEvent): InputResult {
-    const commitResult = this.committer.feed(stroke, this.currentNode, this.rule);
-    switch (commitResult.type) {
+    const result = this.committer.feed(stroke, this.currentEdges, this.rule);
+    switch (result.type) {
+      case "committed":
+        if (result.stroke.edge.next === this.backspaceSentinel) {
+          this.backspaceEventsAtCurrentNode.push(stroke);
+          return InputResult.BACK;
+        }
+        return this.consume(result.stroke);
       case "pending":
         return InputResult.PENDING;
+      case "failed":
+        this.failedEventsAtCurrentNode.push(result.event);
+        return InputResult.FAILED;
       case "ignored":
         return InputResult.IGNORED;
-      case "failed":
-        this.failedEventsAtCurrentNode.push(commitResult.event);
-        return InputResult.FAILED;
+    }
+  }
+
+  /**
+   * CommitResult を副作用なしに InputResult へ変換する (testInput 用)。
+   */
+  private resultToInputResult(result: CommitResult): InputResult {
+    switch (result.type) {
       case "committed":
-        return this.consume(commitResult.stroke);
+        if (result.stroke.edge.next === this.backspaceSentinel) {
+          return InputResult.BACK;
+        }
+        return this.edgeToResultType(this.currentNode.kanaIndex, result.stroke.edge);
+      case "pending":
+        return InputResult.PENDING;
+      case "failed":
+        return InputResult.FAILED;
+      case "ignored":
+        return InputResult.IGNORED;
     }
   }
 
@@ -104,29 +151,12 @@ export class AutomatonImpl implements AutomatonState {
       event: committed.triggerEvent,
       previousEdge: edge,
       failedEvents: this.failedEventsAtCurrentNode,
+      backspaceEvents: this.backspaceEventsAtCurrentNode,
     });
     this.currentNode = edge.next;
     this.failedEventsAtCurrentNode = [];
+    this.backspaceEventsAtCurrentNode = [];
     return resultType;
-  }
-
-  /**
-   * CommitResult を InputResult へ変換する (testInput 用)。
-   * testInput は副作用なしのため、failed の場合も failedEventsAtCurrentNode を更新しない。
-   */
-  private commitResultToInputResult(
-    commitResult: ReturnType<StrokeCommitter["dryRun"]>,
-  ): InputResult {
-    switch (commitResult.type) {
-      case "pending":
-        return InputResult.PENDING;
-      case "ignored":
-        return InputResult.IGNORED;
-      case "failed":
-        return InputResult.FAILED;
-      case "committed":
-        return this.edgeToResultType(this.currentNode.kanaIndex, commitResult.stroke.edge);
-    }
   }
 
   private edgeToResultType(currentKanaIndex: number, acceptedEdge: StrokeEdge): InputResult {

@@ -258,3 +258,59 @@ describe("validation errors", () => {
     expect(rule.entries.length).toBe(0);
   });
 });
+
+describe("backspaces field", () => {
+  test("omitted backspaces defaults to Backspace key only", () => {
+    const rule = loadJsonRule({
+      entries: [{ input: [{ keys: ["A"] }], output: "あ" }],
+    });
+    // JSON で backspaces を指定しなければ、Rule 側のデフォルト (Backspace 単独) が適用される
+    expect(rule.backspaceStrokes.length).toBe(1);
+    expect(rule.backspaceStrokes[0]).toEqual(
+      new ModifierStroke(VirtualKeys.Backspace, AndModifier.empty),
+    );
+  });
+
+  test("explicit backspaces replaces the default entirely", () => {
+    const rule = loadJsonRule({
+      entries: [{ input: [{ keys: ["A"] }], output: "あ" }],
+      backspaces: [{ keys: ["U"] }],
+    });
+    // 明示的に指定した場合はその指定のみ (Backspace は自動追加されない)
+    expect(rule.backspaceStrokes.length).toBe(1);
+    expect(rule.backspaceStrokes[0]).toEqual(new ModifierStroke(VirtualKeys.U, AndModifier.empty));
+  });
+
+  test("empty backspaces array disables backspace feature", () => {
+    const rule = loadJsonRule({
+      entries: [{ input: [{ keys: ["A"] }], output: "あ" }],
+      backspaces: [],
+    });
+    expect(rule.backspaceStrokes.length).toBe(0);
+  });
+
+  test("simultaneous backspace stroke (2 keys) is parsed as SimultaneousStroke", () => {
+    const rule = loadJsonRule({
+      entries: [{ input: [{ keys: ["A"] }], output: "あ" }],
+      backspaces: [{ keys: ["U", "F"] }],
+    });
+    expect(rule.backspaceStrokes.length).toBe(1);
+    expect(rule.backspaceStrokes[0]).toEqual(
+      new SimultaneousStroke([VirtualKeys.U, VirtualKeys.F], AndModifier.empty),
+    );
+  });
+
+  test("backspace stroke with required modifier", () => {
+    const rule = loadJsonRule({
+      entries: [{ input: [{ keys: ["A"] }], output: "あ" }],
+      backspaces: [{ keys: ["U"], modifiers: [["ShiftLeft", "ShiftRight"]] }],
+    });
+    expect(rule.backspaceStrokes.length).toBe(1);
+    expect(rule.backspaceStrokes[0]).toEqual(
+      new ModifierStroke(
+        VirtualKeys.U,
+        new AndModifier(new ModifierGroup([VirtualKeys.ShiftLeft, VirtualKeys.ShiftRight])),
+      ),
+    );
+  });
+});

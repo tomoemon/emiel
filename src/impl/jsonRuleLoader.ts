@@ -34,6 +34,10 @@ export const jsonRuleSchema = v.object({
   // 全エントリに対するデフォルトの共通プレフィックス拡張設定
   extendCommonPrefixEntry: v.optional(v.boolean()),
   entries: v.array(entrySchema),
+  // Rule.backspaceStrokes に渡す「backspace として扱うキーストローク」の定義。
+  // 現在のノードに関係なく常に受理され、一致すると Automaton.input() が
+  // InputResult.BACK を返す。例: naginata 式の U 単独打鍵
+  backspaces: v.optional(v.array(strokeSchema)),
 });
 
 export type JsonRuleSchema = v.InferOutput<typeof jsonRuleSchema>;
@@ -107,5 +111,10 @@ export function loadJsonRule(jsonRule: JsonRuleInput | string, name?: string): R
   }
   const validated = v.parse(jsonRuleSchema, jsonRule);
   const entries = loadEntries(validated.entries, validated.extendCommonPrefixEntry ?? false);
-  return new Rule(entries, defaultKanaNormalize, name);
+  // JSON に backspaces フィールドが無い場合は undefined を渡して Rule 側のデフォルト
+  // (VirtualKeys.Backspace 単独打鍵) を適用する。空配列を指定した場合は backspace 無効
+  const backspaceStrokes: RuleStroke[] | undefined = validated.backspaces?.map((s) =>
+    loadStroke(s),
+  );
+  return new Rule(entries, defaultKanaNormalize, name, backspaceStrokes);
 }
