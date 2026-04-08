@@ -10,7 +10,7 @@ export function Record(props: { wordRecords: WordRecordValue[] }) {
   const records = props.wordRecords.map((record) => {
     // ワードが表示されてから1打鍵めに成功するまでの経過時間
     const automaton = record.automaton;
-    const latency = automaton.getFirstInputTime().getTime() - record.displayedAt.getTime();
+    const latency = automaton.getFirstSucceededInputTime().getTime() - record.displayedAt.getTime();
     const succeededCount = AutomatonGetters.getEffectiveEdges(automaton).length;
     const rkpm = getRkpm(
       succeededCount,
