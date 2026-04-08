@@ -27,7 +27,15 @@ export class AutomatonImpl implements AutomatonState {
     this.currentNode = startNode;
     this.committer = new BackspaceAwareCommitter(rule.backspaceStrokes);
   }
+  /** 現在の入力位置を表すノード。入力が進むと次のノードに遷移し、back() で前のノードに戻る。 */
   currentNode: StrokeNode;
+  /**
+   * すべての入力イベントと back() 操作の時系列ログ。
+   * input() の結果（IGNORED, PENDING 含む）と back() の BackHistoryEntry が記録される。
+   *
+   * 有効な遷移 edge の取得: AutomatonGetters.getEffectiveEdges(automaton)
+   * 失敗イベントの抽出: inputHistory.filter(e => !("back" in e) && e.result.isFailed)
+   */
   inputHistory: HistoryEntry[] = [];
   /** 時間方向の判断を担う Committer */
   private readonly committer: BackspaceAwareCommitter;
@@ -39,7 +47,9 @@ export class AutomatonImpl implements AutomatonState {
     return this.committer.pendingKeys;
   }
   /**
-   * 入力状態をリセットする
+   * 入力状態をリセットする。
+   * currentNode を startNode に戻し、inputHistory を空にする。
+   * ワードを最初から入力し直す場合に使用する。
    */
   reset(): void {
     this.currentNode = this.startNode;
@@ -47,7 +57,9 @@ export class AutomatonImpl implements AutomatonState {
     this.committer.reset();
   }
   /**
-   * 1 stroke 分の入力を戻す
+   * 直前の成功遷移を1つ取り消し、currentNode を遷移前のノードに戻す。
+   * inputHistory に BackHistoryEntry を追記する（履歴は削除しない）。
+   * startNode にいる場合は何もしない。
    */
   back(): void {
     if (this.currentNode === this.startNode) return;
@@ -61,7 +73,16 @@ export class AutomatonImpl implements AutomatonState {
   }
 
   /**
-   * 状態遷移せずに、入力が成功するかどうかをテストする
+   * 状態遷移せずに、入力が成功するかどうかをテストする。
+   * apply() を呼ぶまで inputHistory や currentNode は変更されない。
+   *
+   * ```
+   * const [result, apply] = automaton.testInput(event);
+   * if (result.isFailed) {
+   *   // ミス表示等の処理
+   * }
+   * apply(); // ここで初めて状態が変わる
+   * ```
    *
    * @returns [result, apply] result: 入力結果, apply: 状態遷移を適用する関数
    */
