@@ -3,7 +3,8 @@ import { loadJsonRule } from "../impl/jsonRuleLoader";
 import { loadPresetKeyboardLayoutQwertyJis } from "../impl/presetKeyboardLayout";
 import { loadPresetRuleNaginatashikiV15, loadPresetRuleRoman } from "../impl/presetRules";
 import type { Automaton } from "./automaton";
-import type { AutomatonState } from "./automatonState";
+import * as AutomatonGetters from "./automatonGetters";
+import type { AutomatonState, HistoryEntry, InputHistoryEntry } from "./automatonState";
 import { InputEvent, InputStroke } from "./inputEvent";
 import { KeyboardState } from "./keyboardState";
 import type { Rule } from "./rule";
@@ -176,6 +177,12 @@ function runInputsOn(
   return results;
 }
 
+function inputEntries(automaton: {
+  inputHistory: ReadonlyArray<HistoryEntry>;
+}): InputHistoryEntry[] {
+  return automaton.inputHistory.filter((e): e is InputHistoryEntry => !("back" in e));
+}
+
 describe("Automaton backspace stroke integration", () => {
   const simpleRule = () =>
     loadJsonRule({
@@ -196,12 +203,13 @@ describe("Automaton backspace stroke integration", () => {
     expect(results[0]).toBe("back");
     // 遷移はしない
     expect(automaton.currentNode).toBe(automaton.startNode);
-    expect(automaton.edgeHistories.length).toBe(0);
-    // backspace イベントがバッファに記録される
-    expect(automaton.backspaceEventsAtCurrentNode.length).toBe(1);
+    expect(AutomatonGetters.getEffectiveEdges(automaton).length).toBe(0);
+    // backspace イベントが inputHistory に記録される
+    const backEntries = inputEntries(automaton).filter((e) => e.result.isBack);
+    expect(backEntries.length).toBe(1);
   });
 
-  test("backspace events are recorded in backspaceEventsAtCurrentNode and then moved to EdgeHistory on next commit", () => {
+  test("backspace and failed events are recorded in inputHistory", () => {
     const rule = simpleRule();
     const automaton = rule.build("あ");
     // 失敗入力 → backspace → 正規入力 の順
@@ -211,23 +219,24 @@ describe("Automaton backspace stroke integration", () => {
       { key: VirtualKeys.U, type: "keydown" }, // backspace 発火
       { key: VirtualKeys.U, type: "keyup" },
     ]);
-    expect(automaton.failedEventsAtCurrentNode.length).toBe(1);
-    expect(automaton.backspaceEventsAtCurrentNode.length).toBe(1);
-    expect(automaton.edgeHistories.length).toBe(0);
+    const entries = inputEntries(automaton);
+    expect(entries.filter((e) => e.result.isFailed).length).toBe(1);
+    expect(entries.filter((e) => e.result.isBack).length).toBe(1);
+    expect(AutomatonGetters.getEffectiveEdges(automaton).length).toBe(0);
 
-    // 正規入力 A で「あ」が確定 → 直前のバッファが EdgeHistory に移る
+    // 正規入力 A で「あ」が確定
     runInputsOn(automaton, [
       { key: VirtualKeys.A, type: "keydown" },
       { key: VirtualKeys.A, type: "keyup" },
     ]);
-    expect(automaton.edgeHistories.length).toBe(1);
-    expect(automaton.edgeHistories[0].failedEvents.length).toBe(1);
-    expect(automaton.edgeHistories[0].backspaceEvents.length).toBe(1);
-    expect(automaton.failedEventsAtCurrentNode.length).toBe(0);
-    expect(automaton.backspaceEventsAtCurrentNode.length).toBe(0);
+    const allEntries = inputEntries(automaton);
+    expect(AutomatonGetters.getEffectiveEdges(automaton).length).toBe(1);
+    expect(allEntries.filter((e) => e.result.isFailed).length).toBe(1);
+    expect(allEntries.filter((e) => e.result.isBack).length).toBe(1);
+    expect(allEntries.filter((e) => e.result.isSucceeded).length).toBe(1);
   });
 
-  test("multiple backspaces before first commit are all recorded in first EdgeHistory", () => {
+  test("multiple backspaces are all recorded in inputHistory", () => {
     const rule = simpleRule();
     const automaton = rule.build("あ");
     runInputsOn(automaton, [
@@ -240,11 +249,12 @@ describe("Automaton backspace stroke integration", () => {
       { key: VirtualKeys.A, type: "keydown" },
       { key: VirtualKeys.A, type: "keyup" },
     ]);
-    expect(automaton.edgeHistories.length).toBe(1);
-    expect(automaton.edgeHistories[0].backspaceEvents.length).toBe(3);
+    expect(AutomatonGetters.getEffectiveEdges(automaton).length).toBe(1);
+    const entries = inputEntries(automaton);
+    expect(entries.filter((e) => e.result.isBack).length).toBe(3);
   });
 
-  test("back() rewinds EdgeHistory along with its backspaceEvents", () => {
+  test("back() records BackHistoryEntry and rewinds currentNode", () => {
     const rule = simpleRule();
     const automaton = rule.build("あ");
     runInputsOn(automaton, [
@@ -253,11 +263,13 @@ describe("Automaton backspace stroke integration", () => {
       { key: VirtualKeys.A, type: "keydown" },
       { key: VirtualKeys.A, type: "keyup" },
     ]);
-    expect(automaton.edgeHistories.length).toBe(1);
-    expect(automaton.edgeHistories[0].backspaceEvents.length).toBe(1);
+    expect(AutomatonGetters.getEffectiveEdges(automaton).length).toBe(1);
     automaton.back();
-    expect(automaton.edgeHistories.length).toBe(0);
-    expect(automaton.backspaceEventsAtCurrentNode.length).toBe(0);
+    expect(AutomatonGetters.getEffectiveEdges(automaton).length).toBe(0);
+    expect(automaton.currentNode).toBe(automaton.startNode);
+    // BackHistoryEntry が記録されている
+    const backHistoryEntries = automaton.inputHistory.filter((e) => "back" in e);
+    expect(backHistoryEntries.length).toBe(1);
   });
 
   test("unrelated key with empty backspaceStrokes keeps existing ignored behavior", () => {
@@ -284,7 +296,7 @@ describe("Automaton backspace stroke integration", () => {
     );
     expect(result.isBack).toBe(true);
     // dryRun では状態を動かさない
-    expect(automaton.backspaceEventsAtCurrentNode.length).toBe(0);
+    expect(automaton.inputHistory.length).toBe(0);
   });
 });
 
@@ -328,8 +340,9 @@ describe("Automaton backspace: naginata 回帰", () => {
     expect(results[0]).toBe("back");
     // 状態は進まない
     expect(automaton.currentNode).toBe(automaton.startNode);
-    // backspace イベントはバッファに記録される
-    expect(automaton.backspaceEventsAtCurrentNode.length).toBe(1);
+    // backspace イベントが inputHistory に記録される
+    const backEntries = inputEntries(automaton).filter((e) => e.result.isBack);
+    expect(backEntries.length).toBe(1);
   });
 
   test("Space+U がミス位置で FAILED (backspace U より さ が具体的)", () => {
@@ -377,7 +390,8 @@ describe("Automaton backspace: 逆パターン (modifier 付き backspace + 単�
     // Space+U backspace (keyCount=2) が "う" (keyCount=1) より具体的 → BACK
     expect(results[1]).toBe("back");
     expect(automaton.currentNode).toBe(automaton.startNode);
-    expect(automaton.backspaceEventsAtCurrentNode.length).toBe(1);
+    const backEntries = inputEntries(automaton).filter((e) => e.result.isBack);
+    expect(backEntries.length).toBe(1);
   });
 
   test("U 単独がミス位置で FAILED (backspace は Space なしでは発動しない)", () => {
