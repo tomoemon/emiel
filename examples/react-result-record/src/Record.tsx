@@ -1,5 +1,5 @@
 import type { Automaton } from "emiel";
-import { getAccuracy, getKpm, getRkpm } from "emiel";
+import { AutomatonGetters, getAccuracy, getKpm, getRkpm } from "emiel";
 
 export type WordRecordValue = {
   automaton: Automaton;
@@ -11,18 +11,15 @@ export function Record(props: { wordRecords: WordRecordValue[] }) {
     // ワードが表示されてから1打鍵めに成功するまでの経過時間
     const automaton = record.automaton;
     const latency = automaton.getFirstInputTime().getTime() - record.displayedAt.getTime();
+    const succeededCount = AutomatonGetters.getEffectiveEdges(automaton).length;
     const rkpm = getRkpm(
-      automaton.edgeHistories.length,
-      automaton.getFirstInputTime(),
-      automaton.getLastInputTime(),
+      succeededCount,
+      automaton.getFirstSucceededInputTime(),
+      automaton.getLastSucceededInputTime(),
     );
 
     // latency の時間を含めた、1分あたりの打鍵数
-    const kpm = getKpm(
-      automaton.edgeHistories.length,
-      record.displayedAt,
-      automaton.getLastInputTime(),
-    );
+    const kpm = getKpm(succeededCount, record.displayedAt, automaton.getLastSucceededInputTime());
     const accuracy = getAccuracy(
       record.automaton.getFailedInputCount(),
       record.automaton.getTotalInputCount(),
@@ -38,7 +35,7 @@ export function Record(props: { wordRecords: WordRecordValue[] }) {
   });
   const totalLatency = records.reduce((acc, r) => acc + r.latency, 0);
   const totalSucceededCount = records.reduce(
-    (acc, r) => acc + r.record.automaton.edgeHistories.length,
+    (acc, r) => acc + AutomatonGetters.getEffectiveEdges(r.record.automaton).length,
     0,
   );
   const totalFailedCount = records.reduce(

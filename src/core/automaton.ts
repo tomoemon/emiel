@@ -1,5 +1,5 @@
 import * as AutomatonGetters from "./automatonGetters";
-import type { AutomatonState, EdgeHistory } from "./automatonState";
+import type { AutomatonState, HistoryEntry } from "./automatonState";
 import { buildKanaNode } from "./builderKanaGraph";
 import { type StrokeEdge, type StrokeNode, buildStrokeNode } from "./builderStrokeGraph";
 import {
@@ -28,15 +28,7 @@ export class AutomatonImpl implements AutomatonState {
     this.committer = new BackspaceAwareCommitter(rule.backspaceStrokes);
   }
   currentNode: StrokeNode;
-  /** 入力成功して遷移した履歴 */
-  edgeHistories: EdgeHistory[] = [];
-  /** 現在のノード入力中に失敗した入力イベント。次のノードに遷移するとリセットされる */
-  failedEventsAtCurrentNode: InputEvent[] = [];
-  /**
-   * 現在のノード入力中に発動した backspace イベント。
-   * 次のノードに遷移するとき EdgeHistory.backspaceEvents に転記される。
-   */
-  backspaceEventsAtCurrentNode: InputEvent[] = [];
+  inputHistory: HistoryEntry[] = [];
   /** 時間方向の判断を担う Committer */
   private readonly committer: BackspaceAwareCommitter;
   /**
@@ -51,23 +43,20 @@ export class AutomatonImpl implements AutomatonState {
    */
   reset(): void {
     this.currentNode = this.startNode;
-    this.edgeHistories = [];
-    this.failedEventsAtCurrentNode = [];
-    this.backspaceEventsAtCurrentNode = [];
+    this.inputHistory = [];
     this.committer.reset();
   }
   /**
    * 1 stroke 分の入力を戻す
    */
   back(): void {
-    if (this.currentNode !== this.startNode) {
-      const history = this.edgeHistories.pop();
-      if (history) {
-        this.currentNode = history.previousEdge.previous;
-      }
+    if (this.currentNode === this.startNode) return;
+    const effectiveEdges = AutomatonGetters.getEffectiveEdges(this);
+    const lastEdge = effectiveEdges[effectiveEdges.length - 1];
+    if (lastEdge) {
+      this.inputHistory.push({ back: true, undoneEdge: lastEdge });
+      this.currentNode = lastEdge.previous;
     }
-    this.failedEventsAtCurrentNode = [];
-    this.backspaceEventsAtCurrentNode = [];
     this.committer.reset();
   }
 
@@ -89,27 +78,34 @@ export class AutomatonImpl implements AutomatonState {
   /**
    * キー入力して状態遷移し、入力が成功したかどうかを返す。
    *
-   * Rule.backspaceStrokes は仮想 StrokeEdge として currentNode.nextEdges に結合され、
-   * StrokeCommitter の既存の優先度ロジック (modMatched vs otherMatched の keyCount 比較)
-   * で通常エントリと同列に評価される。committed 結果が backspace edge であれば BACK を返す。
+   * すべての入力結果（IGNORED, PENDING 含む）が inputHistory に記録される。
    *
-   * backspace 発動時の「復旧ロジック」(failedInputs を pop する、automaton.back() を
-   * 呼ぶ等) は呼び出し側の責務。Automaton は InputResult.BACK を返すことで通知するのみ。
+   * backspace 発動時の「復旧ロジック」(automaton.back() を呼ぶ等) は呼び出し側の責務。
+   * Automaton は InputResult.BACK を返すことで通知するのみ。
    */
   input(stroke: InputEvent): InputResult {
     const result = this.committer.feed(stroke, this.currentNode.nextEdges, this.rule);
     switch (result.type) {
-      case "committed":
-        return this.consume(result.stroke);
+      case "committed": {
+        const inputResult = this.consume(result.stroke);
+        this.inputHistory.push({
+          event: result.stroke.triggerEvent,
+          result: inputResult,
+          edge: result.stroke.edge,
+        });
+        return inputResult;
+      }
       case "backspace":
-        this.backspaceEventsAtCurrentNode.push(stroke);
+        this.inputHistory.push({ event: stroke, result: InputResult.BACK });
         return InputResult.BACK;
       case "pending":
+        this.inputHistory.push({ event: stroke, result: InputResult.PENDING });
         return InputResult.PENDING;
       case "failed":
-        this.failedEventsAtCurrentNode.push(result.event);
+        this.inputHistory.push({ event: result.event, result: InputResult.FAILED });
         return InputResult.FAILED;
       case "ignored":
+        this.inputHistory.push({ event: stroke, result: InputResult.IGNORED });
         return InputResult.IGNORED;
     }
   }
@@ -138,15 +134,7 @@ export class AutomatonImpl implements AutomatonState {
   private consume(committed: CommittedStroke): InputResult {
     const edge = committed.edge;
     const resultType = this.edgeToResultType(this.currentNode.kanaIndex, edge);
-    this.edgeHistories.push({
-      event: committed.triggerEvent,
-      previousEdge: edge,
-      failedEvents: this.failedEventsAtCurrentNode,
-      backspaceEvents: this.backspaceEventsAtCurrentNode,
-    });
     this.currentNode = edge.next;
-    this.failedEventsAtCurrentNode = [];
-    this.backspaceEventsAtCurrentNode = [];
     return resultType;
   }
 
@@ -175,7 +163,7 @@ export class AutomatonImpl implements AutomatonState {
    *   getProgress: (state) => (state.currentNode.kanaIndex / state.word.length) * 100,
    *   getKPM: (state) => {
    *     const duration = getLastInputTime(state).getTime() - getFirstInputTime(state).getTime();
-   *     return (state.edgeHistories.length / duration) * 60000;
+   *     return (AutomatonGetters.getEffectiveEdges(state).length / duration) * 60000;
    *   }
    * });
    *
@@ -253,17 +241,31 @@ const defaultExtension = {
   },
 
   /**
-   * 1打目の入力時刻
+   * 最初の入力時刻（成功・失敗問わず）
    */
   getFirstInputTime(state: AutomatonState): Date {
     return AutomatonGetters.getFirstInputTime(state);
   },
 
   /**
-   * 最後の入力時刻
+   * 最後の入力時刻（成功・失敗問わず）
    */
   getLastInputTime(state: AutomatonState): Date {
     return AutomatonGetters.getLastInputTime(state);
+  },
+
+  /**
+   * 最初の成功入力時刻
+   */
+  getFirstSucceededInputTime(state: AutomatonState): Date {
+    return AutomatonGetters.getFirstSucceededInputTime(state);
+  },
+
+  /**
+   * 最後の成功入力時刻
+   */
+  getLastSucceededInputTime(state: AutomatonState): Date {
+    return AutomatonGetters.getLastSucceededInputTime(state);
   },
 
   /**
@@ -274,7 +276,7 @@ const defaultExtension = {
   },
 
   /**
-   * ミス入力も含めた打鍵数の合計
+   * 有効な成功打鍵数 + ミス入力数の合計
    */
   getTotalInputCount(state: AutomatonState): number {
     return AutomatonGetters.getTotalInputCount(state);
@@ -298,6 +300,8 @@ export type DefaultExtensionType = {
   getPendingStroke(): RuleStroke[];
   getFirstInputTime(): Date;
   getLastInputTime(): Date;
+  getFirstSucceededInputTime(): Date;
+  getLastSucceededInputTime(): Date;
   getFailedInputCount(): number;
   getTotalInputCount(): number;
   isFinished(): boolean;

@@ -1,19 +1,22 @@
 import type { StrokeEdge, StrokeNode } from "./builderStrokeGraph";
 import type { InputEvent } from "./inputEvent";
+import type { InputResult } from "./inputResult";
 import type { Rule } from "./rule";
 
-export type EdgeHistory = {
-  // 遷移のきっかけになった成功した入力イベント
+export type InputHistoryEntry = {
   event: InputEvent;
-  // 今回の遷移で利用されたエッジ（この Edge をたどると startNode まで戻れる）
-  previousEdge: StrokeEdge;
-  // 今回の遷移に成功するまでに失敗した入力イベント
-  // failedEvents[0], failedEvents[1], ..., event(入力成功) という時系列
-  failedEvents: InputEvent[];
-  // 今回の遷移に成功するまでに発動した backspace イベント
-  // Rule.backspaceStrokes に一致して isBack を返したイベントの時系列
-  backspaceEvents: InputEvent[];
+  result: InputResult;
+  /** result.isSucceeded のときのみ存在。値は CommittedStroke.edge */
+  edge?: StrokeEdge;
 };
+
+export type BackHistoryEntry = {
+  back: true;
+  /** back() で取り消された edge */
+  undoneEdge: StrokeEdge;
+};
+
+export type HistoryEntry = InputHistoryEntry | BackHistoryEntry;
 
 /**
  * Automaton の内部状態を表すインターフェース
@@ -23,7 +26,5 @@ export type AutomatonState = {
   readonly startNode: StrokeNode;
   readonly rule: Rule;
   readonly currentNode: StrokeNode;
-  readonly edgeHistories: ReadonlyArray<EdgeHistory>;
-  readonly failedEventsAtCurrentNode: ReadonlyArray<InputEvent>;
-  readonly backspaceEventsAtCurrentNode: ReadonlyArray<InputEvent>;
+  readonly inputHistory: ReadonlyArray<HistoryEntry>;
 };

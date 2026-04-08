@@ -1,5 +1,10 @@
 export * as AutomatonGetters from "./core/automatonGetters";
-export type { AutomatonState, EdgeHistory } from "./core/automatonState";
+export type {
+  AutomatonState,
+  InputHistoryEntry,
+  BackHistoryEntry,
+  HistoryEntry,
+} from "./core/automatonState";
 export { StrokeEdge, StrokeNode } from "./core/builderStrokeGraph";
 export { InputEvent, InputStroke } from "./core/inputEvent";
 export { KeyboardLayout } from "./core/keyboardLayout";
