@@ -1,4 +1,3 @@
-import { build } from "./automaton";
 import { AndModifier } from "./modifier";
 import { expandPrefixRules } from "./ruleExtender";
 import { ModifierStroke, ruleStrokeKeys, type RuleStroke } from "./ruleStroke";
@@ -159,9 +158,5 @@ export class Rule {
 
   entriesByModifier(modifierKey: VirtualKey): RuleEntry[] {
     return this.mapEntriesByFirstInputModifier.get(modifierKey) ?? [];
-  }
-
-  build(kanaText: string) {
-    return build(this, kanaText);
   }
 }

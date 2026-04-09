@@ -1,7 +1,8 @@
-import type { InputEvent, InputStroke, KeyboardLayout } from "emiel";
-import { activate, detectKeyboardLayout, loadPresetRuleRoman, VirtualKeys } from "emiel";
+import type { InputStroke, KeyboardLayout } from "emiel";
+import { activate, build, detectKeyboardLayout, loadPresetRuleRoman, VirtualKeys } from "emiel";
 import { useEffect, useMemo, useState } from "react";
 import "./App.css";
+import { MissAccumulatingAutomaton } from "./MissAccumulatingAutomaton";
 
 function App() {
   const [layout, setLayout] = useState<KeyboardLayout | undefined>();
@@ -11,87 +12,56 @@ function App() {
   return layout ? <Typing layout={layout} /> : <></>;
 }
 
-/**
- * Rule.backspaceStrokes を使った例。
- *
- * Rule はデフォルトで VirtualKeys.Backspace 単独打鍵を backspace として扱うため、
- * 呼び出し側で Backspace キーを特別扱いする必要がない。Automaton.input(e) に
- * 普通に InputEvent を渡すだけで、Backspace キー押下時は result.isBack === true になる。
- *
- * 復旧ロジック (ミス入力 pop / automaton.back() など) は呼び出し側で自由に実装する。
- *
- * naginata 式のように U キーを backspace として扱いたい場合は、Rule 側の
- * `backspaces` に追加定義することで、同じ result.isBack 分岐で反応させられる。
- */
 function Typing(props: { layout: KeyboardLayout }) {
   const romanRule = useMemo(() => loadPresetRuleRoman(props.layout), [props.layout]);
   const words = useMemo(() => ["おをひく", "こんとん", "がっこう", "aから@"], []);
-  const [failedInputs, setFailedInputs] = useState<InputEvent[]>([]);
   const [index, setIndex] = useState(0);
   const [lastInputKey, setLastInputKey] = useState<InputStroke | undefined>();
 
-  const automatons = useMemo(() => words.map((w) => romanRule.build(w)), [romanRule, words]);
-  const automaton = automatons[index];
+  const wrappers = useMemo(
+    () => words.map((w) => new MissAccumulatingAutomaton(build(romanRule, w).withBackspace())),
+    [romanRule, words],
+  );
+  const wrapper = wrappers[index];
 
   useEffect(() => {
     return activate(window, (e) => {
       setLastInputKey(e.input);
-      const [result, apply] = automaton.testInput(e);
-      if (result.isIgnored) {
-        return;
-      }
-      if (result.isBack) {
-        // backspace 発動: 蓄積されたミス入力があれば 1 つ pop する。
-        // ゲームルール次第で automaton.back() を呼んで成功ストロークを巻き戻すことも可能。
-        setFailedInputs((prev) => (prev.length > 0 ? prev.slice(0, -1) : prev));
-        apply();
-        return;
-      }
-      if (failedInputs.length > 0) {
-        // すでにミス中は以降も強制 failed 扱い
-        setFailedInputs([...failedInputs, e]);
-        return;
-      }
-      if (result.isFailed) {
-        setFailedInputs([...failedInputs, e]);
-        return;
-      }
-      apply();
+      const result = wrapper.input(e);
       if (result.isFinished) {
-        automaton.reset();
-        setFailedInputs([]);
+        wrapper.reset();
         setIndex((current) => (current + 1) % words.length);
       }
     });
-  }, [automaton, words, failedInputs]);
+  }, [wrapper, words]);
 
   return (
     <>
       <h1>
         <div style={{ display: "flex" }}>
-          <div style={{ color: "gray" }}>{automaton.getFinishedWord()}</div>
+          <div style={{ color: "gray" }}>{wrapper.getFinishedWord()}</div>
           <div
             style={{
-              marginLeft: automaton.getFinishedWord() ? "0.5rem" : "0",
+              marginLeft: wrapper.getFinishedWord() ? "0.5rem" : "0",
             }}
           >
-            {automaton.getPendingWord()}
+            {wrapper.getPendingWord()}
           </div>
         </div>
       </h1>
       <h1>
         <div style={{ display: "flex" }}>
-          <div style={{ color: "gray" }}>{automaton.getFinishedRoman()}</div>
+          <div style={{ color: "gray" }}>{wrapper.getFinishedRoman()}</div>
           <div
             style={{
-              marginLeft: automaton.getFinishedRoman() ? "0.5rem" : "0",
+              marginLeft: wrapper.getFinishedRoman() ? "0.5rem" : "0",
               textAlign: "left",
             }}
           >
-            {automaton.getPendingRoman()}
+            {wrapper.getPendingRoman()}
             <br />
             <span style={{ color: "yellow" }}>
-              {failedInputs
+              {wrapper.failedInputs
                 .map((f) =>
                   props.layout
                     .getCharByKey(
@@ -111,6 +81,22 @@ function Typing(props: { layout: KeyboardLayout }) {
           {lastInputKey ? lastInputKey.key.toString() : ""}
         </code>
       </h2>
+      <table style={{ margin: "0 auto", textAlign: "left" }}>
+        <tbody>
+          <tr>
+            <td>成功数</td>
+            <td>{wrapper.getEffectiveEdgesCount()}</td>
+          </tr>
+          <tr>
+            <td>ミス数 (全体)</td>
+            <td>{wrapper.getFailedInputCount()}</td>
+          </tr>
+          <tr>
+            <td>ミス数 (back 除外)</td>
+            <td>{wrapper.getEffectiveFailedInputCount()}</td>
+          </tr>
+        </tbody>
+      </table>
     </>
   );
 }

@@ -221,7 +221,7 @@ const layout = await detectKeyboardLayout(window);
 const rule = loadPresetRuleRoman(layout);
 
 // 3. Automatonの構築
-const automaton = rule.build("がっこう");
+const automaton = build(rule, "がっこう");
 
 // 4. 入力の処理
 window.addEventListener("keydown", (e) => {
@@ -230,8 +230,8 @@ window.addEventListener("keydown", (e) => {
   
   if (result.isSucceeded) {
     console.log("正解！");
-    console.log("完了:", automaton.finishedWord);
-    console.log("残り:", automaton.pendingWord);
+    console.log("完了:", automaton.getFinishedWord());
+    console.log("残り:", automaton.getPendingWord());
   }
 });
 ```

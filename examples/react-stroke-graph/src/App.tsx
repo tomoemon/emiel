@@ -2,6 +2,7 @@ import cytoscape from "cytoscape";
 import dagre from "cytoscape-dagre";
 import type { Automaton, KeyboardLayout } from "emiel";
 import {
+  build,
   detectKeyboardLayout,
   loadPresetRuleJisKana,
   loadPresetRuleNaginatashikiV15,
@@ -39,7 +40,7 @@ function Typing(props: { layout: KeyboardLayout }) {
   const [ruleIndex, setRuleIndex] = useState(0);
   const onFinished = useCallback(() => {
     const words = ["じょをひく", "しるため", "しょうがっこう"];
-    const automaton = rules[ruleIndex].rule.build(words[wordIndex]);
+    const automaton = build(rules[ruleIndex].rule, words[wordIndex]);
     setAutomaton(automaton);
     setRuleName(rules[ruleIndex].name);
     if (wordIndex < words.length - 1) {
