@@ -1,4 +1,3 @@
-export * as AutomatonGetters from "./core/automatonGetters";
 export type {
   AutomatonState,
   InputHistoryEntry,
@@ -33,4 +32,5 @@ export * from "./impl/presetKeyboardGuide";
 export * from "./impl/presetRules";
 export * from "./impl/stats";
 
-export type { Automaton } from "./core/automaton";
+export { build } from "./core/automaton";
+export type { Automaton, BackspaceExtensionType } from "./core/automaton";

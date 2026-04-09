@@ -1,6 +1,7 @@
 import type { InputStroke, KeyboardLayout } from "emiel";
 import {
   activate,
+  build,
   detectKeyboardLayout,
   loadPresetRuleJisKana,
   loadPresetRuleRoman,
@@ -23,7 +24,7 @@ function Typing(props: { layout: KeyboardLayout }) {
   const romanRule = useMemo(() => loadPresetRuleRoman(props.layout), [props.layout]);
   const kanaRule = useMemo(() => loadPresetRuleJisKana(props.layout), [props.layout]);
   const [selectors] = useState(
-    words.map((w) => new Selector([romanRule.build(w), kanaRule.build(w)])),
+    words.map((w) => new Selector([build(romanRule, w), build(kanaRule, w)])),
   );
   const [lastInputKey, setLastInputKey] = useState<InputStroke | undefined>();
   const [wordIndex, setWordIndex] = useState(0);

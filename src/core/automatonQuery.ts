@@ -138,3 +138,76 @@ export function getTotalInputCount(state: AutomatonState): number {
 export function isFinished(state: AutomatonState): boolean {
   return state.currentNode.nextEdges.length === 0;
 }
+
+/**
+ * back() で取り消された区間に含まれる inputHistory インデックスの集合を返す。
+ * 成功 → push(index)、back → pop して、pop されたインデックスから back のインデックスまでを「取り消し区間」とする。
+ */
+function getBackedIndices(state: AutomatonState): Set<number> {
+  const backed = new Set<number>();
+  const successStack: number[] = [];
+  for (let i = 0; i < state.inputHistory.length; i++) {
+    const entry = state.inputHistory[i];
+    if ("back" in entry) {
+      const popped = successStack.pop();
+      if (popped !== undefined) {
+        for (let j = popped; j <= i; j++) {
+          backed.add(j);
+        }
+      }
+    } else if (entry.edge) {
+      successStack.push(i);
+    }
+  }
+  return backed;
+}
+
+/**
+ * back() で取り消された区間のミスを除外した失敗数
+ */
+export function getEffectiveFailedInputCount(state: AutomatonState): number {
+  const backed = getBackedIndices(state);
+  let count = 0;
+  for (let i = 0; i < state.inputHistory.length; i++) {
+    const entry = state.inputHistory[i];
+    if (!("back" in entry) && entry.result.isFailed && !backed.has(i)) {
+      count++;
+    }
+  }
+  return count;
+}
+
+/**
+ * getEffectiveEdges.length + getEffectiveFailedInputCount
+ */
+export function getEffectiveTotalInputCount(state: AutomatonState): number {
+  return getEffectiveEdges(state).length + getEffectiveFailedInputCount(state);
+}
+
+/**
+ * back() で取り消されていない最初の成功入力時刻
+ */
+export function getEffectiveFirstSucceededInputTime(state: AutomatonState): Date {
+  const backed = getBackedIndices(state);
+  for (let i = 0; i < state.inputHistory.length; i++) {
+    const entry = state.inputHistory[i];
+    if (!("back" in entry) && entry.result.isSucceeded && !backed.has(i)) {
+      return entry.event.timestamp;
+    }
+  }
+  throw new Error("No effective succeeded input found");
+}
+
+/**
+ * back() で取り消されていない最後の成功入力時刻
+ */
+export function getEffectiveLastSucceededInputTime(state: AutomatonState): Date {
+  const backed = getBackedIndices(state);
+  for (let i = state.inputHistory.length - 1; i >= 0; i--) {
+    const entry = state.inputHistory[i];
+    if (!("back" in entry) && entry.result.isSucceeded && !backed.has(i)) {
+      return entry.event.timestamp;
+    }
+  }
+  throw new Error("No effective succeeded input found");
+}

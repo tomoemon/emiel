@@ -1,5 +1,5 @@
 import type { Automaton } from "emiel";
-import { AutomatonGetters, getAccuracy, getKpm, getRkpm } from "emiel";
+import { getAccuracy, getKpm, getRkpm } from "emiel";
 
 export type WordRecordValue = {
   automaton: Automaton;
@@ -11,7 +11,7 @@ export function Record(props: { wordRecords: WordRecordValue[] }) {
     // ワードが表示されてから1打鍵めに成功するまでの経過時間
     const automaton = record.automaton;
     const latency = automaton.getFirstSucceededInputTime().getTime() - record.displayedAt.getTime();
-    const succeededCount = AutomatonGetters.getEffectiveEdges(automaton).length;
+    const succeededCount = automaton.getEffectiveEdges().length;
     const rkpm = getRkpm(
       succeededCount,
       automaton.getFirstSucceededInputTime(),
@@ -35,7 +35,7 @@ export function Record(props: { wordRecords: WordRecordValue[] }) {
   });
   const totalLatency = records.reduce((acc, r) => acc + r.latency, 0);
   const totalSucceededCount = records.reduce(
-    (acc, r) => acc + AutomatonGetters.getEffectiveEdges(r.record.automaton).length,
+    (acc, r) => acc + r.record.automaton.getEffectiveEdges().length,
     0,
   );
   const totalFailedCount = records.reduce(

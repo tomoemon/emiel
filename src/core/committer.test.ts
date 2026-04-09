@@ -7,6 +7,7 @@ import {
   loadPresetRuleNicola,
   loadPresetRuleRoman,
 } from "../impl/presetRules";
+import { build, type Automaton } from "./automaton";
 import { InputEvent, InputStroke } from "./inputEvent";
 import { KeyboardState } from "./keyboardState";
 import type { Rule } from "./rule";
@@ -20,8 +21,8 @@ function runInputs(
   rule: Rule,
   word: string,
   events: { key: (typeof VirtualKeys)[keyof typeof VirtualKeys]; type: "keydown" | "keyup" }[],
-): { results: string[]; automaton: ReturnType<Rule["build"]> } {
-  const automaton = rule.build(word);
+): { results: string[]; automaton: Automaton } {
+  const automaton = build(rule, word);
   const state = new KeyboardState();
   const results: string[] = [];
   for (const ev of events) {

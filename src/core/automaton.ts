@@ -1,4 +1,4 @@
-import * as AutomatonGetters from "./automatonGetters";
+import * as AutomatonQuery from "./automatonQuery";
 import type { AutomatonState, HistoryEntry } from "./automatonState";
 import { buildKanaNode } from "./builderKanaGraph";
 import { type StrokeEdge, type StrokeNode, buildStrokeNode } from "./builderStrokeGraph";
@@ -33,7 +33,7 @@ export class AutomatonImpl implements AutomatonState {
    * すべての入力イベントと back() 操作の時系列ログ。
    * input() の結果（IGNORED, PENDING 含む）と back() の BackHistoryEntry が記録される。
    *
-   * 有効な遷移 edge の取得: AutomatonGetters.getEffectiveEdges(automaton)
+   * 有効な遷移 edge の取得: AutomatonQuery.getEffectiveEdges(automaton)
    * 失敗イベントの抽出: inputHistory.filter(e => !("back" in e) && e.result.isFailed)
    */
   inputHistory: HistoryEntry[] = [];
@@ -63,7 +63,7 @@ export class AutomatonImpl implements AutomatonState {
    */
   back(): void {
     if (this.currentNode === this.startNode) return;
-    const effectiveEdges = AutomatonGetters.getEffectiveEdges(this);
+    const effectiveEdges = AutomatonQuery.getEffectiveEdges(this);
     const lastEdge = effectiveEdges[effectiveEdges.length - 1];
     if (lastEdge) {
       this.inputHistory.push({ back: true, undoneEdge: lastEdge });
@@ -172,24 +172,12 @@ export class AutomatonImpl implements AutomatonState {
   /**
    * 拡張メソッドを追加して Automaton の Proxy を返す
    *
-   * 参照系の関数はいくらでも追加する可能性があるため、Automaton 自体に持たせるのではなく、
-   * 利用者側の必要に応じて拡張してもらえるようにする。
-   * state の情報を取得するだけでなく、
-   * クロージャで Automaton に任意の情報を付加して、あとから参照することも可能。
-   * (automaton.test.ts 参照)
-   *
    * @example
    * ```typescript
    * const extended = automaton.with({
    *   getProgress: (state) => (state.currentNode.kanaIndex / state.word.length) * 100,
-   *   getKPM: (state) => {
-   *     const duration = getLastInputTime(state).getTime() - getFirstInputTime(state).getTime();
-   *     return (AutomatonGetters.getEffectiveEdges(state).length / duration) * 60000;
-   *   }
    * });
-   *
    * console.log(extended.getProgress()); // number
-   * console.log(extended.getKPM()); // number
    * ```
    */
   with<T extends Record<string, (state: AutomatonState) => unknown>>(
@@ -205,125 +193,109 @@ export class AutomatonImpl implements AutomatonState {
     });
     return proxy as this & { [K in keyof T]: () => ReturnType<T[K]> };
   }
+
+  /**
+   * backspace を考慮した統計クエリを追加する
+   */
+  withBackspace(): this & BackspaceExtensionType {
+    return this.with(backspaceExtension) as this & BackspaceExtensionType;
+  }
 }
 
-export type Automaton = AutomatonImpl & DefaultExtensionType;
+export type Automaton = AutomatonImpl & BaseExtensionType;
 
 export function build(rule: Rule, kanaText: string): Automaton {
   const [_, endKanaNode] = buildKanaNode(rule, kanaText);
   const automaton = new AutomatonImpl(kanaText, buildStrokeNode(endKanaNode), rule);
-  return automaton.with(defaultExtension);
+  return automaton.with(baseExtension);
 }
 
 /**
- * デフォルトの拡張
+ * 基本クエリ（常に利用可能）
  */
-const defaultExtension = {
-  /**
-   * 入力が完了したかな文字列
-   */
+const baseExtension = {
   getFinishedWord(state: AutomatonState): string {
-    return AutomatonGetters.getFinishedWord(state);
+    return AutomatonQuery.getFinishedWord(state);
   },
-
-  /**
-   * 入力が完了していないかな文字列
-   */
   getPendingWord(state: AutomatonState): string {
-    return AutomatonGetters.getPendingWord(state);
+    return AutomatonQuery.getPendingWord(state);
   },
-
-  /**
-   * 入力が完了したローマ字列(ローマ字系の Rule の場合のみ)
-   */
-  getFinishedRoman(state: AutomatonState): string {
-    return AutomatonGetters.getFinishedRoman(state);
-  },
-
-  /**
-   * 入力が完了していないローマ字列(ローマ字系の Rule の場合のみ)
-   */
-  getPendingRoman(state: AutomatonState): string {
-    return AutomatonGetters.getPendingRoman(state);
-  },
-
-  /**
-   * 入力が完了したキーストローク列
-   */
   getFinishedStroke(state: AutomatonState): RuleStroke[] {
-    return AutomatonGetters.getFinishedStroke(state);
+    return AutomatonQuery.getFinishedStroke(state);
   },
-
-  /**
-   * 現在の入力状態から最短ストローク数で打ち切れるストローク列を返す
-   */
   getPendingStroke(state: AutomatonState): RuleStroke[] {
-    return AutomatonGetters.getPendingStroke(state);
+    return AutomatonQuery.getPendingStroke(state);
   },
-
-  /**
-   * 最初の入力時刻（成功・失敗問わず）
-   */
-  getFirstInputTime(state: AutomatonState): Date {
-    return AutomatonGetters.getFirstInputTime(state);
+  getEffectiveEdges(state: AutomatonState): StrokeEdge[] {
+    return AutomatonQuery.getEffectiveEdges(state);
   },
-
-  /**
-   * 最後の入力時刻（成功・失敗問わず）
-   */
-  getLastInputTime(state: AutomatonState): Date {
-    return AutomatonGetters.getLastInputTime(state);
-  },
-
-  /**
-   * 最初の成功入力時刻
-   */
-  getFirstSucceededInputTime(state: AutomatonState): Date {
-    return AutomatonGetters.getFirstSucceededInputTime(state);
-  },
-
-  /**
-   * 最後の成功入力時刻
-   */
-  getLastSucceededInputTime(state: AutomatonState): Date {
-    return AutomatonGetters.getLastSucceededInputTime(state);
-  },
-
-  /**
-   * ミス入力数の合計
-   */
-  getFailedInputCount(state: AutomatonState): number {
-    return AutomatonGetters.getFailedInputCount(state);
-  },
-
-  /**
-   * 有効な成功打鍵数 + ミス入力数の合計
-   */
-  getTotalInputCount(state: AutomatonState): number {
-    return AutomatonGetters.getTotalInputCount(state);
-  },
-
-  /**
-   * 入力が完了しているかどうか
-   */
   isFinished(state: AutomatonState): boolean {
-    return AutomatonGetters.isFinished(state);
+    return AutomatonQuery.isFinished(state);
+  },
+  getFirstInputTime(state: AutomatonState): Date {
+    return AutomatonQuery.getFirstInputTime(state);
+  },
+  getLastInputTime(state: AutomatonState): Date {
+    return AutomatonQuery.getLastInputTime(state);
+  },
+  getFirstSucceededInputTime(state: AutomatonState): Date {
+    return AutomatonQuery.getFirstSucceededInputTime(state);
+  },
+  getLastSucceededInputTime(state: AutomatonState): Date {
+    return AutomatonQuery.getLastSucceededInputTime(state);
+  },
+  getFailedInputCount(state: AutomatonState): number {
+    return AutomatonQuery.getFailedInputCount(state);
+  },
+  getTotalInputCount(state: AutomatonState): number {
+    return AutomatonQuery.getTotalInputCount(state);
+  },
+  getFinishedRoman(state: AutomatonState): string {
+    return AutomatonQuery.getFinishedRoman(state);
+  },
+  getPendingRoman(state: AutomatonState): string {
+    return AutomatonQuery.getPendingRoman(state);
   },
 } as const;
 
-// デフォルト拡張の型(引数なしバージョン)
-export type DefaultExtensionType = {
+export type BaseExtensionType = {
   getFinishedWord(): string;
   getPendingWord(): string;
-  getFinishedRoman(): string;
-  getPendingRoman(): string;
   getFinishedStroke(): RuleStroke[];
   getPendingStroke(): RuleStroke[];
+  getEffectiveEdges(): StrokeEdge[];
+  isFinished(): boolean;
   getFirstInputTime(): Date;
   getLastInputTime(): Date;
   getFirstSucceededInputTime(): Date;
   getLastSucceededInputTime(): Date;
   getFailedInputCount(): number;
   getTotalInputCount(): number;
-  isFinished(): boolean;
+  getFinishedRoman(): string;
+  getPendingRoman(): string;
+};
+
+/**
+ * Backspace 拡張（back() で取り消された区間を考慮した統計クエリ）
+ */
+const backspaceExtension = {
+  getEffectiveFailedInputCount(state: AutomatonState): number {
+    return AutomatonQuery.getEffectiveFailedInputCount(state);
+  },
+  getEffectiveTotalInputCount(state: AutomatonState): number {
+    return AutomatonQuery.getEffectiveTotalInputCount(state);
+  },
+  getEffectiveFirstSucceededInputTime(state: AutomatonState): Date {
+    return AutomatonQuery.getEffectiveFirstSucceededInputTime(state);
+  },
+  getEffectiveLastSucceededInputTime(state: AutomatonState): Date {
+    return AutomatonQuery.getEffectiveLastSucceededInputTime(state);
+  },
+} as const;
+
+export type BackspaceExtensionType = {
+  getEffectiveFailedInputCount(): number;
+  getEffectiveTotalInputCount(): number;
+  getEffectiveFirstSucceededInputTime(): Date;
+  getEffectiveLastSucceededInputTime(): Date;
 };

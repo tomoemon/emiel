@@ -1,5 +1,5 @@
 import type { Automaton, KeyboardLayout } from "emiel";
-import { detectKeyboardLayout, loadPresetRuleRoman } from "emiel";
+import { build, detectKeyboardLayout, loadPresetRuleRoman } from "emiel";
 import { useEffect, useMemo, useState } from "react";
 import "./App.css";
 import type { WordRecordValue } from "./Record";
@@ -19,7 +19,7 @@ function TypingRoot(props: { layout: KeyboardLayout }) {
   const automatons = useMemo(() => {
     const words = ["おをひく", "こんとん", "がっこう", "aから@"];
     return words.map((w) => {
-      return romanRule.build(w);
+      return build(romanRule, w);
     });
   }, [props.layout]);
   const [wordIndex, setWordIndex] = useState(0);
