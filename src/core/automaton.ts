@@ -10,7 +10,6 @@ import {
 import type { InputEvent } from "./inputEvent";
 import { InputResult } from "./inputResult";
 import type { Rule } from "./rule";
-import type { RuleStroke } from "./ruleStroke";
 import type { VirtualKey } from "./virtualKey";
 
 export class AutomatonImpl implements AutomatonState {
@@ -210,92 +209,34 @@ export function build(rule: Rule, kanaText: string): Automaton {
   return automaton.with(baseExtension);
 }
 
-/**
- * 基本クエリ（常に利用可能）
- */
 const baseExtension = {
-  getFinishedWord(state: AutomatonState): string {
-    return AutomatonQuery.getFinishedWord(state);
-  },
-  getPendingWord(state: AutomatonState): string {
-    return AutomatonQuery.getPendingWord(state);
-  },
-  getFinishedStroke(state: AutomatonState): RuleStroke[] {
-    return AutomatonQuery.getFinishedStroke(state);
-  },
-  getPendingStroke(state: AutomatonState): RuleStroke[] {
-    return AutomatonQuery.getPendingStroke(state);
-  },
-  getEffectiveEdges(state: AutomatonState): StrokeEdge[] {
-    return AutomatonQuery.getEffectiveEdges(state);
-  },
-  isFinished(state: AutomatonState): boolean {
-    return AutomatonQuery.isFinished(state);
-  },
-  getFirstInputTime(state: AutomatonState): Date {
-    return AutomatonQuery.getFirstInputTime(state);
-  },
-  getLastInputTime(state: AutomatonState): Date {
-    return AutomatonQuery.getLastInputTime(state);
-  },
-  getFirstSucceededInputTime(state: AutomatonState): Date {
-    return AutomatonQuery.getFirstSucceededInputTime(state);
-  },
-  getLastSucceededInputTime(state: AutomatonState): Date {
-    return AutomatonQuery.getLastSucceededInputTime(state);
-  },
-  getFailedInputCount(state: AutomatonState): number {
-    return AutomatonQuery.getFailedInputCount(state);
-  },
-  getTotalInputCount(state: AutomatonState): number {
-    return AutomatonQuery.getTotalInputCount(state);
-  },
-  getFinishedRoman(state: AutomatonState): string {
-    return AutomatonQuery.getFinishedRoman(state);
-  },
-  getPendingRoman(state: AutomatonState): string {
-    return AutomatonQuery.getPendingRoman(state);
-  },
-} as const;
-
-export type BaseExtensionType = {
-  getFinishedWord(): string;
-  getPendingWord(): string;
-  getFinishedStroke(): RuleStroke[];
-  getPendingStroke(): RuleStroke[];
-  getEffectiveEdges(): StrokeEdge[];
-  isFinished(): boolean;
-  getFirstInputTime(): Date;
-  getLastInputTime(): Date;
-  getFirstSucceededInputTime(): Date;
-  getLastSucceededInputTime(): Date;
-  getFailedInputCount(): number;
-  getTotalInputCount(): number;
-  getFinishedRoman(): string;
-  getPendingRoman(): string;
+  getFinishedWord: AutomatonQuery.getFinishedWord,
+  getPendingWord: AutomatonQuery.getPendingWord,
+  getFinishedStroke: AutomatonQuery.getFinishedStroke,
+  getPendingStroke: AutomatonQuery.getPendingStroke,
+  getEffectiveEdges: AutomatonQuery.getEffectiveEdges,
+  isFinished: AutomatonQuery.isFinished,
+  getFirstInputTime: AutomatonQuery.getFirstInputTime,
+  getLastInputTime: AutomatonQuery.getLastInputTime,
+  getFirstSucceededInputTime: AutomatonQuery.getFirstSucceededInputTime,
+  getLastSucceededInputTime: AutomatonQuery.getLastSucceededInputTime,
+  getFailedInputCount: AutomatonQuery.getFailedInputCount,
+  getTotalInputCount: AutomatonQuery.getTotalInputCount,
+  getFinishedRoman: AutomatonQuery.getFinishedRoman,
+  getPendingRoman: AutomatonQuery.getPendingRoman,
 };
 
-/**
- * Backspace 拡張（back() で取り消された区間を考慮した統計クエリ）
- */
+export type BaseExtensionType = {
+  [K in keyof typeof baseExtension]: () => ReturnType<(typeof baseExtension)[K]>;
+};
+
 const backspaceExtension = {
-  getEffectiveFailedInputCount(state: AutomatonState): number {
-    return AutomatonQuery.getEffectiveFailedInputCount(state);
-  },
-  getEffectiveTotalInputCount(state: AutomatonState): number {
-    return AutomatonQuery.getEffectiveTotalInputCount(state);
-  },
-  getEffectiveFirstSucceededInputTime(state: AutomatonState): Date {
-    return AutomatonQuery.getEffectiveFirstSucceededInputTime(state);
-  },
-  getEffectiveLastSucceededInputTime(state: AutomatonState): Date {
-    return AutomatonQuery.getEffectiveLastSucceededInputTime(state);
-  },
-} as const;
+  getEffectiveFailedInputCount: AutomatonQuery.getEffectiveFailedInputCount,
+  getEffectiveTotalInputCount: AutomatonQuery.getEffectiveTotalInputCount,
+  getEffectiveFirstSucceededInputTime: AutomatonQuery.getEffectiveFirstSucceededInputTime,
+  getEffectiveLastSucceededInputTime: AutomatonQuery.getEffectiveLastSucceededInputTime,
+};
 
 export type BackspaceExtensionType = {
-  getEffectiveFailedInputCount(): number;
-  getEffectiveTotalInputCount(): number;
-  getEffectiveFirstSucceededInputTime(): Date;
-  getEffectiveLastSucceededInputTime(): Date;
+  [K in keyof typeof backspaceExtension]: () => ReturnType<(typeof backspaceExtension)[K]>;
 };

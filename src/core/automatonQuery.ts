@@ -140,10 +140,13 @@ export function isFinished(state: AutomatonState): boolean {
 }
 
 /**
- * back() で取り消された区間に含まれる inputHistory インデックスの集合を返す。
- * 成功 → push(index)、back → pop して、pop されたインデックスから back のインデックスまでを「取り消し区間」とする。
+ * back() で取り消された区間を除外した統計を1回の走査で計算する。
+ *
+ * 走査ロジック:
+ * - 成功 → push(index)、back → pop して、pop されたインデックスから back のインデックスまでを「取り消し区間」とする
+ * - 取り消し区間外の FAILED / SUCCEEDED をそれぞれカウント・記録する
  */
-function getBackedIndices(state: AutomatonState): Set<number> {
+function computeEffectiveStats(state: AutomatonState) {
   const backed = new Set<number>();
   const successStack: number[] = [];
   for (let i = 0; i < state.inputHistory.length; i++) {
@@ -159,55 +162,52 @@ function getBackedIndices(state: AutomatonState): Set<number> {
       successStack.push(i);
     }
   }
-  return backed;
+
+  let failedCount = 0;
+  let firstSucceededTime: Date | undefined;
+  let lastSucceededTime: Date | undefined;
+  for (let i = 0; i < state.inputHistory.length; i++) {
+    if (backed.has(i)) continue;
+    const entry = state.inputHistory[i];
+    if ("back" in entry) continue;
+    if (entry.result.isFailed) {
+      failedCount++;
+    } else if (entry.result.isSucceeded) {
+      if (!firstSucceededTime) firstSucceededTime = entry.event.timestamp;
+      lastSucceededTime = entry.event.timestamp;
+    }
+  }
+  return { failedCount, firstSucceededTime, lastSucceededTime };
 }
 
 /**
  * back() で取り消された区間のミスを除外した失敗数
  */
 export function getEffectiveFailedInputCount(state: AutomatonState): number {
-  const backed = getBackedIndices(state);
-  let count = 0;
-  for (let i = 0; i < state.inputHistory.length; i++) {
-    const entry = state.inputHistory[i];
-    if (!("back" in entry) && entry.result.isFailed && !backed.has(i)) {
-      count++;
-    }
-  }
-  return count;
+  return computeEffectiveStats(state).failedCount;
 }
 
 /**
  * getEffectiveEdges.length + getEffectiveFailedInputCount
  */
 export function getEffectiveTotalInputCount(state: AutomatonState): number {
-  return getEffectiveEdges(state).length + getEffectiveFailedInputCount(state);
+  return getEffectiveEdges(state).length + computeEffectiveStats(state).failedCount;
 }
 
 /**
  * back() で取り消されていない最初の成功入力時刻
  */
 export function getEffectiveFirstSucceededInputTime(state: AutomatonState): Date {
-  const backed = getBackedIndices(state);
-  for (let i = 0; i < state.inputHistory.length; i++) {
-    const entry = state.inputHistory[i];
-    if (!("back" in entry) && entry.result.isSucceeded && !backed.has(i)) {
-      return entry.event.timestamp;
-    }
-  }
-  throw new Error("No effective succeeded input found");
+  const { firstSucceededTime } = computeEffectiveStats(state);
+  if (!firstSucceededTime) throw new Error("No effective succeeded input found");
+  return firstSucceededTime;
 }
 
 /**
  * back() で取り消されていない最後の成功入力時刻
  */
 export function getEffectiveLastSucceededInputTime(state: AutomatonState): Date {
-  const backed = getBackedIndices(state);
-  for (let i = state.inputHistory.length - 1; i >= 0; i--) {
-    const entry = state.inputHistory[i];
-    if (!("back" in entry) && entry.result.isSucceeded && !backed.has(i)) {
-      return entry.event.timestamp;
-    }
-  }
-  throw new Error("No effective succeeded input found");
+  const { lastSucceededTime } = computeEffectiveStats(state);
+  if (!lastSucceededTime) throw new Error("No effective succeeded input found");
+  return lastSucceededTime;
 }
