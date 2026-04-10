@@ -3,7 +3,7 @@ import { VirtualKeys } from "..";
 import { buildKanaNode } from "../core/builderKanaGraph";
 import type { ModifierStroke } from "../core/ruleStroke";
 import { loadMozcRule } from "./mozcRuleLoader";
-import { loadPresetKeyboardLayoutQwertyJis } from "./presetKeyboardLayout";
+import { loadPresetKeyboardLayoutQwertyJis } from "./presets";
 
 test("build kana node", () => {
   const rule = loadMozcRule(

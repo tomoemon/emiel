@@ -1,12 +1,12 @@
 import { describe, expect, test } from "vitest";
 import { loadJsonRule } from "../impl/jsonRuleLoader";
-import { loadPresetKeyboardLayoutQwertyJis } from "../impl/presetKeyboardLayout";
+import { loadPresetKeyboardLayoutQwertyJis } from "../impl/presets";
 import {
   loadPresetRuleJisKana,
   loadPresetRuleNaginatashikiV15,
   loadPresetRuleNicola,
   loadPresetRuleRoman,
-} from "../impl/presetRules";
+} from "../impl/presets";
 import { build, type Automaton } from "./automaton";
 import { InputEvent, InputStroke } from "./inputEvent";
 import { KeyboardState } from "./keyboardState";

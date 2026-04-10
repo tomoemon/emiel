@@ -1,6 +1,10 @@
 import { expect, test } from "vitest";
-import { loadPresetKeyboardLayoutQwertyJis } from "./presetKeyboardLayout";
-import { loadPresetRuleJisKana, loadPresetRuleNicola, loadPresetRuleRoman } from "./presetRules";
+import {
+  loadPresetKeyboardLayoutQwertyJis,
+  loadPresetRuleJisKana,
+  loadPresetRuleNicola,
+  loadPresetRuleRoman,
+} from "./index";
 
 test("load google ime roman rule", () => {
   const rule = loadPresetRuleRoman(loadPresetKeyboardLayoutQwertyJis());
