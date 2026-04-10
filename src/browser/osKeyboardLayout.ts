@@ -1,9 +1,6 @@
 import { VirtualKeys } from "..";
 import type { KeyboardLayout } from "../core/keyboardLayout";
-import {
-  findMatchedKeyboardLayout,
-  loadPresetKeyboardLayoutQwertyJis,
-} from "../impl/presetKeyboardLayout";
+import { findMatchedKeyboardLayout, loadPresetKeyboardLayoutQwertyJis } from "../impl/presets";
 
 export async function detectKeyboardLayout(
   window: Window & { navigator: { keyboard?: { getLayoutMap(): Promise<Map<string, string>> } } },

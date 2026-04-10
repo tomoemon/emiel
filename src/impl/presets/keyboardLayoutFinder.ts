@@ -1,21 +1,8 @@
-import dvorak from "../assets/keyboard_layouts/dvorak.json";
-import qwerty_jis from "../assets/keyboard_layouts/qwerty_jis.json";
-import qwerty_us from "../assets/keyboard_layouts/qwerty_us.json";
-import type { KeyboardLayout } from "../core/keyboardLayout";
-import type { VirtualKey } from "../core/virtualKey";
-import { loadJsonKeyboardLayout } from "./keyboardLayoutLoader";
-
-export function loadPresetKeyboardLayoutQwertyJis() {
-  return loadJsonKeyboardLayout(qwerty_jis);
-}
-
-export function loadPresetKeyboardLayoutQwertyUs() {
-  return loadJsonKeyboardLayout(qwerty_us);
-}
-
-export function loadPresetKeyboardLayoutDvorak() {
-  return loadJsonKeyboardLayout(dvorak);
-}
+import type { KeyboardLayout } from "../../core/keyboardLayout";
+import type { VirtualKey } from "../../core/virtualKey";
+import { loadPresetKeyboardLayoutDvorak } from "./keyboardLayoutDvorak";
+import { loadPresetKeyboardLayoutQwertyJis } from "./keyboardLayoutQwertyJis";
+import { loadPresetKeyboardLayoutQwertyUs } from "./keyboardLayoutQwertyUs";
 
 /**
  * 実際に入力されたキーと文字のマッピングから、キーボードレイアウトを推定する。

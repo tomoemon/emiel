@@ -2,7 +2,7 @@ import { expect, test } from "vitest";
 import type { ModifierStroke } from "../core/ruleStroke";
 import { VirtualKeys } from "../core/virtualKey";
 import { loadMozcRule } from "./mozcRuleLoader";
-import { loadPresetKeyboardLayoutQwertyJis } from "./presetKeyboardLayout";
+import { loadPresetKeyboardLayoutQwertyJis } from "./presets";
 
 test("load google ime empty rule", () => {
   const rule = loadMozcRule(``, loadPresetKeyboardLayoutQwertyJis());

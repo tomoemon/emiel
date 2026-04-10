@@ -1,6 +1,6 @@
 import { expect, test } from "vitest";
 import { newAlphaNumericRuleByLayout } from "./alphaNumericRule";
-import { loadPresetKeyboardLayoutQwertyJis } from "./presetKeyboardLayout";
+import { loadPresetKeyboardLayoutQwertyJis } from "./presets";
 
 test("import alphaNumericRule", () => {
   const alphaNumericRule = newAlphaNumericRuleByLayout(loadPresetKeyboardLayoutQwertyJis());
