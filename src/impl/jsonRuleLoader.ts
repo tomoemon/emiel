@@ -1,9 +1,11 @@
 import * as v from "valibot";
+import { KeyboardGuide } from "../core/keyboardGuide";
 import { AndModifier, ModifierGroup } from "../core/modifier";
 import { Rule, RuleEntry } from "../core/rule";
 import { ModifierStroke, type RuleStroke, SimultaneousStroke } from "../core/ruleStroke";
 import { virtualKeySchema } from "../core/virtualKey";
 import { defaultKanaNormalize } from "./charNormalizer";
+import { jsonKeyboardGuideEntriesSchema } from "./keyboardGuideLoader";
 
 const strokeSchema = v.object({
   // 同時に押すキー（1つ以上）
@@ -38,10 +40,15 @@ export const jsonRuleSchema = v.object({
   // 現在のノードに関係なく常に受理され、一致すると Automaton.input() が
   // InputResult.BACK を返す。例: naginata 式の U 単独打鍵
   backspaces: v.optional(v.array(strokeSchema)),
+  // この入力方式に対応する KeyboardGuide 定義 (オプショナル)。
+  guide: v.optional(
+    v.object({
+      entries: jsonKeyboardGuideEntriesSchema,
+    }),
+  ),
 });
 
 export type JsonRuleSchema = v.InferOutput<typeof jsonRuleSchema>;
-export type JsonRuleInput = v.InferInput<typeof jsonRuleSchema>;
 type Stroke = v.InferOutput<typeof strokeSchema>;
 
 /**
@@ -105,9 +112,9 @@ function loadEntries(
   return entries;
 }
 
-export function loadJsonRule(jsonRule: JsonRuleInput | string, name?: string): Rule {
+export function loadJsonRule(jsonRule: unknown, name?: string, next?: Rule): Rule {
   if (typeof jsonRule === "string") {
-    return loadJsonRule(JSON.parse(jsonRule), name);
+    return loadJsonRule(JSON.parse(jsonRule), name, next);
   }
   const validated = v.parse(jsonRuleSchema, jsonRule);
   const entries = loadEntries(validated.entries, validated.extendCommonPrefixEntry ?? false);
@@ -116,5 +123,8 @@ export function loadJsonRule(jsonRule: JsonRuleInput | string, name?: string): R
   const backspaceStrokes: RuleStroke[] | undefined = validated.backspaces?.map((s) =>
     loadStroke(s),
   );
-  return new Rule(entries, defaultKanaNormalize, name, backspaceStrokes);
+  const guide = validated.guide
+    ? new KeyboardGuide({ entries: validated.guide.entries })
+    : undefined;
+  return new Rule(entries, defaultKanaNormalize, name, backspaceStrokes, guide, next);
 }

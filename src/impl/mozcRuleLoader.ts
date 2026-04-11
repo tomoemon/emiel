@@ -4,7 +4,12 @@ import type { RuleStroke } from "../core/ruleStroke";
 import { product } from "../utils/itertools";
 import { defaultKanaNormalize } from "./charNormalizer";
 
-export function loadMozcRule(text: string, layout: KeyboardLayout, name: string = ""): Rule {
+export function loadMozcRule(
+  text: string,
+  layout: KeyboardLayout,
+  name: string = "",
+  next?: Rule,
+): Rule {
   /*
     a	あ	
     ta	た	
@@ -36,7 +41,7 @@ export function loadMozcRule(text: string, layout: KeyboardLayout, name: string 
       );
     });
   }
-  return new Rule(entries, defaultKanaNormalize, name);
+  return new Rule(entries, defaultKanaNormalize, name, undefined, undefined, next);
 }
 
 function toStrokesFromChar(layout: KeyboardLayout, key: string): RuleStroke[] {

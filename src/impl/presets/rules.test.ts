@@ -8,20 +8,17 @@ import {
 
 test("load google ime roman rule", () => {
   const rule = loadPresetRuleRoman(loadPresetKeyboardLayoutQwertyJis());
-  // rule.entries.forEach((entry) => {
-  //   console.log(entryToString(entry));
-  // });
-  expect(rule.entries.length).toBe(420);
+  expect(rule.entries.length).toBe(324);
 });
 
 test("load jis kana rule", () => {
   const rule = loadPresetRuleJisKana(loadPresetKeyboardLayoutQwertyJis());
-  expect(rule.entries.length).toBe(178);
+  expect(rule.entries.length).toBe(82);
 });
 
 test("load nicola rule", () => {
   const rule = loadPresetRuleNicola(loadPresetKeyboardLayoutQwertyJis());
   // 以前は相互モディファイア展開により 1 エントリを 2 エントリに膨らませていたが、
   // SimultaneousStroke として 1 エントリで扱うようになったため件数が減少している
-  expect(rule.entries.length).toBe(191);
+  expect(rule.entries.length).toBe(95);
 });

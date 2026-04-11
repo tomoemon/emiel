@@ -1,19 +1,30 @@
-import type { KeyRect, KeyTop, KeyboardStateReader, PhysicalKeyboardLayoutName } from "emiel";
+import type {
+  KeyPlacement,
+  KeyboardGuide,
+  KeyboardStateReader,
+  PhysicalKeyboardLayout,
+} from "emiel";
 import {
   KeyboardState,
   activate,
-  loadPresetKeyboardGuideJis106Default,
-  loadPresetKeyboardGuideJis106JisKana,
-  loadPresetKeyboardGuideJis106Nicola,
-  loadPresetKeyboardGuideUs101Default,
+  loadPresetKeyboardGuideAlphanumeric,
   loadPresetKeyboardLayoutDvorak,
   loadPresetKeyboardLayoutQwertyJis,
   loadPresetKeyboardLayoutQwertyUs,
+  loadPresetPhysicalKeyboardLayoutJis106,
+  loadPresetPhysicalKeyboardLayoutUs101,
+  loadPresetPhysicalKeyboardLayoutUsHhkb,
+  loadPresetRuleJisKana,
+  loadPresetRuleNicola,
+  placeKeyboardGuide,
 } from "emiel";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 type LayoutName = "qwerty-jis" | "qwerty-us" | "dvorak";
-type GuideName = "us_101_default" | "jis_106_default" | "jis_106_jis_kana" | "jis_106_nicola";
+type PhysicalLayoutName = "jis_106" | "us_101" | "us_hhkb";
+type GuideName = "alphanumeric" | "jis_106_jis_kana" | "jis_106_nicola";
+
+const KEY_SIZE = { keyWidth: 50, keyHeight: 50, gapX: 10, gapY: 10 };
 
 function App() {
   const [keyboardState, setKeyboardState] = useState<KeyboardStateReader>(new KeyboardState([]));
@@ -28,18 +39,15 @@ function App() {
       }
     });
   }, []);
-  const [physicalLayoutName, setPhysicalLayoutName] =
-    useState<PhysicalKeyboardLayoutName>("jis_106");
+  const [physicalLayoutName, setPhysicalLayoutName] = useState<PhysicalLayoutName>("jis_106");
   const [layoutName, setLayoutName] = useState<LayoutName>("qwerty-jis");
-  const [guideName, setGuideName] = useState<GuideName>("us_101_default");
+  const [guideName, setGuideName] = useState<GuideName>("alphanumeric");
   const [showVirtualKeyCodes, setShowVirtualKeyCodes] = useState(false);
   return (
     <>
       <h1>Keyboard Guide</h1>
       <div style={{ height: "20px" }}></div>
-      <PhysicalLayoutSelector
-        onLayoutChange={(layout: PhysicalKeyboardLayoutName) => setPhysicalLayoutName(layout)}
-      />
+      <PhysicalLayoutSelector onLayoutChange={setPhysicalLayoutName} />
       <LayoutSelector onLayoutChange={(layoutName: LayoutName) => setLayoutName(layoutName)} />
       <GuideSelector onGuideChange={setGuideName} />
       <label>
@@ -59,7 +67,7 @@ function App() {
 }
 
 function PhysicalLayoutSelector(props: {
-  onLayoutChange: (physicalLayoutName: PhysicalKeyboardLayoutName) => void;
+  onLayoutChange: (physicalLayoutName: PhysicalLayoutName) => void;
 }) {
   const [selected, setSelected] = useState(0);
   return (
@@ -126,27 +134,21 @@ function GuideSelector(props: { onGuideChange: (guideName: GuideName) => void })
         <h3>配列ガイド</h3>
         <button
           className={selected === 0 ? "selected" : ""}
-          onClick={() => (props.onGuideChange("us_101_default"), setSelected(0))}
+          onClick={() => (props.onGuideChange("alphanumeric"), setSelected(0))}
         >
-          US101
+          英数字
         </button>
         <button
           className={selected === 1 ? "selected" : ""}
-          onClick={() => (props.onGuideChange("jis_106_default"), setSelected(1))}
+          onClick={() => (props.onGuideChange("jis_106_jis_kana"), setSelected(1))}
         >
-          JIS106
+          JISかな
         </button>
         <button
           className={selected === 2 ? "selected" : ""}
-          onClick={() => (props.onGuideChange("jis_106_jis_kana"), setSelected(2))}
+          onClick={() => (props.onGuideChange("jis_106_nicola"), setSelected(2))}
         >
-          JIS106 JISかな
-        </button>
-        <button
-          className={selected === 3 ? "selected" : ""}
-          onClick={() => (props.onGuideChange("jis_106_nicola"), setSelected(3))}
-        >
-          JIS106 NICOLA
+          NICOLA
         </button>
       </div>
     </>
@@ -155,57 +157,70 @@ function GuideSelector(props: { onGuideChange: (guideName: GuideName) => void })
 
 function KeyboardGuideComponent(props: {
   layoutName: LayoutName;
-  physicalLayoutName: string;
+  physicalLayoutName: PhysicalLayoutName;
   guideName: GuideName;
   kbdState: KeyboardStateReader;
   showVirtualKeyCodes: boolean;
 }) {
-  // console.log("guide component", props.layout.name, props.kbdGuide.guideData.name);
-  const layout = {
-    "qwerty-jis": loadPresetKeyboardLayoutQwertyJis,
-    "qwerty-us": loadPresetKeyboardLayoutQwertyUs,
-    dvorak: loadPresetKeyboardLayoutDvorak,
-  }[props.layoutName]();
-  const kbdGuide = {
-    us_101_default: loadPresetKeyboardGuideUs101Default,
-    jis_106_default: loadPresetKeyboardGuideJis106Default,
-    jis_106_jis_kana: loadPresetKeyboardGuideJis106JisKana,
-    jis_106_nicola: loadPresetKeyboardGuideJis106Nicola,
-  }
-    [props.guideName]()
-    .swapPhysicalLayout(props.physicalLayoutName as PhysicalKeyboardLayoutName);
+  const layout = useMemo(
+    () =>
+      ({
+        "qwerty-jis": loadPresetKeyboardLayoutQwertyJis,
+        "qwerty-us": loadPresetKeyboardLayoutQwertyUs,
+        dvorak: loadPresetKeyboardLayoutDvorak,
+      })[props.layoutName](),
+    [props.layoutName],
+  );
+  const physicalLayout = useMemo<PhysicalKeyboardLayout>(
+    () =>
+      ({
+        jis_106: loadPresetPhysicalKeyboardLayoutJis106,
+        us_101: loadPresetPhysicalKeyboardLayoutUs101,
+        us_hhkb: loadPresetPhysicalKeyboardLayoutUsHhkb,
+      })[props.physicalLayoutName](),
+    [props.physicalLayoutName],
+  );
+  const kbdGuide = useMemo<KeyboardGuide>(() => {
+    if (props.guideName === "alphanumeric") {
+      return loadPresetKeyboardGuideAlphanumeric();
+    }
+    const rule =
+      props.guideName === "jis_106_nicola"
+        ? loadPresetRuleNicola(layout)
+        : loadPresetRuleJisKana(layout);
+    if (!rule.guide) {
+      throw new Error(`Rule ${props.guideName} has no guide`);
+    }
+    return rule.guide;
+  }, [props.guideName, layout]);
+  const placements = useMemo(
+    () => placeKeyboardGuide(kbdGuide, physicalLayout, layout, KEY_SIZE),
+    [kbdGuide, physicalLayout, layout],
+  );
   return (
     <>
       <div style={{ position: "relative" }}>
-        {kbdGuide
-          .keyTops(layout, {
-            keyWidth: 50,
-            keyHeight: 50,
-            gapX: 10,
-            gapY: 10,
-          })
-          .map((keyTop, i) => {
-            return props.showVirtualKeyCodes ? (
-              <KeyCode
-                keyRect={keyTop.keyRect}
-                key={i}
-                isKeyDowned={props.kbdState.isKeyDowned(keyTop.keyRect.key)}
-              ></KeyCode>
-            ) : (
-              <KeyWithLabel
-                keyRect={keyTop.keyRect}
-                key={i}
-                keyTop={keyTop}
-                isKeyDowned={props.kbdState.isKeyDowned(keyTop.keyRect.key)}
-              />
-            );
-          })}
+        {placements.map((placement, i) =>
+          props.showVirtualKeyCodes ? (
+            <KeyCode
+              placement={placement}
+              key={i}
+              isKeyDowned={props.kbdState.isKeyDowned(placement.key)}
+            />
+          ) : (
+            <KeyWithLabel
+              placement={placement}
+              key={i}
+              isKeyDowned={props.kbdState.isKeyDowned(placement.key)}
+            />
+          ),
+        )}
       </div>
     </>
   );
 }
-function KeyCode(props: { keyRect: KeyRect; isKeyDowned: boolean }) {
-  const rect = props.keyRect.rect;
+function KeyCode(props: { placement: KeyPlacement; isKeyDowned: boolean }) {
+  const rect = props.placement.rect;
   return (
     <div
       style={{
@@ -215,8 +230,8 @@ function KeyCode(props: { keyRect: KeyRect; isKeyDowned: boolean }) {
         justifyContent: "center",
         lineHeight: "12pt",
         fontSize: "12pt",
-        left: `${rect.leftTop.x}px`,
-        top: `${rect.leftTop.y}px`,
+        left: `${rect.x}px`,
+        top: `${rect.y}px`,
         border: "1px yellow solid",
         width: `${rect.width}px`,
         height: `${rect.height}px`,
@@ -224,15 +239,15 @@ function KeyCode(props: { keyRect: KeyRect; isKeyDowned: boolean }) {
       }}
     >
       <span style={{ textAlign: "center", wordBreak: "break-all" }}>
-        {props.keyRect.key.toString()}
+        {props.placement.key.toString()}
       </span>
     </div>
   );
 }
 
-function KeyWithLabel(props: { keyRect: KeyRect; keyTop: KeyTop; isKeyDowned: boolean }) {
-  const rect = props.keyRect.rect;
-  const keyTop = props.keyTop;
+function KeyWithLabel(props: { placement: KeyPlacement; isKeyDowned: boolean }) {
+  const { rect } = props.placement;
+  const p = props.placement;
   return (
     <div
       style={{
@@ -242,8 +257,8 @@ function KeyWithLabel(props: { keyRect: KeyRect; keyTop: KeyTop; isKeyDowned: bo
         justifyContent: "space-around",
         lineHeight: "12pt",
         fontSize: "12pt",
-        left: `${rect.leftTop.x}px`,
-        top: `${rect.leftTop.y}px`,
+        left: `${rect.x}px`,
+        top: `${rect.y}px`,
         border: "1px yellow solid",
         width: `${rect.width}px`,
         height: `${rect.height}px`,
@@ -259,9 +274,9 @@ function KeyWithLabel(props: { keyRect: KeyRect; keyTop: KeyTop; isKeyDowned: bo
           top: "3px",
         }}
       >
-        <div>{keyTop.topLeft ?? ""}</div>
-        <div>{keyTop.top ?? ""}</div>
-        <div>{keyTop.topRight ?? ""}</div>
+        <div>{p.topLeft ?? ""}</div>
+        <div>{p.top ?? ""}</div>
+        <div>{p.topRight ?? ""}</div>
       </div>
       <div
         style={{
@@ -272,9 +287,9 @@ function KeyWithLabel(props: { keyRect: KeyRect; keyTop: KeyTop; isKeyDowned: bo
           top: "0px",
         }}
       >
-        <div>{keyTop.left ?? ""}</div>
-        <div style={{ fontSize: "10pt" }}>{keyTop.center ?? ""}</div>
-        <div>{keyTop.right ?? ""}</div>
+        <div>{p.left ?? ""}</div>
+        <div style={{ fontSize: "10pt" }}>{p.center ?? ""}</div>
+        <div>{p.right ?? ""}</div>
       </div>
       <div
         style={{
@@ -285,9 +300,9 @@ function KeyWithLabel(props: { keyRect: KeyRect; keyTop: KeyTop; isKeyDowned: bo
           top: "-3px",
         }}
       >
-        <div>{keyTop.bottomLeft ?? ""}</div>
-        <div>{keyTop.bottom ?? ""}</div>
-        <div>{keyTop.bottomRight ?? ""}</div>
+        <div>{p.bottomLeft ?? ""}</div>
+        <div>{p.bottom ?? ""}</div>
+        <div>{p.bottomRight ?? ""}</div>
       </div>
     </div>
   );

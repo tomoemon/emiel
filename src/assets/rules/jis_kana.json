@@ -1,231 +1,470 @@
 {
   "entries": [
     {
-      "input": [{ "keys": ["Digit1"] }],
+      "input": [
+        {
+          "keys": ["Digit1"]
+        }
+      ],
       "output": "ぬ"
     },
     {
-      "input": [{ "keys": ["Digit2"] }],
+      "input": [
+        {
+          "keys": ["Digit2"]
+        }
+      ],
       "output": "ふ"
     },
     {
-      "input": [{ "keys": ["Digit3"] }],
+      "input": [
+        {
+          "keys": ["Digit3"]
+        }
+      ],
       "output": "あ"
     },
     {
-      "input": [{ "keys": ["Digit4"] }],
+      "input": [
+        {
+          "keys": ["Digit4"]
+        }
+      ],
       "output": "う"
     },
     {
-      "input": [{ "keys": ["Digit5"] }],
+      "input": [
+        {
+          "keys": ["Digit5"]
+        }
+      ],
       "output": "え"
     },
     {
-      "input": [{ "keys": ["Digit6"] }],
+      "input": [
+        {
+          "keys": ["Digit6"]
+        }
+      ],
       "output": "お"
     },
     {
-      "input": [{ "keys": ["Digit7"] }],
+      "input": [
+        {
+          "keys": ["Digit7"]
+        }
+      ],
       "output": "や"
     },
     {
-      "input": [{ "keys": ["Digit8"] }],
+      "input": [
+        {
+          "keys": ["Digit8"]
+        }
+      ],
       "output": "ゆ"
     },
     {
-      "input": [{ "keys": ["Digit9"] }],
+      "input": [
+        {
+          "keys": ["Digit9"]
+        }
+      ],
       "output": "よ"
     },
     {
-      "input": [{ "keys": ["Digit0"] }],
+      "input": [
+        {
+          "keys": ["Digit0"]
+        }
+      ],
       "output": "わ"
     },
     {
-      "input": [{ "keys": ["Minus"] }],
+      "input": [
+        {
+          "keys": ["Minus"]
+        }
+      ],
       "output": "ほ"
     },
     {
-      "input": [{ "keys": ["Equal"] }],
+      "input": [
+        {
+          "keys": ["Equal"]
+        }
+      ],
       "output": "へ"
     },
     {
-      "input": [{ "keys": ["JpnYen"] }],
+      "input": [
+        {
+          "keys": ["JpnYen"]
+        }
+      ],
       "output": "ー"
     },
     {
-      "input": [{ "keys": ["Q"] }],
+      "input": [
+        {
+          "keys": ["Q"]
+        }
+      ],
       "output": "た"
     },
     {
-      "input": [{ "keys": ["W"] }],
+      "input": [
+        {
+          "keys": ["W"]
+        }
+      ],
       "output": "て"
     },
     {
-      "input": [{ "keys": ["E"] }],
+      "input": [
+        {
+          "keys": ["E"]
+        }
+      ],
       "output": "い"
     },
     {
-      "input": [{ "keys": ["R"] }],
+      "input": [
+        {
+          "keys": ["R"]
+        }
+      ],
       "output": "す"
     },
     {
-      "input": [{ "keys": ["T"] }],
+      "input": [
+        {
+          "keys": ["T"]
+        }
+      ],
       "output": "か"
     },
     {
-      "input": [{ "keys": ["Y"] }],
+      "input": [
+        {
+          "keys": ["Y"]
+        }
+      ],
       "output": "ん"
     },
     {
-      "input": [{ "keys": ["U"] }],
+      "input": [
+        {
+          "keys": ["U"]
+        }
+      ],
       "output": "な"
     },
     {
-      "input": [{ "keys": ["I"] }],
+      "input": [
+        {
+          "keys": ["I"]
+        }
+      ],
       "output": "に"
     },
     {
-      "input": [{ "keys": ["O"] }],
+      "input": [
+        {
+          "keys": ["O"]
+        }
+      ],
       "output": "ら"
     },
     {
-      "input": [{ "keys": ["P"] }],
+      "input": [
+        {
+          "keys": ["P"]
+        }
+      ],
       "output": "せ"
     },
     {
-      "input": [{ "keys": ["A"] }],
+      "input": [
+        {
+          "keys": ["A"]
+        }
+      ],
       "output": "ち"
     },
     {
-      "input": [{ "keys": ["S"] }],
+      "input": [
+        {
+          "keys": ["S"]
+        }
+      ],
       "output": "と"
     },
     {
-      "input": [{ "keys": ["D"] }],
+      "input": [
+        {
+          "keys": ["D"]
+        }
+      ],
       "output": "し"
     },
     {
-      "input": [{ "keys": ["F"] }],
+      "input": [
+        {
+          "keys": ["F"]
+        }
+      ],
       "output": "は"
     },
     {
-      "input": [{ "keys": ["G"] }],
+      "input": [
+        {
+          "keys": ["G"]
+        }
+      ],
       "output": "き"
     },
     {
-      "input": [{ "keys": ["H"] }],
+      "input": [
+        {
+          "keys": ["H"]
+        }
+      ],
       "output": "く"
     },
     {
-      "input": [{ "keys": ["J"] }],
+      "input": [
+        {
+          "keys": ["J"]
+        }
+      ],
       "output": "ま"
     },
     {
-      "input": [{ "keys": ["K"] }],
+      "input": [
+        {
+          "keys": ["K"]
+        }
+      ],
       "output": "の"
     },
     {
-      "input": [{ "keys": ["L"] }],
+      "input": [
+        {
+          "keys": ["L"]
+        }
+      ],
       "output": "り"
     },
     {
-      "input": [{ "keys": ["Semicolon"] }],
+      "input": [
+        {
+          "keys": ["Semicolon"]
+        }
+      ],
       "output": "れ"
     },
     {
-      "input": [{ "keys": ["Quote"] }],
+      "input": [
+        {
+          "keys": ["Quote"]
+        }
+      ],
       "output": "け"
     },
     {
-      "input": [{ "keys": ["Backslash"] }],
+      "input": [
+        {
+          "keys": ["Backslash"]
+        }
+      ],
       "output": "む"
     },
     {
-      "input": [{ "keys": ["Z"] }],
+      "input": [
+        {
+          "keys": ["Z"]
+        }
+      ],
       "output": "つ"
     },
     {
-      "input": [{ "keys": ["X"] }],
+      "input": [
+        {
+          "keys": ["X"]
+        }
+      ],
       "output": "さ"
     },
     {
-      "input": [{ "keys": ["C"] }],
+      "input": [
+        {
+          "keys": ["C"]
+        }
+      ],
       "output": "そ"
     },
     {
-      "input": [{ "keys": ["V"] }],
+      "input": [
+        {
+          "keys": ["V"]
+        }
+      ],
       "output": "ひ"
     },
     {
-      "input": [{ "keys": ["B"] }],
+      "input": [
+        {
+          "keys": ["B"]
+        }
+      ],
       "output": "こ"
     },
     {
-      "input": [{ "keys": ["N"] }],
+      "input": [
+        {
+          "keys": ["N"]
+        }
+      ],
       "output": "み"
     },
     {
-      "input": [{ "keys": ["M"] }],
+      "input": [
+        {
+          "keys": ["M"]
+        }
+      ],
       "output": "も"
     },
     {
-      "input": [{ "keys": ["Comma"] }],
+      "input": [
+        {
+          "keys": ["Comma"]
+        }
+      ],
       "output": "ね"
     },
     {
-      "input": [{ "keys": ["Period"] }],
+      "input": [
+        {
+          "keys": ["Period"]
+        }
+      ],
       "output": "る"
     },
     {
-      "input": [{ "keys": ["Slash"] }],
+      "input": [
+        {
+          "keys": ["Slash"]
+        }
+      ],
       "output": "め"
     },
     {
-      "input": [{ "keys": ["JpnRo"] }],
+      "input": [
+        {
+          "keys": ["JpnRo"]
+        }
+      ],
       "output": "ろ"
     },
     {
-      "input": [{ "keys": ["Digit3"], "modifiers": [["ShiftLeft", "ShiftRight"]] }],
+      "input": [
+        {
+          "keys": ["Digit3"],
+          "modifiers": [["ShiftLeft", "ShiftRight"]]
+        }
+      ],
       "output": "ぁ"
     },
     {
-      "input": [{ "keys": ["Digit4"], "modifiers": [["ShiftLeft", "ShiftRight"]] }],
+      "input": [
+        {
+          "keys": ["Digit4"],
+          "modifiers": [["ShiftLeft", "ShiftRight"]]
+        }
+      ],
       "output": "ぅ"
     },
     {
-      "input": [{ "keys": ["Digit5"], "modifiers": [["ShiftLeft", "ShiftRight"]] }],
+      "input": [
+        {
+          "keys": ["Digit5"],
+          "modifiers": [["ShiftLeft", "ShiftRight"]]
+        }
+      ],
       "output": "ぇ"
     },
     {
-      "input": [{ "keys": ["Digit6"], "modifiers": [["ShiftLeft", "ShiftRight"]] }],
+      "input": [
+        {
+          "keys": ["Digit6"],
+          "modifiers": [["ShiftLeft", "ShiftRight"]]
+        }
+      ],
       "output": "ぉ"
     },
     {
-      "input": [{ "keys": ["Digit7"], "modifiers": [["ShiftLeft", "ShiftRight"]] }],
+      "input": [
+        {
+          "keys": ["Digit7"],
+          "modifiers": [["ShiftLeft", "ShiftRight"]]
+        }
+      ],
       "output": "ゃ"
     },
     {
-      "input": [{ "keys": ["Digit8"], "modifiers": [["ShiftLeft", "ShiftRight"]] }],
+      "input": [
+        {
+          "keys": ["Digit8"],
+          "modifiers": [["ShiftLeft", "ShiftRight"]]
+        }
+      ],
       "output": "ゅ"
     },
     {
-      "input": [{ "keys": ["Digit9"], "modifiers": [["ShiftLeft", "ShiftRight"]] }],
+      "input": [
+        {
+          "keys": ["Digit9"],
+          "modifiers": [["ShiftLeft", "ShiftRight"]]
+        }
+      ],
       "output": "ょ"
     },
     {
-      "input": [{ "keys": ["Digit0"], "modifiers": [["ShiftLeft", "ShiftRight"]] }],
+      "input": [
+        {
+          "keys": ["Digit0"],
+          "modifiers": [["ShiftLeft", "ShiftRight"]]
+        }
+      ],
       "output": "を"
     },
     {
-      "input": [{ "keys": ["E"], "modifiers": [["ShiftLeft", "ShiftRight"]] }],
+      "input": [
+        {
+          "keys": ["E"],
+          "modifiers": [["ShiftLeft", "ShiftRight"]]
+        }
+      ],
       "output": "ぃ"
     },
     {
-      "input": [{ "keys": ["Quote"], "modifiers": [["ShiftLeft", "ShiftRight"]] }],
+      "input": [
+        {
+          "keys": ["Quote"],
+          "modifiers": [["ShiftLeft", "ShiftRight"]]
+        }
+      ],
       "output": "ヶ"
     },
     {
-      "input": [{ "keys": ["Z"], "modifiers": [["ShiftLeft", "ShiftRight"]] }],
+      "input": [
+        {
+          "keys": ["Z"],
+          "modifiers": [["ShiftLeft", "ShiftRight"]]
+        }
+      ],
       "output": "っ"
     },
     {
@@ -503,5 +742,481 @@
       ],
       "output": "ぴ"
     }
-  ]
+  ],
+  "guide": {
+    "entries": [
+      {
+        "key": "Digit1",
+        "labels": [
+          {
+            "position": "bottom",
+            "label": "ぬ"
+          }
+        ]
+      },
+      {
+        "key": "Digit2",
+        "labels": [
+          {
+            "position": "bottom",
+            "label": "ふ"
+          }
+        ]
+      },
+      {
+        "key": "Digit3",
+        "labels": [
+          {
+            "position": "bottom",
+            "label": "あ"
+          },
+          {
+            "position": "right",
+            "label": "ぁ"
+          }
+        ]
+      },
+      {
+        "key": "Digit4",
+        "labels": [
+          {
+            "position": "bottom",
+            "label": "う"
+          },
+          {
+            "position": "right",
+            "label": "ぅ"
+          }
+        ]
+      },
+      {
+        "key": "Digit5",
+        "labels": [
+          {
+            "position": "bottom",
+            "label": "え"
+          },
+          {
+            "position": "right",
+            "label": "ぇ"
+          }
+        ]
+      },
+      {
+        "key": "Digit6",
+        "labels": [
+          {
+            "position": "bottom",
+            "label": "お"
+          },
+          {
+            "position": "right",
+            "label": "ぉ"
+          }
+        ]
+      },
+      {
+        "key": "Digit7",
+        "labels": [
+          {
+            "position": "left",
+            "label": "や"
+          },
+          {
+            "position": "right",
+            "label": "ゃ"
+          }
+        ]
+      },
+      {
+        "key": "Digit8",
+        "labels": [
+          {
+            "position": "bottom",
+            "label": "ゆ"
+          },
+          {
+            "position": "right",
+            "label": "ゅ"
+          }
+        ]
+      },
+      {
+        "key": "Digit9",
+        "labels": [
+          {
+            "position": "bottom",
+            "label": "よ"
+          },
+          {
+            "position": "right",
+            "label": "ょ"
+          }
+        ]
+      },
+      {
+        "key": "Digit0",
+        "labels": [
+          {
+            "position": "bottom",
+            "label": "わ"
+          },
+          {
+            "position": "right",
+            "label": "を"
+          }
+        ]
+      },
+      {
+        "key": "Minus",
+        "labels": [
+          {
+            "position": "bottom",
+            "label": "ほ"
+          }
+        ]
+      },
+      {
+        "key": "Equal",
+        "labels": [
+          {
+            "position": "bottom",
+            "label": "へ"
+          }
+        ]
+      },
+      {
+        "key": "JpnYen",
+        "labels": [
+          {
+            "position": "bottom",
+            "label": "ー"
+          }
+        ]
+      },
+      {
+        "key": "Q",
+        "labels": [
+          {
+            "position": "bottom",
+            "label": "た"
+          }
+        ]
+      },
+      {
+        "key": "W",
+        "labels": [
+          {
+            "position": "bottom",
+            "label": "て"
+          }
+        ]
+      },
+      {
+        "key": "E",
+        "labels": [
+          {
+            "position": "bottom",
+            "label": "い"
+          },
+          {
+            "position": "right",
+            "label": "ぃ"
+          }
+        ]
+      },
+      {
+        "key": "R",
+        "labels": [
+          {
+            "position": "bottom",
+            "label": "す"
+          }
+        ]
+      },
+      {
+        "key": "T",
+        "labels": [
+          {
+            "position": "bottom",
+            "label": "か"
+          }
+        ]
+      },
+      {
+        "key": "Y",
+        "labels": [
+          {
+            "position": "bottom",
+            "label": "ん"
+          }
+        ]
+      },
+      {
+        "key": "U",
+        "labels": [
+          {
+            "position": "bottom",
+            "label": "な"
+          }
+        ]
+      },
+      {
+        "key": "I",
+        "labels": [
+          {
+            "position": "bottom",
+            "label": "に"
+          }
+        ]
+      },
+      {
+        "key": "O",
+        "labels": [
+          {
+            "position": "bottom",
+            "label": "ら"
+          }
+        ]
+      },
+      {
+        "key": "P",
+        "labels": [
+          {
+            "position": "bottom",
+            "label": "せ"
+          }
+        ]
+      },
+      {
+        "key": "BracketLeft",
+        "labels": [
+          {
+            "position": "bottomRight",
+            "label": "゛"
+          }
+        ]
+      },
+      {
+        "key": "BracketRight",
+        "labels": [
+          {
+            "position": "bottomRight",
+            "label": "゜"
+          }
+        ]
+      },
+      {
+        "key": "A",
+        "labels": [
+          {
+            "position": "bottom",
+            "label": "ち"
+          }
+        ]
+      },
+      {
+        "key": "S",
+        "labels": [
+          {
+            "position": "bottom",
+            "label": "と"
+          }
+        ]
+      },
+      {
+        "key": "D",
+        "labels": [
+          {
+            "position": "bottom",
+            "label": "し"
+          }
+        ]
+      },
+      {
+        "key": "F",
+        "labels": [
+          {
+            "position": "bottom",
+            "label": "は"
+          }
+        ]
+      },
+      {
+        "key": "G",
+        "labels": [
+          {
+            "position": "bottom",
+            "label": "き"
+          }
+        ]
+      },
+      {
+        "key": "H",
+        "labels": [
+          {
+            "position": "bottom",
+            "label": "く"
+          }
+        ]
+      },
+      {
+        "key": "J",
+        "labels": [
+          {
+            "position": "bottom",
+            "label": "ま"
+          }
+        ]
+      },
+      {
+        "key": "K",
+        "labels": [
+          {
+            "position": "bottom",
+            "label": "の"
+          }
+        ]
+      },
+      {
+        "key": "L",
+        "labels": [
+          {
+            "position": "bottom",
+            "label": "り"
+          }
+        ]
+      },
+      {
+        "key": "Semicolon",
+        "labels": [
+          {
+            "position": "bottom",
+            "label": "れ"
+          }
+        ]
+      },
+      {
+        "key": "Quote",
+        "labels": [
+          {
+            "position": "bottom",
+            "label": "け"
+          }
+        ]
+      },
+      {
+        "key": "Backslash",
+        "labels": [
+          {
+            "position": "bottom",
+            "label": "む"
+          }
+        ]
+      },
+      {
+        "key": "Z",
+        "labels": [
+          {
+            "position": "bottom",
+            "label": "つ"
+          },
+          {
+            "position": "right",
+            "label": "っ"
+          }
+        ]
+      },
+      {
+        "key": "X",
+        "labels": [
+          {
+            "position": "bottom",
+            "label": "さ"
+          }
+        ]
+      },
+      {
+        "key": "C",
+        "labels": [
+          {
+            "position": "bottom",
+            "label": "そ"
+          }
+        ]
+      },
+      {
+        "key": "V",
+        "labels": [
+          {
+            "position": "bottom",
+            "label": "ひ"
+          }
+        ]
+      },
+      {
+        "key": "B",
+        "labels": [
+          {
+            "position": "bottom",
+            "label": "こ"
+          }
+        ]
+      },
+      {
+        "key": "N",
+        "labels": [
+          {
+            "position": "bottom",
+            "label": "み"
+          }
+        ]
+      },
+      {
+        "key": "M",
+        "labels": [
+          {
+            "position": "bottom",
+            "label": "も"
+          }
+        ]
+      },
+      {
+        "key": "Comma",
+        "labels": [
+          {
+            "position": "bottom",
+            "label": "ね"
+          }
+        ]
+      },
+      {
+        "key": "Period",
+        "labels": [
+          {
+            "position": "bottom",
+            "label": "る"
+          }
+        ]
+      },
+      {
+        "key": "Slash",
+        "labels": [
+          {
+            "position": "bottom",
+            "label": "め"
+          }
+        ]
+      },
+      {
+        "key": "JpnRo",
+        "labels": [
+          {
+            "position": "bottom",
+            "label": "ろ"
+          }
+        ]
+      }
+    ]
+  }
 }

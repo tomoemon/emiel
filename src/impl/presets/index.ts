@@ -1,8 +1,7 @@
-export { loadPresetKeyboardGuideJis106Default } from "./keyboardGuideJis106Default";
-export { loadPresetKeyboardGuideJis106JisKana } from "./keyboardGuideJis106JisKana";
-export { loadPresetKeyboardGuideJis106Nicola } from "./keyboardGuideJis106Nicola";
-export { loadPresetKeyboardGuideUs101Default } from "./keyboardGuideUs101Default";
-export { loadPresetKeyboardGuideUsHhkbDefault } from "./keyboardGuideUsHhkbDefault";
+export { loadPresetKeyboardGuideAlphanumeric } from "./keyboardGuideAlphanumeric";
+export { loadPresetPhysicalKeyboardLayoutJis106 } from "./physicalKeyboardLayoutJis106";
+export { loadPresetPhysicalKeyboardLayoutUs101 } from "./physicalKeyboardLayoutUs101";
+export { loadPresetPhysicalKeyboardLayoutUsHhkb } from "./physicalKeyboardLayoutUsHhkb";
 export { loadPresetKeyboardLayoutDvorak } from "./keyboardLayoutDvorak";
 export { findMatchedKeyboardLayout } from "./keyboardLayoutFinder";
 export { loadPresetKeyboardLayoutQwertyJis } from "./keyboardLayoutQwertyJis";

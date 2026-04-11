@@ -16,7 +16,16 @@ export { VirtualKey, VirtualKeys } from "./core/virtualKey";
 
 export { activate } from "./browser/eventHandler";
 export { InputResult } from "./core/inputResult";
-export { KeyboardGuide, type KeyRect, type KeyTop } from "./impl/keyboardGuide";
+export {
+  KeyboardGuide,
+  type KeyboardGuideLabel,
+  type KeyboardGuideLabelMapping,
+} from "./core/keyboardGuide";
+export { placeKeyboardGuide, type KeyPlacement, type Rect } from "./impl/keyboardGuide";
+export {
+  loadJsonPhysicalKeyboardLayout,
+  type PhysicalKeyboardLayout,
+} from "./impl/physicalKeyboardLayout";
 
 export { detectKeyboardLayout } from "./browser/osKeyboardLayout";
 export * from "./impl/alphaNumericRule";
@@ -26,7 +35,6 @@ export { loadJsonRule } from "./impl/jsonRuleLoader";
 export { loadMozcRule } from "./impl/mozcRuleLoader";
 
 export { loadJsonKeyboardGuide } from "./impl/keyboardGuideLoader";
-export type { PhysicalKeyboardLayoutName } from "./impl/keyboardGuide";
 export * from "./impl/presets";
 export * from "./impl/stats";
 

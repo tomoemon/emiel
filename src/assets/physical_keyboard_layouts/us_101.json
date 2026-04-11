@@ -1,0 +1,33 @@
+{
+  "keys": [
+    [
+      "Backquote",
+      "Digit1",
+      "Digit2",
+      "Digit3",
+      "Digit4",
+      "Digit5",
+      "Digit6",
+      "Digit7",
+      "Digit8",
+      "Digit9",
+      "Digit0",
+      "Minus",
+      "Equal",
+      "Backspace"
+    ],
+    ["Q", "W", "E", "R", "T", "Y", "U", "I", "O", "P", "BracketLeft", "BracketRight", "Backslash"],
+    ["A", "S", "D", "F", "G", "H", "J", "K", "L", "Semicolon", "Quote", "Enter"],
+    ["ShiftLeft", "Z", "X", "C", "V", "B", "N", "M", "Comma", "Period", "Slash", "ShiftRight"],
+    ["Space"]
+  ],
+  "leftMargins": [0, 1.5, 2.0, 0, 5.0],
+  "keyWidth": {
+    "ShiftLeft": 2.5,
+    "ShiftRight": 2.5,
+    "Backslash": 1.5,
+    "Space": 6.0,
+    "Backspace": 2.0,
+    "Enter": 2.0
+  }
+}
