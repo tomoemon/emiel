@@ -42,12 +42,12 @@ const defaultRule = new Rule(
 );
 
 test("test buildKanaNode: empty text", () => {
-  const [startNode, endNode] = buildKanaNode(defaultRule, "");
+  const { startNode, endNode } = buildKanaNode(defaultRule, "");
   expect(startNode).toBe(endNode);
 });
 
 test("test buildKanaNode: あ", () => {
-  const [startNode, endNode] = buildKanaNode(defaultRule, "あ");
+  const { startNode, endNode } = buildKanaNode(defaultRule, "あ");
   expect(startNode).not.toBe(endNode);
   expect(startNode.nextEdges.length).toBe(1);
   expect(startNode.nextEdges[0].entries).toEqual([
@@ -57,7 +57,7 @@ test("test buildKanaNode: あ", () => {
 });
 
 test("test buildKanaNode: あっ", () => {
-  const [startNode, endNode] = buildKanaNode(defaultRule, "あっ");
+  const { startNode, endNode } = buildKanaNode(defaultRule, "あっ");
   expect(startNode).not.toBe(endNode);
   expect(startNode.nextEdges.length).toBe(1);
   expect(startNode.nextEdges[0].entries).toEqual([
@@ -81,7 +81,7 @@ test("test buildKanaNode: あっ", () => {
 });
 
 test("test buildKanaNode: あった", () => {
-  const [startNode, endNode] = buildKanaNode(defaultRule, "あった");
+  const { startNode, endNode } = buildKanaNode(defaultRule, "あった");
   expect(startNode).not.toBe(endNode);
   expect(startNode.nextEdges.length).toBe(1);
   expect(startNode.nextEdges[0].entries).toEqual([
@@ -142,7 +142,7 @@ test("test buildKanaNode: あいた, erase あ->い edge", () => {
   // 「あ」単独で入力できるエントリは存在するが
   // 「い」「いた」を入力できるエントリは存在しないため、
   // 「あ」単独で入力する Edge は削除される
-  const [startNode, endNode] = buildKanaNode(defaultRule, "あいた");
+  const { startNode, endNode } = buildKanaNode(defaultRule, "あいた");
   expect(startNode).not.toBe(endNode);
   expect(startNode.nextEdges.length).toBe(1);
   expect(startNode.nextEdges[0].entries).toEqual([

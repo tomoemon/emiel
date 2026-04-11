@@ -17,14 +17,25 @@ export class AutomatonImpl implements AutomatonState {
    * @param word かな文字列（配列定義 Rule で使用可能な文字で構成される文字列）
    * @param startNode 打鍵を受け付ける開始ノード
    * @param rule このAutomatonを生成した入力ルール
+   * @param rulesByKanaIndex 各 kanaIndex で入力を始めるエントリを寄与した rule 集合
    */
   constructor(
     readonly word: string,
     readonly startNode: StrokeNode,
     readonly rule: Rule,
+    private readonly rulesByKanaIndex: readonly (readonly Rule[])[],
   ) {
     this.currentNode = startNode;
     this.committer = new BackspaceAwareCommitter(rule.backspaceStrokes);
+  }
+
+  /**
+   * 現在の入力位置 (currentNode.kanaIndex) で入力対象となっている rule の集合を返す。
+   * チェーン化された Rule では、この位置から入力を始めるエントリを提供した rule が
+   * チェーン順で列挙される。候補がない位置 (ワード完了後など) では空配列。
+   */
+  getCurrentOriginRules(): readonly Rule[] {
+    return this.rulesByKanaIndex[this.currentNode.kanaIndex] ?? [];
   }
   /** 現在の入力位置を表すノード。入力が進むと次のノードに遷移し、back() で前のノードに戻る。 */
   currentNode: StrokeNode;
@@ -204,8 +215,8 @@ export class AutomatonImpl implements AutomatonState {
 export type Automaton = AutomatonImpl & BaseExtensionType;
 
 export function build(rule: Rule, kanaText: string): Automaton {
-  const [_, endKanaNode] = buildKanaNode(rule, kanaText);
-  const automaton = new AutomatonImpl(kanaText, buildStrokeNode(endKanaNode), rule);
+  const { endNode, rulesByKanaIndex } = buildKanaNode(rule, kanaText);
+  const automaton = new AutomatonImpl(kanaText, buildStrokeNode(endNode), rule, rulesByKanaIndex);
   return automaton.with(baseExtension);
 }
 

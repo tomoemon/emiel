@@ -4,8 +4,6 @@ import { loadJsonKeyboardGuide } from "./keyboardGuideLoader";
 
 test("valid keyboard guide", () => {
   const guide = loadJsonKeyboardGuide({
-    name: "test",
-    physicalLayout: "jis_106",
     entries: [
       {
         key: "A",
@@ -13,24 +11,18 @@ test("valid keyboard guide", () => {
       },
     ],
   });
-  expect(guide.guideData.name).toBe("test");
+  expect(guide.guideData.entries).toHaveLength(1);
+  expect(guide.guideData.entries[0].labels[0].label).toBe("a");
 });
 
 describe("validation errors", () => {
-  test("name is missing", () => {
-    expect(() =>
-      loadJsonKeyboardGuide({
-        physicalLayout: "jis_106",
-        entries: [],
-      }),
-    ).toThrow(v.ValiError);
+  test("entries is missing", () => {
+    expect(() => loadJsonKeyboardGuide({})).toThrow(v.ValiError);
   });
 
   test("invalid position", () => {
     expect(() =>
       loadJsonKeyboardGuide({
-        name: "test",
-        physicalLayout: "jis_106",
         entries: [
           {
             key: "A",
@@ -44,8 +36,6 @@ describe("validation errors", () => {
   test("unknown virtual key", () => {
     expect(() =>
       loadJsonKeyboardGuide({
-        name: "test",
-        physicalLayout: "jis_106",
         entries: [
           {
             key: "InvalidKey",
@@ -57,6 +47,6 @@ describe("validation errors", () => {
   });
 
   test("JSON string with invalid data", () => {
-    expect(() => loadJsonKeyboardGuide('{"name": 123}')).toThrow(v.ValiError);
+    expect(() => loadJsonKeyboardGuide('{"entries": 123}')).toThrow(v.ValiError);
   });
 });

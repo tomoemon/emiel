@@ -1,3 +1,5 @@
+import { setDefault } from "../utils/map";
+import type { KeyboardGuide } from "./keyboardGuide";
 import { AndModifier } from "./modifier";
 import { expandPrefixRules } from "./ruleExtender";
 import { ModifierStroke, ruleStrokeKeys, type RuleStroke } from "./ruleStroke";
@@ -92,71 +94,114 @@ export class Rule {
    *
    * 省略時のデフォルトは VirtualKeys.Backspace 単独打鍵のみ。明示的に指定された場合は
    * その指定がそのまま使われる (Backspace キーを含めるかどうかは呼び出し側の判断)。
+   *
+   * チェーン化された Rule (next が指定された Rule) では、チェーン先頭 (head) の Rule
+   * の backspaceStrokes が採用される。チェーン末尾側の Rule の backspaceStrokes は無視される。
    */
   readonly backspaceStrokes: readonly RuleStroke[];
 
+  // 入力ワードと RuleEntry.output の表記ゆれを吸収する関数 (例: ひらがな⇔カタカナ,
+  // 全角英数⇔半角英数)。これにより "カタカナ" という word が "かたかな" を対象とする
+  // entry にマッチできる。
+  private readonly ownNormalize: normalizerFunc;
+  // この Rule 自身の entries に対するキー引きインデックス。チェーン先の検索に使うため
+  // private だが、同クラス内なら別インスタンスのものも参照できる。
+  private readonly ownEntriesByKey: Map<VirtualKey, RuleEntry[]> = new Map();
+  private readonly ownEntriesByModifier: Map<VirtualKey, RuleEntry[]> = new Map();
+  // チェーン全体を事前マージしたキー引きインデックス。constructor 内で eager に構築され、
+  // 以降変更されない。head 単独の場合は ownEntriesBy* をそのまま参照する。
+  // 入力ホットパス (committer の entriesByKey / entriesByModifier) で毎回走査しないため。
+  private readonly effectiveByKey: Map<VirtualKey, RuleEntry[]>;
+  private readonly effectiveByModifier: Map<VirtualKey, RuleEntry[]>;
+
   /**
-   *
    * @param entries 入力ルールのエントリ
    * @param normalize 入力ワードのかな文字を正規化する関数
    * @param name 入力ルールの名前
    * @param backspaceStrokes backspace として扱う RuleStroke 群。
    *                         undefined の場合は VirtualKeys.Backspace 単独打鍵のみが
-   *                         デフォルトとして設定される。明示的に配列を指定した場合は
-   *                         その配列がそのまま使われる (空配列なら backspace 機能無効)
+   *                         デフォルトとして設定される。空配列を渡すと backspace 無効
+   * @param guide この Rule に紐づく KeyboardGuide。未指定なら undefined
+   * @param next チェーン上の次の Rule
    */
   constructor(
     readonly entries: RuleEntry[],
-    readonly normalize: normalizerFunc,
+    normalize: normalizerFunc,
     readonly name: string = "",
     backspaceStrokes?: readonly RuleStroke[],
+    readonly guide?: KeyboardGuide,
+    readonly next?: Rule,
   ) {
+    this.ownNormalize = normalize;
     this.entries = expandPrefixRules(entries);
     this.backspaceStrokes = backspaceStrokes ?? [
       new ModifierStroke(VirtualKeys.Backspace, AndModifier.empty),
     ];
 
-    // init mapEntriesByFirstInputKey
     // SimultaneousStroke の場合は keys の全要素を登録キーとする
-    this.entries.forEach((entry) => {
+    for (const entry of this.entries) {
       const firstStroke = entry.input[0];
       for (const firstInputKey of ruleStrokeKeys(firstStroke)) {
-        const currentEntries = this.mapEntriesByFirstInputKey.get(firstInputKey);
-        if (!currentEntries) {
-          this.mapEntriesByFirstInputKey.set(firstInputKey, [entry]);
-        } else {
-          currentEntries.push(entry);
+        setDefault(this.ownEntriesByKey, firstInputKey, []).push(entry);
+      }
+    }
+    // ModifierStroke のみ requiredModifier を持つ。SimultaneousStroke は対象外。
+    for (const entry of this.entries) {
+      const firstStroke = entry.input[0];
+      if (firstStroke.kind !== "modifier") continue;
+      for (const g of firstStroke.requiredModifier.groups) {
+        for (const modifierKey of g.modifiers) {
+          setDefault(this.ownEntriesByModifier, modifierKey, []).push(entry);
         }
       }
-    });
-    // init mapEntriesByFirstInputModifier
-    // ModifierStroke のみ requiredModifier を持つ。SimultaneousStroke は対象外。
-    this.entries.forEach((entry) => {
-      const firstStroke = entry.input[0];
-      if (firstStroke.kind !== "modifier") {
-        return;
-      }
-      firstStroke.requiredModifier.groups.forEach((g) => {
-        g.modifiers.forEach((firstInputModifier) => {
-          const currentEntries = this.mapEntriesByFirstInputModifier.get(firstInputModifier);
-          if (!currentEntries) {
-            this.mapEntriesByFirstInputModifier.set(firstInputModifier, [entry]);
-          } else {
-            currentEntries.push(entry);
-          }
-        });
-      });
-    });
+    }
+
+    if (next) {
+      this.effectiveByKey = mergeChainMaps(this, (r) => r.ownEntriesByKey);
+      this.effectiveByModifier = mergeChainMaps(this, (r) => r.ownEntriesByModifier);
+    } else {
+      this.effectiveByKey = this.ownEntriesByKey;
+      this.effectiveByModifier = this.ownEntriesByModifier;
+    }
   }
 
-  private mapEntriesByFirstInputKey: Map<VirtualKey, RuleEntry[]> = new Map();
-  private mapEntriesByFirstInputModifier: Map<VirtualKey, RuleEntry[]> = new Map();
+  /**
+   * チェーンに含まれる Rule を head から順に返すイテレータ。
+   */
+  *chain(): Iterable<Rule> {
+    yield this;
+    if (this.next !== undefined) {
+      yield* this.next.chain();
+    }
+  }
+
+  /**
+   * 入力ワードを正規化する。チェーン化された Rule では head から順に合成する。
+   */
+  normalize(v: string): string {
+    const result = this.ownNormalize(v);
+    return this.next ? this.next.normalize(result) : result;
+  }
 
   entriesByKey(inputKey: VirtualKey): RuleEntry[] {
-    return this.mapEntriesByFirstInputKey.get(inputKey) ?? [];
+    return this.effectiveByKey.get(inputKey) ?? [];
   }
 
   entriesByModifier(modifierKey: VirtualKey): RuleEntry[] {
-    return this.mapEntriesByFirstInputModifier.get(modifierKey) ?? [];
+    return this.effectiveByModifier.get(modifierKey) ?? [];
   }
+}
+
+function mergeChainMaps(
+  head: Rule,
+  // 同クラス内なのでチェーン先の private フィールドにもアクセスできる
+  getMap: (r: Rule) => Map<VirtualKey, RuleEntry[]>,
+): Map<VirtualKey, RuleEntry[]> {
+  const merged = new Map<VirtualKey, RuleEntry[]>();
+  for (const r of head.chain()) {
+    for (const [key, entries] of getMap(r)) {
+      setDefault(merged, key, []).push(...entries);
+    }
+  }
+  return merged;
 }

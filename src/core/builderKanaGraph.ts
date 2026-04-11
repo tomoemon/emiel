@@ -83,15 +83,33 @@ export class KanaEdge {
    ya            tti
    ya           cchi
 */
-export function buildKanaNode(rule: Rule, kanaText: string): [KanaNode, KanaNode] {
+export type BuildKanaNodeResult = {
+  startNode: KanaNode;
+  endNode: KanaNode;
+  /**
+   * 各 kanaIndex (= 正規化後の文字列上の位置) で、その位置からの入力を開始するエントリを
+   * 1つ以上寄与した Rule をチェーン順に unique 化した配列。
+   *
+   * 例: NICOLA → alphanumeric のチェーンで "ABCマート" を build した場合
+   *   rulesByKanaIndex[0..2] = [alphanumeric]  (A, B, C)
+   *   rulesByKanaIndex[3..6] = [nicola]        (マ, ー, ト)
+   */
+  rulesByKanaIndex: readonly (readonly Rule[])[];
+};
+
+export function buildKanaNode(rule: Rule, kanaText: string): BuildKanaNodeResult {
   const normalizedKanaText = rule.normalize(kanaText);
   // かなテキスト1文字1文字に対応する KanaNode を作成する
   const kanaNodes = [...normalizedKanaText].map((_, i) => new KanaNode(i, [], []));
   const endNode = new KanaNode(normalizedKanaText.length, [], []); // 終端ノード
   const kanaNodesWithEnd = [...kanaNodes, endNode];
+  const rulesByKanaIndex: Set<Rule>[] = Array.from(
+    { length: normalizedKanaText.length + 1 },
+    () => new Set<Rule>(),
+  );
   if (normalizedKanaText.length === 0) {
     // 空文字列の場合は終端ノードのみを返す
-    return [endNode, endNode];
+    return { startNode: endNode, endNode, rulesByKanaIndex: [] };
   }
   /*
   kanaText: あいうえお
@@ -103,23 +121,27 @@ export function buildKanaNode(rule: Rule, kanaText: string): [KanaNode, KanaNode
   i=1 あ の末尾から手前にチェック
   */
   const normalizedEntryOutputMap: Map<RuleEntry, string> = new Map();
+  const chainedRules = Array.from(rule.chain());
   for (let i = normalizedKanaText.length; i > 0; i--) {
     const kanaPrefix = normalizedKanaText.substring(0, i);
     const nextNode = kanaNodesWithEnd[i];
-    for (let entry of rule.entries) {
-      const normalizedEntryOutput = setDefaultFunc(normalizedEntryOutputMap, entry, () =>
-        rule.normalize(entry.output),
-      );
-      if (kanaPrefix.endsWith(normalizedEntryOutput)) {
-        const previousNode = kanaNodesWithEnd[kanaPrefix.length - entry.output.length];
-        if (entry.hasNextInput) {
-          // 「次の入力」を持つエントリの場合、「次の入力」の値が次の KanaNode と組み合わせ可能な場合のみ連結する
-          nextNode.connectEdgesWithNextInput(previousNode, entry);
-        } else {
-          // 「次の入力」がない場合は単純に KanaNode 同士をつなぐ
-          const edge = new KanaEdge([entry], nextNode, previousNode);
-          previousNode.nextEdges.push(edge);
-          nextNode.previousEdges.push(edge);
+    for (const r of chainedRules) {
+      for (let entry of r.entries) {
+        const normalizedEntryOutput = setDefaultFunc(normalizedEntryOutputMap, entry, () =>
+          rule.normalize(entry.output),
+        );
+        if (kanaPrefix.endsWith(normalizedEntryOutput)) {
+          const previousNode = kanaNodesWithEnd[kanaPrefix.length - entry.output.length];
+          rulesByKanaIndex[previousNode.startIndex].add(r);
+          if (entry.hasNextInput) {
+            // 「次の入力」を持つエントリの場合、「次の入力」の値が次の KanaNode と組み合わせ可能な場合のみ連結する
+            nextNode.connectEdgesWithNextInput(previousNode, entry);
+          } else {
+            // 「次の入力」がない場合は単純に KanaNode 同士をつなぐ
+            const edge = new KanaEdge([entry], nextNode, previousNode);
+            previousNode.nextEdges.push(edge);
+            nextNode.previousEdges.push(edge);
+          }
         }
       }
     }
@@ -131,7 +153,11 @@ export function buildKanaNode(rule: Rule, kanaText: string): [KanaNode, KanaNode
   if (kanaNodes[0].nextEdges.length === 0) {
     throw new Error(`Rule ${rule.name} can't generate an automaton for "${kanaText}"`);
   }
-  return [kanaNodes[0], endNode];
+  return {
+    startNode: kanaNodes[0],
+    endNode,
+    rulesByKanaIndex: rulesByKanaIndex.map((s) => Array.from(s)),
+  };
 }
 
 /**
