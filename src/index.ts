@@ -11,7 +11,6 @@ export { KeyboardState, type KeyboardStateReader } from "./core/keyboardState";
 export { AndModifier, ModifierGroup } from "./core/modifier";
 export { type Rule, RulePrimitive, RuleEntry, type normalizerFunc } from "./core/rule";
 export { ModifierStroke, SimultaneousStroke, type RuleStroke } from "./core/ruleStroke";
-export { Selector, type Inputtable } from "./core/selector";
 export { VirtualKey, VirtualKeys } from "./core/virtualKey";
 
 export { activate } from "./browser/eventHandler";

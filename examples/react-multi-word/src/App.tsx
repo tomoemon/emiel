@@ -1,14 +1,8 @@
 import type { Automaton, InputStroke, KeyboardLayout } from "emiel";
-import {
-  activate,
-  build,
-  detectKeyboardLayout,
-  loadPresetRuleRoman,
-  Selector,
-  VirtualKeys,
-} from "emiel";
+import { activate, build, detectKeyboardLayout, loadPresetRuleRoman, VirtualKeys } from "emiel";
 import { useEffect, useMemo, useState } from "react";
 import "./App.css";
+import { MultiWordState } from "./multiWordState";
 import { Word } from "./word";
 
 // 繰り返し次のワードを生成するジェネレータ
@@ -43,10 +37,11 @@ function App() {
 function Typing(props: { layout: KeyboardLayout }) {
   const romanRule = useMemo(() => loadPresetRuleRoman(props.layout), [props.layout]);
   const [selector, setSelector] = useState(
-    new Selector(
-      // 各 automaton の metadata として表示位置をもたせる
-      initialWords.map((w, i) => withPosition(build(romanRule, w), i)),
-    ),
+    () =>
+      new MultiWordState(
+        // 各 automaton の metadata として表示位置をもたせる
+        initialWords.map((w, i) => withPosition(build(romanRule, w), i)),
+      ),
   );
   const [lastInputKey, setLastInputKey] = useState<InputStroke | undefined>();
   useEffect(() => {
@@ -55,21 +50,23 @@ function Typing(props: { layout: KeyboardLayout }) {
       console.log("input:", e);
       if (e.input.key === VirtualKeys.Escape) {
         console.log("reset");
-        selector.reset();
+        setSelector(selector.reset());
         return;
       }
-      const { finished, succeeded, failed } = selector.input(e);
-      finished.forEach((a) => {
-        console.log("finished", a);
-        const newAutomaton = withPosition(build(romanRule, wordGen.next().value), a.getPosition());
-        setSelector((current) => current.replaced(a, newAutomaton));
-      });
+      const { next, succeeded, finished, failed } = selector.input(e);
       succeeded.forEach((a) => {
         console.log("succeeded", a);
       });
       failed.forEach((a) => {
         console.log("failed", a);
       });
+      let result = next;
+      for (const a of finished) {
+        console.log("finished", a);
+        const newAutomaton = withPosition(build(romanRule, wordGen.next().value), a.getPosition());
+        result = result.replaced(a, newAutomaton);
+      }
+      setSelector(result);
     });
   }, [selector, romanRule]);
 
