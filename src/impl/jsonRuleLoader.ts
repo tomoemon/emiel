@@ -31,6 +31,14 @@ const commentOnlyEntrySchema = v.object({
 
 const entrySchema = v.union([entryWithInputSchema, commentOnlyEntrySchema]);
 
+// Note: このスキーマには `name` フィールドを意図的に含めていない。
+// Rule.name は現状「エラーメッセージ/デバッグ出力の識別子」「テスト検証」
+// 「UI 表示ラベル候補」の複数用途に兼用されており、identifier と label の
+// 責務が曖昧なまま JSON に埋め込むと以下の問題が生じるため:
+//   - 国際化時に JSON 固定の名前を表示名として使えない
+//   - 同一 JSON を別名で派生させたい場合に柔軟性が落ちる
+//   - プラットフォーム運用時に name 衝突の扱いがスキーマに紛れ込む
+// 名前は呼び出し側 (loadJsonRule の引数) が用途に応じて指定する設計とする。
 export const jsonRuleSchema = v.object({
   // 全エントリに対するデフォルトの共通プレフィックス拡張設定
   extendCommonPrefixEntry: v.optional(v.boolean()),
