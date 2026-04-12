@@ -87,16 +87,3 @@ Automaton = AutomatonImpl & BaseExtensionType
 
 back() は AutomatonImpl のメソッドとして常に公開。
 `.with()` は `this &` を返すため、自由に組み合わせられる。
-
-## Selector との互換性
-
-Selector は `Inputtable` インターフェース（`input()` + `reset()` のみ）に依存する。backspaceExtension の有無に関わらず、すべての Automaton は Selector で管理できる。
-
-```typescript
-import { build, Selector } from "emiel";
-
-const selector = new Selector([
-  build(romanRule, word),
-  build(kanaRule, word),
-]);
-```
