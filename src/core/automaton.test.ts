@@ -5,7 +5,7 @@ import {
   loadPresetRuleNaginatashikiV15,
   loadPresetRuleRoman,
 } from "../impl/presets";
-import { build, type Automaton } from "./automaton";
+import { build, type Automaton } from "../impl/buildAutomaton";
 import type { AutomatonState, HistoryEntry, InputHistoryEntry } from "./automatonState";
 import { InputEvent, InputStroke } from "./inputEvent";
 import { KeyboardState } from "./keyboardState";

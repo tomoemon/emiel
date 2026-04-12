@@ -1,18 +1,16 @@
 import type { KeyboardLayout } from "../core/keyboardLayout";
-import { Rule, RuleEntry } from "../core/rule";
+import { RuleEntry, RulePrimitive } from "../core/rule";
 import type { RuleStroke } from "../core/ruleStroke";
 import { product } from "../utils/itertools";
-import { defaultKanaNormalize } from "./charNormalizer";
 
 export function loadMozcRule(
   text: string,
   layout: KeyboardLayout,
   name: string = "",
-  next?: Rule,
-): Rule {
+): RulePrimitive {
   /*
-    a	あ	
-    ta	た	
+    a	あ
+    ta	た
     tt	っ	t
     */
   text = text.replace(/\r\n/g, "\n");
@@ -41,7 +39,7 @@ export function loadMozcRule(
       );
     });
   }
-  return new Rule(entries, defaultKanaNormalize, name, undefined, undefined, next);
+  return new RulePrimitive(entries, name, undefined, undefined);
 }
 
 function toStrokesFromChar(layout: KeyboardLayout, key: string): RuleStroke[] {

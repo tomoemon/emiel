@@ -7,7 +7,7 @@ import {
   loadPresetRuleNicola,
   loadPresetRuleRoman,
 } from "../impl/presets";
-import { build, type Automaton } from "./automaton";
+import { build, type Automaton } from "../impl/buildAutomaton";
 import { InputEvent, InputStroke } from "./inputEvent";
 import { KeyboardState } from "./keyboardState";
 import type { Rule } from "./rule";

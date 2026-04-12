@@ -1,10 +1,9 @@
 import * as v from "valibot";
 import { KeyboardGuide } from "../core/keyboardGuide";
 import { AndModifier, ModifierGroup } from "../core/modifier";
-import { Rule, RuleEntry } from "../core/rule";
+import { RuleEntry, RulePrimitive } from "../core/rule";
 import { ModifierStroke, type RuleStroke, SimultaneousStroke } from "../core/ruleStroke";
 import { virtualKeySchema } from "../core/virtualKey";
-import { defaultKanaNormalize } from "./charNormalizer";
 import { jsonKeyboardGuideEntriesSchema } from "./keyboardGuideLoader";
 
 const strokeSchema = v.object({
@@ -112,13 +111,13 @@ function loadEntries(
   return entries;
 }
 
-export function loadJsonRule(jsonRule: unknown, name?: string, next?: Rule): Rule {
+export function loadJsonRule(jsonRule: unknown, name?: string): RulePrimitive {
   if (typeof jsonRule === "string") {
-    return loadJsonRule(JSON.parse(jsonRule), name, next);
+    return loadJsonRule(JSON.parse(jsonRule), name);
   }
   const validated = v.parse(jsonRuleSchema, jsonRule);
   const entries = loadEntries(validated.entries, validated.extendCommonPrefixEntry ?? false);
-  // JSON に backspaces フィールドが無い場合は undefined を渡して Rule 側のデフォルト
+  // JSON に backspaces フィールドが無い場合は undefined を渡して RulePrimitive 側のデフォルト
   // (VirtualKeys.Backspace 単独打鍵) を適用する。空配列を指定した場合は backspace 無効
   const backspaceStrokes: RuleStroke[] | undefined = validated.backspaces?.map((s) =>
     loadStroke(s),
@@ -126,5 +125,5 @@ export function loadJsonRule(jsonRule: unknown, name?: string, next?: Rule): Rul
   const guide = validated.guide
     ? new KeyboardGuide({ entries: validated.guide.entries })
     : undefined;
-  return new Rule(entries, defaultKanaNormalize, name, backspaceStrokes, guide, next);
+  return new RulePrimitive(entries, name, backspaceStrokes, guide);
 }

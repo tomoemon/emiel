@@ -1,5 +1,12 @@
 import type { InputStroke, KeyboardLayout } from "emiel";
-import { activate, build, detectKeyboardLayout, loadPresetRuleRoman, VirtualKeys } from "emiel";
+import {
+  activate,
+  backspaceExtension,
+  build,
+  detectKeyboardLayout,
+  loadPresetRuleRoman,
+  VirtualKeys,
+} from "emiel";
 import { useEffect, useMemo, useState } from "react";
 import "./App.css";
 import { MissAccumulatingAutomaton } from "./MissAccumulatingAutomaton";
@@ -19,7 +26,8 @@ function Typing(props: { layout: KeyboardLayout }) {
   const [lastInputKey, setLastInputKey] = useState<InputStroke | undefined>();
 
   const wrappers = useMemo(
-    () => words.map((w) => new MissAccumulatingAutomaton(build(romanRule, w).withBackspace())),
+    () =>
+      words.map((w) => new MissAccumulatingAutomaton(build(romanRule, w).with(backspaceExtension))),
     [romanRule, words],
   );
   const wrapper = wrappers[index];

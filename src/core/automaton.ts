@@ -1,7 +1,5 @@
-import * as AutomatonQuery from "./automatonQuery";
 import type { AutomatonState, HistoryEntry } from "./automatonState";
-import { buildKanaNode } from "./builderKanaGraph";
-import { type StrokeEdge, type StrokeNode, buildStrokeNode } from "./builderStrokeGraph";
+import type { StrokeEdge, StrokeNode } from "./builderStrokeGraph";
 import {
   type BackspaceAwareResult,
   BackspaceAwareCommitter,
@@ -9,7 +7,7 @@ import {
 } from "./committer";
 import type { InputEvent } from "./inputEvent";
 import { InputResult } from "./inputResult";
-import type { Rule } from "./rule";
+import type { Rule, RulePrimitive } from "./rule";
 import type { VirtualKey } from "./virtualKey";
 
 export class AutomatonImpl implements AutomatonState {
@@ -17,24 +15,24 @@ export class AutomatonImpl implements AutomatonState {
    * @param word かな文字列（配列定義 Rule で使用可能な文字で構成される文字列）
    * @param startNode 打鍵を受け付ける開始ノード
    * @param rule このAutomatonを生成した入力ルール
-   * @param rulesByKanaIndex 各 kanaIndex で入力を始めるエントリを寄与した rule 集合
+   * @param rulesByKanaIndex 各 kanaIndex で入力を始めるエントリを寄与した primitive 集合
    */
   constructor(
     readonly word: string,
     readonly startNode: StrokeNode,
     readonly rule: Rule,
-    private readonly rulesByKanaIndex: readonly (readonly Rule[])[],
+    private readonly rulesByKanaIndex: readonly (readonly RulePrimitive[])[],
   ) {
     this.currentNode = startNode;
     this.committer = new BackspaceAwareCommitter(rule.backspaceStrokes);
   }
 
   /**
-   * 現在の入力位置 (currentNode.kanaIndex) で入力対象となっている rule の集合を返す。
-   * チェーン化された Rule では、この位置から入力を始めるエントリを提供した rule が
-   * チェーン順で列挙される。候補がない位置 (ワード完了後など) では空配列。
+   * 現在の入力位置 (currentNode.kanaIndex) で入力対象となっている primitive の集合を返す。
+   * 合成された Rule では、この位置から入力を始めるエントリを提供した primitive が
+   * 合成順で列挙される。候補がない位置 (ワード完了後など) では空配列。
    */
-  getCurrentOriginRules(): readonly Rule[] {
+  getCurrentOriginRules(): readonly RulePrimitive[] {
     return this.rulesByKanaIndex[this.currentNode.kanaIndex] ?? [];
   }
   /** 現在の入力位置を表すノード。入力が進むと次のノードに遷移し、back() で前のノードに戻る。 */
@@ -43,7 +41,7 @@ export class AutomatonImpl implements AutomatonState {
    * すべての入力イベントと back() 操作の時系列ログ。
    * input() の結果（IGNORED, PENDING 含む）と back() の BackHistoryEntry が記録される。
    *
-   * 有効な遷移 edge の取得: AutomatonQuery.getEffectiveEdges(automaton)
+   * 有効な遷移 edge の取得: build 後の Automaton で automaton.getEffectiveEdges()
    * 失敗イベントの抽出: inputHistory.filter(e => !("back" in e) && e.result.isFailed)
    */
   inputHistory: HistoryEntry[] = [];
@@ -70,14 +68,28 @@ export class AutomatonImpl implements AutomatonState {
    * 直前の成功遷移を1つ取り消し、currentNode を遷移前のノードに戻す。
    * inputHistory に BackHistoryEntry を追記する（履歴は削除しない）。
    * startNode にいる場合は何もしない。
+   *
+   * 実装: inputHistory を末尾から逆順に走査し、既出の back() で取り消し済みの
+   * 成功 edge を skip しながら、最初に見つかった未取り消しの成功 edge を取り消す。
    */
   back(): void {
     if (this.currentNode === this.startNode) return;
-    const effectiveEdges = AutomatonQuery.getEffectiveEdges(this);
-    const lastEdge = effectiveEdges[effectiveEdges.length - 1];
-    if (lastEdge) {
-      this.inputHistory.push({ back: true, undoneEdge: lastEdge });
-      this.currentNode = lastEdge.previous;
+    let skip = 0;
+    for (let i = this.inputHistory.length - 1; i >= 0; i--) {
+      const entry = this.inputHistory[i];
+      if ("back" in entry) {
+        skip++;
+        continue;
+      }
+      if (entry.edge) {
+        if (skip > 0) {
+          skip--;
+          continue;
+        }
+        this.inputHistory.push({ back: true, undoneEdge: entry.edge });
+        this.currentNode = entry.edge.previous;
+        break;
+      }
     }
     this.committer.reset();
   }
@@ -203,51 +215,4 @@ export class AutomatonImpl implements AutomatonState {
     });
     return proxy as this & { [K in keyof T]: () => ReturnType<T[K]> };
   }
-
-  /**
-   * backspace を考慮した統計クエリを追加する
-   */
-  withBackspace(): this & BackspaceExtensionType {
-    return this.with(backspaceExtension) as this & BackspaceExtensionType;
-  }
 }
-
-export type Automaton = AutomatonImpl & BaseExtensionType;
-
-export function build(rule: Rule, kanaText: string): Automaton {
-  const { endNode, rulesByKanaIndex } = buildKanaNode(rule, kanaText);
-  const automaton = new AutomatonImpl(kanaText, buildStrokeNode(endNode), rule, rulesByKanaIndex);
-  return automaton.with(baseExtension);
-}
-
-const baseExtension = {
-  getFinishedWord: AutomatonQuery.getFinishedWord,
-  getPendingWord: AutomatonQuery.getPendingWord,
-  getFinishedStroke: AutomatonQuery.getFinishedStroke,
-  getPendingStroke: AutomatonQuery.getPendingStroke,
-  getEffectiveEdges: AutomatonQuery.getEffectiveEdges,
-  isFinished: AutomatonQuery.isFinished,
-  getFirstInputTime: AutomatonQuery.getFirstInputTime,
-  getLastInputTime: AutomatonQuery.getLastInputTime,
-  getFirstSucceededInputTime: AutomatonQuery.getFirstSucceededInputTime,
-  getLastSucceededInputTime: AutomatonQuery.getLastSucceededInputTime,
-  getFailedInputCount: AutomatonQuery.getFailedInputCount,
-  getTotalInputCount: AutomatonQuery.getTotalInputCount,
-  getFinishedRoman: AutomatonQuery.getFinishedRoman,
-  getPendingRoman: AutomatonQuery.getPendingRoman,
-};
-
-export type BaseExtensionType = {
-  [K in keyof typeof baseExtension]: () => ReturnType<(typeof baseExtension)[K]>;
-};
-
-const backspaceExtension = {
-  getEffectiveFailedInputCount: AutomatonQuery.getEffectiveFailedInputCount,
-  getEffectiveTotalInputCount: AutomatonQuery.getEffectiveTotalInputCount,
-  getEffectiveFirstSucceededInputTime: AutomatonQuery.getEffectiveFirstSucceededInputTime,
-  getEffectiveLastSucceededInputTime: AutomatonQuery.getEffectiveLastSucceededInputTime,
-};
-
-export type BackspaceExtensionType = {
-  [K in keyof typeof backspaceExtension]: () => ReturnType<(typeof backspaceExtension)[K]>;
-};

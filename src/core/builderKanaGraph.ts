@@ -1,5 +1,5 @@
 import { setDefaultFunc } from "../utils/map";
-import type { Rule, RuleEntry } from "./rule";
+import type { normalizerFunc, Rule, RuleEntry, RulePrimitive } from "./rule";
 import type { RuleStroke } from "./ruleStroke";
 
 // build 中にのみ使用する
@@ -88,24 +88,28 @@ export type BuildKanaNodeResult = {
   endNode: KanaNode;
   /**
    * 各 kanaIndex (= 正規化後の文字列上の位置) で、その位置からの入力を開始するエントリを
-   * 1つ以上寄与した Rule をチェーン順に unique 化した配列。
+   * 1つ以上寄与した RulePrimitive を合成順に unique 化した配列。
    *
-   * 例: NICOLA → alphanumeric のチェーンで "ABCマート" を build した場合
+   * 例: NICOLA + alphanumeric の合成で "ABCマート" を build した場合
    *   rulesByKanaIndex[0..2] = [alphanumeric]  (A, B, C)
    *   rulesByKanaIndex[3..6] = [nicola]        (マ, ー, ト)
    */
-  rulesByKanaIndex: readonly (readonly Rule[])[];
+  rulesByKanaIndex: readonly (readonly RulePrimitive[])[];
 };
 
-export function buildKanaNode(rule: Rule, kanaText: string): BuildKanaNodeResult {
-  const normalizedKanaText = rule.normalize(kanaText);
+export function buildKanaNode(
+  rule: Rule,
+  kanaText: string,
+  normalize: normalizerFunc,
+): BuildKanaNodeResult {
+  const normalizedKanaText = normalize(kanaText);
   // かなテキスト1文字1文字に対応する KanaNode を作成する
   const kanaNodes = [...normalizedKanaText].map((_, i) => new KanaNode(i, [], []));
   const endNode = new KanaNode(normalizedKanaText.length, [], []); // 終端ノード
   const kanaNodesWithEnd = [...kanaNodes, endNode];
-  const rulesByKanaIndex: Set<Rule>[] = Array.from(
+  const rulesByKanaIndex: Set<RulePrimitive>[] = Array.from(
     { length: normalizedKanaText.length + 1 },
-    () => new Set<Rule>(),
+    () => new Set<RulePrimitive>(),
   );
   if (normalizedKanaText.length === 0) {
     // 空文字列の場合は終端ノードのみを返す
@@ -121,14 +125,14 @@ export function buildKanaNode(rule: Rule, kanaText: string): BuildKanaNodeResult
   i=1 あ の末尾から手前にチェック
   */
   const normalizedEntryOutputMap: Map<RuleEntry, string> = new Map();
-  const chainedRules = Array.from(rule.chain());
+  const primitives = rule.primitives;
   for (let i = normalizedKanaText.length; i > 0; i--) {
     const kanaPrefix = normalizedKanaText.substring(0, i);
     const nextNode = kanaNodesWithEnd[i];
-    for (const r of chainedRules) {
+    for (const r of primitives) {
       for (let entry of r.entries) {
         const normalizedEntryOutput = setDefaultFunc(normalizedEntryOutputMap, entry, () =>
-          rule.normalize(entry.output),
+          normalize(entry.output),
         );
         if (kanaPrefix.endsWith(normalizedEntryOutput)) {
           const previousNode = kanaNodesWithEnd[kanaPrefix.length - entry.output.length];
