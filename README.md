@@ -27,7 +27,50 @@ emiel（エミエル）は超汎用日本語タイピングゲーム用ライブ
 
 # 使い方
 
-<a href="./examples/">examples/</a> を参照してください。
+## インストール
+
+```bash
+npm install emiel
+```
+
+## 最小コード例
+
+```typescript
+import {
+  build,
+  activate,
+  detectKeyboardLayout,
+  loadPresetRuleRoman,
+} from "emiel";
+
+// キーボードレイアウトを自動検出
+const layout = await detectKeyboardLayout(window);
+
+// ローマ字入力ルールとオートマトンを作成
+const rule = loadPresetRuleRoman(layout);
+const automaton = build(rule, "かった");
+
+// キーボードイベントを購読
+activate(window, (event) => {
+  const result = automaton.input(event);
+  console.log(automaton.getFinishedRoman(), automaton.getPendingRoman());
+  if (result.isFinished) {
+    console.log("入力完了!");
+  }
+});
+```
+
+## Examples
+
+- <a href="./examples/react-simple">react-simple</a> - 単語を次々と入力するシンプルなタイピング練習
+- <a href="./examples/react-backspace">react-backspace</a> - バックスペースの3つの実装パターン比較（全クリア/カウント/入力戻し）
+- <a href="./examples/react-roman-or-kana">react-roman-or-kana</a> - ローマ字入力とJISかな入力の両対応デュアル入力モード
+- <a href="./examples/react-mixed-guide">react-mixed-guide</a> - 漢字かな混じりテキストのローマ字入力
+- <a href="./examples/react-multi-word">react-multi-word</a> - 複数単語を同時表示するマルチターゲットタイピング
+- <a href="./examples/react-result-record">react-result-record</a> - タイピング成績（タイム・入力数）の記録・表示
+- <a href="./examples/react-keyboardguide">react-keyboardguide</a> - 物理キーボード配列・入力ガイドのビジュアライザー
+- <a href="./examples/react-stroke-graph">react-stroke-graph</a> - キー入力の状態遷移をグラフで可視化
+- <a href="./examples/cli">cli</a> - Node.js 環境でのオートマトン直接操作
 
 # 特徴
 
