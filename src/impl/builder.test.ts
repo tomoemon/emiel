@@ -19,7 +19,7 @@ ltu	っ
 `,
     loadPresetKeyboardLayoutQwertyJis(),
   );
-  const { startNode, endNode: endKanaNode } = buildKanaNode(rule, "おった");
+  const { startNode, endNode: endKanaNode } = buildKanaNode(rule, "おった", (v) => v);
   expect(startNode.nextEdges[0].entries[0].output).toBe("お");
   const nextNode = startNode.nextEdges[0].next;
   expect(nextNode.nextEdges.length).toBe(2);
@@ -41,7 +41,7 @@ x	あいう
 `,
     loadPresetKeyboardLayoutQwertyJis(),
   );
-  const { startNode, endNode } = buildKanaNode(rule, "あいう");
+  const { startNode, endNode } = buildKanaNode(rule, "あいう", (v) => v);
   expect(startNode.nextEdges.length).toBe(1);
   expect((startNode.nextEdges[0].entries[0].input[0] as ModifierStroke).key).toBe(VirtualKeys.X);
   expect(startNode.nextEdges[0].next).toBe(endNode);

@@ -8,7 +8,7 @@ import { type VirtualKey, VirtualKeys } from "./virtualKey";
 export type normalizerFunc = (value: string) => string;
 
 /**
- * 1つの入力定義を表す。T 型は
+ * 1つの入力定義を表す。
  * @property input 受け入れ可能なキー入力列
  * @property output 出力文字列
  * @property nextInput 次の入力として自動入力されるキー入力列
@@ -85,123 +85,176 @@ khi/き
 というルールが有る場合でも、やはりこれで良い。（nk まで打った時点で n/ん は確定できるので）
 nk/ん/k
 */
-export class Rule {
+
+/**
+ * 入力ルールを表す公開 interface。1 つの primitive な定義 (RulePrimitive) か、
+ * 複数の primitive を合成したもの (内部 RuleSet) のいずれかが実装する。
+ *
+ * entriesByKey / entriesByModifier は `primitives` 全体を事前マージした結果を返す契約。
+ * RulePrimitive 実装は自身の entries のみ、合成実装は全 parts の union を返す。
+ */
+export interface Rule {
+  readonly name: string;
+  readonly guide?: KeyboardGuide;
+  readonly backspaceStrokes: readonly RuleStroke[];
+  readonly primitives: readonly RulePrimitive[];
+  entriesByKey(key: VirtualKey): readonly RuleEntry[];
+  entriesByModifier(key: VirtualKey): readonly RuleEntry[];
+  compose(other: Rule): Rule;
+}
+
+/**
+ * 1 つの primitive な入力定義。entries と自身のメタデータ (name, guide,
+ * backspaceStrokes) を持ち、自身の entries に対するキー引きインデックスを
+ * 事前構築する。位置に依存しない再利用可能な定義。
+ *
+ * 2 つの Rule を合成する場合は `a.compose(b)` を使うと内部で RuleSet が生成される。
+ */
+export class RulePrimitive implements Rule {
+  readonly entries: readonly RuleEntry[];
   /**
-   * Rule.backspaceStrokes: 入力方式が「特定のキーストロークを backspace として扱う」
+   * RulePrimitive.backspaceStrokes: 入力方式が「特定のキーストロークを backspace として扱う」
    * ケース (例: naginata 式の U 単独打鍵) を表現するための、現在ノードに依存せず
    * 常に受理される特殊ストローク群。expandPrefixRules や entriesByKey 等の通常入力
    * 経路のキャッシュには含まれない。
    *
    * 省略時のデフォルトは VirtualKeys.Backspace 単独打鍵のみ。明示的に指定された場合は
    * その指定がそのまま使われる (Backspace キーを含めるかどうかは呼び出し側の判断)。
-   *
-   * チェーン化された Rule (next が指定された Rule) では、チェーン先頭 (head) の Rule
-   * の backspaceStrokes が採用される。チェーン末尾側の Rule の backspaceStrokes は無視される。
    */
   readonly backspaceStrokes: readonly RuleStroke[];
+  readonly name: string;
+  readonly guide?: KeyboardGuide;
 
-  // 入力ワードと RuleEntry.output の表記ゆれを吸収する関数 (例: ひらがな⇔カタカナ,
-  // 全角英数⇔半角英数)。これにより "カタカナ" という word が "かたかな" を対象とする
-  // entry にマッチできる。
-  private readonly ownNormalize: normalizerFunc;
-  // この Rule 自身の entries に対するキー引きインデックス。チェーン先の検索に使うため
-  // private だが、同クラス内なら別インスタンスのものも参照できる。
-  private readonly ownEntriesByKey: Map<VirtualKey, RuleEntry[]> = new Map();
-  private readonly ownEntriesByModifier: Map<VirtualKey, RuleEntry[]> = new Map();
-  // チェーン全体を事前マージしたキー引きインデックス。constructor 内で eager に構築され、
-  // 以降変更されない。head 単独の場合は ownEntriesBy* をそのまま参照する。
-  // 入力ホットパス (committer の entriesByKey / entriesByModifier) で毎回走査しないため。
-  private readonly effectiveByKey: Map<VirtualKey, RuleEntry[]>;
-  private readonly effectiveByModifier: Map<VirtualKey, RuleEntry[]>;
+  /** @internal 同ファイル内の RuleSet が合成時に直接マージするため公開している */
+  readonly ownByKey: ReadonlyMap<VirtualKey, readonly RuleEntry[]>;
+  /** @internal */
+  readonly ownByModifier: ReadonlyMap<VirtualKey, readonly RuleEntry[]>;
 
   /**
    * @param entries 入力ルールのエントリ
-   * @param normalize 入力ワードのかな文字を正規化する関数
    * @param name 入力ルールの名前
    * @param backspaceStrokes backspace として扱う RuleStroke 群。
    *                         undefined の場合は VirtualKeys.Backspace 単独打鍵のみが
    *                         デフォルトとして設定される。空配列を渡すと backspace 無効
    * @param guide この Rule に紐づく KeyboardGuide。未指定なら undefined
-   * @param next チェーン上の次の Rule
    */
   constructor(
-    readonly entries: RuleEntry[],
-    normalize: normalizerFunc,
-    readonly name: string = "",
+    entries: RuleEntry[],
+    name = "",
     backspaceStrokes?: readonly RuleStroke[],
-    readonly guide?: KeyboardGuide,
-    readonly next?: Rule,
+    guide?: KeyboardGuide,
   ) {
-    this.ownNormalize = normalize;
     this.entries = expandPrefixRules(entries);
+    this.name = name;
+    this.guide = guide;
     this.backspaceStrokes = backspaceStrokes ?? [
       new ModifierStroke(VirtualKeys.Backspace, AndModifier.empty),
     ];
 
-    // SimultaneousStroke の場合は keys の全要素を登録キーとする
+    const byKey = new Map<VirtualKey, RuleEntry[]>();
+    const byModifier = new Map<VirtualKey, RuleEntry[]>();
     for (const entry of this.entries) {
       const firstStroke = entry.input[0];
+      // SimultaneousStroke の場合は keys の全要素を登録キーとする
       for (const firstInputKey of ruleStrokeKeys(firstStroke)) {
-        setDefault(this.ownEntriesByKey, firstInputKey, []).push(entry);
+        setDefault(byKey, firstInputKey, []).push(entry);
       }
-    }
-    // ModifierStroke のみ requiredModifier を持つ。SimultaneousStroke は対象外。
-    for (const entry of this.entries) {
-      const firstStroke = entry.input[0];
-      if (firstStroke.kind !== "modifier") continue;
-      for (const g of firstStroke.requiredModifier.groups) {
-        for (const modifierKey of g.modifiers) {
-          setDefault(this.ownEntriesByModifier, modifierKey, []).push(entry);
+      // ModifierStroke のみ requiredModifier を持つ。SimultaneousStroke は対象外。
+      if (firstStroke.kind === "modifier") {
+        for (const g of firstStroke.requiredModifier.groups) {
+          for (const modifierKey of g.modifiers) {
+            setDefault(byModifier, modifierKey, []).push(entry);
+          }
         }
       }
     }
-
-    if (next) {
-      this.effectiveByKey = mergeChainMaps(this, (r) => r.ownEntriesByKey);
-      this.effectiveByModifier = mergeChainMaps(this, (r) => r.ownEntriesByModifier);
-    } else {
-      this.effectiveByKey = this.ownEntriesByKey;
-      this.effectiveByModifier = this.ownEntriesByModifier;
-    }
+    this.ownByKey = byKey;
+    this.ownByModifier = byModifier;
   }
 
-  /**
-   * チェーンに含まれる Rule を head から順に返すイテレータ。
-   */
-  *chain(): Iterable<Rule> {
-    yield this;
-    if (this.next !== undefined) {
-      yield* this.next.chain();
-    }
+  get primitives(): readonly RulePrimitive[] {
+    return [this];
   }
 
-  /**
-   * 入力ワードを正規化する。チェーン化された Rule では head から順に合成する。
-   */
-  normalize(v: string): string {
-    const result = this.ownNormalize(v);
-    return this.next ? this.next.normalize(result) : result;
+  entriesByKey(inputKey: VirtualKey): readonly RuleEntry[] {
+    return this.ownByKey.get(inputKey) ?? [];
   }
 
-  entriesByKey(inputKey: VirtualKey): RuleEntry[] {
-    return this.effectiveByKey.get(inputKey) ?? [];
+  entriesByModifier(modifierKey: VirtualKey): readonly RuleEntry[] {
+    return this.ownByModifier.get(modifierKey) ?? [];
   }
 
-  entriesByModifier(modifierKey: VirtualKey): RuleEntry[] {
-    return this.effectiveByModifier.get(modifierKey) ?? [];
+  compose(other: Rule): Rule {
+    return composeRules(this, other);
   }
 }
 
-function mergeChainMaps(
-  head: Rule,
-  // 同クラス内なのでチェーン先の private フィールドにもアクセスできる
-  getMap: (r: Rule) => Map<VirtualKey, RuleEntry[]>,
-): Map<VirtualKey, RuleEntry[]> {
-  const merged = new Map<VirtualKey, RuleEntry[]>();
-  for (const r of head.chain()) {
-    for (const [key, entries] of getMap(r)) {
-      setDefault(merged, key, []).push(...entries);
+/**
+ * 複数の RulePrimitive を合成したルール。head/tail 採用ポリシー (最初の primitive を
+ * 合成全体の代表とする) はここの getter dispatch に閉じ、RulePrimitive 側には非対称性を
+ * 持ち込まない。
+ *
+ * 外部からは直接 `new RuleSet(...)` せず `a.compose(b)` 経由で生成する。
+ */
+class RuleSet implements Rule {
+  private readonly parts: readonly RulePrimitive[];
+  private readonly mergedByKey: ReadonlyMap<VirtualKey, readonly RuleEntry[]>;
+  private readonly mergedByModifier: ReadonlyMap<VirtualKey, readonly RuleEntry[]>;
+
+  constructor(parts: readonly RulePrimitive[]) {
+    if (parts.length === 0) {
+      throw new Error("RuleSet requires at least one primitive");
     }
+    this.parts = parts;
+    const byKey = new Map<VirtualKey, RuleEntry[]>();
+    const byModifier = new Map<VirtualKey, RuleEntry[]>();
+    for (const p of parts) {
+      for (const [key, entries] of p.ownByKey) {
+        setDefault(byKey, key, []).push(...entries);
+      }
+      for (const [modKey, entries] of p.ownByModifier) {
+        setDefault(byModifier, modKey, []).push(...entries);
+      }
+    }
+    this.mergedByKey = byKey;
+    this.mergedByModifier = byModifier;
   }
-  return merged;
+
+  get name(): string {
+    return this.parts[0].name;
+  }
+  get guide(): KeyboardGuide | undefined {
+    return this.parts[0].guide;
+  }
+  get backspaceStrokes(): readonly RuleStroke[] {
+    return this.parts[0].backspaceStrokes;
+  }
+  get primitives(): readonly RulePrimitive[] {
+    return this.parts;
+  }
+
+  entriesByKey(inputKey: VirtualKey): readonly RuleEntry[] {
+    return this.mergedByKey.get(inputKey) ?? [];
+  }
+
+  entriesByModifier(modifierKey: VirtualKey): readonly RuleEntry[] {
+    return this.mergedByModifier.get(modifierKey) ?? [];
+  }
+
+  compose(other: Rule): Rule {
+    return composeRules(this, other);
+  }
+}
+
+/**
+ * 2 つの Rule を合成して新しい Rule を返す。
+ *
+ * - 入力の primitives を linear 化して並べるだけで、入れ子は発生しない
+ *   (RulePrimitive.primitives は [this]、RuleSet.primitives は parts を返すため)。
+ * - 同じ RulePrimitive インスタンスを 2 度合成した場合は重複が並ぶ。重複排除は行わない
+ *   (利用者責任)。
+ */
+function composeRules(a: Rule, b: Rule): Rule {
+  const flattened: RulePrimitive[] = [...a.primitives, ...b.primitives];
+  return new RuleSet(flattened);
 }

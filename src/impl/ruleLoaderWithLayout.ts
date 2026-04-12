@@ -9,7 +9,7 @@ export function loadMozcRuleWithLayout(
   layout: KeyboardLayout,
   name: string = "",
 ): Rule {
-  return loadMozcRule(ruleData, layout, name, newAlphaNumericRuleByLayout(layout));
+  return loadMozcRule(ruleData, layout, name).compose(newAlphaNumericRuleByLayout(layout));
 }
 
 export function loadJsonRuleWithLayout(
@@ -17,5 +17,5 @@ export function loadJsonRuleWithLayout(
   layout: KeyboardLayout,
   name: string = "",
 ): Rule {
-  return loadJsonRule(ruleData, name, newAlphaNumericRuleByLayout(layout));
+  return loadJsonRule(ruleData, name).compose(newAlphaNumericRuleByLayout(layout));
 }

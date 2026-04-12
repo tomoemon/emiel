@@ -238,3 +238,15 @@ export function defaultAlphaNumericNormalize(value: string): string {
     })
     .join("");
 }
+
+/**
+ * かな正規化と英数字正規化を合成したデフォルト normalize。
+ * emiel のかな系プリセット (NICOLA, JIS かな, 薙刀式 V15, Roman) は
+ * いずれもこの合成 normalize で期待通り動作する。
+ * `build(rule, text)` の第 3 引数の default に使用される。
+ *
+ * 2 つの normalize は disjoint な文字集合を対象とするため順序依存なし。
+ */
+export function defaultComposedNormalize(value: string): string {
+  return defaultAlphaNumericNormalize(defaultKanaNormalize(value));
+}

@@ -9,7 +9,7 @@ export { InputEvent, InputStroke } from "./core/inputEvent";
 export { KeyboardLayout } from "./core/keyboardLayout";
 export { KeyboardState, type KeyboardStateReader } from "./core/keyboardState";
 export { AndModifier, ModifierGroup } from "./core/modifier";
-export { Rule, RuleEntry } from "./core/rule";
+export { type Rule, RulePrimitive, RuleEntry, type normalizerFunc } from "./core/rule";
 export { ModifierStroke, SimultaneousStroke, type RuleStroke } from "./core/ruleStroke";
 export { Selector, type Inputtable } from "./core/selector";
 export { VirtualKey, VirtualKeys } from "./core/virtualKey";
@@ -38,5 +38,11 @@ export { loadJsonKeyboardGuide } from "./impl/keyboardGuideLoader";
 export * from "./impl/presets";
 export * from "./impl/stats";
 
-export { build } from "./core/automaton";
-export type { Automaton, BackspaceExtensionType } from "./core/automaton";
+export {
+  defaultKanaNormalize,
+  defaultAlphaNumericNormalize,
+  defaultComposedNormalize,
+} from "./impl/charNormalizer";
+
+export { build, type Automaton, type BaseExtensionType } from "./impl/buildAutomaton";
+export { backspaceExtension, type BackspaceExtensionType } from "./impl/automatonQuery";

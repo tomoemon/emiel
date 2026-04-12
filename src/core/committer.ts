@@ -361,7 +361,9 @@ function matchOtherEdge(
   if (candidateEdges.length === 0) {
     return { type: "none", keyCount: 0 };
   }
-  // 今回の入力が Rule 内のいずれかの entry の最初の入力に match する
+  // 今回の入力が Rule 内のいずれかの entry の最初の入力に match する。
+  // Rule.entriesByKey/Modifier は interface の契約として「primitives 全体を事前マージした
+  // 結果」を返すので、ここでは合成された全 primitive の entries を一括で走査している。
   const otherMatched = rule.entriesByKey(event.input.key).filter((entry) => {
     const firstStroke = entry.input[0];
     if (firstStroke.kind !== "modifier") {

@@ -5,16 +5,13 @@
 Automaton の状態参照 API は、用途に応じてビルダーチェーンで必要な機能を追加する設計をとる。
 
 ```typescript
-import { build } from "emiel";
+import { build, backspaceExtension } from "emiel";
 
 // 基本
 const a = build(rule, "こんにちは");
 
 // backspace 考慮クエリ付き
-const a = build(rule, "こんにちは").withBackspace();
-
-// 組み合わせ
-const a = build(rule, "こんにちは").withBackspace();
+const a = build(rule, "こんにちは").with(backspaceExtension);
 
 // カスタム拡張
 const a = build(rule, "こんにちは").with({
@@ -53,9 +50,9 @@ const a = build(rule, "こんにちは").with({
 - `getPendingRoman()` — 未入力のローマ字列（同上）
 - `back()` — 直前の成功遷移を1つ取り消す
 
-### Backspace 拡張（withBackspace）
+### Backspace 拡張（backspaceExtension）
 
-back() で取り消された区間を考慮した統計クエリを別名で追加する。基本クエリの挙動は変わらない。
+back() で取り消された区間を考慮した統計クエリを別名で追加する。利用者は `.with(backspaceExtension)` で opt-in する。基本クエリの挙動は変わらない。
 
 - `getEffectiveFailedInputCount()` — back() で取り消された区間のミスを除外した失敗数
 - `getEffectiveTotalInputCount()` — getEffectiveEdges.length + getEffectiveFailedInputCount
@@ -84,16 +81,16 @@ a.getKPM();      // number
 
 ```
 Automaton = AutomatonImpl & BaseExtensionType
-  .withBackspace() -> this & BackspaceExtensionType
-  .with(custom)    -> this & { [K]: () => ReturnType<custom[K]> }
+  .with(backspaceExtension) -> this & BackspaceExtensionType
+  .with(custom)              -> this & { [K]: () => ReturnType<custom[K]> }
 ```
 
 back() は AutomatonImpl のメソッドとして常に公開。
-各チェーンは `this &` を返すため、自由に組み合わせられる。
+`.with()` は `this &` を返すため、自由に組み合わせられる。
 
 ## Selector との互換性
 
-Selector は `Inputtable` インターフェース（`input()` + `reset()` のみ）に依存する。withBackspace の有無に関わらず、すべての Automaton は Selector で管理できる。
+Selector は `Inputtable` インターフェース（`input()` + `reset()` のみ）に依存する。backspaceExtension の有無に関わらず、すべての Automaton は Selector で管理できる。
 
 ```typescript
 import { build, Selector } from "emiel";

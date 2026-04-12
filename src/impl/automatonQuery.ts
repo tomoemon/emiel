@@ -1,6 +1,6 @@
-import type { StrokeEdge } from "./builderStrokeGraph";
-import type { AutomatonState, InputHistoryEntry } from "./automatonState";
-import type { RuleStroke } from "./ruleStroke";
+import type { AutomatonState, InputHistoryEntry } from "../core/automatonState";
+import type { StrokeEdge } from "../core/builderStrokeGraph";
+import type { RuleStroke } from "../core/ruleStroke";
 
 function inputEntries(state: AutomatonState): InputHistoryEntry[] {
   return state.inputHistory.filter((e): e is InputHistoryEntry => !("back" in e));
@@ -211,3 +211,18 @@ export function getEffectiveLastSucceededInputTime(state: AutomatonState): Date 
   if (!lastSucceededTime) throw new Error("No effective succeeded input found");
   return lastSucceededTime;
 }
+
+/**
+ * backspace を考慮した統計クエリの拡張セット。
+ * 利用者は `build(rule, word).with(backspaceExtension)` で追加できる。
+ */
+export const backspaceExtension = {
+  getEffectiveFailedInputCount,
+  getEffectiveTotalInputCount,
+  getEffectiveFirstSucceededInputTime,
+  getEffectiveLastSucceededInputTime,
+};
+
+export type BackspaceExtensionType = {
+  [K in keyof typeof backspaceExtension]: () => ReturnType<(typeof backspaceExtension)[K]>;
+};
