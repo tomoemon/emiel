@@ -86,7 +86,7 @@ const kanaNormalizeBaseMap = {
   ー: "-",
 };
 
-const alphaNumericNormalizeBaseMap = {
+const directInputNormalizeBaseMap = {
   Ａ: "A",
   Ｂ: "B",
   Ｃ: "C",
@@ -211,10 +211,10 @@ const kanaNormalizeMap = Object.assign(
   Object.fromEntries(Object.values(kanaNormalizeBaseMap).map((v) => [v, v])),
 );
 
-const alphaNumericNormalizeMap = Object.assign(
+const directInputNormalizeMap = Object.assign(
   {},
-  alphaNumericNormalizeBaseMap,
-  Object.fromEntries(Object.values(alphaNumericNormalizeBaseMap).map((v) => [v, v])),
+  directInputNormalizeBaseMap,
+  Object.fromEntries(Object.values(directInputNormalizeBaseMap).map((v) => [v, v])),
 );
 
 export function defaultKanaNormalize(value: string): string {
@@ -228,19 +228,19 @@ export function defaultKanaNormalize(value: string): string {
     .join("");
 }
 
-export function defaultAlphaNumericNormalize(value: string): string {
+export function defaultDirectInputNormalize(value: string): string {
   return Array.from(value)
     .map((c) => {
-      if (!(c in alphaNumericNormalizeMap)) {
+      if (!(c in directInputNormalizeMap)) {
         return c;
       }
-      return alphaNumericNormalizeMap[c];
+      return directInputNormalizeMap[c];
     })
     .join("");
 }
 
 /**
- * かな正規化と英数字正規化を合成したデフォルト normalize。
+ * かな正規化と直接入力文字正規化を合成したデフォルト normalize。
  * emiel のかな系プリセット (NICOLA, JIS かな, 薙刀式 V15, Roman) は
  * いずれもこの合成 normalize で期待通り動作する。
  * `build(rule, text)` の第 3 引数の default に使用される。
@@ -248,5 +248,5 @@ export function defaultAlphaNumericNormalize(value: string): string {
  * 2 つの normalize は disjoint な文字集合を対象とするため順序依存なし。
  */
 export function defaultComposedNormalize(value: string): string {
-  return defaultAlphaNumericNormalize(defaultKanaNormalize(value));
+  return defaultDirectInputNormalize(defaultKanaNormalize(value));
 }

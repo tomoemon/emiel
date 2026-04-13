@@ -1,4 +1,5 @@
 import { describe, expect, test } from "vitest";
+import { createDirectInputRule } from "../impl/directInputRule";
 import { loadJsonRule } from "../impl/jsonRuleLoader";
 import { loadPresetKeyboardLayoutQwertyJis } from "../impl/presets";
 import {
@@ -40,7 +41,7 @@ function runInputs(
 }
 
 describe("StrokeCommitter naginata (ModifierStroke + SimultaneousStroke 混在)", () => {
-  const rule = loadPresetRuleNaginatashikiV15(loadPresetKeyboardLayoutQwertyJis());
+  const rule = loadPresetRuleNaginatashikiV15();
 
   test("W 単独押し: き (単キー ModifierStroke)", () => {
     // word="き" のグラフには W 単打の ModifierStroke(empty) しかないため即確定
@@ -202,7 +203,7 @@ describe("StrokeCommitter 衝突解決", () => {
 describe("StrokeCommitter 押しっぱなしモディファイア (nicola)", () => {
   // nicola では LangLeft/LangRight が親指シフトキーとして同時押しに参加する。
   // thumb-shift を押しっぱなしで連続同時押し入力できることを確認する。
-  const rule = loadPresetRuleNicola(loadPresetKeyboardLayoutQwertyJis());
+  const rule = loadPresetRuleNicola();
 
   test("nicola 単打エントリ: A 単独押しで単打ルールが確定", () => {
     // nicola の A 単打エントリ (A → う)
@@ -266,7 +267,7 @@ describe("StrokeCommitter 押しっぱなしモディファイア (nicola)", () 
 });
 
 describe("StrokeCommitter jis_kana (単打 + Shift modifier)", () => {
-  const rule = loadPresetRuleJisKana(loadPresetKeyboardLayoutQwertyJis());
+  const rule = loadPresetRuleJisKana();
 
   test("Digit3 単打 → あ", () => {
     const { automaton } = runInputs(rule, "あ", [
@@ -303,7 +304,8 @@ describe("StrokeCommitter jis_kana (単打 + Shift modifier)", () => {
 });
 
 describe("StrokeCommitter tentative failure は元キーの keyup でのみ発火", () => {
-  const rule = loadPresetRuleNaginatashikiV15(loadPresetKeyboardLayoutQwertyJis());
+  const layout = loadPresetKeyboardLayoutQwertyJis();
+  const rule = loadPresetRuleNaginatashikiV15().compose(createDirectInputRule(layout));
 
   test("Space+U は backspace ではなく failed (さ の方が具体的)", () => {
     // naginata "お" = N+Space。Space 先押し後に U を押すと、"さ" (Space+U, keyCount=2)

@@ -28,7 +28,7 @@ export {
 } from "./impl/physicalKeyboardLayout";
 
 export { detectKeyboardLayout } from "./browser/osKeyboardLayout";
-export * from "./impl/alphaNumericRule";
+export * from "./impl/directInputRule";
 export { loadJsonKeyboardLayout } from "./impl/keyboardLayoutLoader";
 
 export { loadJsonRule } from "./impl/jsonRuleLoader";
@@ -40,7 +40,7 @@ export * from "./impl/stats";
 
 export {
   defaultKanaNormalize,
-  defaultAlphaNumericNormalize,
+  defaultDirectInputNormalize,
   defaultComposedNormalize,
 } from "./impl/charNormalizer";
 

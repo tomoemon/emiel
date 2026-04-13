@@ -28,9 +28,9 @@ function Typing(props: { layout: KeyboardLayout }) {
   const rules = useMemo(
     () => [
       { name: "ローマ字", rule: loadPresetRuleRoman(props.layout) },
-      { name: "JISかな", rule: loadPresetRuleJisKana(props.layout) },
-      { name: "NICOLA", rule: loadPresetRuleNicola(props.layout) },
-      { name: "薙刀式", rule: loadPresetRuleNaginatashikiV15(props.layout) },
+      { name: "JISかな", rule: loadPresetRuleJisKana() },
+      { name: "NICOLA", rule: loadPresetRuleNicola() },
+      { name: "薙刀式", rule: loadPresetRuleNaginatashikiV15() },
     ],
     [props.layout],
   );

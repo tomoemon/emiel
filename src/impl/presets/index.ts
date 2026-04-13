@@ -1,4 +1,4 @@
-export { loadPresetKeyboardGuideAlphanumeric } from "./keyboardGuideAlphanumeric";
+export { loadPresetKeyboardGuideDirectInput } from "./keyboardGuideDirectInput";
 export { loadPresetPhysicalKeyboardLayoutJis106 } from "./physicalKeyboardLayoutJis106";
 export { loadPresetPhysicalKeyboardLayoutUs101 } from "./physicalKeyboardLayoutUs101";
 export { loadPresetPhysicalKeyboardLayoutUsHhkb } from "./physicalKeyboardLayoutUsHhkb";

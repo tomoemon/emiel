@@ -1,44 +1,32 @@
-import type { InputStroke, KeyboardLayout } from "emiel";
+import type { InputStroke } from "emiel";
 import {
   activate,
   build,
   createDirectInputRule,
-  detectKeyboardLayout,
+  loadPresetKeyboardLayoutDvorak,
+  loadPresetKeyboardLayoutQwertyJis,
   loadPresetRuleRoman,
 } from "emiel";
 import { useEffect, useMemo, useState } from "react";
 import "./App.css";
 
+const words = ["おをひく", "apple", "docomoとau"];
+
 function App() {
-  const [layout, setLayout] = useState<KeyboardLayout | undefined>();
-  useEffect(() => {
-    detectKeyboardLayout(window).then(setLayout).catch(console.error);
+  const rule = useMemo(() => {
+    // ローマ字 → かな変換は Qwerty JIS 配列で物理キーに解決する。
+    const kanaLayout = loadPresetKeyboardLayoutQwertyJis();
+    // 直接入力（英字・記号）は Dvorak 配列で物理キーに解決する。
+    const alphaLayout = loadPresetKeyboardLayoutDvorak();
+    return loadPresetRuleRoman(kanaLayout).compose(createDirectInputRule(alphaLayout));
   }, []);
-  return layout ? <Typing layout={layout} /> : <></>;
-}
-
-const words = ["おをひく", "こんとん", "がっこう", "aから@"];
-
-function Typing(props: { layout: KeyboardLayout }) {
-  // loadPresetRuleRoman は「ローマ字 → かな変換」だけの素の Rule を返す。
-  // words に英字・記号（例: "aから@"）が含まれる場合は、直接入力 Rule を
-  // createDirectInputRule(layout) で作って compose する必要がある。
-  const romanRule = useMemo(
-    () => loadPresetRuleRoman(props.layout).compose(createDirectInputRule(props.layout)),
-    [props.layout],
-  );
-  const [automatons] = useState(
-    words.map((w) => {
-      return build(romanRule, w);
-    }),
-  );
+  const [automatons] = useState(words.map((w) => build(rule, w)));
   const [wordIndex, setWordIndex] = useState(0);
   const [lastInputKey, setLastInputKey] = useState<InputStroke | undefined>();
   useEffect(() => {
     return activate(window, (e) => {
       setLastInputKey(e.input);
       const result = automatons[wordIndex].input(e);
-      console.log(e.input.key.toString(), e.input.type, result);
       if (result.isFinished) {
         automatons[wordIndex].reset();
         setWordIndex((current) => (current + 1) % words.length);
@@ -48,6 +36,7 @@ function Typing(props: { layout: KeyboardLayout }) {
   const automaton = automatons[wordIndex];
   return (
     <>
+      <p>かな: Qwerty JIS ローマ字 / 英字: Dvorak</p>
       <h1>
         <span style={{ color: "gray" }}>{automaton.getFinishedWord()}</span>{" "}
         {automaton.getPendingWord()}

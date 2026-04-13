@@ -84,7 +84,7 @@ function App() {
 function Typing(props: { layout: KeyboardLayout }) {
   const words = ["おをひく", "こんとん", "がっこう", "aから@"];
   const romanRule = useMemo(() => loadPresetRuleRoman(props.layout), [props.layout]);
-  const kanaRule = useMemo(() => loadPresetRuleJisKana(props.layout), [props.layout]);
+  const kanaRule = useMemo(() => loadPresetRuleJisKana(), []);
   const [selectors, setSelectors] = useState<WordCandidates[]>(() =>
     words.map((w) => createCandidates(w, romanRule, kanaRule)),
   );

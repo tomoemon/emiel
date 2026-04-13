@@ -90,8 +90,8 @@ export type BuildKanaNodeResult = {
    * 各 kanaIndex (= 正規化後の文字列上の位置) で、その位置からの入力を開始するエントリを
    * 1つ以上寄与した RulePrimitive を合成順に unique 化した配列。
    *
-   * 例: NICOLA + alphanumeric の合成で "ABCマート" を build した場合
-   *   rulesByKanaIndex[0..2] = [alphanumeric]  (A, B, C)
+   * 例: NICOLA + directInput の合成で "ABCマート" を build した場合
+   *   rulesByKanaIndex[0..2] = [directInput]  (A, B, C)
    *   rulesByKanaIndex[3..6] = [nicola]        (マ, ー, ト)
    */
   rulesByKanaIndex: readonly (readonly RulePrimitive[])[];
