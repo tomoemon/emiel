@@ -7,7 +7,7 @@ import type {
 import {
   KeyboardState,
   activate,
-  loadPresetKeyboardGuideAlphanumeric,
+  loadPresetKeyboardGuideDirectInput,
   loadPresetKeyboardLayoutDvorak,
   loadPresetKeyboardLayoutQwertyJis,
   loadPresetKeyboardLayoutQwertyUs,
@@ -22,7 +22,7 @@ import { useEffect, useMemo, useState } from "react";
 
 type LayoutName = "qwerty-jis" | "qwerty-us" | "dvorak";
 type PhysicalLayoutName = "jis_106" | "us_101" | "us_hhkb";
-type GuideName = "alphanumeric" | "jis_106_jis_kana" | "jis_106_nicola";
+type GuideName = "direct_input" | "jis_106_jis_kana" | "jis_106_nicola";
 
 const KEY_SIZE = { keyWidth: 50, keyHeight: 50, gapX: 10, gapY: 10 };
 
@@ -41,7 +41,7 @@ function App() {
   }, []);
   const [physicalLayoutName, setPhysicalLayoutName] = useState<PhysicalLayoutName>("jis_106");
   const [layoutName, setLayoutName] = useState<LayoutName>("qwerty-jis");
-  const [guideName, setGuideName] = useState<GuideName>("alphanumeric");
+  const [guideName, setGuideName] = useState<GuideName>("direct_input");
   const [showVirtualKeyCodes, setShowVirtualKeyCodes] = useState(false);
   return (
     <>
@@ -134,7 +134,7 @@ function GuideSelector(props: { onGuideChange: (guideName: GuideName) => void })
         <h3>配列ガイド</h3>
         <button
           className={selected === 0 ? "selected" : ""}
-          onClick={() => (props.onGuideChange("alphanumeric"), setSelected(0))}
+          onClick={() => (props.onGuideChange("direct_input"), setSelected(0))}
         >
           英数字
         </button>
@@ -181,13 +181,11 @@ function KeyboardGuideComponent(props: {
     [props.physicalLayoutName],
   );
   const kbdGuide = useMemo<KeyboardGuide>(() => {
-    if (props.guideName === "alphanumeric") {
-      return loadPresetKeyboardGuideAlphanumeric();
+    if (props.guideName === "direct_input") {
+      return loadPresetKeyboardGuideDirectInput();
     }
     const rule =
-      props.guideName === "jis_106_nicola"
-        ? loadPresetRuleNicola(layout)
-        : loadPresetRuleJisKana(layout);
+      props.guideName === "jis_106_nicola" ? loadPresetRuleNicola() : loadPresetRuleJisKana();
     if (!rule.guide) {
       throw new Error(`Rule ${props.guideName} has no guide`);
     }

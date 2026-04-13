@@ -1,5 +1,5 @@
 import { expect, test } from "vitest";
-import { defaultAlphaNumericNormalize, defaultKanaNormalize } from "./charNormalizer";
+import { defaultDirectInputNormalize, defaultKanaNormalize } from "./charNormalizer";
 
 test("hiragana normalized: あ", () => {
   expect(defaultKanaNormalize("あ")).toBe("ア");
@@ -10,15 +10,15 @@ test("katakana not changed: ア", () => {
 });
 
 test("number normalized: 1", () => {
-  expect(defaultAlphaNumericNormalize("１")).toBe("1");
+  expect(defaultDirectInputNormalize("１")).toBe("1");
 });
 
 test("sign normalized: @", () => {
-  expect(defaultAlphaNumericNormalize("＠")).toBe("@");
+  expect(defaultDirectInputNormalize("＠")).toBe("@");
 });
 
 test("sign normalized: !", () => {
-  expect(defaultAlphaNumericNormalize("！")).toBe("!");
+  expect(defaultDirectInputNormalize("！")).toBe("!");
 });
 
 test("number not normalized normalized: 1", () => {
