@@ -1,8 +1,14 @@
 import type { KeyboardLayout } from "../../core/keyboardLayout";
 import type { VirtualKey } from "../../core/virtualKey";
+import { loadPresetKeyboardLayoutAstarte } from "./keyboardLayoutAstarte";
+import { loadPresetKeyboardLayoutColemak } from "./keyboardLayoutColemak";
+import { loadPresetKeyboardLayoutColemakDh } from "./keyboardLayoutColemakDh";
 import { loadPresetKeyboardLayoutDvorak } from "./keyboardLayoutDvorak";
+import { loadPresetKeyboardLayoutEucalyn } from "./keyboardLayoutEucalyn";
+import { loadPresetKeyboardLayoutOnishi } from "./keyboardLayoutOnishi";
 import { loadPresetKeyboardLayoutQwertyJis } from "./keyboardLayoutQwertyJis";
 import { loadPresetKeyboardLayoutQwertyUs } from "./keyboardLayoutQwertyUs";
+import { loadPresetKeyboardLayoutTomisukeJis } from "./keyboardLayoutTomisukeJis";
 
 /**
  * 実際に入力されたキーと文字のマッピングから、キーボードレイアウトを推定する。
@@ -16,6 +22,12 @@ export function findMatchedKeyboardLayout(keyToCharMap: Map<VirtualKey, string>)
     loadPresetKeyboardLayoutQwertyJis,
     loadPresetKeyboardLayoutQwertyUs,
     loadPresetKeyboardLayoutDvorak,
+    loadPresetKeyboardLayoutColemak,
+    loadPresetKeyboardLayoutColemakDh,
+    loadPresetKeyboardLayoutOnishi,
+    loadPresetKeyboardLayoutEucalyn,
+    loadPresetKeyboardLayoutAstarte,
+    loadPresetKeyboardLayoutTomisukeJis,
   ]) {
     const layout = layoutLoader();
     if (

@@ -1,0 +1,673 @@
+{
+  "metadata": {
+    "name": "Colemak-DH",
+    "url": "https://colemakmods.github.io/mod-dh/"
+  },
+  "entries": [
+    {
+      "output": "a",
+      "input": {
+        "key": "A",
+        "shift": false
+      }
+    },
+    {
+      "output": "v",
+      "input": {
+        "key": "B",
+        "shift": false
+      }
+    },
+    {
+      "output": "c",
+      "input": {
+        "key": "C",
+        "shift": false
+      }
+    },
+    {
+      "output": "s",
+      "input": {
+        "key": "D",
+        "shift": false
+      }
+    },
+    {
+      "output": "f",
+      "input": {
+        "key": "E",
+        "shift": false
+      }
+    },
+    {
+      "output": "t",
+      "input": {
+        "key": "F",
+        "shift": false
+      }
+    },
+    {
+      "output": "g",
+      "input": {
+        "key": "G",
+        "shift": false
+      }
+    },
+    {
+      "output": "m",
+      "input": {
+        "key": "H",
+        "shift": false
+      }
+    },
+    {
+      "output": "u",
+      "input": {
+        "key": "I",
+        "shift": false
+      }
+    },
+    {
+      "output": "n",
+      "input": {
+        "key": "J",
+        "shift": false
+      }
+    },
+    {
+      "output": "e",
+      "input": {
+        "key": "K",
+        "shift": false
+      }
+    },
+    {
+      "output": "i",
+      "input": {
+        "key": "L",
+        "shift": false
+      }
+    },
+    {
+      "output": "h",
+      "input": {
+        "key": "M",
+        "shift": false
+      }
+    },
+    {
+      "output": "k",
+      "input": {
+        "key": "N",
+        "shift": false
+      }
+    },
+    {
+      "output": "y",
+      "input": {
+        "key": "O",
+        "shift": false
+      }
+    },
+    {
+      "output": ";",
+      "input": {
+        "key": "P",
+        "shift": false
+      }
+    },
+    {
+      "output": "q",
+      "input": {
+        "key": "Q",
+        "shift": false
+      }
+    },
+    {
+      "output": "p",
+      "input": {
+        "key": "R",
+        "shift": false
+      }
+    },
+    {
+      "output": "r",
+      "input": {
+        "key": "S",
+        "shift": false
+      }
+    },
+    {
+      "output": "b",
+      "input": {
+        "key": "T",
+        "shift": false
+      }
+    },
+    {
+      "output": "l",
+      "input": {
+        "key": "U",
+        "shift": false
+      }
+    },
+    {
+      "output": "d",
+      "input": {
+        "key": "V",
+        "shift": false
+      }
+    },
+    {
+      "output": "w",
+      "input": {
+        "key": "W",
+        "shift": false
+      }
+    },
+    {
+      "output": "x",
+      "input": {
+        "key": "X",
+        "shift": false
+      }
+    },
+    {
+      "output": "j",
+      "input": {
+        "key": "Y",
+        "shift": false
+      }
+    },
+    {
+      "output": "z",
+      "input": {
+        "key": "Z",
+        "shift": false
+      }
+    },
+    {
+      "output": "A",
+      "input": {
+        "key": "A",
+        "shift": true
+      }
+    },
+    {
+      "output": "V",
+      "input": {
+        "key": "B",
+        "shift": true
+      }
+    },
+    {
+      "output": "C",
+      "input": {
+        "key": "C",
+        "shift": true
+      }
+    },
+    {
+      "output": "S",
+      "input": {
+        "key": "D",
+        "shift": true
+      }
+    },
+    {
+      "output": "F",
+      "input": {
+        "key": "E",
+        "shift": true
+      }
+    },
+    {
+      "output": "T",
+      "input": {
+        "key": "F",
+        "shift": true
+      }
+    },
+    {
+      "output": "G",
+      "input": {
+        "key": "G",
+        "shift": true
+      }
+    },
+    {
+      "output": "M",
+      "input": {
+        "key": "H",
+        "shift": true
+      }
+    },
+    {
+      "output": "U",
+      "input": {
+        "key": "I",
+        "shift": true
+      }
+    },
+    {
+      "output": "N",
+      "input": {
+        "key": "J",
+        "shift": true
+      }
+    },
+    {
+      "output": "E",
+      "input": {
+        "key": "K",
+        "shift": true
+      }
+    },
+    {
+      "output": "I",
+      "input": {
+        "key": "L",
+        "shift": true
+      }
+    },
+    {
+      "output": "H",
+      "input": {
+        "key": "M",
+        "shift": true
+      }
+    },
+    {
+      "output": "K",
+      "input": {
+        "key": "N",
+        "shift": true
+      }
+    },
+    {
+      "output": "Y",
+      "input": {
+        "key": "O",
+        "shift": true
+      }
+    },
+    {
+      "output": ":",
+      "input": {
+        "key": "P",
+        "shift": true
+      }
+    },
+    {
+      "output": "Q",
+      "input": {
+        "key": "Q",
+        "shift": true
+      }
+    },
+    {
+      "output": "P",
+      "input": {
+        "key": "R",
+        "shift": true
+      }
+    },
+    {
+      "output": "R",
+      "input": {
+        "key": "S",
+        "shift": true
+      }
+    },
+    {
+      "output": "B",
+      "input": {
+        "key": "T",
+        "shift": true
+      }
+    },
+    {
+      "output": "L",
+      "input": {
+        "key": "U",
+        "shift": true
+      }
+    },
+    {
+      "output": "D",
+      "input": {
+        "key": "V",
+        "shift": true
+      }
+    },
+    {
+      "output": "W",
+      "input": {
+        "key": "W",
+        "shift": true
+      }
+    },
+    {
+      "output": "X",
+      "input": {
+        "key": "X",
+        "shift": true
+      }
+    },
+    {
+      "output": "J",
+      "input": {
+        "key": "Y",
+        "shift": true
+      }
+    },
+    {
+      "output": "Z",
+      "input": {
+        "key": "Z",
+        "shift": true
+      }
+    },
+    {
+      "output": "`",
+      "input": {
+        "key": "Backquote",
+        "shift": false
+      }
+    },
+    {
+      "output": "1",
+      "input": {
+        "key": "Digit1",
+        "shift": false
+      }
+    },
+    {
+      "output": "2",
+      "input": {
+        "key": "Digit2",
+        "shift": false
+      }
+    },
+    {
+      "output": "3",
+      "input": {
+        "key": "Digit3",
+        "shift": false
+      }
+    },
+    {
+      "output": "4",
+      "input": {
+        "key": "Digit4",
+        "shift": false
+      }
+    },
+    {
+      "output": "5",
+      "input": {
+        "key": "Digit5",
+        "shift": false
+      }
+    },
+    {
+      "output": "6",
+      "input": {
+        "key": "Digit6",
+        "shift": false
+      }
+    },
+    {
+      "output": "7",
+      "input": {
+        "key": "Digit7",
+        "shift": false
+      }
+    },
+    {
+      "output": "8",
+      "input": {
+        "key": "Digit8",
+        "shift": false
+      }
+    },
+    {
+      "output": "9",
+      "input": {
+        "key": "Digit9",
+        "shift": false
+      }
+    },
+    {
+      "output": "0",
+      "input": {
+        "key": "Digit0",
+        "shift": false
+      }
+    },
+    {
+      "output": "~",
+      "input": {
+        "key": "Backquote",
+        "shift": true
+      }
+    },
+    {
+      "output": "!",
+      "input": {
+        "key": "Digit1",
+        "shift": true
+      }
+    },
+    {
+      "output": "@",
+      "input": {
+        "key": "Digit2",
+        "shift": true
+      }
+    },
+    {
+      "output": "#",
+      "input": {
+        "key": "Digit3",
+        "shift": true
+      }
+    },
+    {
+      "output": "$",
+      "input": {
+        "key": "Digit4",
+        "shift": true
+      }
+    },
+    {
+      "output": "%",
+      "input": {
+        "key": "Digit5",
+        "shift": true
+      }
+    },
+    {
+      "output": "^",
+      "input": {
+        "key": "Digit6",
+        "shift": true
+      }
+    },
+    {
+      "output": "&",
+      "input": {
+        "key": "Digit7",
+        "shift": true
+      }
+    },
+    {
+      "output": "*",
+      "input": {
+        "key": "Digit8",
+        "shift": true
+      }
+    },
+    {
+      "output": "(",
+      "input": {
+        "key": "Digit9",
+        "shift": true
+      }
+    },
+    {
+      "output": ")",
+      "input": {
+        "key": "Digit0",
+        "shift": true
+      }
+    },
+    {
+      "output": "-",
+      "input": {
+        "key": "Minus",
+        "shift": false
+      }
+    },
+    {
+      "output": "=",
+      "input": {
+        "key": "Equal",
+        "shift": false
+      }
+    },
+    {
+      "output": "[",
+      "input": {
+        "key": "BracketLeft",
+        "shift": false
+      }
+    },
+    {
+      "output": "]",
+      "input": {
+        "key": "BracketRight",
+        "shift": false
+      }
+    },
+    {
+      "output": "o",
+      "input": {
+        "key": "Semicolon",
+        "shift": false
+      }
+    },
+    {
+      "output": "'",
+      "input": {
+        "key": "Quote",
+        "shift": false
+      }
+    },
+    {
+      "output": "\\",
+      "input": {
+        "key": "Backslash",
+        "shift": false
+      }
+    },
+    {
+      "output": ",",
+      "input": {
+        "key": "Comma",
+        "shift": false
+      }
+    },
+    {
+      "output": ".",
+      "input": {
+        "key": "Period",
+        "shift": false
+      }
+    },
+    {
+      "output": "/",
+      "input": {
+        "key": "Slash",
+        "shift": false
+      }
+    },
+    {
+      "output": "_",
+      "input": {
+        "key": "Minus",
+        "shift": true
+      }
+    },
+    {
+      "output": "+",
+      "input": {
+        "key": "Equal",
+        "shift": true
+      }
+    },
+    {
+      "output": "{",
+      "input": {
+        "key": "BracketLeft",
+        "shift": true
+      }
+    },
+    {
+      "output": "}",
+      "input": {
+        "key": "BracketRight",
+        "shift": true
+      }
+    },
+    {
+      "output": "O",
+      "input": {
+        "key": "Semicolon",
+        "shift": true
+      }
+    },
+    {
+      "output": "\"",
+      "input": {
+        "key": "Quote",
+        "shift": true
+      }
+    },
+    {
+      "output": "|",
+      "input": {
+        "key": "Backslash",
+        "shift": true
+      }
+    },
+    {
+      "output": "<",
+      "input": {
+        "key": "Comma",
+        "shift": true
+      }
+    },
+    {
+      "output": ">",
+      "input": {
+        "key": "Period",
+        "shift": true
+      }
+    },
+    {
+      "output": "?",
+      "input": {
+        "key": "Slash",
+        "shift": true
+      }
+    },
+    {
+      "output": " ",
+      "input": {
+        "key": "Space",
+        "shift": false
+      }
+    }
+  ]
+}
