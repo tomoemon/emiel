@@ -7,6 +7,7 @@ export type {
 export { StrokeEdge, StrokeNode } from "./core/builderStrokeGraph";
 export { InputEvent, InputStroke } from "./core/inputEvent";
 export { KeyboardLayout } from "./core/keyboardLayout";
+export { type Metadata, emptyMetadata } from "./core/metadata";
 export { KeyboardState, type KeyboardStateReader } from "./core/keyboardState";
 export { AndModifier, ModifierGroup } from "./core/modifier";
 export { type Rule, RulePrimitive, RuleEntry, type normalizerFunc } from "./core/rule";

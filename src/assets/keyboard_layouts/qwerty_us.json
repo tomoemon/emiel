@@ -1,5 +1,5 @@
 {
-  "name": "QWERTY US",
+  "metadata": { "name": "QWERTY US", "url": "" },
   "entries": [
     { "output": "a", "input": { "key": "A", "shift": false } },
     { "output": "b", "input": { "key": "B", "shift": false } },

@@ -4,9 +4,15 @@ import { AndModifier, ModifierGroup } from "../core/modifier";
 import { ModifierStroke } from "../core/ruleStroke";
 import { VirtualKeys, virtualKeySchema } from "../core/virtualKey";
 
+const metadataSchema = v.optional(
+  v.object({
+    name: v.optional(v.string()),
+    url: v.optional(v.string()),
+  }),
+);
+
 const jsonKeyboardLayoutSchema = v.object({
-  // レイアウト名（例: "QWERTY JIS"）
-  name: v.string(),
+  metadata: metadataSchema,
   entries: v.array(
     v.object({
       // キー押下で出力される文字
@@ -36,7 +42,11 @@ export function loadJsonKeyboardLayout(jsonLayout: unknown): KeyboardLayout {
       entry.output,
     ),
   ]);
-  return new KeyboardLayout(validated.name, strokes, shiftModifier.groups[0].modifiers);
+  const metadata = {
+    name: validated.metadata?.name ?? "",
+    url: validated.metadata?.url ?? "",
+  };
+  return new KeyboardLayout(metadata, strokes, shiftModifier.groups[0].modifiers);
 }
 
 const shiftModifier = new AndModifier(

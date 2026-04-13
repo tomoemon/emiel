@@ -3,7 +3,7 @@ import { VirtualKeys } from "../../core/virtualKey";
 import { findMatchedKeyboardLayout } from "./index";
 
 test("empty", () => {
-  expect(findMatchedKeyboardLayout(new Map()).name).toBe("QWERTY JIS");
+  expect(findMatchedKeyboardLayout(new Map()).metadata.name).toBe("QWERTY JIS");
 });
 
 test("dvorak", () => {
@@ -13,7 +13,7 @@ test("dvorak", () => {
         [VirtualKeys.A, "a"],
         [VirtualKeys.F, "u"],
       ]),
-    ).name,
+    ).metadata.name,
   ).toBe("DVORAK");
 });
 
@@ -24,7 +24,7 @@ test("qwerty us", () => {
         [VirtualKeys.A, "a"],
         [VirtualKeys.BracketLeft, "["],
       ]),
-    ).name,
+    ).metadata.name,
   ).toBe("QWERTY US");
 });
 
@@ -35,6 +35,6 @@ test("qwerty jis", () => {
         [VirtualKeys.A, "a"],
         [VirtualKeys.BracketLeft, "@"],
       ]),
-    ).name,
+    ).metadata.name,
   ).toBe("QWERTY JIS");
 });

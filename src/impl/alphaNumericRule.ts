@@ -8,7 +8,7 @@ export function newAlphaNumericRuleByLayout(layout: KeyboardLayout): RulePrimiti
   );
   return new RulePrimitive(
     entries,
-    "alphanumeric",
+    { name: "alphanumeric", url: "" },
     undefined,
     loadPresetKeyboardGuideAlphanumeric(),
   );

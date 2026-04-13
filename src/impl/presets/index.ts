@@ -2,10 +2,16 @@ export { loadPresetKeyboardGuideAlphanumeric } from "./keyboardGuideAlphanumeric
 export { loadPresetPhysicalKeyboardLayoutJis106 } from "./physicalKeyboardLayoutJis106";
 export { loadPresetPhysicalKeyboardLayoutUs101 } from "./physicalKeyboardLayoutUs101";
 export { loadPresetPhysicalKeyboardLayoutUsHhkb } from "./physicalKeyboardLayoutUsHhkb";
+export { loadPresetKeyboardLayoutAstarte } from "./keyboardLayoutAstarte";
+export { loadPresetKeyboardLayoutColemak } from "./keyboardLayoutColemak";
+export { loadPresetKeyboardLayoutColemakDh } from "./keyboardLayoutColemakDh";
 export { loadPresetKeyboardLayoutDvorak } from "./keyboardLayoutDvorak";
+export { loadPresetKeyboardLayoutEucalyn } from "./keyboardLayoutEucalyn";
 export { findMatchedKeyboardLayout } from "./keyboardLayoutFinder";
+export { loadPresetKeyboardLayoutOnishi } from "./keyboardLayoutOnishi";
 export { loadPresetKeyboardLayoutQwertyJis } from "./keyboardLayoutQwertyJis";
 export { loadPresetKeyboardLayoutQwertyUs } from "./keyboardLayoutQwertyUs";
+export { loadPresetKeyboardLayoutTomisukeJis } from "./keyboardLayoutTomisukeJis";
 export { loadPresetRuleJisKana } from "./ruleJisKana";
 export { loadPresetRuleNaginatashikiV15 } from "./ruleNaginatashikiV15";
 export { loadPresetRuleNicola } from "./ruleNicola";

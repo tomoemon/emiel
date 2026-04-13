@@ -15,7 +15,7 @@ function makePrimitive(options: {
 }): RulePrimitive {
   return new RulePrimitive(
     options.entries,
-    options.name ?? "",
+    { name: options.name ?? "", url: "" },
     options.backspaceStrokes,
     undefined,
   );
@@ -46,7 +46,7 @@ describe("Rule composition via compose()", () => {
     const a = makePrimitive({ entries: [makeEntry("A", "HEAD")], name: "a" });
     const b = makePrimitive({ entries: [makeEntry("A", "TAIL")], name: "b" });
     const composed = a.compose(b);
-    expect(composed.primitives.map((p) => p.name)).toEqual(["a", "b"]);
+    expect(composed.primitives.map((p) => p.metadata.name)).toEqual(["a", "b"]);
     // head (a) の entries が先、tail (b) が後
     expect(composed.entriesByKey(VirtualKeys.A).map((e) => e.output)).toEqual(["HEAD", "TAIL"]);
   });
@@ -65,7 +65,7 @@ describe("Rule composition via compose()", () => {
       backspaceStrokes: [tailBs],
     });
     const composed = head.compose(tail);
-    expect(composed.name).toBe("head");
+    expect(composed.metadata.name).toBe("head");
     expect(composed.backspaceStrokes).toEqual([headBs]);
   });
 
@@ -74,7 +74,7 @@ describe("Rule composition via compose()", () => {
     const r2 = makePrimitive({ entries: [makeEntry("A", "2")], name: "r2" });
     const r3 = makePrimitive({ entries: [makeEntry("A", "3")], name: "r3" });
     const chained = r1.compose(r2).compose(r3);
-    expect(chained.primitives.map((p) => p.name)).toEqual(["r1", "r2", "r3"]);
+    expect(chained.primitives.map((p) => p.metadata.name)).toEqual(["r1", "r2", "r3"]);
   });
 
   test("右結合と左結合で同じ primitive 列になる", () => {
@@ -83,15 +83,15 @@ describe("Rule composition via compose()", () => {
     const r3 = makePrimitive({ entries: [makeEntry("A", "3")], name: "r3" });
     const leftAssoc = r1.compose(r2).compose(r3);
     const rightAssoc = r1.compose(r2.compose(r3));
-    expect(leftAssoc.primitives.map((p) => p.name)).toEqual(
-      rightAssoc.primitives.map((p) => p.name),
+    expect(leftAssoc.primitives.map((p) => p.metadata.name)).toEqual(
+      rightAssoc.primitives.map((p) => p.metadata.name),
     );
   });
 
   test("同じ primitive を 2 回 compose すると重複した primitive が並ぶ (仕様)", () => {
     const r = makePrimitive({ entries: [makeEntry("A", "a")], name: "r" });
     const composed = r.compose(r);
-    expect(composed.primitives.map((p) => p.name)).toEqual(["r", "r"]);
+    expect(composed.primitives.map((p) => p.metadata.name)).toEqual(["r", "r"]);
     // entries が 2 回並ぶ
     expect(composed.entriesByKey(VirtualKeys.A).map((e) => e.output)).toEqual(["a", "a"]);
   });

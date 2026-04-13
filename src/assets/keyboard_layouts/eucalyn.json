@@ -1,7 +1,7 @@
 {
   "metadata": {
-    "name": "DVORAK",
-    "url": "https://en.wikipedia.org/wiki/Dvorak_keyboard_layout"
+    "name": "Eucalyn配列",
+    "url": "https://eucalyn.hatenadiary.jp/entry/about-eucalyn-layout"
   },
   "entries": [
     {
@@ -12,14 +12,14 @@
       }
     },
     {
-      "output": "x",
+      "output": "f",
       "input": {
         "key": "B",
         "shift": false
       }
     },
     {
-      "output": "j",
+      "output": "c",
       "input": {
         "key": "C",
         "shift": false
@@ -33,63 +33,63 @@
       }
     },
     {
-      "output": ".",
+      "output": ",",
       "input": {
         "key": "E",
         "shift": false
       }
     },
     {
-      "output": "u",
+      "output": "i",
       "input": {
         "key": "F",
         "shift": false
       }
     },
     {
-      "output": "i",
+      "output": "u",
       "input": {
         "key": "G",
         "shift": false
       }
     },
     {
-      "output": "d",
+      "output": "g",
       "input": {
         "key": "H",
         "shift": false
       }
     },
     {
-      "output": "c",
+      "output": "d",
       "input": {
         "key": "I",
         "shift": false
       }
     },
     {
-      "output": "h",
+      "output": "t",
       "input": {
         "key": "J",
         "shift": false
       }
     },
     {
-      "output": "t",
+      "output": "k",
       "input": {
         "key": "K",
         "shift": false
       }
     },
     {
-      "output": "n",
+      "output": "s",
       "input": {
         "key": "L",
         "shift": false
       }
     },
     {
-      "output": "m",
+      "output": "h",
       "input": {
         "key": "M",
         "shift": false
@@ -103,28 +103,28 @@
       }
     },
     {
-      "output": "r",
+      "output": "y",
       "input": {
         "key": "O",
         "shift": false
       }
     },
     {
-      "output": "l",
+      "output": "p",
       "input": {
         "key": "P",
         "shift": false
       }
     },
     {
-      "output": "'",
+      "output": "q",
       "input": {
         "key": "Q",
         "shift": false
       }
     },
     {
-      "output": "p",
+      "output": ".",
       "input": {
         "key": "R",
         "shift": false
@@ -138,49 +138,49 @@
       }
     },
     {
-      "output": "y",
+      "output": ";",
       "input": {
         "key": "T",
         "shift": false
       }
     },
     {
-      "output": "g",
+      "output": "r",
       "input": {
         "key": "U",
         "shift": false
       }
     },
     {
-      "output": "k",
+      "output": "v",
       "input": {
         "key": "V",
         "shift": false
       }
     },
     {
-      "output": ",",
+      "output": "w",
       "input": {
         "key": "W",
         "shift": false
       }
     },
     {
-      "output": "q",
+      "output": "x",
       "input": {
         "key": "X",
         "shift": false
       }
     },
     {
-      "output": "f",
+      "output": "m",
       "input": {
         "key": "Y",
         "shift": false
       }
     },
     {
-      "output": ";",
+      "output": "z",
       "input": {
         "key": "Z",
         "shift": false
@@ -194,14 +194,14 @@
       }
     },
     {
-      "output": "X",
+      "output": "F",
       "input": {
         "key": "B",
         "shift": true
       }
     },
     {
-      "output": "J",
+      "output": "C",
       "input": {
         "key": "C",
         "shift": true
@@ -215,63 +215,63 @@
       }
     },
     {
-      "output": ">",
+      "output": "<",
       "input": {
         "key": "E",
         "shift": true
       }
     },
     {
-      "output": "U",
+      "output": "I",
       "input": {
         "key": "F",
         "shift": true
       }
     },
     {
-      "output": "I",
+      "output": "U",
       "input": {
         "key": "G",
         "shift": true
       }
     },
     {
-      "output": "D",
+      "output": "G",
       "input": {
         "key": "H",
         "shift": true
       }
     },
     {
-      "output": "C",
+      "output": "D",
       "input": {
         "key": "I",
         "shift": true
       }
     },
     {
-      "output": "H",
+      "output": "T",
       "input": {
         "key": "J",
         "shift": true
       }
     },
     {
-      "output": "T",
+      "output": "K",
       "input": {
         "key": "K",
         "shift": true
       }
     },
     {
-      "output": "N",
+      "output": "S",
       "input": {
         "key": "L",
         "shift": true
       }
     },
     {
-      "output": "M",
+      "output": "H",
       "input": {
         "key": "M",
         "shift": true
@@ -285,28 +285,28 @@
       }
     },
     {
-      "output": "R",
+      "output": "Y",
       "input": {
         "key": "O",
         "shift": true
       }
     },
     {
-      "output": "L",
+      "output": "P",
       "input": {
         "key": "P",
         "shift": true
       }
     },
     {
-      "output": "\"",
+      "output": "Q",
       "input": {
         "key": "Q",
         "shift": true
       }
     },
     {
-      "output": "P",
+      "output": ">",
       "input": {
         "key": "R",
         "shift": true
@@ -320,49 +320,49 @@
       }
     },
     {
-      "output": "Y",
+      "output": ":",
       "input": {
         "key": "T",
         "shift": true
       }
     },
     {
-      "output": "G",
+      "output": "R",
       "input": {
         "key": "U",
         "shift": true
       }
     },
     {
-      "output": "K",
+      "output": "V",
       "input": {
         "key": "V",
         "shift": true
       }
     },
     {
-      "output": "<",
+      "output": "W",
       "input": {
         "key": "W",
         "shift": true
       }
     },
     {
-      "output": "Q",
+      "output": "X",
       "input": {
         "key": "X",
         "shift": true
       }
     },
     {
-      "output": "F",
+      "output": "M",
       "input": {
         "key": "Y",
         "shift": true
       }
     },
     {
-      "output": ":",
+      "output": "Z",
       "input": {
         "key": "Z",
         "shift": true
@@ -523,42 +523,42 @@
       }
     },
     {
-      "output": "[",
+      "output": "-",
       "input": {
         "key": "Minus",
         "shift": false
       }
     },
     {
-      "output": "]",
+      "output": "=",
       "input": {
         "key": "Equal",
         "shift": false
       }
     },
     {
-      "output": "/",
+      "output": "[",
       "input": {
         "key": "BracketLeft",
         "shift": false
       }
     },
     {
-      "output": "=",
+      "output": "]",
       "input": {
         "key": "BracketRight",
         "shift": false
       }
     },
     {
-      "output": "s",
+      "output": "n",
       "input": {
         "key": "Semicolon",
         "shift": false
       }
     },
     {
-      "output": "-",
+      "output": "'",
       "input": {
         "key": "Quote",
         "shift": false
@@ -572,63 +572,63 @@
       }
     },
     {
-      "output": "w",
+      "output": "j",
       "input": {
         "key": "Comma",
         "shift": false
       }
     },
     {
-      "output": "v",
+      "output": "l",
       "input": {
         "key": "Period",
         "shift": false
       }
     },
     {
-      "output": "z",
+      "output": "/",
       "input": {
         "key": "Slash",
         "shift": false
       }
     },
     {
-      "output": "{",
+      "output": "_",
       "input": {
         "key": "Minus",
         "shift": true
       }
     },
     {
-      "output": "}",
+      "output": "+",
       "input": {
         "key": "Equal",
         "shift": true
       }
     },
     {
-      "output": "?",
+      "output": "{",
       "input": {
         "key": "BracketLeft",
         "shift": true
       }
     },
     {
-      "output": "+",
+      "output": "}",
       "input": {
         "key": "BracketRight",
         "shift": true
       }
     },
     {
-      "output": "S",
+      "output": "N",
       "input": {
         "key": "Semicolon",
         "shift": true
       }
     },
     {
-      "output": "_",
+      "output": "\"",
       "input": {
         "key": "Quote",
         "shift": true
@@ -642,21 +642,21 @@
       }
     },
     {
-      "output": "W",
+      "output": "J",
       "input": {
         "key": "Comma",
         "shift": true
       }
     },
     {
-      "output": "V",
+      "output": "L",
       "input": {
         "key": "Period",
         "shift": true
       }
     },
     {
-      "output": "Z",
+      "output": "?",
       "input": {
         "key": "Slash",
         "shift": true
