@@ -1,4 +1,6 @@
 import type { KeyboardLayout } from "../core/keyboardLayout";
+import type { Metadata } from "../core/metadata";
+import { emptyMetadata } from "../core/metadata";
 import { RuleEntry, RulePrimitive } from "../core/rule";
 import type { RuleStroke } from "../core/ruleStroke";
 import { product } from "../utils/itertools";
@@ -6,7 +8,7 @@ import { product } from "../utils/itertools";
 export function loadMozcRule(
   text: string,
   layout: KeyboardLayout,
-  name: string = "",
+  metadata: Metadata = emptyMetadata(),
 ): RulePrimitive {
   /*
     a	あ
@@ -39,7 +41,7 @@ export function loadMozcRule(
       );
     });
   }
-  return new RulePrimitive(entries, name, undefined, undefined);
+  return new RulePrimitive(entries, metadata, undefined, undefined);
 }
 
 function toStrokesFromChar(layout: KeyboardLayout, key: string): RuleStroke[] {

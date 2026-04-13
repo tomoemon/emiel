@@ -418,7 +418,7 @@ describe("Automaton getCurrentOriginRules with chained rule", () => {
     // 先頭 ("A") は alphanumeric rule の edge だけがある
     const atStart = automaton.getCurrentOriginRules();
     expect(atStart).toHaveLength(1);
-    expect(atStart[0].name).toBe("alphanumeric");
+    expect(atStart[0].metadata.name).toBe("alphanumeric");
   });
 
   test("origin rule switches after typing through ascii portion", () => {
@@ -435,7 +435,7 @@ describe("Automaton getCurrentOriginRules with chained rule", () => {
     // 次は "あ" の位置: ローマ字 rule (head) の edge が使われる
     expect(atKana).toHaveLength(1);
     // head rule (ローマ字) は name が空の可能性があるため、alphanumeric でないことで確認
-    expect(atKana[0].name).not.toBe("alphanumeric");
+    expect(atKana[0].metadata.name).not.toBe("alphanumeric");
   });
 
   test("returns empty when past the end of the word", () => {

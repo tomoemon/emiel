@@ -1,5 +1,7 @@
 import * as v from "valibot";
 import { KeyboardGuide } from "../core/keyboardGuide";
+import type { Metadata } from "../core/metadata";
+import { emptyMetadata } from "../core/metadata";
 import { AndModifier, ModifierGroup } from "../core/modifier";
 import { RuleEntry, RulePrimitive } from "../core/rule";
 import { ModifierStroke, type RuleStroke, SimultaneousStroke } from "../core/ruleStroke";
@@ -31,15 +33,15 @@ const commentOnlyEntrySchema = v.object({
 
 const entrySchema = v.union([entryWithInputSchema, commentOnlyEntrySchema]);
 
-// Note: このスキーマには `name` フィールドを意図的に含めていない。
-// Rule.name は現状「エラーメッセージ/デバッグ出力の識別子」「テスト検証」
-// 「UI 表示ラベル候補」の複数用途に兼用されており、identifier と label の
-// 責務が曖昧なまま JSON に埋め込むと以下の問題が生じるため:
-//   - 国際化時に JSON 固定の名前を表示名として使えない
-//   - 同一 JSON を別名で派生させたい場合に柔軟性が落ちる
-//   - プラットフォーム運用時に name 衝突の扱いがスキーマに紛れ込む
-// 名前は呼び出し側 (loadJsonRule の引数) が用途に応じて指定する設計とする。
+const metadataSchema = v.optional(
+  v.object({
+    name: v.optional(v.string()),
+    url: v.optional(v.string()),
+  }),
+);
+
 export const jsonRuleSchema = v.object({
+  metadata: metadataSchema,
   // 全エントリに対するデフォルトの共通プレフィックス拡張設定
   extendCommonPrefixEntry: v.optional(v.boolean()),
   entries: v.array(entrySchema),
@@ -119,9 +121,12 @@ function loadEntries(
   return entries;
 }
 
-export function loadJsonRule(jsonRule: unknown, name?: string): RulePrimitive {
+export function loadJsonRule(
+  jsonRule: unknown,
+  metadata: Metadata = emptyMetadata(),
+): RulePrimitive {
   if (typeof jsonRule === "string") {
-    return loadJsonRule(JSON.parse(jsonRule), name);
+    return loadJsonRule(JSON.parse(jsonRule), metadata);
   }
   const validated = v.parse(jsonRuleSchema, jsonRule);
   const entries = loadEntries(validated.entries, validated.extendCommonPrefixEntry ?? false);
@@ -133,5 +138,10 @@ export function loadJsonRule(jsonRule: unknown, name?: string): RulePrimitive {
   const guide = validated.guide
     ? new KeyboardGuide({ entries: validated.guide.entries })
     : undefined;
-  return new RulePrimitive(entries, name, backspaceStrokes, guide);
+  // パラメータの metadata が空なら JSON 内の metadata を使用
+  const resolvedMetadata: Metadata = {
+    name: metadata.name || validated.metadata?.name || "",
+    url: metadata.url || validated.metadata?.url || "",
+  };
+  return new RulePrimitive(entries, resolvedMetadata, backspaceStrokes, guide);
 }

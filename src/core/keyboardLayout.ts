@@ -1,4 +1,6 @@
 import { setDefault } from "../utils/map";
+import type { Metadata } from "./metadata";
+import { emptyMetadata } from "./metadata";
 import { AndModifier, ModifierGroup } from "./modifier";
 import { ModifierStroke } from "./ruleStroke";
 import type { VirtualKey } from "./virtualKey";
@@ -7,16 +9,10 @@ export class KeyboardLayout {
   readonly strokesByChar: Map<string, ModifierStroke[]>;
   private readonly charByStroke: Map<string, string>;
   private readonly charByStrokeWithoutShift: Map<string, string>;
-  /**
-   *
-   * @param name キーボードレイアウトの名前
-   * @param mapping [output, stroke] の配列。例：["A", ModifierStroke(VirtualKeys.A, shift, [])]
-   * @param shiftKeys
-   */
   constructor(
-    readonly name: string,
-    readonly mapping: [string, ModifierStroke][],
-    readonly shiftKeys: VirtualKey[],
+    readonly metadata: Metadata = emptyMetadata(),
+    readonly mapping: [string, ModifierStroke][] = [],
+    readonly shiftKeys: VirtualKey[] = [],
   ) {
     this.strokesByChar = new Map();
     this.charByStroke = new Map();

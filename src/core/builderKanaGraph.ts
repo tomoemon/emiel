@@ -155,7 +155,7 @@ export function buildKanaNode(
 
   // 初期ノードから遷移する候補がない場合はオートマトン生成に失敗したらエラーを返す
   if (kanaNodes[0].nextEdges.length === 0) {
-    throw new Error(`Rule ${rule.name} can't generate an automaton for "${kanaText}"`);
+    throw new Error(`Rule ${rule.metadata.name} can't generate an automaton for "${kanaText}"`);
   }
   return {
     startNode: kanaNodes[0],

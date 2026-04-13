@@ -1,5 +1,7 @@
 import { setDefault } from "../utils/map";
 import type { KeyboardGuide } from "./keyboardGuide";
+import type { Metadata } from "./metadata";
+import { emptyMetadata } from "./metadata";
 import { AndModifier } from "./modifier";
 import { expandPrefixRules } from "./ruleExtender";
 import { ModifierStroke, ruleStrokeKeys, type RuleStroke } from "./ruleStroke";
@@ -94,7 +96,7 @@ nk/ん/k
  * RulePrimitive 実装は自身の entries のみ、合成実装は全 parts の union を返す。
  */
 export interface Rule {
-  readonly name: string;
+  readonly metadata: Metadata;
   readonly guide?: KeyboardGuide;
   readonly backspaceStrokes: readonly RuleStroke[];
   readonly primitives: readonly RulePrimitive[];
@@ -122,7 +124,7 @@ export class RulePrimitive implements Rule {
    * その指定がそのまま使われる (Backspace キーを含めるかどうかは呼び出し側の判断)。
    */
   readonly backspaceStrokes: readonly RuleStroke[];
-  readonly name: string;
+  readonly metadata: Metadata;
   readonly guide?: KeyboardGuide;
 
   /** @internal 同ファイル内の RuleSet が合成時に直接マージするため公開している */
@@ -130,22 +132,14 @@ export class RulePrimitive implements Rule {
   /** @internal */
   readonly ownByModifier: ReadonlyMap<VirtualKey, readonly RuleEntry[]>;
 
-  /**
-   * @param entries 入力ルールのエントリ
-   * @param name 入力ルールの名前
-   * @param backspaceStrokes backspace として扱う RuleStroke 群。
-   *                         undefined の場合は VirtualKeys.Backspace 単独打鍵のみが
-   *                         デフォルトとして設定される。空配列を渡すと backspace 無効
-   * @param guide この Rule に紐づく KeyboardGuide。未指定なら undefined
-   */
   constructor(
     entries: RuleEntry[],
-    name = "",
+    metadata: Metadata = emptyMetadata(),
     backspaceStrokes?: readonly RuleStroke[],
     guide?: KeyboardGuide,
   ) {
     this.entries = expandPrefixRules(entries);
-    this.name = name;
+    this.metadata = metadata;
     this.guide = guide;
     this.backspaceStrokes = backspaceStrokes ?? [
       new ModifierStroke(VirtualKeys.Backspace, AndModifier.empty),
@@ -220,8 +214,8 @@ class RuleSet implements Rule {
     this.mergedByModifier = byModifier;
   }
 
-  get name(): string {
-    return this.parts[0].name;
+  get metadata(): Metadata {
+    return this.parts[0].metadata;
   }
   get guide(): KeyboardGuide | undefined {
     return this.parts[0].guide;
