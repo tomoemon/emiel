@@ -1,0 +1,16 @@
+{
+  "name": "cli-simple",
+  "version": "1.0.0",
+  "description": "Interactive CLI typing demo for emiel",
+  "license": "MIT",
+  "type": "module",
+  "scripts": {
+    "dev": "node index.ts"
+  },
+  "dependencies": {
+    "emiel": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0"
+  }
+}

@@ -1,4 +1,3 @@
-//@ts-check
 import {
   InputEvent,
   InputStroke,
