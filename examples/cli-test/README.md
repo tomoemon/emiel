@@ -5,9 +5,11 @@ CLI でタイピングの入力を試す例。
 
 # 動かし方
 
+Node.js 22.6 以降が必要。
+
 ```
 pnpm install
-node index.js
+node index.ts
 ```
 
 # 実行例
