@@ -232,11 +232,9 @@ function buildEntries(
   rightThumb: string,
 ): {
   entries: JsonEntry[];
-  backspaces: JsonStroke[];
   stats: { total: number; skipped: number; missing: string[] };
 } {
   const entries: JsonEntry[] = [];
-  const backspaces: JsonStroke[] = [];
   const stats = { total: 0, skipped: 0, missing: [] as string[] };
 
   // まず無シフト段から prefix shift マーカー位置を抽出する (月系)
@@ -251,20 +249,6 @@ function buildEntries(
           if (!prefixKeyFor[result.label]) {
             prefixKeyFor[result.label] = JIS_POSITIONS[r][c];
           }
-        }
-      }
-    }
-  }
-
-  // 直接かなセクションの base に "消" があれば BackSpace キーとして記録する。
-  // naginatashiki の U キーと同様、AutomatonImpl が一致で InputResult.BACK を返す。
-  const directBase = sections.find((s) => s.header === "[シフト無し]");
-  if (directBase) {
-    for (let r = 0; r < directBase.rows.length && r < JIS_POSITIONS.length; r++) {
-      const row = directBase.rows[r];
-      for (let c = 0; c < row.length && c < JIS_POSITIONS[r].length; c++) {
-        if (row[c].trim() === "消") {
-          backspaces.push({ keys: [JIS_POSITIONS[r][c]] });
         }
       }
     }
@@ -368,7 +352,7 @@ function buildEntries(
     }
   }
 
-  return { entries, backspaces, stats };
+  return { entries, stats };
 }
 
 function main() {
@@ -376,7 +360,7 @@ function main() {
   const romanTable = loadRomanTable(resolve(args.romanTable));
   const yabText = readYab(resolve(args.input));
   const sections = parseSections(yabText);
-  const { entries, backspaces, stats } = buildEntries(
+  const { entries, stats } = buildEntries(
     sections,
     romanTable,
     args.leftThumb,
@@ -390,7 +374,6 @@ function main() {
 
   const json: Record<string, unknown> = {};
   if (Object.keys(metadata).length > 0) json.metadata = metadata;
-  if (backspaces.length > 0) json.backspaces = backspaces;
   if (args.author) {
     // metadata schema には author がないため、コメントエントリで残す
     json.entries = [{ comment: `author: ${args.author}` }, ...entries];
