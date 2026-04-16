@@ -39,7 +39,10 @@
     "test": "vitest",
     "fmt": "oxfmt --write src examples",
     "fmt:check": "oxfmt --check src examples",
-    "show-layout": "npx tsx scripts/show-layout.ts"
+    "show-layout": "npx tsx scripts/show-layout.ts",
+    "convert:yab": "npx tsx scripts/yab-to-json-rule.ts",
+    "convert:dvorakj": "npx tsx scripts/dvorakj-to-json-rule.ts",
+    "show-rule": "npx tsx scripts/show-rule.ts"
   },
   "devDependencies": {
     "@base2/pretty-print-object": "^1.0.2",
