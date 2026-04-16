@@ -2,16 +2,16 @@ import { setDefault } from "../utils/map";
 import type { Metadata } from "./metadata";
 import { emptyMetadata } from "./metadata";
 import { AndModifier, ModifierGroup } from "./modifier";
-import { ModifierStroke } from "./ruleStroke";
+import { SingleStroke } from "./ruleStroke";
 import type { VirtualKey } from "./virtualKey";
 
 export class KeyboardLayout {
-  readonly strokesByChar: Map<string, ModifierStroke[]>;
+  readonly strokesByChar: Map<string, SingleStroke[]>;
   private readonly charByStroke: Map<string, string>;
   private readonly charByStrokeWithoutShift: Map<string, string>;
   constructor(
     readonly metadata: Metadata = emptyMetadata(),
-    readonly mapping: [string, ModifierStroke][] = [],
+    readonly mapping: [string, SingleStroke][] = [],
     readonly shiftKeys: VirtualKey[] = [],
   ) {
     this.strokesByChar = new Map();
@@ -23,7 +23,7 @@ export class KeyboardLayout {
       setDefault(this.charByStrokeWithoutShift, strokeToString(stroke, true, this.shiftKeys), char);
     });
   }
-  getStrokesByChar(char: string): ModifierStroke[] {
+  getStrokesByChar(char: string): SingleStroke[] {
     const strokes = this.strokesByChar.get(char);
     if (!strokes) {
       throw new Error("invalid char: " + char);
@@ -31,13 +31,13 @@ export class KeyboardLayout {
     return strokes;
   }
   getCharByKey(key: VirtualKey, shifted: boolean): string {
-    const stroke = new ModifierStroke(
+    const stroke = new SingleStroke(
       key,
       shifted ? new AndModifier(new ModifierGroup(this.shiftKeys)) : new AndModifier(),
     );
     return this.getCharByStroke(stroke);
   }
-  getCharByStroke(stroke: ModifierStroke): string {
+  getCharByStroke(stroke: SingleStroke): string {
     const char = this.charByStroke.get(strokeToString(stroke, false, this.shiftKeys));
     if (char) {
       return char;
@@ -52,7 +52,7 @@ export class KeyboardLayout {
 }
 
 function strokeToString(
-  stroke: ModifierStroke,
+  stroke: SingleStroke,
   ignoreShift: boolean,
   shiftKeys: VirtualKey[],
 ): string {

@@ -50,11 +50,11 @@ export function expandPrefixRules(entries: RuleEntry[]): RuleEntry[] {
 function strokeHash(...strokes: RuleStroke[]): string {
   return strokes
     .map((s) => {
-      if (s.kind === "modifier") {
-        return `m:${s.key.toString()}/${s.requiredModifier.toString()}`;
+      if (s.kind === "single") {
+        return `sg:${s.key.toString()}/${s.requiredModifier.toString()}`;
       }
       // simultaneous: 順不同なのでキーをソートしてハッシュ化
-      return `s:${[...s.keys]
+      return `sm:${[...s.keys]
         .map((k) => k.toString())
         .sort()
         .join("+")}`;

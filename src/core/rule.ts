@@ -1,10 +1,9 @@
 import { setDefault } from "../utils/map";
-import type { KeyboardGuide } from "./keyboardGuide";
 import type { Metadata } from "./metadata";
 import { emptyMetadata } from "./metadata";
 import { AndModifier } from "./modifier";
 import { expandPrefixRules } from "./ruleExtender";
-import { ModifierStroke, ruleStrokeKeys, type RuleStroke } from "./ruleStroke";
+import { SingleStroke, ruleStrokeKeys, type RuleStroke } from "./ruleStroke";
 import { type VirtualKey, VirtualKeys } from "./virtualKey";
 
 export type normalizerFunc = (value: string) => string;
@@ -97,7 +96,6 @@ nk/ん/k
  */
 export interface Rule {
   readonly metadata: Metadata;
-  readonly guide?: KeyboardGuide;
   readonly backspaceStrokes: readonly RuleStroke[];
   readonly primitives: readonly RulePrimitive[];
   entriesByKey(key: VirtualKey): readonly RuleEntry[];
@@ -106,9 +104,9 @@ export interface Rule {
 }
 
 /**
- * 1 つの primitive な入力定義。entries と自身のメタデータ (name, guide,
- * backspaceStrokes) を持ち、自身の entries に対するキー引きインデックスを
- * 事前構築する。位置に依存しない再利用可能な定義。
+ * 1 つの primitive な入力定義。entries と自身のメタデータ (name, backspaceStrokes)
+ * を持ち、自身の entries に対するキー引きインデックスを事前構築する。位置に依存
+ * しない再利用可能な定義。
  *
  * 2 つの Rule を合成する場合は `a.compose(b)` を使うと内部で RuleSet が生成される。
  */
@@ -125,7 +123,6 @@ export class RulePrimitive implements Rule {
    */
   readonly backspaceStrokes: readonly RuleStroke[];
   readonly metadata: Metadata;
-  readonly guide?: KeyboardGuide;
 
   /** @internal 同ファイル内の RuleSet が合成時に直接マージするため公開している */
   readonly ownByKey: ReadonlyMap<VirtualKey, readonly RuleEntry[]>;
@@ -136,13 +133,11 @@ export class RulePrimitive implements Rule {
     entries: RuleEntry[],
     metadata: Metadata = emptyMetadata(),
     backspaceStrokes?: readonly RuleStroke[],
-    guide?: KeyboardGuide,
   ) {
     this.entries = expandPrefixRules(entries);
     this.metadata = metadata;
-    this.guide = guide;
     this.backspaceStrokes = backspaceStrokes ?? [
-      new ModifierStroke(VirtualKeys.Backspace, AndModifier.empty),
+      new SingleStroke(VirtualKeys.Backspace, AndModifier.empty),
     ];
 
     const byKey = new Map<VirtualKey, RuleEntry[]>();
@@ -153,8 +148,9 @@ export class RulePrimitive implements Rule {
       for (const firstInputKey of ruleStrokeKeys(firstStroke)) {
         setDefault(byKey, firstInputKey, []).push(entry);
       }
-      // ModifierStroke のみ requiredModifier を持つ。SimultaneousStroke は対象外。
-      if (firstStroke.kind === "modifier") {
+      // SingleStroke のみ byModifier に登録 (SimultaneousStroke も requiredModifier を
+      // 持ち得るが、ここで扱う「最初の単打の修飾キーで引ける」という性質を満たすのは SingleStroke だけ)。
+      if (firstStroke.kind === "single") {
         for (const g of firstStroke.requiredModifier.groups) {
           for (const modifierKey of g.modifiers) {
             setDefault(byModifier, modifierKey, []).push(entry);
@@ -216,9 +212,6 @@ class RuleSet implements Rule {
 
   get metadata(): Metadata {
     return this.parts[0].metadata;
-  }
-  get guide(): KeyboardGuide | undefined {
-    return this.parts[0].guide;
   }
   get backspaceStrokes(): readonly RuleStroke[] {
     return this.parts[0].backspaceStrokes;

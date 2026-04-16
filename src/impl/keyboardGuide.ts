@@ -1,7 +1,37 @@
-import type { KeyboardGuide, KeyboardGuideLabel } from "../core/keyboardGuide";
 import type { KeyboardLayout } from "../core/keyboardLayout";
 import type { VirtualKey } from "../core/virtualKey";
 import type { PhysicalKeyboardLayout } from "./physicalKeyboardLayout";
+
+export type KeyboardGuideLabel = {
+  position:
+    | "topLeft"
+    | "top"
+    | "topRight"
+    | "left"
+    | "center"
+    | "right"
+    | "bottomLeft"
+    | "bottom"
+    | "bottomRight";
+  label: string;
+};
+
+export type KeyboardGuideLabelMapping = {
+  entries: {
+    key: VirtualKey;
+    labels: KeyboardGuideLabel[];
+  }[];
+};
+
+/**
+ * 入力方式ごとの「どの物理キーにどのラベルを付けるか」を保持する純粋なデータ構造。
+ *
+ * label には固定文字列のほか `{layout.alpha_or_sign}` などのテンプレートも入り得るが、
+ * テンプレート解決や物理キーボードレイアウトへの配置は placeKeyboardGuide() が担う。
+ */
+export class KeyboardGuide {
+  constructor(readonly guideData: KeyboardGuideLabelMapping) {}
+}
 
 export type Rect = {
   x: number;

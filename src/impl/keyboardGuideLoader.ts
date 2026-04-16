@@ -1,6 +1,6 @@
 import * as v from "valibot";
-import { KeyboardGuide } from "../core/keyboardGuide";
 import { virtualKeySchema } from "../core/virtualKey";
+import { KeyboardGuide } from "./keyboardGuide";
 
 export const jsonKeyboardGuideEntriesSchema = v.array(
   v.object({

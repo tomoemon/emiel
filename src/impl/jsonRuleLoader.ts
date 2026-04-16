@@ -1,12 +1,10 @@
 import * as v from "valibot";
-import { KeyboardGuide } from "../core/keyboardGuide";
 import type { Metadata } from "../core/metadata";
 import { emptyMetadata } from "../core/metadata";
 import { AndModifier, ModifierGroup } from "../core/modifier";
 import { RuleEntry, RulePrimitive } from "../core/rule";
-import { ModifierStroke, type RuleStroke, SimultaneousStroke } from "../core/ruleStroke";
+import { SingleStroke, type RuleStroke, SimultaneousStroke } from "../core/ruleStroke";
 import { virtualKeySchema } from "../core/virtualKey";
-import { jsonKeyboardGuideEntriesSchema } from "./keyboardGuideLoader";
 
 const strokeSchema = v.object({
   // 同時に押すキー（1つ以上）
@@ -49,12 +47,6 @@ export const jsonRuleSchema = v.object({
   // 現在のノードに関係なく常に受理され、一致すると Automaton.input() が
   // InputResult.BACK を返す。例: naginata 式の U 単独打鍵
   backspaces: v.optional(v.array(strokeSchema)),
-  // この入力方式に対応する KeyboardGuide 定義 (オプショナル)。
-  guide: v.optional(
-    v.object({
-      entries: jsonKeyboardGuideEntriesSchema,
-    }),
-  ),
 });
 
 export type JsonRuleSchema = v.InferOutput<typeof jsonRuleSchema>;
@@ -63,7 +55,7 @@ type Stroke = v.InferOutput<typeof strokeSchema>;
 /**
  * 1つの JSON ストロークを RuleStroke に変換する。
  *
- * - keys が 1 個: ModifierStroke を生成 (modifiers は AndModifier として事前押下必須のキー)
+ * - keys が 1 個: SingleStroke を生成 (modifiers は AndModifier として事前押下必須のキー)
  * - keys が 2 個以上: SimultaneousStroke を生成 (順不同の同時押し)。
  *   modifiers がある場合は SimultaneousStroke の requiredModifier として扱う
  *   (例: naginata の「A+J 同時押し + Space 先押し」)
@@ -76,7 +68,7 @@ function loadStroke(jsonStroke: Stroke): RuleStroke {
   if (keys.length >= 2) {
     return new SimultaneousStroke(keys, modifier);
   }
-  return new ModifierStroke(keys[0], modifier);
+  return new SingleStroke(keys[0], modifier);
 }
 
 /**
@@ -85,13 +77,13 @@ function loadStroke(jsonStroke: Stroke): RuleStroke {
  *
  * eg. 単打の連続
  *    input: [{keys: ["A"]},{keys: ["B"]}]
- *    output: [ModifierStroke(A), ModifierStroke(B)]
+ *    output: [SingleStroke(A), SingleStroke(B)]
  * eg. 同時押し (2 キー以上)
  *    input: [{keys: ["A","B"]}]
  *    output: [SimultaneousStroke([A, B])]
  * eg. 修飾キー付き単打
  *    input: [{keys: ["A"], modifiers: [["ShiftLeft", "ShiftRight"]]}]
- *    output: [ModifierStroke(A, shift)]
+ *    output: [SingleStroke(A, shift)]
  */
 function loadInput(input: Stroke[]): RuleStroke[] {
   return input.map((v) => loadStroke(v));
@@ -135,13 +127,10 @@ export function loadJsonRule(
   const backspaceStrokes: RuleStroke[] | undefined = validated.backspaces?.map((s) =>
     loadStroke(s),
   );
-  const guide = validated.guide
-    ? new KeyboardGuide({ entries: validated.guide.entries })
-    : undefined;
   // パラメータの metadata が空なら JSON 内の metadata を使用
   const resolvedMetadata: Metadata = {
     name: metadata.name || validated.metadata?.name || "",
     url: metadata.url || validated.metadata?.url || "",
   };
-  return new RulePrimitive(entries, resolvedMetadata, backspaceStrokes, guide);
+  return new RulePrimitive(entries, resolvedMetadata, backspaceStrokes);
 }

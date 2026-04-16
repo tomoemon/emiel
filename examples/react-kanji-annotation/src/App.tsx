@@ -1,8 +1,14 @@
 import type { InputStroke, KeyboardLayout } from "emiel";
-import { activate, build, detectKeyboardLayout, loadPresetRuleRoman } from "emiel";
+import {
+  activate,
+  build,
+  createDirectInputRule,
+  detectKeyboardLayout,
+  loadPresetRuleRoman,
+} from "emiel";
 import { useEffect, useMemo, useState } from "react";
 import "./App.css";
-import { MixedText, withMixedText } from "./MixedGuide";
+import { MixedText, withMixedText } from "./MixedText";
 
 function App() {
   const [layout, setLayout] = useState<KeyboardLayout | undefined>();
@@ -13,7 +19,10 @@ function App() {
 }
 
 function Typing(props: { layout: KeyboardLayout }) {
-  const romanRule = useMemo(() => loadPresetRuleRoman(props.layout), [props.layout]);
+  const romanRule = useMemo(
+    () => loadPresetRuleRoman(props.layout).compose(createDirectInputRule(props.layout)),
+    [props.layout],
+  );
   const words = [
     new MixedText("お,を,ひ,く", "尾,を,引,く"),
     new MixedText("こん,とん", "混,沌"),

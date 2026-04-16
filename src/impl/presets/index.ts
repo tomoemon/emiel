@@ -1,4 +1,6 @@
 export { loadPresetKeyboardGuideDirectInput } from "./keyboardGuideDirectInput";
+export { loadPresetKeyboardGuideJisKana } from "./keyboardGuideJisKana";
+export { loadPresetKeyboardGuideNicola } from "./keyboardGuideNicola";
 export { loadPresetPhysicalKeyboardLayoutJis106 } from "./physicalKeyboardLayoutJis106";
 export { loadPresetPhysicalKeyboardLayoutUs101 } from "./physicalKeyboardLayoutUs101";
 export { loadPresetPhysicalKeyboardLayoutUsHhkb } from "./physicalKeyboardLayoutUsHhkb";

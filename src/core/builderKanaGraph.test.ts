@@ -2,17 +2,17 @@ import { expect, test } from "vitest";
 import { buildKanaNode } from "./builderKanaGraph";
 import { AndModifier } from "./modifier";
 import { RuleEntry, RulePrimitive } from "./rule";
-import { ModifierStroke } from "./ruleStroke";
+import { SingleStroke } from "./ruleStroke";
 import { VirtualKeys } from "./virtualKey";
 
 const identityNormalize = (v: string) => v;
 
 const defaultRule = new RulePrimitive([
-  new RuleEntry([new ModifierStroke(VirtualKeys.A, AndModifier.empty)], "あ", [], true),
+  new RuleEntry([new SingleStroke(VirtualKeys.A, AndModifier.empty)], "あ", [], true),
   new RuleEntry(
     [
-      new ModifierStroke(VirtualKeys.T, AndModifier.empty),
-      new ModifierStroke(VirtualKeys.A, AndModifier.empty),
+      new SingleStroke(VirtualKeys.T, AndModifier.empty),
+      new SingleStroke(VirtualKeys.A, AndModifier.empty),
     ],
     "た",
     [],
@@ -20,9 +20,9 @@ const defaultRule = new RulePrimitive([
   ),
   new RuleEntry(
     [
-      new ModifierStroke(VirtualKeys.L, AndModifier.empty),
-      new ModifierStroke(VirtualKeys.T, AndModifier.empty),
-      new ModifierStroke(VirtualKeys.U, AndModifier.empty),
+      new SingleStroke(VirtualKeys.L, AndModifier.empty),
+      new SingleStroke(VirtualKeys.T, AndModifier.empty),
+      new SingleStroke(VirtualKeys.U, AndModifier.empty),
     ],
     "っ",
     [],
@@ -30,14 +30,14 @@ const defaultRule = new RulePrimitive([
   ),
   new RuleEntry(
     [
-      new ModifierStroke(VirtualKeys.T, AndModifier.empty),
-      new ModifierStroke(VirtualKeys.T, AndModifier.empty),
+      new SingleStroke(VirtualKeys.T, AndModifier.empty),
+      new SingleStroke(VirtualKeys.T, AndModifier.empty),
     ],
     "っ",
-    [new ModifierStroke(VirtualKeys.T, AndModifier.empty)],
+    [new SingleStroke(VirtualKeys.T, AndModifier.empty)],
     true,
   ),
-  new RuleEntry([new ModifierStroke(VirtualKeys.X, AndModifier.empty)], "あい", [], true),
+  new RuleEntry([new SingleStroke(VirtualKeys.X, AndModifier.empty)], "あい", [], true),
 ]);
 
 test("test buildKanaNode: empty text", () => {
@@ -50,7 +50,7 @@ test("test buildKanaNode: あ", () => {
   expect(startNode).not.toBe(endNode);
   expect(startNode.nextEdges.length).toBe(1);
   expect(startNode.nextEdges[0].entries).toEqual([
-    new RuleEntry([new ModifierStroke(VirtualKeys.A, AndModifier.empty)], "あ", [], true),
+    new RuleEntry([new SingleStroke(VirtualKeys.A, AndModifier.empty)], "あ", [], true),
   ]);
   expect(startNode.nextEdges[0].next).toBe(endNode);
 });
@@ -60,16 +60,16 @@ test("test buildKanaNode: あっ", () => {
   expect(startNode).not.toBe(endNode);
   expect(startNode.nextEdges.length).toBe(1);
   expect(startNode.nextEdges[0].entries).toEqual([
-    new RuleEntry([new ModifierStroke(VirtualKeys.A, AndModifier.empty)], "あ", [], true),
+    new RuleEntry([new SingleStroke(VirtualKeys.A, AndModifier.empty)], "あ", [], true),
   ]);
   const secondNode = startNode.nextEdges[0].next;
   expect(secondNode.nextEdges.length).toBe(1);
   expect(secondNode.nextEdges[0].entries).toEqual([
     new RuleEntry(
       [
-        new ModifierStroke(VirtualKeys.L, AndModifier.empty),
-        new ModifierStroke(VirtualKeys.T, AndModifier.empty),
-        new ModifierStroke(VirtualKeys.U, AndModifier.empty),
+        new SingleStroke(VirtualKeys.L, AndModifier.empty),
+        new SingleStroke(VirtualKeys.T, AndModifier.empty),
+        new SingleStroke(VirtualKeys.U, AndModifier.empty),
       ],
       "っ",
       [],
@@ -84,16 +84,16 @@ test("test buildKanaNode: あった", () => {
   expect(startNode).not.toBe(endNode);
   expect(startNode.nextEdges.length).toBe(1);
   expect(startNode.nextEdges[0].entries).toEqual([
-    new RuleEntry([new ModifierStroke(VirtualKeys.A, AndModifier.empty)], "あ", [], true),
+    new RuleEntry([new SingleStroke(VirtualKeys.A, AndModifier.empty)], "あ", [], true),
   ]);
   const secondNode = startNode.nextEdges[0].next;
   expect(secondNode.nextEdges.length).toBe(2);
   expect(secondNode.nextEdges[0].entries).toEqual([
     new RuleEntry(
       [
-        new ModifierStroke(VirtualKeys.L, AndModifier.empty),
-        new ModifierStroke(VirtualKeys.T, AndModifier.empty),
-        new ModifierStroke(VirtualKeys.U, AndModifier.empty),
+        new SingleStroke(VirtualKeys.L, AndModifier.empty),
+        new SingleStroke(VirtualKeys.T, AndModifier.empty),
+        new SingleStroke(VirtualKeys.U, AndModifier.empty),
       ],
       "っ",
       [],
@@ -105,8 +105,8 @@ test("test buildKanaNode: あった", () => {
   expect(thirdNode.nextEdges[0].entries).toEqual([
     new RuleEntry(
       [
-        new ModifierStroke(VirtualKeys.T, AndModifier.empty),
-        new ModifierStroke(VirtualKeys.A, AndModifier.empty),
+        new SingleStroke(VirtualKeys.T, AndModifier.empty),
+        new SingleStroke(VirtualKeys.A, AndModifier.empty),
       ],
       "た",
       [],
@@ -117,17 +117,17 @@ test("test buildKanaNode: あった", () => {
   expect(secondNode.nextEdges[1].entries).toEqual([
     new RuleEntry(
       [
-        new ModifierStroke(VirtualKeys.T, AndModifier.empty),
-        new ModifierStroke(VirtualKeys.T, AndModifier.empty),
+        new SingleStroke(VirtualKeys.T, AndModifier.empty),
+        new SingleStroke(VirtualKeys.T, AndModifier.empty),
       ],
       "っ",
-      [new ModifierStroke(VirtualKeys.T, AndModifier.empty)],
+      [new SingleStroke(VirtualKeys.T, AndModifier.empty)],
       true,
     ),
     new RuleEntry(
       [
-        new ModifierStroke(VirtualKeys.T, AndModifier.empty),
-        new ModifierStroke(VirtualKeys.A, AndModifier.empty),
+        new SingleStroke(VirtualKeys.T, AndModifier.empty),
+        new SingleStroke(VirtualKeys.A, AndModifier.empty),
       ],
       "た",
       [],
@@ -145,15 +145,15 @@ test("test buildKanaNode: あいた, erase あ->い edge", () => {
   expect(startNode).not.toBe(endNode);
   expect(startNode.nextEdges.length).toBe(1);
   expect(startNode.nextEdges[0].entries).toEqual([
-    new RuleEntry([new ModifierStroke(VirtualKeys.X, AndModifier.empty)], "あい", [], true),
+    new RuleEntry([new SingleStroke(VirtualKeys.X, AndModifier.empty)], "あい", [], true),
   ]);
   const secondNode = startNode.nextEdges[0].next;
   expect(secondNode.nextEdges.length).toBe(1);
   expect(secondNode.nextEdges[0].entries).toEqual([
     new RuleEntry(
       [
-        new ModifierStroke(VirtualKeys.T, AndModifier.empty),
-        new ModifierStroke(VirtualKeys.A, AndModifier.empty),
+        new SingleStroke(VirtualKeys.T, AndModifier.empty),
+        new SingleStroke(VirtualKeys.A, AndModifier.empty),
       ],
       "た",
       [],
