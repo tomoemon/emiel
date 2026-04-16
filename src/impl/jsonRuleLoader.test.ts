@@ -2,7 +2,7 @@ import * as v from "valibot";
 import { describe, expect, test } from "vitest";
 import { AndModifier, ModifierGroup } from "../core/modifier";
 import { RuleEntry } from "../core/rule";
-import { ModifierStroke, SimultaneousStroke } from "../core/ruleStroke";
+import { SingleStroke, SimultaneousStroke } from "../core/ruleStroke";
 import { VirtualKeys } from "../core/virtualKey";
 import { loadJsonRule } from "./jsonRuleLoader";
 
@@ -38,8 +38,8 @@ test("simple 1 entry", () => {
   expect(rule.entries[0]).toEqual(
     new RuleEntry(
       [
-        new ModifierStroke(VirtualKeys.A, AndModifier.empty),
-        new ModifierStroke(VirtualKeys.B, AndModifier.empty),
+        new SingleStroke(VirtualKeys.A, AndModifier.empty),
+        new SingleStroke(VirtualKeys.B, AndModifier.empty),
       ],
       "あ",
       [],
@@ -88,7 +88,7 @@ test("simple 2 entries with modifier (unnecessary modifier)", () => {
   expect(rule.entries[0]).toEqual(
     new RuleEntry(
       [
-        new ModifierStroke(
+        new SingleStroke(
           VirtualKeys.A,
           new AndModifier(new ModifierGroup(["ShiftLeft", "ShiftRight"])),
         ),
@@ -99,11 +99,11 @@ test("simple 2 entries with modifier (unnecessary modifier)", () => {
     ),
   );
   expect(rule.entries[1]).toEqual(
-    new RuleEntry([new ModifierStroke(VirtualKeys.I, AndModifier.empty)], "い", [], false),
+    new RuleEntry([new SingleStroke(VirtualKeys.I, AndModifier.empty)], "い", [], false),
   );
   expect(rule.entries[2]).toEqual(
     new RuleEntry(
-      [new ModifierStroke(VirtualKeys.U, new AndModifier(new ModifierGroup(["ShiftLeft"])))],
+      [new SingleStroke(VirtualKeys.U, new AndModifier(new ModifierGroup(["ShiftLeft"])))],
       "う",
       [],
       false,
@@ -188,13 +188,13 @@ test("simultaneous stroke followed by single-key stroke, 1 entry", () => {
       },
     ],
   });
-  // 新仕様: SimultaneousStroke と ModifierStroke を並べた 1 エントリ
+  // 新仕様: SimultaneousStroke と SingleStroke を並べた 1 エントリ
   expect(rule.entries.length).toBe(1);
   expect(rule.entries[0]).toEqual(
     new RuleEntry(
       [
         new SimultaneousStroke([VirtualKeys.A, VirtualKeys.B]),
-        new ModifierStroke(VirtualKeys.C, AndModifier.empty),
+        new SingleStroke(VirtualKeys.C, AndModifier.empty),
       ],
       "あ",
       [],
@@ -267,7 +267,7 @@ describe("backspaces field", () => {
     // JSON で backspaces を指定しなければ、Rule 側のデフォルト (Backspace 単独) が適用される
     expect(rule.backspaceStrokes.length).toBe(1);
     expect(rule.backspaceStrokes[0]).toEqual(
-      new ModifierStroke(VirtualKeys.Backspace, AndModifier.empty),
+      new SingleStroke(VirtualKeys.Backspace, AndModifier.empty),
     );
   });
 
@@ -278,7 +278,7 @@ describe("backspaces field", () => {
     });
     // 明示的に指定した場合はその指定のみ (Backspace は自動追加されない)
     expect(rule.backspaceStrokes.length).toBe(1);
-    expect(rule.backspaceStrokes[0]).toEqual(new ModifierStroke(VirtualKeys.U, AndModifier.empty));
+    expect(rule.backspaceStrokes[0]).toEqual(new SingleStroke(VirtualKeys.U, AndModifier.empty));
   });
 
   test("empty backspaces array disables backspace feature", () => {
@@ -307,7 +307,7 @@ describe("backspaces field", () => {
     });
     expect(rule.backspaceStrokes.length).toBe(1);
     expect(rule.backspaceStrokes[0]).toEqual(
-      new ModifierStroke(
+      new SingleStroke(
         VirtualKeys.U,
         new AndModifier(new ModifierGroup([VirtualKeys.ShiftLeft, VirtualKeys.ShiftRight])),
       ),

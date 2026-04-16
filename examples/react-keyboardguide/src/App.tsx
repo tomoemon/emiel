@@ -8,14 +8,14 @@ import {
   KeyboardState,
   activate,
   loadPresetKeyboardGuideDirectInput,
+  loadPresetKeyboardGuideJisKana,
+  loadPresetKeyboardGuideNicola,
   loadPresetKeyboardLayoutDvorak,
   loadPresetKeyboardLayoutQwertyJis,
   loadPresetKeyboardLayoutQwertyUs,
   loadPresetPhysicalKeyboardLayoutJis106,
   loadPresetPhysicalKeyboardLayoutUs101,
   loadPresetPhysicalKeyboardLayoutUsHhkb,
-  loadPresetRuleJisKana,
-  loadPresetRuleNicola,
   placeKeyboardGuide,
 } from "emiel";
 import { useEffect, useMemo, useState } from "react";
@@ -181,16 +181,15 @@ function KeyboardGuideComponent(props: {
     [props.physicalLayoutName],
   );
   const kbdGuide = useMemo<KeyboardGuide>(() => {
-    if (props.guideName === "direct_input") {
-      return loadPresetKeyboardGuideDirectInput();
+    switch (props.guideName) {
+      case "direct_input":
+        return loadPresetKeyboardGuideDirectInput();
+      case "jis_106_nicola":
+        return loadPresetKeyboardGuideNicola();
+      case "jis_106_jis_kana":
+        return loadPresetKeyboardGuideJisKana();
     }
-    const rule =
-      props.guideName === "jis_106_nicola" ? loadPresetRuleNicola() : loadPresetRuleJisKana();
-    if (!rule.guide) {
-      throw new Error(`Rule ${props.guideName} has no guide`);
-    }
-    return rule.guide;
-  }, [props.guideName, layout]);
+  }, [props.guideName]);
   const placements = useMemo(
     () => placeKeyboardGuide(kbdGuide, physicalLayout, layout, KEY_SIZE),
     [kbdGuide, physicalLayout, layout],

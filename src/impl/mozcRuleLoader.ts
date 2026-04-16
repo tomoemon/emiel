@@ -41,7 +41,7 @@ export function loadMozcRule(
       );
     });
   }
-  return new RulePrimitive(entries, metadata, undefined, undefined);
+  return new RulePrimitive(entries, metadata, undefined);
 }
 
 function toStrokesFromChar(layout: KeyboardLayout, key: string): RuleStroke[] {

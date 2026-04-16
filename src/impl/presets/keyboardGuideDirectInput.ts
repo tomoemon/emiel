@@ -1,5 +1,5 @@
 import directInput from "../../assets/keyboard_guides/direct_input.json";
-import type { KeyboardGuide } from "../../core/keyboardGuide";
+import type { KeyboardGuide } from "../keyboardGuide";
 import { loadJsonKeyboardGuide } from "../keyboardGuideLoader";
 
 // KeyboardGuide はイミュータブルで layout 非依存のため、モジュールレベルでキャッシュする。

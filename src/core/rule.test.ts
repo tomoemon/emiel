@@ -1,11 +1,11 @@
 import { describe, expect, test } from "vitest";
 import { AndModifier } from "./modifier";
 import { RuleEntry, RulePrimitive } from "./rule";
-import { ModifierStroke, type RuleStroke } from "./ruleStroke";
+import { SingleStroke, type RuleStroke } from "./ruleStroke";
 import { VirtualKeys } from "./virtualKey";
 
 function makeEntry(key: keyof typeof VirtualKeys, output: string): RuleEntry {
-  return new RuleEntry([new ModifierStroke(VirtualKeys[key], AndModifier.empty)], output, [], true);
+  return new RuleEntry([new SingleStroke(VirtualKeys[key], AndModifier.empty)], output, [], true);
 }
 
 function makePrimitive(options: {
@@ -17,7 +17,6 @@ function makePrimitive(options: {
     options.entries,
     { name: options.name ?? "", url: "" },
     options.backspaceStrokes,
-    undefined,
   );
 }
 
@@ -51,9 +50,9 @@ describe("Rule composition via compose()", () => {
     expect(composed.entriesByKey(VirtualKeys.A).map((e) => e.output)).toEqual(["HEAD", "TAIL"]);
   });
 
-  test("head の name/guide/backspaceStrokes が合成全体の代表になる", () => {
-    const headBs = new ModifierStroke(VirtualKeys.Digit0, AndModifier.empty);
-    const tailBs = new ModifierStroke(VirtualKeys.Digit9, AndModifier.empty);
+  test("head の name/backspaceStrokes が合成全体の代表になる", () => {
+    const headBs = new SingleStroke(VirtualKeys.Digit0, AndModifier.empty);
+    const tailBs = new SingleStroke(VirtualKeys.Digit9, AndModifier.empty);
     const head = makePrimitive({
       entries: [makeEntry("A", "a")],
       name: "head",

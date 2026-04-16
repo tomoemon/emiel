@@ -11,7 +11,7 @@ export { type Metadata, emptyMetadata } from "./core/metadata";
 export { KeyboardState, type KeyboardStateReader } from "./core/keyboardState";
 export { AndModifier, ModifierGroup } from "./core/modifier";
 export { type Rule, RulePrimitive, RuleEntry, type normalizerFunc } from "./core/rule";
-export { ModifierStroke, SimultaneousStroke, type RuleStroke } from "./core/ruleStroke";
+export { SingleStroke, SimultaneousStroke, type RuleStroke } from "./core/ruleStroke";
 export { VirtualKey, VirtualKeys } from "./core/virtualKey";
 
 export { activate } from "./browser/eventHandler";
@@ -20,8 +20,10 @@ export {
   KeyboardGuide,
   type KeyboardGuideLabel,
   type KeyboardGuideLabelMapping,
-} from "./core/keyboardGuide";
-export { placeKeyboardGuide, type KeyPlacement, type Rect } from "./impl/keyboardGuide";
+  placeKeyboardGuide,
+  type KeyPlacement,
+  type Rect,
+} from "./impl/keyboardGuide";
 export {
   loadJsonPhysicalKeyboardLayout,
   type PhysicalKeyboardLayout,
