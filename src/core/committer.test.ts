@@ -40,11 +40,11 @@ function runInputs(
   return { results, automaton };
 }
 
-describe("StrokeCommitter naginata (ModifierStroke + SimultaneousStroke 混在)", () => {
+describe("StrokeCommitter naginata (SingleStroke + SimultaneousStroke 混在)", () => {
   const rule = loadPresetRuleNaginatashikiV15();
 
-  test("W 単独押し: き (単キー ModifierStroke)", () => {
-    // word="き" のグラフには W 単打の ModifierStroke(empty) しかないため即確定
+  test("W 単独押し: き (単キー SingleStroke)", () => {
+    // word="き" のグラフには W 単打の SingleStroke(empty) しかないため即確定
     const { results, automaton } = runInputs(rule, "き", [
       { key: VirtualKeys.W, type: "keydown" },
       { key: VirtualKeys.W, type: "keyup" },
@@ -53,8 +53,8 @@ describe("StrokeCommitter naginata (ModifierStroke + SimultaneousStroke 混在)"
     expect(automaton.getFinishedWord()).toBe("き");
   });
 
-  test("Space 先押し → W で ぬ (ModifierStroke(W, [Space]))", () => {
-    // word="ぬ" は ModifierStroke(W, requiredModifier=[Space])。Space 先押し必須
+  test("Space 先押し → W で ぬ (SingleStroke(W, [Space]))", () => {
+    // word="ぬ" は SingleStroke(W, requiredModifier=[Space])。Space 先押し必須
     const { results, automaton } = runInputs(rule, "ぬ", [
       { key: VirtualKeys.Space, type: "keydown" },
       { key: VirtualKeys.W, type: "keydown" },
@@ -117,7 +117,7 @@ describe("StrokeCommitter naginata (ModifierStroke + SimultaneousStroke 混在)"
   });
 });
 
-describe("StrokeCommitter ModifierStroke (ローマ字互換性)", () => {
+describe("StrokeCommitter SingleStroke (ローマ字互換性)", () => {
   const rule = loadPresetRuleRoman(loadPresetKeyboardLayoutQwertyJis());
 
   test("a → あ (単打)", () => {
@@ -255,7 +255,7 @@ describe("StrokeCommitter 押しっぱなしモディファイア (nicola)", () 
   });
 
   test("nicola 単打 W → か", () => {
-    // word="か" のグラフには W 単打の ModifierStroke のみが載るため (sim [W,LangLeft] は
+    // word="か" のグラフには W 単打の SingleStroke のみが載るため (sim [W,LangLeft] は
     // 別出力 "え" 用) 衝突は発生せず W↓ で即確定する
     const { results, automaton } = runInputs(rule, "か", [
       { key: VirtualKeys.W, type: "keydown" },
@@ -278,7 +278,7 @@ describe("StrokeCommitter jis_kana (単打 + Shift modifier)", () => {
     expect(automaton.getFinishedWord()).toBe("あ");
   });
 
-  test("Shift+Digit3 → ぁ (ModifierStroke with requiredModifier)", () => {
+  test("Shift+Digit3 → ぁ (SingleStroke with requiredModifier)", () => {
     const { automaton } = runInputs(rule, "ぁ", [
       { key: VirtualKeys.ShiftLeft, type: "keydown" },
       { key: VirtualKeys.Digit3, type: "keydown" },

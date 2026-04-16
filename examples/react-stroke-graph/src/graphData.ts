@@ -51,7 +51,7 @@ function strokeToString(stroke: emiel.StrokeEdge): string {
     // 同時押し: キーを順不同の集合として連結表示 (例 ␣+W)
     return input.keys.map((k) => keyToString(k)).join("+");
   }
-  // ModifierStroke: 事前押下 modifier + 主キー (例 ⇧|A)
+  // SingleStroke: 事前押下 modifier + 主キー (例 ⇧|A)
   const key = input.key;
   const mod = input.requiredModifier;
   const modStr = Array.from(

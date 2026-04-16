@@ -2,21 +2,21 @@ import { AndModifier } from "./modifier";
 import type { VirtualKey } from "./virtualKey";
 
 /**
- * 入力ルールの1打鍵を表す型。「モディファイア型（単キー）」と「同時押し型（複数キー順不同）」の
+ * 入力ルールの1打鍵を表す型。「単キー型」と「同時押し型（複数キー順不同）」の
  * discriminated union。
  *
- * - ModifierStroke: 主キー 1 つ + 事前押下必須のモディファイア (Shift+A など、順序あり)。
+ * - SingleStroke: 主キー 1 つ + 事前押下必須のモディファイア (Shift+A など、順序あり)。
  * - SimultaneousStroke: 複数キーの順不同同時押し (A+B など)。追加で requiredModifier を持てるため、
  *   「Space を先押ししながら A+J を同時押し」 (naginata の濁音等) も表現できる。
  */
-export type RuleStroke = ModifierStroke | SimultaneousStroke;
+export type RuleStroke = SingleStroke | SimultaneousStroke;
 
 /**
- * 順序ありの入力打鍵を表すクラス。
+ * 単キー打鍵を表すクラス。
  * requiredModifier は key を押下する前に事前に押下されている必要がある修飾キー群。
  */
-export class ModifierStroke {
-  readonly kind = "modifier" as const;
+export class SingleStroke {
+  readonly kind = "single" as const;
   /**
    * @param key 入力が必要なキー
    * @param requiredModifier key を押下する前に事前に押下しておく必要がある修飾キー
@@ -28,7 +28,7 @@ export class ModifierStroke {
     readonly romanChar: string = "",
   ) {}
   equals(other: RuleStroke): boolean {
-    if (other.kind !== "modifier") {
+    if (other.kind !== "single") {
       return false;
     }
     return this.key === other.key && this.requiredModifier.equals(other.requiredModifier);
@@ -56,7 +56,7 @@ export class SimultaneousStroke {
   ) {
     if (keys.length < 2) {
       throw new Error(
-        `SimultaneousStroke requires at least 2 keys, but got ${keys.length}. Use ModifierStroke for single-key strokes.`,
+        `SimultaneousStroke requires at least 2 keys, but got ${keys.length}. Use SingleStroke for single-key strokes.`,
       );
     }
     // 重複除去（集合意味論）
@@ -83,17 +83,17 @@ export class SimultaneousStroke {
   }
 }
 
-export function isModifierStroke(stroke: RuleStroke): stroke is ModifierStroke {
-  return stroke.kind === "modifier";
+export function isSingleStroke(stroke: RuleStroke): stroke is SingleStroke {
+  return stroke.kind === "single";
 }
 
 export function isSimultaneousStroke(stroke: RuleStroke): stroke is SimultaneousStroke {
   return stroke.kind === "simultaneous";
 }
 
-/** RuleStroke の種別を問わず、ルートとなるキー群（modifier: 主キー1つ / simultaneous: 全キー）を返す。 */
+/** RuleStroke の種別を問わず、ルートとなるキー群（single: 主キー1つ / simultaneous: 全キー）を返す。 */
 export function ruleStrokeKeys(stroke: RuleStroke): readonly VirtualKey[] {
-  if (stroke.kind === "modifier") {
+  if (stroke.kind === "single") {
     return [stroke.key];
   }
   return stroke.keys;

@@ -59,7 +59,7 @@ const EMPTY_STATE: CommitterState = { pendingDown: [], tentative: undefined };
  * Raw な keydown/keyup イベントを受け取り、ルールに基づいて「確定 / 保留 / 無視 / 失敗」を判断する層。
  *
  * Automaton が時間方向の判断 (staged 状態, keyup 待ち, 同時押しの確定) を持たないで済むように
- * 切り出した責務の塊。SimultaneousStroke と ModifierStroke の両方に対応する。
+ * 切り出した責務の塊。SimultaneousStroke と SingleStroke の両方に対応する。
  *
  * Committer 自身は `pendingDown` と `tentative` だけを状態として持ち、評価に必要な
  * currentNode / rule は呼び出し時に引数で受け取る (Automaton への逆参照を避けるため)。
@@ -153,22 +153,22 @@ export class StrokeCommitter {
       }
     }
 
-    // ---- ModifierStroke の評価 ----
-    const modResults = edges
-      .filter((e) => e.input.kind === "modifier")
+    // ---- SingleStroke の評価 ----
+    const singleResults = edges
+      .filter((e) => e.input.kind === "single")
       .map((edge) => ({ edge, result: matchCandidateEdge(event, edge) }));
-    const modMatched = modResults
+    const singleMatched = singleResults
       .filter((m) => m.result.type === "matched")
       .map((m) => ({ edge: m.edge, keyCount: m.result.keyCount }));
-    const modHasModified = modResults.some((m) => m.result.type === "modified");
+    const singleHasModified = singleResults.some((m) => m.result.type === "modified");
 
     const otherMatched = matchOtherEdge(event, rule, edges);
 
     // (1) 同時押しの候補がまだ延長されうる (partial) 場合は pending
-    //     同時 mod commit の候補があれば、keyup で救済するため tentative としてステージする
+    //     単打の commit 候補があれば、keyup で救済するため tentative としてステージする
     if (simPartial.length > 0) {
       const tentative: TentativeCommit | undefined =
-        modMatched.length > 0 ? { kind: "edge", edge: modMatched[0].edge } : undefined;
+        singleMatched.length > 0 ? { kind: "edge", edge: singleMatched[0].edge } : undefined;
       return {
         result: { type: "pending" },
         nextState: { pendingDown, tentative },
@@ -181,9 +181,9 @@ export class StrokeCommitter {
       return this.commit(edge, event, pendingDown);
     }
 
-    // (3) 以降は同時押しが関わらないケース。ModifierStroke の旧ロジックを踏襲する
-    if (modMatched.length > 0) {
-      const top = modMatched[0];
+    // (3) 以降は同時押しが関わらないケース。SingleStroke の旧ロジックを踏襲する
+    if (singleMatched.length > 0) {
+      const top = singleMatched[0];
       // 他ルートがより強くマッチする場合は失敗
       if (otherMatched.type === "matched" && otherMatched.keyCount >= top.keyCount) {
         return {
@@ -192,7 +192,7 @@ export class StrokeCommitter {
         };
       }
       // 曖昧さがある場合はステージして keyup を待つ
-      if (modHasModified || otherMatched.type === "modified") {
+      if (singleHasModified || otherMatched.type === "modified") {
         return {
           result: { type: "pending" },
           nextState: { pendingDown, tentative: { kind: "edge", edge: top.edge } },
@@ -202,8 +202,8 @@ export class StrokeCommitter {
       return this.commit(top.edge, event, pendingDown);
     }
 
-    // (4) 候補 mod エッジは accept しないが、どれかを修飾する可能性がある
-    if (modHasModified) {
+    // (4) 候補 single エッジは accept しないが、どれかを修飾する可能性がある
+    if (singleHasModified) {
       if (otherMatched.type === "matched") {
         return {
           result: { type: "pending" },
@@ -253,7 +253,7 @@ export class StrokeCommitter {
       }
     }
 
-    // (B) ModifierStroke の曖昧さ解消用 tentative を keyup で確定
+    // (B) SingleStroke の曖昧さ解消用 tentative を keyup で確定
     if (currentState.tentative?.kind === "edge") {
       return this.commit(currentState.tentative.edge, event, preReleasePending);
     }
@@ -325,7 +325,7 @@ function removeFirstOccurrence(
   return [...keys.slice(0, idx), ...keys.slice(idx + 1)];
 }
 
-// ModifierStroke 専用の照合ヘルパ
+// SingleStroke 専用の照合ヘルパ
 type MatchResult = {
   type: "matched" | "modified" | "none" | "failed";
   keyCount: number;
@@ -333,7 +333,7 @@ type MatchResult = {
 
 function matchCandidateEdge(event: InputEvent, edge: StrokeEdge): MatchResult {
   const stroke = edge.input;
-  if (stroke.kind !== "modifier") {
+  if (stroke.kind !== "single") {
     return { type: "none", keyCount: 0 };
   }
   // 入力されたキーがマッチし、
@@ -366,7 +366,7 @@ function matchOtherEdge(
   // 結果」を返すので、ここでは合成された全 primitive の entries を一括で走査している。
   const otherMatched = rule.entriesByKey(event.input.key).filter((entry) => {
     const firstStroke = entry.input[0];
-    if (firstStroke.kind !== "modifier") {
+    if (firstStroke.kind !== "single") {
       return false;
     }
     // いずれかの候補エッジと同じ input を持つ entry は除く
@@ -384,7 +384,7 @@ function matchOtherEdge(
       Math.max(
         ...otherMatched.map((e) => {
           const s = e.input[0];
-          return s.kind === "modifier" ? s.requiredModifier.groups.length : 0;
+          return s.kind === "single" ? s.requiredModifier.groups.length : 0;
         }),
       ) + 1;
     return { type: "matched", keyCount: keyCount };

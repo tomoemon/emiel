@@ -1,7 +1,7 @@
 import * as v from "valibot";
 import { KeyboardLayout } from "../core/keyboardLayout";
 import { AndModifier, ModifierGroup } from "../core/modifier";
-import { ModifierStroke } from "../core/ruleStroke";
+import { SingleStroke } from "../core/ruleStroke";
 import { VirtualKeys, virtualKeySchema } from "../core/virtualKey";
 
 const metadataSchema = v.optional(
@@ -34,9 +34,9 @@ export function loadJsonKeyboardLayout(jsonLayout: unknown): KeyboardLayout {
     return loadJsonKeyboardLayout(JSON.parse(jsonLayout));
   }
   const validated = v.parse(jsonKeyboardLayoutSchema, jsonLayout);
-  const strokes: [string, ModifierStroke][] = validated.entries.map((entry) => [
+  const strokes: [string, SingleStroke][] = validated.entries.map((entry) => [
     entry.output,
-    new ModifierStroke(
+    new SingleStroke(
       entry.input.key,
       entry.input.shift ? shiftModifier : AndModifier.empty,
       entry.output,
