@@ -31,3 +31,4 @@ pnpm publish        # パッケージ公開
 
 - 会話は日本語で行うこと
 - 型定義には `interface` ではなく `type` を使うこと
+- emiel パッケージとして外部に公開される（`src/index.ts` から export される）関数・クラス・型・プロパティにはすべて JSDoc を付けること
