@@ -24,7 +24,7 @@ function TypingRoot(props: { layout: KeyboardLayout }) {
   }, [props.layout]);
   const [wordIndex, setWordIndex] = useState(0);
   const [wordRecords, setWordRecords] = useState<WordRecordValue[]>([]);
-  const onWordFinished = (a: Automaton, displayedAt: Date) => {
+  const onWordFinished = (a: Automaton, displayedAt: DOMHighResTimeStamp) => {
     setWordRecords((wordRecords) => [
       ...wordRecords,
       {

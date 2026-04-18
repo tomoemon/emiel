@@ -68,7 +68,7 @@ const a = build(rule, "こんにちは").with({
   getProgress: (state) => (state.currentNode.kanaIndex / state.word.length) * 100,
   getKPM: (state) => {
     const edges = getEffectiveEdges(state);
-    const duration = getLastInputTime(state).getTime() - getFirstInputTime(state).getTime();
+    const duration = getLastInputTime(state) - getFirstInputTime(state);
     return (edges.length / duration) * 60000;
   },
 });
