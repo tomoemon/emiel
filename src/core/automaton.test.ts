@@ -173,7 +173,7 @@ function runInputsOn(
       state.keyup(ev.key);
     }
     const result = automaton.input(
-      new InputEvent(new InputStroke(ev.key, ev.type), state, new Date()),
+      new InputEvent(new InputStroke(ev.key, ev.type), state, performance.now()),
     );
     results.push(result.toString());
   }
@@ -295,7 +295,7 @@ describe("Automaton backspace stroke integration", () => {
     const state = new KeyboardState();
     state.keydown(VirtualKeys.U);
     const [result] = automaton.testInput(
-      new InputEvent(new InputStroke(VirtualKeys.U, "keydown"), state, new Date()),
+      new InputEvent(new InputStroke(VirtualKeys.U, "keydown"), state, performance.now()),
     );
     expect(result.isBack).toBe(true);
     // dryRun では状態を動かさない

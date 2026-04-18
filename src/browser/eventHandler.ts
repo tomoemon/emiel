@@ -19,28 +19,30 @@ export function activate(
 ) {
   const keyboardState = new KeyboardState();
   const keyDownEventHandler = (evt: Event) => {
-    const keyStroke = toInputKeyStrokeFromKeyboardEvent("keydown", evt as KeyboardEvent, keyMap);
+    const keyboardEvent = evt as KeyboardEvent;
+    const keyStroke = toInputKeyStrokeFromKeyboardEvent("keydown", keyboardEvent, keyMap);
     keyboardState.keydown(keyStroke.key);
-    const now = new Date();
     keyEventHandler(
       new InputEvent(
         keyStroke,
         // キー入力ごとのその時点での KeyboardState を渡す
         new KeyboardState([...keyboardState.downedKeys]),
-        now,
+        // KeyboardEvent.timeStamp はブラウザがイベントを受け取った時刻 (DOMHighResTimeStamp)。
+        // ハンドラ実行時刻ではなく、イベントループ遅延を含まない。
+        keyboardEvent.timeStamp,
       ),
     );
   };
   const keyUpEventHandler = (evt: Event) => {
-    const keyStroke = toInputKeyStrokeFromKeyboardEvent("keyup", evt as KeyboardEvent, keyMap);
+    const keyboardEvent = evt as KeyboardEvent;
+    const keyStroke = toInputKeyStrokeFromKeyboardEvent("keyup", keyboardEvent, keyMap);
     keyboardState.keyup(keyStroke.key);
-    const now = new Date();
     keyEventHandler(
       new InputEvent(
         keyStroke,
         // キー入力ごとのその時点での KeyboardState を渡す
         new KeyboardState([...keyboardState.downedKeys]),
-        now,
+        keyboardEvent.timeStamp,
       ),
     );
   };

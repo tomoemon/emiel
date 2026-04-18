@@ -83,7 +83,7 @@ function handleChar(str: string) {
   for (const group of stroke.requiredModifier.groups) {
     if (group.modifiers.length > 0) state.keydown(group.modifiers[0]);
   }
-  const ev = new InputEvent(new InputStroke(stroke.key, "keydown"), state, new Date());
+  const ev = new InputEvent(new InputStroke(stroke.key, "keydown"), state, performance.now());
   const result = automaton.input(ev);
   typedKeys += str;
   lastStatus = result.toString();

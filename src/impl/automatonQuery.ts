@@ -78,8 +78,11 @@ export function getPendingStroke(state: AutomatonState): RuleStroke[] {
 
 /**
  * 最初の入力時刻（成功・失敗問わず）
+ *
+ * 戻り値は DOMHighResTimeStamp (ミリ秒、sub-ms 精度の単調時計)。
+ * 差分で経過時間を計算できる。
  */
-export function getFirstInputTime(state: AutomatonState): Date {
+export function getFirstInputTime(state: AutomatonState): DOMHighResTimeStamp {
   const entries = inputEntries(state);
   return entries[0].event.timestamp;
 }
@@ -87,7 +90,7 @@ export function getFirstInputTime(state: AutomatonState): Date {
 /**
  * 最後の入力時刻（成功・失敗問わず）
  */
-export function getLastInputTime(state: AutomatonState): Date {
+export function getLastInputTime(state: AutomatonState): DOMHighResTimeStamp {
   const entries = inputEntries(state);
   return entries[entries.length - 1].event.timestamp;
 }
@@ -95,7 +98,7 @@ export function getLastInputTime(state: AutomatonState): Date {
 /**
  * 最初の成功入力時刻
  */
-export function getFirstSucceededInputTime(state: AutomatonState): Date {
+export function getFirstSucceededInputTime(state: AutomatonState): DOMHighResTimeStamp {
   const entries = inputEntries(state);
   const first = entries.find((e) => e.result.isSucceeded);
   if (!first) {
@@ -107,7 +110,7 @@ export function getFirstSucceededInputTime(state: AutomatonState): Date {
 /**
  * 最後の成功入力時刻
  */
-export function getLastSucceededInputTime(state: AutomatonState): Date {
+export function getLastSucceededInputTime(state: AutomatonState): DOMHighResTimeStamp {
   const entries = inputEntries(state);
   for (let i = entries.length - 1; i >= 0; i--) {
     if (entries[i].result.isSucceeded) {
@@ -164,8 +167,8 @@ function computeEffectiveStats(state: AutomatonState) {
   }
 
   let failedCount = 0;
-  let firstSucceededTime: Date | undefined;
-  let lastSucceededTime: Date | undefined;
+  let firstSucceededTime: DOMHighResTimeStamp | undefined;
+  let lastSucceededTime: DOMHighResTimeStamp | undefined;
   for (let i = 0; i < state.inputHistory.length; i++) {
     if (backed.has(i)) continue;
     const entry = state.inputHistory[i];
@@ -197,7 +200,7 @@ export function getEffectiveTotalInputCount(state: AutomatonState): number {
 /**
  * back() で取り消されていない最初の成功入力時刻
  */
-export function getEffectiveFirstSucceededInputTime(state: AutomatonState): Date {
+export function getEffectiveFirstSucceededInputTime(state: AutomatonState): DOMHighResTimeStamp {
   const { firstSucceededTime } = computeEffectiveStats(state);
   if (!firstSucceededTime) throw new Error("No effective succeeded input found");
   return firstSucceededTime;
@@ -206,7 +209,7 @@ export function getEffectiveFirstSucceededInputTime(state: AutomatonState): Date
 /**
  * back() で取り消されていない最後の成功入力時刻
  */
-export function getEffectiveLastSucceededInputTime(state: AutomatonState): Date {
+export function getEffectiveLastSucceededInputTime(state: AutomatonState): DOMHighResTimeStamp {
   const { lastSucceededTime } = computeEffectiveStats(state);
   if (!lastSucceededTime) throw new Error("No effective succeeded input found");
   return lastSucceededTime;

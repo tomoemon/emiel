@@ -3,14 +3,14 @@ import { getAccuracy, getKpm, getRkpm } from "emiel";
 
 export type WordRecordValue = {
   automaton: Automaton;
-  displayedAt: Date;
+  displayedAt: DOMHighResTimeStamp;
 };
 
 export function Record(props: { wordRecords: WordRecordValue[] }) {
   const records = props.wordRecords.map((record) => {
     // ワードが表示されてから1打鍵めに成功するまでの経過時間
     const automaton = record.automaton;
-    const latency = automaton.getFirstSucceededInputTime().getTime() - record.displayedAt.getTime();
+    const latency = automaton.getFirstSucceededInputTime() - record.displayedAt;
     const succeededCount = automaton.getEffectiveEdges().length;
     const rkpm = getRkpm(
       succeededCount,
@@ -70,8 +70,8 @@ export function Record(props: { wordRecords: WordRecordValue[] }) {
         {records.map((r, index) => {
           return (
             <li key={index}>
-              {r.word} latency:{r.latency}ms kpm:{r.kpm} rkpm:{r.rkpm} acc:
-              {(r.accuracy * 100).toFixed(2)}%
+              {r.word} latency:{Math.trunc(r.latency)}ms kpm:{Math.trunc(r.kpm)} rkpm:
+              {Math.trunc(r.rkpm)} acc:{(r.accuracy * 100).toFixed(2)}%
             </li>
           );
         })}

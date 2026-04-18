@@ -5,12 +5,12 @@ import "./App.css";
 export function Typing(props: {
   layout: emiel.KeyboardLayout;
   automaton: emiel.Automaton;
-  onWordFinished: (a: emiel.Automaton, displayedAt: Date) => void;
+  onWordFinished: (a: emiel.Automaton, displayedAt: DOMHighResTimeStamp) => void;
 }) {
   const [lastInputKey, setLastInputKey] = useState<emiel.InputStroke | undefined>();
   const automaton = props.automaton;
   useEffect(() => {
-    const wordDisplayedAt = new Date();
+    const wordDisplayedAt = performance.now();
     return emiel.activate(window, (e) => {
       setLastInputKey(e.input);
       const result = automaton.input(e);

@@ -33,7 +33,7 @@ function runInputs(
       state.keyup(ev.key);
     }
     const result = automaton.input(
-      new InputEvent(new InputStroke(ev.key, ev.type), state, new Date()),
+      new InputEvent(new InputStroke(ev.key, ev.type), state, performance.now()),
     );
     results.push(result.toString());
   }
