@@ -60,7 +60,8 @@ const automaton = build(rule, "かった");
 // キーボードイベントを購読
 activate(window, (event) => {
   const result = automaton.input(event);
-  console.log(automaton.getFinishedRoman(), automaton.getPendingRoman());
+  const view = automaton.currentView();
+  console.log(view.finishedRoman, view.pendingRoman);
   if (result.isFinished) {
     console.log("入力完了!");
   }

@@ -20,6 +20,10 @@ export class StrokeNode {
   getCost(): number {
     return this.cost;
   }
+  /** このノードが終端（次の遷移候補なし）かどうか */
+  get isFinished(): boolean {
+    return this.nextEdges.length === 0;
+  }
   /**
    * cost 計算中にのみ必要な関数。状態遷移時は不要
    */

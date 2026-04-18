@@ -1,14 +1,14 @@
 import { AutomatonImpl } from "../core/automaton";
-import { buildKanaNode } from "../core/builderKanaGraph";
+import { buildKanaNode, computeRulesByKanaIndex } from "../core/builderKanaGraph";
 import { buildStrokeNode } from "../core/builderStrokeGraph";
 import type { normalizerFunc, Rule } from "../core/rule";
-import * as AutomatonQuery from "./automatonQuery";
+import * as AutomatonView from "./automatonView";
 import { defaultComposedNormalize } from "./charNormalizer";
 
 /**
  * 入力ルールとお題かな文字列から `Automaton` を構築する、emiel の中心 API。
- * 戻り値は AutomatonImpl に `automatonQuery` の基本クエリ関数群を合成したもので、
- * `automaton.getFinishedWord()` 等がそのまま呼び出せる。
+ * 戻り値は AutomatonImpl に `currentView()` / `eventsView()` を合成したもので、
+ * `automaton.currentView().finishedWord` 等がそのまま呼び出せる。
  *
  * @param rule 使用する入力ルール (`loadPresetRuleRoman()` 等で取得)
  * @param kanaText 入力対象の文字列
@@ -20,32 +20,21 @@ export function build(
   kanaText: string,
   normalize: normalizerFunc = defaultComposedNormalize,
 ): Automaton {
-  const { endNode, rulesByKanaIndex } = buildKanaNode(rule, kanaText, normalize);
+  const { startNode: kanaStartNode, endNode } = buildKanaNode(rule, kanaText, normalize);
+  const rulesByKanaIndex = computeRulesByKanaIndex(kanaStartNode, endNode.startIndex, rule);
   const automaton = new AutomatonImpl(kanaText, buildStrokeNode(endNode), rule, rulesByKanaIndex);
   return automaton.with(baseExtension);
 }
 
 const baseExtension = {
-  getFinishedWord: AutomatonQuery.getFinishedWord,
-  getPendingWord: AutomatonQuery.getPendingWord,
-  getFinishedStroke: AutomatonQuery.getFinishedStroke,
-  getPendingStroke: AutomatonQuery.getPendingStroke,
-  getEffectiveEdges: AutomatonQuery.getEffectiveEdges,
-  isFinished: AutomatonQuery.isFinished,
-  getFirstInputTime: AutomatonQuery.getFirstInputTime,
-  getLastInputTime: AutomatonQuery.getLastInputTime,
-  getFirstSucceededInputTime: AutomatonQuery.getFirstSucceededInputTime,
-  getLastSucceededInputTime: AutomatonQuery.getLastSucceededInputTime,
-  getFailedInputCount: AutomatonQuery.getFailedInputCount,
-  getTotalInputCount: AutomatonQuery.getTotalInputCount,
-  getFinishedRoman: AutomatonQuery.getFinishedRoman,
-  getPendingRoman: AutomatonQuery.getPendingRoman,
+  currentView: AutomatonView.currentView,
+  eventsView: AutomatonView.eventsView,
 };
 
 /**
- * `build()` が自動で合成する基本クエリ関数群の型。
- * `getFinishedWord()`, `getLastSucceededInputTime()` 等、`automatonQuery` の主要関数を
- * 引数なしメソッドとして呼び出せるようにマップしたもの。
+ * `build()` が自動で合成する基本クエリメソッドの型。
+ * `automaton.currentView()` / `automaton.eventsView()` が引数なしメソッドとして
+ * 呼び出せるようにマップしたもの。
  */
 export type BaseExtensionType = {
   [K in keyof typeof baseExtension]: () => ReturnType<(typeof baseExtension)[K]>;

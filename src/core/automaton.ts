@@ -1,8 +1,8 @@
 import type { AutomatonState, HistoryEntry } from "./automatonState";
 import type { StrokeEdge, StrokeNode } from "./builderStrokeGraph";
 import {
-  type BackspaceAwareResult,
   BackspaceAwareCommitter,
+  type BackspaceAwareResult,
   type CommittedStroke,
 } from "./committer";
 import type { InputEvent } from "./inputEvent";
@@ -20,7 +20,7 @@ export class AutomatonImpl implements AutomatonState {
    * @param word かな文字列（配列定義 Rule で使用可能な文字で構成される文字列）
    * @param startNode 打鍵を受け付ける開始ノード
    * @param rule このAutomatonを生成した入力ルール
-   * @param rulesByKanaIndex 各 kanaIndex で入力を始めるエントリを寄与した primitive 集合
+   * @param rulesByKanaIndex 各 kanaIndex で適用可能な primitive 集合（剪定済みグラフから算出）
    */
   constructor(
     readonly word: string,
@@ -32,21 +32,13 @@ export class AutomatonImpl implements AutomatonState {
     this.committer = new BackspaceAwareCommitter(rule.backspaceStrokes);
   }
 
-  /**
-   * 現在の入力位置 (currentNode.kanaIndex) で入力対象となっている primitive の集合を返す。
-   * 合成された Rule では、この位置から入力を始めるエントリを提供した primitive が
-   * 合成順で列挙される。候補がない位置 (ワード完了後など) では空配列。
-   */
-  getCurrentOriginRules(): readonly RulePrimitive[] {
-    return this.rulesByKanaIndex[this.currentNode.kanaIndex] ?? [];
-  }
   /** 現在の入力位置を表すノード。入力が進むと次のノードに遷移し、back() で前のノードに戻る。 */
   currentNode: StrokeNode;
   /**
    * すべての入力イベントと back() 操作の時系列ログ。
    * input() の結果（IGNORED, PENDING 含む）と back() の BackHistoryEntry が記録される。
    *
-   * 有効な遷移 edge の取得: build 後の Automaton で automaton.getEffectiveEdges()
+   * 有効な成功打鍵数の取得: 合成後の Automaton で automaton.eventsView().succeededCount
    * 失敗イベントの抽出: inputHistory.filter(e => !("back" in e) && e.result.isFailed)
    */
   inputHistory: HistoryEntry[] = [];
@@ -58,6 +50,15 @@ export class AutomatonImpl implements AutomatonState {
    */
   get pendingKeys(): readonly VirtualKey[] {
     return this.committer.pendingKeys;
+  }
+  /**
+   * 現在の入力位置 (currentNode.kanaIndex) で適用可能なルール一覧。
+   * 合成された Rule では、この位置から入力を始めるエントリを提供した構成ルールが
+   * 合成順で列挙される。剪定済みグラフから算出されるので、実際にこの位置から
+   * 辿れるエッジを持つルールのみが含まれる。候補がない位置 (ワード完了後など) では空配列。
+   */
+  get currentRules(): readonly RulePrimitive[] {
+    return this.rulesByKanaIndex[this.currentNode.kanaIndex] ?? [];
   }
   /**
    * 入力状態をリセットする。

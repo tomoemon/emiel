@@ -50,7 +50,7 @@ describe("StrokeCommitter naginata (SingleStroke + SimultaneousStroke 混在)", 
       { key: VirtualKeys.W, type: "keyup" },
     ]);
     expect(results[0]).toBe("finished");
-    expect(automaton.getFinishedWord()).toBe("き");
+    expect(automaton.currentView().finishedWord).toBe("き");
   });
 
   test("Space 先押し → W で ぬ (SingleStroke(W, [Space]))", () => {
@@ -62,7 +62,7 @@ describe("StrokeCommitter naginata (SingleStroke + SimultaneousStroke 混在)", 
       { key: VirtualKeys.Space, type: "keyup" },
     ]);
     expect(results[1]).toBe("finished");
-    expect(automaton.getFinishedWord()).toBe("ぬ");
+    expect(automaton.currentView().finishedWord).toBe("ぬ");
   });
 
   test("W+J 同時押し (順序不問): ぎ", () => {
@@ -74,7 +74,7 @@ describe("StrokeCommitter naginata (SingleStroke + SimultaneousStroke 混在)", 
       { key: VirtualKeys.J, type: "keyup" },
     ]);
     expect(r1[1]).toBe("finished");
-    expect(a1.getFinishedWord()).toBe("ぎ");
+    expect(a1.currentView().finishedWord).toBe("ぎ");
 
     // 順序を入れ替えても同じ結果
     const { results: r2, automaton: a2 } = runInputs(rule, "ぎ", [
@@ -84,7 +84,7 @@ describe("StrokeCommitter naginata (SingleStroke + SimultaneousStroke 混在)", 
       { key: VirtualKeys.W, type: "keyup" },
     ]);
     expect(r2[1]).toBe("finished");
-    expect(a2.getFinishedWord()).toBe("ぎ");
+    expect(a2.currentView().finishedWord).toBe("ぎ");
   });
 
   test("Space 先押し + A+J 同時押し: ぜ (SimultaneousStroke + requiredModifier)", () => {
@@ -98,8 +98,8 @@ describe("StrokeCommitter naginata (SingleStroke + SimultaneousStroke 混在)", 
       { key: VirtualKeys.J, type: "keyup" },
       { key: VirtualKeys.Space, type: "keyup" },
     ]);
-    expect(automaton.isFinished()).toBe(true);
-    expect(automaton.getFinishedWord()).toBe("ぜ");
+    expect(automaton.currentNode.isFinished).toBe(true);
+    expect(automaton.currentView().finishedWord).toBe("ぜ");
   });
 
   test("Space 先押し + J+A 同時押し (順序入替): ぜ", () => {
@@ -112,8 +112,8 @@ describe("StrokeCommitter naginata (SingleStroke + SimultaneousStroke 混在)", 
       { key: VirtualKeys.A, type: "keyup" },
       { key: VirtualKeys.Space, type: "keyup" },
     ]);
-    expect(automaton.isFinished()).toBe(true);
-    expect(automaton.getFinishedWord()).toBe("ぜ");
+    expect(automaton.currentNode.isFinished).toBe(true);
+    expect(automaton.currentView().finishedWord).toBe("ぜ");
   });
 });
 
@@ -126,7 +126,7 @@ describe("StrokeCommitter SingleStroke (ローマ字互換性)", () => {
       { key: VirtualKeys.A, type: "keyup" },
     ]);
     expect(results[0]).toBe("finished");
-    expect(automaton.getFinishedWord()).toBe("あ");
+    expect(automaton.currentView().finishedWord).toBe("あ");
   });
 
   test("k + a → か", () => {
@@ -138,7 +138,7 @@ describe("StrokeCommitter SingleStroke (ローマ字互換性)", () => {
     ]);
     expect(results[0]).toBe("key_succeeded");
     expect(results[2]).toBe("finished");
-    expect(automaton.getFinishedWord()).toBe("か");
+    expect(automaton.currentView().finishedWord).toBe("か");
   });
 
   test("a → i で 'あい' 確定 (baseline)", () => {
@@ -148,8 +148,8 @@ describe("StrokeCommitter SingleStroke (ローマ字互換性)", () => {
       { key: VirtualKeys.I, type: "keydown" },
       { key: VirtualKeys.I, type: "keyup" },
     ]);
-    expect(automaton.isFinished()).toBe(true);
-    expect(automaton.getFinishedWord()).toBe("あい");
+    expect(automaton.currentNode.isFinished).toBe(true);
+    expect(automaton.currentView().finishedWord).toBe("あい");
   });
 });
 
@@ -171,7 +171,7 @@ describe("StrokeCommitter 衝突解決", () => {
     ]);
     expect(results[0]).toBe("pending");
     expect(results[1]).toBe("finished");
-    expect(automaton.getFinishedWord()).toBe("X");
+    expect(automaton.currentView().finishedWord).toBe("X");
   });
 
   test("A↓ → B↓ で同時押し sim パスが即確定", () => {
@@ -183,7 +183,7 @@ describe("StrokeCommitter 衝突解決", () => {
     ]);
     expect(results[0]).toBe("pending");
     expect(results[1]).toBe("finished");
-    expect(automaton.getFinishedWord()).toBe("X");
+    expect(automaton.currentView().finishedWord).toBe("X");
   });
 
   test("逆順 B↓ → A↓ でも sim が確定 (順不同)", () => {
@@ -196,7 +196,7 @@ describe("StrokeCommitter 衝突解決", () => {
     // B↓ は [A,B] の partial
     expect(results[0]).toBe("pending");
     expect(results[1]).toBe("finished");
-    expect(automaton.getFinishedWord()).toBe("X");
+    expect(automaton.currentView().finishedWord).toBe("X");
   });
 });
 
@@ -211,8 +211,8 @@ describe("StrokeCommitter 押しっぱなしモディファイア (nicola)", () 
       { key: VirtualKeys.A, type: "keydown" },
       { key: VirtualKeys.A, type: "keyup" },
     ]);
-    expect(automaton.isFinished()).toBe(true);
-    expect(automaton.getFinishedWord()).toBe("う");
+    expect(automaton.currentNode.isFinished).toBe(true);
+    expect(automaton.currentView().finishedWord).toBe("う");
   });
 
   test("nicola 親指シフト同時押し: Q+LangLeft → ぁ", () => {
@@ -223,8 +223,8 @@ describe("StrokeCommitter 押しっぱなしモディファイア (nicola)", () 
       { key: VirtualKeys.Q, type: "keyup" },
       { key: VirtualKeys.LangLeft, type: "keyup" },
     ]);
-    expect(automaton.isFinished()).toBe(true);
-    expect(automaton.getFinishedWord()).toBe("ぁ");
+    expect(automaton.currentNode.isFinished).toBe(true);
+    expect(automaton.currentView().finishedWord).toBe("ぁ");
   });
 
   test("nicola 親指シフト同時押し (逆順): Q→LangLeft でも ぁ", () => {
@@ -234,8 +234,8 @@ describe("StrokeCommitter 押しっぱなしモディファイア (nicola)", () 
       { key: VirtualKeys.LangLeft, type: "keyup" },
       { key: VirtualKeys.Q, type: "keyup" },
     ]);
-    expect(automaton.isFinished()).toBe(true);
-    expect(automaton.getFinishedWord()).toBe("ぁ");
+    expect(automaton.currentNode.isFinished).toBe(true);
+    expect(automaton.currentView().finishedWord).toBe("ぁ");
   });
 
   test("nicola 連続シフト非対応: LangLeft 押しっぱで Q→E は ぁり にならず ぁた になる", () => {
@@ -250,8 +250,8 @@ describe("StrokeCommitter 押しっぱなしモディファイア (nicola)", () 
       { key: VirtualKeys.E, type: "keyup" },
       { key: VirtualKeys.LangLeft, type: "keyup" },
     ]);
-    expect(automaton.isFinished()).toBe(true);
-    expect(automaton.getFinishedWord()).toBe("ぁた");
+    expect(automaton.currentNode.isFinished).toBe(true);
+    expect(automaton.currentView().finishedWord).toBe("ぁた");
   });
 
   test("nicola 単打 W → か", () => {
@@ -262,7 +262,7 @@ describe("StrokeCommitter 押しっぱなしモディファイア (nicola)", () 
       { key: VirtualKeys.W, type: "keyup" },
     ]);
     expect(results[0]).toBe("finished");
-    expect(automaton.getFinishedWord()).toBe("か");
+    expect(automaton.currentView().finishedWord).toBe("か");
   });
 });
 
@@ -274,8 +274,8 @@ describe("StrokeCommitter jis_kana (単打 + Shift modifier)", () => {
       { key: VirtualKeys.Digit3, type: "keydown" },
       { key: VirtualKeys.Digit3, type: "keyup" },
     ]);
-    expect(automaton.isFinished()).toBe(true);
-    expect(automaton.getFinishedWord()).toBe("あ");
+    expect(automaton.currentNode.isFinished).toBe(true);
+    expect(automaton.currentView().finishedWord).toBe("あ");
   });
 
   test("Shift+Digit3 → ぁ (SingleStroke with requiredModifier)", () => {
@@ -285,8 +285,8 @@ describe("StrokeCommitter jis_kana (単打 + Shift modifier)", () => {
       { key: VirtualKeys.Digit3, type: "keyup" },
       { key: VirtualKeys.ShiftLeft, type: "keyup" },
     ]);
-    expect(automaton.isFinished()).toBe(true);
-    expect(automaton.getFinishedWord()).toBe("ぁ");
+    expect(automaton.currentNode.isFinished).toBe(true);
+    expect(automaton.currentView().finishedWord).toBe("ぁ");
   });
 
   test("Shift 押しっぱなしで Digit3 → Digit4 で ぁぅ 連続入力", () => {
@@ -298,8 +298,8 @@ describe("StrokeCommitter jis_kana (単打 + Shift modifier)", () => {
       { key: VirtualKeys.Digit4, type: "keyup" },
       { key: VirtualKeys.ShiftLeft, type: "keyup" },
     ]);
-    expect(automaton.isFinished()).toBe(true);
-    expect(automaton.getFinishedWord()).toBe("ぁぅ");
+    expect(automaton.currentNode.isFinished).toBe(true);
+    expect(automaton.currentView().finishedWord).toBe("ぁぅ");
   });
 });
 

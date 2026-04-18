@@ -91,9 +91,9 @@ function App() {
   );
 
   const currentGuide: KeyboardGuide = useMemo(() => {
-    const origins = automaton.getCurrentOriginRules();
-    if (origins.length === 0) return guideJisKana;
-    const onlyDirectInput = origins.every((r) => r.metadata.name === "directInput");
+    const rules = automaton.currentRules;
+    if (rules.length === 0) return guideJisKana;
+    const onlyDirectInput = rules.every((r) => r.metadata.name === "directInput");
     return onlyDirectInput ? guideDirectInput : guideJisKana;
   }, [automaton, automaton.currentNode, guideDirectInput, guideJisKana]);
 
@@ -111,8 +111,8 @@ function App() {
       </p>
 
       <div style={{ fontSize: "1.8em", marginTop: "1em", letterSpacing: "0.05em" }}>
-        <span style={{ color: "#888" }}>{automaton.getFinishedWord()}</span>
-        <span>{automaton.getPendingWord()}</span>
+        <span style={{ color: "#888" }}>{automaton.currentView().finishedWord}</span>
+        <span>{automaton.currentView().pendingWord}</span>
       </div>
 
       <div style={{ marginTop: "1.5em" }}>

@@ -47,4 +47,4 @@ export {
 } from "./impl/charNormalizer";
 
 export { build, type Automaton, type BaseExtensionType } from "./impl/buildAutomaton";
-export { backspaceExtension, type BackspaceExtensionType } from "./impl/automatonQuery";
+export { type CurrentView, type EventsView } from "./impl/automatonView";

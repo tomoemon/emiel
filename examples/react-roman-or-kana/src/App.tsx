@@ -126,29 +126,26 @@ function Typing(props: { layout: KeyboardLayout }) {
   }, [wordIndex, selectors, words.length]);
 
   const wordCandidates = selectors[wordIndex];
-  // getFinishedWord() / getPendingWord() は word ベース表示で roman/kana どちらから
+  // finishedWord / pendingWord は word ベース表示で roman/kana どちらから
   // 取っても同一結果なので、課題文表示は常に roman 側から取得する。
-  const displayAutomaton = wordCandidates.roman;
-  const romanAutomaton = wordCandidates.roman;
-  const kanaAutomaton = wordCandidates.kana;
+  const displayView = wordCandidates.roman.currentView();
+  const romanView = wordCandidates.roman.currentView();
+  const kanaView = wordCandidates.kana.currentView();
   return (
     <>
       <h1>
         {/* 課題文かな表示 */}
-        <span style={{ color: "gray" }}>{displayAutomaton.getFinishedWord()}</span>{" "}
-        {displayAutomaton.getPendingWord()}
+        <span style={{ color: "gray" }}>{displayView.finishedWord}</span> {displayView.pendingWord}
       </h1>
       {/* ローマ字入力 */}
       <h1>
         <p style={{ fontSize: "1rem" }}>ローマ字入力</p>
-        <span style={{ color: "gray" }}>{romanAutomaton.getFinishedRoman()}</span>{" "}
-        {romanAutomaton.getPendingRoman()}
+        <span style={{ color: "gray" }}>{romanView.finishedRoman}</span> {romanView.pendingRoman}
       </h1>
       {/* かな入力 */}
       <h1>
         <p style={{ fontSize: "1rem" }}>かな入力</p>
-        <span style={{ color: "gray" }}>{kanaAutomaton.getFinishedWord()}</span>{" "}
-        {kanaAutomaton.getPendingWord()}
+        <span style={{ color: "gray" }}>{kanaView.finishedWord}</span> {kanaView.pendingWord}
       </h1>
       <h2>
         Key:{" "}

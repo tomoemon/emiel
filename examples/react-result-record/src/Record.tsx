@@ -8,40 +8,26 @@ export type WordRecordValue = {
 
 export function Record(props: { wordRecords: WordRecordValue[] }) {
   const records = props.wordRecords.map((record) => {
-    // ワードが表示されてから1打鍵めに成功するまでの経過時間
-    const automaton = record.automaton;
-    const latency = automaton.getFirstSucceededInputTime() - record.displayedAt;
-    const succeededCount = automaton.getEffectiveEdges().length;
-    const rkpm = getRkpm(
-      succeededCount,
-      automaton.getFirstSucceededInputTime(),
-      automaton.getLastSucceededInputTime(),
-    );
-
-    // latency の時間を含めた、1分あたりの打鍵数
-    const kpm = getKpm(succeededCount, record.displayedAt, automaton.getLastSucceededInputTime());
-    const accuracy = getAccuracy(
-      record.automaton.getFailedInputCount(),
-      record.automaton.getTotalInputCount(),
-    );
+    // Record はワード入力完了後に表示されるので firstSucceeded/lastSucceeded は必ず存在する
+    const events = record.automaton.eventsView();
+    const firstSucceededAt = events.firstSucceeded?.timestamp ?? 0;
+    const lastSucceededAt = events.lastSucceeded?.timestamp ?? 0;
+    const latency = firstSucceededAt - record.displayedAt;
+    const rkpm = getRkpm(events.succeededCount, firstSucceededAt, lastSucceededAt);
+    const kpm = getKpm(events.succeededCount, record.displayedAt, lastSucceededAt);
+    const accuracy = getAccuracy(events.failedCount, events.totalCount);
     return {
       latency,
       kpm,
       rkpm,
-      record,
+      events,
       accuracy,
       word: record.automaton.word,
     };
   });
   const totalLatency = records.reduce((acc, r) => acc + r.latency, 0);
-  const totalSucceededCount = records.reduce(
-    (acc, r) => acc + r.record.automaton.getEffectiveEdges().length,
-    0,
-  );
-  const totalFailedCount = records.reduce(
-    (acc, r) => acc + r.record.automaton.getFailedInputCount(),
-    0,
-  );
+  const totalSucceededCount = records.reduce((acc, r) => acc + r.events.succeededCount, 0);
+  const totalFailedCount = records.reduce((acc, r) => acc + r.events.failedCount, 0);
   const totalAccuracy = getAccuracy(totalFailedCount, totalSucceededCount);
   return (
     <div>
