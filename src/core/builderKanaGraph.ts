@@ -2,13 +2,19 @@ import { setDefaultFunc } from "../utils/map";
 import type { normalizerFunc, Rule, RuleEntry, RulePrimitive } from "./rule";
 import type { RuleStroke } from "./ruleStroke";
 
-// build 中にのみ使用する
+/**
+ * Automaton 構築中にのみ利用する中間表現。かな文字列上の 1 位置を表すノード。
+ */
 export class KanaNode {
   constructor(
+    /** このノードが対応する、かな文字列の開始位置 */
     readonly startIndex: number,
+    /** このノードから次のノードへ遷移する辺 */
     readonly nextEdges: KanaEdge[],
+    /** 前のノードからこのノードへ遷移してくる辺 */
     readonly previousEdges: KanaEdge[],
   ) {}
+  /** entry の nextInput が次ノードの入力先頭と繋がる場合、その連結エッジを previousNode に追加する */
   connectEdgesWithNextInput(previousNode: KanaNode, entry: RuleEntry) {
     this.nextEdges
       .filter((edge) => edge.canConnectWithNextInput(entry.nextInput))
@@ -20,21 +26,28 @@ export class KanaNode {
         edge.next.previousEdges.push(newEdge);
       });
   }
+  /** targetNode を next とする辺を、この KanaNode の nextEdges から除去する */
   clearNextEdgesTo(targetNode: KanaNode) {
     const newNodes = this.nextEdges.filter((edge) => edge.next !== targetNode);
     this.nextEdges.splice(0, this.nextEdges.length, ...newNodes);
   }
+  /** このノードから先へ遷移する辺がないか（＝終端かどうか） */
   isEnd(): boolean {
     return this.nextEdges.length === 0;
   }
 }
 
-// KanaNode間をつなぐ辺
-// build 中にのみ使用する
+/**
+ * KanaNode 間を繋ぐ辺。Automaton 構築中にのみ利用する中間表現。
+ * 1 つの辺が 1 つ以上の RuleEntry 列を担う（nextInput による連結も含む）。
+ */
 export class KanaEdge {
   constructor(
+    /** この辺を構成するエントリ列 */
     readonly entries: RuleEntry[],
+    /** 遷移先 KanaNode */
     readonly next: KanaNode,
+    /** 遷移元 KanaNode */
     readonly previous: KanaNode,
   ) {}
 
@@ -61,8 +74,8 @@ export class KanaEdge {
     return result;
   }
 
-  /*
-  nextInput を渡されたときに、この Edge からつながる Entry の input が nextInput とつながるかどうかを判定する
+  /**
+   * 渡された nextInput と、この Edge の先頭 Entry の input が連結可能かを判定する。
    */
   canConnectWithNextInput(nextInput: RuleStroke[]): boolean {
     return this.entries[0].isConnetableAfter(nextInput);
@@ -97,6 +110,11 @@ export type BuildKanaNodeResult = {
   rulesByKanaIndex: readonly (readonly RulePrimitive[])[];
 };
 
+/**
+ * Rule と入力対象のかな文字列から KanaNode グラフを構築する。
+ * 終端に繋がらない辺は除去され、開始ノードから終端まで到達可能な経路のみが残る。
+ * 構築不能な場合は例外を投げる。
+ */
 export function buildKanaNode(
   rule: Rule,
   kanaText: string,

@@ -2,13 +2,21 @@ import { setDefault } from "../utils/map";
 import type { KanaNode } from "./builderKanaGraph";
 import type { RuleStroke } from "./ruleStroke";
 
+/**
+ * Automaton グラフ上の 1 つの状態 (ノード) を表す。
+ * currentNode としてユーザの入力位置を保持し、次打鍵の候補 nextEdges を持つ。
+ */
 export class StrokeNode {
   private cost: number = 0; // このノードから打ち切るまでの最短ストローク数
   constructor(
-    readonly kanaIndex: number, // 今入力しようとしている KanaNode
+    /** このノードが対応するかな文字列上の位置 */
+    readonly kanaIndex: number,
+    /** このノードへ遷移してくる辺の一覧 */
     readonly previousEdges: StrokeEdge[],
+    /** このノードから次へ遷移する辺の一覧（先頭が最小コスト経路） */
     readonly nextEdges: StrokeEdge[],
   ) {}
+  /** このノードから終端まで打ち切るのに必要な最小ストローク数を返す */
   getCost(): number {
     return this.cost;
   }
@@ -22,14 +30,25 @@ export class StrokeNode {
   }
 }
 
+/**
+ * 2 つの StrokeNode を 1 打鍵で結ぶ有向辺。
+ * input が受理されると previous から next へ遷移する。
+ */
 export class StrokeEdge {
   constructor(
+    /** この辺が受理する 1 打鍵 */
     readonly input: RuleStroke,
+    /** 遷移元のノード */
     readonly previous: StrokeNode,
+    /** 遷移先のノード */
     readonly next: StrokeNode,
   ) {}
 }
 
+/**
+ * かなグラフ (KanaNode) から StrokeNode グラフを構築し、開始ノードを返す。
+ * 各ノードの nextEdges は最小コスト経路を先頭とする順序で整列される。
+ */
 export function buildStrokeNode(endKanaNode: KanaNode): StrokeNode {
   // KanaNode の index に対応する StrokeNode
   const kanaStrokeNodeMap = new Map<number, StrokeNode>();

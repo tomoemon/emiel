@@ -1,7 +1,10 @@
 import * as v from "valibot";
 
-// ブラウザから渡される Keyboard Event とは直接関係のない仮想的なキー一覧
-// Rule を json ファイル等で定義するときに使うキーはここで定義されている値を文字列として使う
+/**
+ * ブラウザから渡される Keyboard Event とは直接関係のない、emiel 独自の仮想キー一覧。
+ * Rule や KeyboardLayout を JSON 等で定義する際は、ここで定義された文字列をそのまま使う。
+ * KeyboardEvent.code との対応付けは `src/browser/eventHandler.ts` が担う。
+ */
 export const VirtualKeys = {
   Escape: "Escape",
   F1: "F1",
@@ -98,9 +101,16 @@ export const VirtualKeys = {
   NumpadMultiply: "NumpadMultiply",
 } as const;
 
+/** 仮想キー識別子を表す文字列型（VirtualKeys の各キー名のユニオン）。 */
 export type VirtualKey = keyof typeof VirtualKeys;
 
+/**
+ * VirtualKey 名前空間。現状は文字列から VirtualKey への変換ヘルパのみを公開する。
+ */
 export const VirtualKey = {
+  /**
+   * 文字列から VirtualKey を取得する。未知のキー名を渡した場合は例外を投げる。
+   */
   getFromString: (key: string) => {
     if (key in VirtualKeys) {
       return key as VirtualKey;
@@ -109,6 +119,7 @@ export const VirtualKey = {
   },
 } as const;
 
+/** JSON ローダ等で VirtualKey を検証するための valibot スキーマ。 */
 export const virtualKeySchema = v.pipe(
   v.string(),
   v.check((key) => key in VirtualKeys, "unknown virtual key"),

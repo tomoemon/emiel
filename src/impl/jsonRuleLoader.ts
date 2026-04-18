@@ -38,6 +38,7 @@ const metadataSchema = v.optional(
   }),
 );
 
+/** `loadJsonRule` が受け付けるルール JSON の valibot スキーマ。 */
 export const jsonRuleSchema = v.object({
   metadata: metadataSchema,
   // 全エントリに対するデフォルトの共通プレフィックス拡張設定
@@ -49,6 +50,7 @@ export const jsonRuleSchema = v.object({
   backspaces: v.optional(v.array(strokeSchema)),
 });
 
+/** `jsonRuleSchema` の推論型。ルール JSON のオブジェクト構造を表す。 */
 export type JsonRuleSchema = v.InferOutput<typeof jsonRuleSchema>;
 type Stroke = v.InferOutput<typeof strokeSchema>;
 
@@ -113,6 +115,10 @@ function loadEntries(
   return entries;
 }
 
+/**
+ * JSON 文字列またはパース済みオブジェクトから `RulePrimitive` を読み込む。
+ * `metadata` 引数が空 (name, url 共に空文字) の場合は、JSON 内の metadata を採用する。
+ */
 export function loadJsonRule(
   jsonRule: unknown,
   metadata: Metadata = emptyMetadata(),

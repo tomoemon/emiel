@@ -1,17 +1,31 @@
 import type { KeyboardStateReader } from "./keyboardState";
 import type { VirtualKey } from "./virtualKey";
 
+/** キーイベントの種別。keydown はキー押下、keyup はキー解放。 */
 export type KeyEventType = "keyup" | "keydown";
+
+/**
+ * 1 つのキーの押下／解放イベントを表す最小単位。
+ * InputEvent のコンストラクタに渡す値として利用する。
+ */
 export class InputStroke {
   constructor(
+    /** 対象の仮想キー */
     readonly key: VirtualKey,
+    /** keydown か keyup か */
     readonly type: KeyEventType,
   ) {}
 }
 
+/**
+ * Automaton.input() / testInput() に渡す 1 回の入力イベント。
+ * 打鍵そのもの (input) と発生時点のキーボード状態 (keyboardState) 、発生時刻を保持する。
+ */
 export class InputEvent {
   constructor(
+    /** 今回の入力打鍵 */
     readonly input: InputStroke,
+    /** 入力発生時点のキーボード押下状態 (モディファイア判定等に使用) */
     readonly keyboardState: KeyboardStateReader,
     /**
      * 入力イベントの発生時刻 (DOMHighResTimeStamp, ミリ秒・sub-ms 精度)。

@@ -427,22 +427,26 @@ export class BackspaceAwareCommitter {
     );
   }
 
+  /** 入力を受け取り、backspace 含む 5 分類の結果を返すと同時に内部状態を更新する。 */
   feed(event: InputEvent, nodeEdges: readonly StrokeEdge[], rule: Rule): BackspaceAwareResult {
     const allEdges = [...nodeEdges, ...this.backspaceEdges];
     const result = this.inner.feed(event, allEdges, rule);
     return this.classify(result);
   }
 
+  /** 副作用なしで、入力を受け取ったらどう分類されるかだけを返す。 */
   dryRun(event: InputEvent, nodeEdges: readonly StrokeEdge[], rule: Rule): BackspaceAwareResult {
     const allEdges = [...nodeEdges, ...this.backspaceEdges];
     const result = this.inner.dryRun(event, allEdges, rule);
     return this.classify(result);
   }
 
+  /** 内部の pending 状態を完全にリセットする。 */
   reset(): void {
     this.inner.reset();
   }
 
+  /** 現在 pending 中のキー集合を取得する (可視化用の公開 API)。 */
   get pendingKeys(): readonly VirtualKey[] {
     return this.inner.pendingKeys;
   }

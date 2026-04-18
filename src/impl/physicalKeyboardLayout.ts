@@ -16,6 +16,10 @@ const jsonPhysicalKeyboardLayoutSchema = v.object({
  */
 export type PhysicalKeyboardLayout = v.InferOutput<typeof jsonPhysicalKeyboardLayoutSchema>;
 
+/**
+ * JSON 文字列またはパース済みオブジェクトから `PhysicalKeyboardLayout` を読み込む。
+ * `placeKeyboardGuide` による描画領域計算の元データを得るために使う。
+ */
 export function loadJsonPhysicalKeyboardLayout(jsonLayout: unknown): PhysicalKeyboardLayout {
   if (typeof jsonLayout === "string") {
     return loadJsonPhysicalKeyboardLayout(JSON.parse(jsonLayout));

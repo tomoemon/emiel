@@ -10,6 +10,11 @@ import { InputResult } from "./inputResult";
 import type { Rule, RulePrimitive } from "./rule";
 import type { VirtualKey } from "./virtualKey";
 
+/**
+ * タイピング状態機械の実装本体。`build(rule, word)` 経由で生成し、
+ * `input()` / `testInput()` で打鍵を受け付け、`back()` / `reset()` で状態を巻き戻す。
+ * 通常は型 `Automaton` (AutomatonImpl + 拡張クエリ) として利用する。
+ */
 export class AutomatonImpl implements AutomatonState {
   /**
    * @param word かな文字列（配列定義 Rule で使用可能な文字で構成される文字列）

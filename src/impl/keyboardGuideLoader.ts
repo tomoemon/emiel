@@ -34,6 +34,10 @@ export const jsonKeyboardGuideSchema = v.object({
 
 export type JsonKeyboardGuideSchema = v.InferOutput<typeof jsonKeyboardGuideSchema>;
 
+/**
+ * JSON 文字列またはパース済みオブジェクトから `KeyboardGuide` を読み込む。
+ * スキーマは valibot で検証され、不正な形式の場合は例外を投げる。
+ */
 export function loadJsonKeyboardGuide(jsonGuide: unknown): KeyboardGuide {
   if (typeof jsonGuide === "string") {
     return loadJsonKeyboardGuide(JSON.parse(jsonGuide));

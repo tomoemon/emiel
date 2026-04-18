@@ -6,6 +6,10 @@ import { expandPrefixRules } from "./ruleExtender";
 import { SingleStroke, ruleStrokeKeys, type RuleStroke } from "./ruleStroke";
 import { type VirtualKey, VirtualKeys } from "./virtualKey";
 
+/**
+ * ワード文字列を内部比較用に正規化する関数のシグネチャ。
+ * build 時に入力テキストと各エントリの output 双方に適用される。
+ */
 export type normalizerFunc = (value: string) => string;
 
 /**
@@ -16,15 +20,20 @@ export type normalizerFunc = (value: string) => string;
  */
 export class RuleEntry {
   constructor(
+    /** 受け入れ可能なキー入力列 */
     readonly input: RuleStroke[],
+    /** 出力文字列 */
     readonly output: string,
+    /** 次の入力として自動入力されるキー入力列 */
     readonly nextInput: RuleStroke[],
-    // 共通プレフィックスエントリを展開するかどうか
+    /** 共通プレフィックスエントリを展開するかどうか */
     readonly extendCommonPrefixCommonEntry: boolean,
   ) {}
+  /** nextInput が空でない（＝確定後に次のエントリへ打ち継ぐ） */
   get hasNextInput(): boolean {
     return this.nextInput.length > 0;
   }
+  /** 全フィールドが同値なら true */
   equals(other: RuleEntry): boolean {
     return (
       this.input.length === other.input.length &&
@@ -35,6 +44,7 @@ export class RuleEntry {
       this.extendCommonPrefixCommonEntry === other.extendCommonPrefixCommonEntry
     );
   }
+  /** 渡された nextInputs をこのエントリの input の先頭として連結できるかを判定する */
   isConnetableAfter(nextInputs: RuleStroke[]): boolean {
     // 同じ長さの「入力」は「次の入力」経由では使えない
     if (nextInputs.length >= this.input.length) {
@@ -95,11 +105,17 @@ nk/ん/k
  * RulePrimitive 実装は自身の entries のみ、合成実装は全 parts の union を返す。
  */
 export interface Rule {
+  /** ルール名称や参照 URL 等 */
   readonly metadata: Metadata;
+  /** backspace として扱うストローク群 */
   readonly backspaceStrokes: readonly RuleStroke[];
+  /** このルールを構成する RulePrimitive 列（単一ルールなら [this]） */
   readonly primitives: readonly RulePrimitive[];
+  /** 入力キーを先頭とするエントリ一覧（primitives を事前マージ済み） */
   entriesByKey(key: VirtualKey): readonly RuleEntry[];
+  /** 先頭ストロークの修飾キーにマッチするエントリ一覧 */
   entriesByModifier(key: VirtualKey): readonly RuleEntry[];
+  /** このルールと other を合成した新しい Rule を返す */
   compose(other: Rule): Rule;
 }
 
@@ -111,6 +127,7 @@ export interface Rule {
  * 2 つの Rule を合成する場合は `a.compose(b)` を使うと内部で RuleSet が生成される。
  */
 export class RulePrimitive implements Rule {
+  /** 共通プレフィックス展開後のエントリ一覧 */
   readonly entries: readonly RuleEntry[];
   /**
    * RulePrimitive.backspaceStrokes: 入力方式が「特定のキーストロークを backspace として扱う」
@@ -162,18 +179,22 @@ export class RulePrimitive implements Rule {
     this.ownByModifier = byModifier;
   }
 
+  /** 自身 1 つを要素とする配列を返す（Rule インターフェースを満たすため） */
   get primitives(): readonly RulePrimitive[] {
     return [this];
   }
 
+  /** 入力キーを先頭とするエントリ一覧を返す（事前キャッシュ引き） */
   entriesByKey(inputKey: VirtualKey): readonly RuleEntry[] {
     return this.ownByKey.get(inputKey) ?? [];
   }
 
+  /** 先頭ストロークの修飾キーにマッチするエントリ一覧を返す（事前キャッシュ引き） */
   entriesByModifier(modifierKey: VirtualKey): readonly RuleEntry[] {
     return this.ownByModifier.get(modifierKey) ?? [];
   }
 
+  /** このルールと other を合成した Rule を返す */
   compose(other: Rule): Rule {
     return composeRules(this, other);
   }
