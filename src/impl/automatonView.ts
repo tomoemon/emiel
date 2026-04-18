@@ -30,9 +30,12 @@ export type CurrentView = {
  * を残すため、back() 取消区間も含めて数える。
  */
 export type EventsView = {
-  /** 最初の入力イベント（成功・失敗問わず） */
+  /**
+   * 最初の keydown イベント（成功・失敗・IGNORED 問わず）。
+   * ワード切替直後に前ワードから漏れた keyup が流入しても first が汚染されないよう keydown のみを対象にする。
+   */
   first: InputEvent | undefined;
-  /** 最後の入力イベント（成功・失敗問わず） */
+  /** 最後の入力イベント（keydown/keyup・成功/失敗問わず） */
   last: InputEvent | undefined;
   /** 最初の成功入力イベント */
   firstSucceeded: InputEvent | undefined;
@@ -122,7 +125,7 @@ export function eventsView(state: AutomatonState): EventsView {
   for (let i = 0; i < state.inputHistory.length; i++) {
     const entry = state.inputHistory[i];
     if ("back" in entry) continue;
-    if (!first) first = entry.event;
+    if (!first && entry.event.input.type === "keydown") first = entry.event;
     last = entry.event;
     if (entry.result.isFailed) {
       failedCount++;
