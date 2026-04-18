@@ -13,7 +13,7 @@ pnpm run test       # テスト（vitest）
 pnpm run lint       # リント（oxlint）
 pnpm run fmt        # フォーマット（oxfmt）
 pnpm run fmt:check  # フォーマットチェック
-make publish        # パッケージ公開
+pnpm publish        # パッケージ公開
 ```
 
 ## Structure
