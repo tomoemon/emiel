@@ -158,6 +158,41 @@ describe("eventsView: 基本", () => {
     expect(view.totalCount).toBe(2);
   });
 
+  test("stale keyup のみ受けた場合: first は undefined のまま（keydown 限定）、last は keyup で更新", () => {
+    // 前ワード完了直後の Automaton 切替で、前ワードの keydown に対応する keyup だけが流入するケース
+    const automaton = build(simpleRule(), "あ");
+    runInputs(
+      automaton,
+      [
+        { key: VirtualKeys.A, type: "keyup" }, // t=1000 stale keyup（自動的に IGNORED として inputHistory に残る）
+      ],
+      1000,
+    );
+    const view = automaton.eventsView();
+    expect(view.first).toBeUndefined();
+    expect(view.last?.timestamp).toBe(1000);
+    expect(view.firstSucceeded).toBeUndefined();
+    expect(view.succeededCount).toBe(0);
+    expect(view.failedCount).toBe(0);
+  });
+
+  test("stale keyup → keydown の順: first は新しい keydown の timestamp", () => {
+    const automaton = build(simpleRule(), "あ");
+    runInputs(
+      automaton,
+      [
+        { key: VirtualKeys.A, type: "keyup" }, // t=1000 stale keyup
+        { key: VirtualKeys.A, type: "keydown" }, // t=1010 実際の最初の keydown
+        { key: VirtualKeys.A, type: "keyup" }, // t=1020
+      ],
+      1000,
+    );
+    const view = automaton.eventsView();
+    expect(view.first?.timestamp).toBe(1010);
+    expect(view.firstSucceeded?.timestamp).toBe(1010);
+    expect(view.last?.timestamp).toBe(1020);
+  });
+
   test("first / last の timestamp は失敗イベントも含めて決定される", () => {
     const automaton = build(simpleRule(), "あ");
     runInputs(
