@@ -4,26 +4,25 @@
 
 emiel（エミエル）は超汎用日本語タイピングゲーム用ライブラリです。
 
-タイピングゲームを作る際に必要となる、以下の機能を提供します。
+ローマ字入力・かな入力を含むさまざまな入力配列を共通のインターフェースで扱えるため、配列を切り替えても同じコードでタイピングゲームを実装できます。React や Vue 等の特定の UI ライブラリ・フレームワークには依存しません。
 
-- ローマ字入力
+## サポートする入力配列
+
+- 標準ローマ字
   - Google 日本語入力(Mozc) と同等のローマ字入力ルールを完全サポート
-  - 「しゃ：sha, sya」といった入力の自動判別
-  - 「っっか：kkka」と打鍵可能
-  - MS-IME 等他の日本語入力システムに合わせたローマ字入力ルールも作成可能
-- かな入力
-  - いずれの入力方法にしても使い方は同じなので切り替えが簡単
-- キーボードレイアウトの切り替え機能
-  - QWERTY, Dvorak, Colemak といった英字入力のキーボードレイアウトの切り替え
-  - OS のキーボードレイアウトを自動認識 (Chrome, Edge のみ)
-
-また、以下のような多様な日本語入力方法をサポートしており、React や Vue 等の特定の UI ライブラリ・フレームワークに依存せずにタイピングゲームを簡単に作成することができます。
-
+  - 「しゃ：sha, sya」といった入力の自動判別、「っっか：kkka」のような打鍵にも対応
+  - MS-IME 等、他の日本語入力システムに合わせたルールも作成可能
 - ローマ字拡張系：AZIK、ACT 等
-- ローマ字無拡張系：Dvorak、Colemak、大西配列、Tomisuke 配列等
-- 中指シフト系：月配列等
-- 同時打鍵系：新下駄配列、薙刀式等
-- 親指シフト系：NICOLA、飛鳥カナ配列等
+- ローマ字無拡張系：Dvorak、Colemak、大西配列、Tomisuke 配列 等
+- JIS かな入力
+- 中指シフト系：月配列 等
+- 同時打鍵系：新下駄配列、薙刀式 等
+- 親指シフト系：NICOLA、飛鳥カナ配列 等
+- 上記以外の任意の入力配列も JSON Rule 形式・Mozc 形式で定義可能
+
+## キーボードレイアウト
+
+QWERTY (JIS / US), Dvorak, Colemak 等のプリセットに対応しており、OS のキーボードレイアウトを自動検出できます（Chrome / Edge のみ。未対応ブラウザでは QWERTY JIS にフォールバック）。独自のレイアウトを JSON で定義することもできます。
 
 # 使い方
 
@@ -111,14 +110,21 @@ activate(window, (event) => {
 
 - `KeyboardLayout`
   - キーボードレイアウトを表すクラス（Qwerty JIS, US, Dvorak 等）
-  - 基本的には `emiel.keyboard.detect()` で自動認識するだけでよい
-  - プリセットで用意されているレイアウト以外でも JSON 形式で自由にレイアウトすることができる
+  - 基本的には `emiel.detectKeyboardLayout()` で自動認識するだけでよい
+  - プリセットで用意されているレイアウト以外でも JSON 形式で自由に定義できる
 - `Rule`
   - 入力配列を表すクラス（ローマ字入力やかな入力等）
-  - 基本的には `emiel.rule.get(...)` で名前を指定して取得する
-  - プリセットで用意されている配列以外でも JSON 形式、Mozc 形式で自由に作成することができる
+  - 基本的にはプリセット関数（`emiel.loadPresetRuleRoman()`, `emiel.loadPresetRuleJisKana()` 等）で取得する
+  - プリセットで用意されている配列以外でも JSON 形式、Mozc 形式で自由に作成できる
 - `Automaton`
-  - ワードのキーボード入力を受け付けるクラス。タイピングゲームの中心的な概念。入力が成功したか、どこまで入力したか、残りの文字はなにかといった情報を持つ
+  - ワードのキーボード入力を受け付けるクラス。タイピングゲームの中心的な概念
+  - `emiel.build(rule, "かった")` のように `Rule` とワードから生成する
+  - `automaton.input(event)` に入力イベントを渡すと `InputResult` を返し、`isSucceeded` / `isFailed` / `isFinished` / `isBack` 等で打鍵結果を分類できる
+  - `automaton.currentView()` で「どこまで入力したか」「残りの文字は何か」といった表示用の情報を取得できる
+- `activate`
+  - `window` 等の EventTarget から `keydown` / `keyup` を購読し、ブラウザ差を吸収した `InputEvent` を `Automaton` に流し込むための関数
+  - `emiel.activate(window, (event) => automaton.input(event))` のように使う
+  - 戻り値の関数を呼ぶとイベントリスナーを解除できる
 
 ## 多様なスタイルのタイピングゲームをサポート
 
@@ -136,7 +142,7 @@ activate(window, (event) => {
 
 ## Backspace のカスタマイズ対応
 
-ローマ字入力やかな入力以外の入力方式（薙刀式、新下駄配列など）では、入力効率を高めるために backspace キーをホームポジションに近い打ちやすい位置に配置することがあります。たとえば薙刀式(v15)では U キー単独を backspace として使用します。
+ローマ字入力やかな入力以外の入力配列（薙刀式、新下駄配列など）では、入力効率を高めるために backspace キーをホームポジションに近い打ちやすい位置に配置することがあります。たとえば薙刀式(v15)では U キー単独を backspace として使用します。
 
 既存の多くのタイピングゲームでは backspace が考慮されておらず、こうした配列の入力効率を正しく測定できません。emiel では、入力ルール定義の中で任意のキーやキーの組み合わせを backspace として指定できます。
 
@@ -147,11 +153,11 @@ activate(window, (event) => {
 }
 ```
 
-backspace が発動すると `InputResult.BACK` が返されるため、アプリケーション側でミス入力の取り消しや成功ストロークの巻き戻しなど、ゲームルールに合わせた復旧ロジックを自由に実装できます。backspace を含むすべての入力イベントは `inputHistory` に時系列で記録されるため、backspace の使用頻度も含めた正確な入力統計を取得できます。
+backspace が発動すると `InputResult.BACK` が返されるため、アプリケーション側でミス入力の取り消しや成功ストロークの巻き戻しなど、ゲームルールに合わせた復旧ロジックを自由に実装できます。backspace を含むすべての入力イベントは `automaton.inputHistory` に時系列で記録されるため、backspace の使用頻度も含めた正確な入力統計を取得できます。
 
 ## シンプルで柔軟性の高い設定ファイル
 
-入力ルールの定義方法として、Mozc 形式と JSON Rule 形式の 2 種類をサポートしています。
+入力配列の定義方法として、Mozc 形式と JSON Rule 形式の 2 種類をサポートしています。
 
 ### Mozc 形式
 
@@ -204,11 +210,9 @@ input 列には英数記号を指定するため、実際に押すキーは Keyb
 - 修飾キー：`modifiers` に先押しするキーを指定
 - 順次入力：`input` 配列に複数の stroke を順に並べる
 
-## Pure TypeScript
-
-TypeScript で実装されており、React や Vue 等の特定の UI ライブラリ・フレームワークに依存せずにタイピングゲームを作成することができます。
-
 # ブラウザサポート
+
+キーイベントの受信可否に関するサポート状況です。
 
 |             | Chrome  | Edge    | Firefox      | Safari       |
 | ----------- | ------- | ------- | ------------ | ------------ |
@@ -216,6 +220,15 @@ TypeScript で実装されており、React や Vue 等の特定の UI ライブ
 | Mac Ventura | o       | o       | △(eisu,kana) | △(eisu,kana) |
 | Linux       | not yet | not yet | not yet      | not yet      |
 
+- o：全キー正常動作
+- △：一部キーで制限あり（注釈参照）
+- -：サポート終了
+- not yet：未確認
+
+注釈:
+
 - Windows の Safari はサポート終了
 - Mac の Firefox, Safari では本体 JIS キーボードの「英数」と「かな」のキー押下で KeyboardEvent が発火しない
 - Linux は未確認
+
+OS のキーボードレイアウト自動検出（`detectKeyboardLayout()`）は、ブラウザの [Keyboard API](https://developer.mozilla.org/en-US/docs/Web/API/Keyboard/getLayoutMap) に依存するため Chrome / Edge のみ対応しています。未対応ブラウザでは QWERTY JIS にフォールバックします。

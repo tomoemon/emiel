@@ -2,7 +2,7 @@
 
 ## Project Overview
 
-emiel - 日本語タイピングゲーム用ライブラリ（純粋TypeScript、外部依存なし）
+emiel - 日本語タイピングゲーム用ライブラリ
 
 ## Commands
 
@@ -13,7 +13,7 @@ pnpm run test       # テスト（vitest）
 pnpm run lint       # リント（oxlint）
 pnpm run fmt        # フォーマット（oxfmt）
 pnpm run fmt:check  # フォーマットチェック
-make publish        # パッケージ公開
+pnpm publish        # パッケージ公開
 ```
 
 ## Structure
@@ -31,3 +31,4 @@ make publish        # パッケージ公開
 
 - 会話は日本語で行うこと
 - 型定義には `interface` ではなく `type` を使うこと
+- emiel パッケージとして外部に公開される（`src/index.ts` から export される）関数・クラス・型・プロパティにはすべて JSDoc を付けること
