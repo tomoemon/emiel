@@ -27,8 +27,13 @@ const jsonKeyboardLayoutSchema = v.object({
   ),
 });
 
+/** `loadJsonKeyboardLayout` が受け付ける JSON のスキーマ推論型。 */
 export type JsonKeyboardLayoutSchema = v.InferOutput<typeof jsonKeyboardLayoutSchema>;
 
+/**
+ * JSON 文字列またはパース済みオブジェクトから `KeyboardLayout` を読み込む。
+ * 物理キーと出力文字の対応、および Shift 有無を定義した JSON を解釈する。
+ */
 export function loadJsonKeyboardLayout(jsonLayout: unknown): KeyboardLayout {
   if (typeof jsonLayout === "string") {
     return loadJsonKeyboardLayout(JSON.parse(jsonLayout));

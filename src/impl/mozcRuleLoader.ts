@@ -5,6 +5,12 @@ import { RuleEntry, RulePrimitive } from "../core/rule";
 import type { RuleStroke } from "../core/ruleStroke";
 import { product } from "../utils/itertools";
 
+/**
+ * mozc (Google 日本語入力 OSS) 互換のローマ字テーブル形式テキストから `RulePrimitive` を生成する。
+ *
+ * 各行は `<入力>\t<出力>\t<次の入力>` のタブ区切り。3 列目 (次の入力) は省略可。
+ * 入力文字はキーボードレイアウトを介して打鍵列に展開されるので、配列が異なると打鍵列も変わる。
+ */
 export function loadMozcRule(
   text: string,
   layout: KeyboardLayout,

@@ -226,6 +226,9 @@ export const backspaceExtension = {
   getEffectiveLastSucceededInputTime,
 };
 
+/**
+ * `backspaceExtension` を `.with()` で合成した Automaton に追加されるメソッド群の型。
+ */
 export type BackspaceExtensionType = {
   [K in keyof typeof backspaceExtension]: () => ReturnType<(typeof backspaceExtension)[K]>;
 };

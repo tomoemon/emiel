@@ -2,6 +2,13 @@ import { VirtualKeys } from "..";
 import type { KeyboardLayout } from "../core/keyboardLayout";
 import { findMatchedKeyboardLayout, loadPresetKeyboardLayoutQwertyJis } from "../impl/presets";
 
+/**
+ * ブラウザの Keyboard API (`navigator.keyboard.getLayoutMap()`) を使って、
+ * OS に設定されたキーボード配列を推定し、対応する `KeyboardLayout` を返す。
+ *
+ * Keyboard API は Chrome/Edge のみ対応。未対応ブラウザでは QWERTY JIS を
+ * フォールバックとして返す。
+ */
 export async function detectKeyboardLayout(
   window: Window & { navigator: { keyboard?: { getLayoutMap(): Promise<Map<string, string>> } } },
 ): Promise<KeyboardLayout> {

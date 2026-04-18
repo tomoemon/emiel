@@ -217,6 +217,10 @@ const directInputNormalizeMap = Object.assign(
   Object.fromEntries(Object.values(directInputNormalizeBaseMap).map((v) => [v, v])),
 );
 
+/**
+ * ひらがな／カタカナ混在の文字列をカタカナに寄せる正規化。
+ * 他のかな文字はそのまま残す。`build()` の `normalize` 引数に利用できる。
+ */
 export function defaultKanaNormalize(value: string): string {
   return Array.from(value)
     .map((c) => {
@@ -228,6 +232,10 @@ export function defaultKanaNormalize(value: string): string {
     .join("");
 }
 
+/**
+ * 全角英数字・全角記号を半角に寄せる正規化。
+ * 直接入力ルールで「全角 A も半角 A も同じ打鍵で入力可能」とするために使用する。
+ */
 export function defaultDirectInputNormalize(value: string): string {
   return Array.from(value)
     .map((c) => {

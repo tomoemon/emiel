@@ -16,6 +16,7 @@ export type RuleStroke = SingleStroke | SimultaneousStroke;
  * requiredModifier は key を押下する前に事前に押下されている必要がある修飾キー群。
  */
 export class SingleStroke {
+  /** discriminated union のタグ。単キー打鍵であることを示す。 */
   readonly kind = "single" as const;
   /**
    * @param key 入力が必要なキー
@@ -27,6 +28,7 @@ export class SingleStroke {
     readonly requiredModifier: AndModifier,
     readonly romanChar: string = "",
   ) {}
+  /** 同種 (SingleStroke) であり、key と requiredModifier が一致するとき true */
   equals(other: RuleStroke): boolean {
     if (other.kind !== "single") {
       return false;
@@ -42,7 +44,9 @@ export class SingleStroke {
  * モディファイア (順序あり) と同時押し (順不同) を同一ストロークで併用できる。
  */
 export class SimultaneousStroke {
+  /** discriminated union のタグ。同時押し打鍵であることを示す。 */
   readonly kind = "simultaneous" as const;
+  /** 同時に押下されている必要があるキー群（重複除去済み） */
   readonly keys: readonly VirtualKey[];
   /**
    * @param keys 同時に押下されている必要があるキー群（2個以上）。順序は保持するが集合意味論で評価する
@@ -68,6 +72,7 @@ export class SimultaneousStroke {
     }
     this.keys = dedup;
   }
+  /** 同種 (SimultaneousStroke) かつ keys 集合と requiredModifier が一致するとき true（順不同） */
   equals(other: RuleStroke): boolean {
     if (other.kind !== "simultaneous") {
       return false;
@@ -83,10 +88,12 @@ export class SimultaneousStroke {
   }
 }
 
+/** RuleStroke が SingleStroke かどうかを判定する型ガード。 */
 export function isSingleStroke(stroke: RuleStroke): stroke is SingleStroke {
   return stroke.kind === "single";
 }
 
+/** RuleStroke が SimultaneousStroke かどうかを判定する型ガード。 */
 export function isSimultaneousStroke(stroke: RuleStroke): stroke is SimultaneousStroke {
   return stroke.kind === "simultaneous";
 }

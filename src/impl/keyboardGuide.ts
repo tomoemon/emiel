@@ -2,7 +2,13 @@ import type { KeyboardLayout } from "../core/keyboardLayout";
 import type { VirtualKey } from "../core/virtualKey";
 import type { PhysicalKeyboardLayout } from "./physicalKeyboardLayout";
 
+/**
+ * キートップの特定位置に表示する 1 つのラベル。
+ * label には `{layout.alpha_or_sign}` 等のテンプレート文字列も指定できる
+ * (`placeKeyboardGuide` 内で解決される)。
+ */
 export type KeyboardGuideLabel = {
+  /** キー内でラベルを描画する位置 (9 区画) */
   position:
     | "topLeft"
     | "top"
@@ -13,12 +19,19 @@ export type KeyboardGuideLabel = {
     | "bottomLeft"
     | "bottom"
     | "bottomRight";
+  /** 表示文字列 (テンプレート `{layout.*}` を含めてもよい) */
   label: string;
 };
 
+/**
+ * キーボードガイドを構成する「物理キー → ラベル群」のマッピング。
+ */
 export type KeyboardGuideLabelMapping = {
+  /** 各仮想キーに対して描画するラベルの集合 */
   entries: {
+    /** 対象の物理キー */
     key: VirtualKey;
+    /** そのキーに表示するラベル群 */
     labels: KeyboardGuideLabel[];
   }[];
 };
@@ -30,13 +43,21 @@ export type KeyboardGuideLabelMapping = {
  * テンプレート解決や物理キーボードレイアウトへの配置は placeKeyboardGuide() が担う。
  */
 export class KeyboardGuide {
-  constructor(readonly guideData: KeyboardGuideLabelMapping) {}
+  constructor(
+    /** 「どの物理キーにどのラベルを付けるか」の純粋なデータ */
+    readonly guideData: KeyboardGuideLabelMapping,
+  ) {}
 }
 
+/** キートップの矩形領域を表す純粋な論理座標（描画フレームワーク非依存）。 */
 export type Rect = {
+  /** 左上 X 座標 */
   x: number;
+  /** 左上 Y 座標 */
   y: number;
+  /** 幅 */
   width: number;
+  /** 高さ */
   height: number;
 };
 
@@ -44,16 +65,27 @@ export type Rect = {
  * 描画用に配置・ラベル解決済みの1キーの情報。UI フレームワークに依存しない純粋な論理データ。
  */
 export type KeyPlacement = {
+  /** 対象の物理キー */
   key: VirtualKey;
+  /** キートップの描画矩形 */
   rect: Rect;
+  /** 左上ラベル（未指定なら undefined） */
   topLeft?: string;
+  /** 上ラベル */
   top?: string;
+  /** 右上ラベル */
   topRight?: string;
+  /** 左ラベル */
   left?: string;
+  /** 中央ラベル */
   center?: string;
+  /** 右ラベル */
   right?: string;
+  /** 左下ラベル */
   bottomLeft?: string;
+  /** 下ラベル */
   bottom?: string;
+  /** 右下ラベル */
   bottomRight?: string;
 };
 
