@@ -68,6 +68,29 @@ activate(window, (event) => {
 });
 ```
 
+## レイテンシの計測
+
+ワードが表示されてから最初の1打鍵が成功するまでの時間（レイテンシ）を計測する例です。
+
+高精度な時刻取得にはブラウザ組み込みの `performance.now()` を使います。ミリ秒未満の精度を持つ単調増加時刻（`DOMHighResTimeStamp`）を返す関数で、`KeyboardEvent.timeStamp` や `automaton.eventsView()` から得られる各入力イベントの `timestamp` と同じ時間軸のため、差分を取るだけで経過時間を計算できます（`Date.now()` とは時間軸が異なるため併用不可）。
+
+```typescript
+const automaton = build(rule, "かった");
+
+// ワードが表示された瞬間の時刻を記録
+const wordDisplayedAt = performance.now();
+
+activate(window, (event) => {
+  automaton.input(event);
+  const events = automaton.eventsView();
+  // succeededCount が 1 になる瞬間 ＝ 最初の1打鍵成功時
+  if (events.succeededCount === 1) {
+    const latency = events.firstSucceeded!.timestamp - wordDisplayedAt;
+    console.log(`latency: ${latency}ms`);
+  }
+});
+```
+
 ## Examples
 
 - <a href="./examples/react-simple">react-simple</a> - 単語を次々と入力するシンプルなタイピング練習
