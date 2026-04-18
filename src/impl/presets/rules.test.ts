@@ -2,6 +2,7 @@ import { expect, test } from "vitest";
 import {
   loadPresetKeyboardLayoutQwertyJis,
   loadPresetRuleAsuka123,
+  loadPresetRuleAzikRomantable,
   loadPresetRuleJisKana,
   loadPresetRuleNicola,
   loadPresetRuleRoman,
@@ -13,6 +14,11 @@ import {
 test("load google ime roman rule", () => {
   const rule = loadPresetRuleRoman(loadPresetKeyboardLayoutQwertyJis());
   expect(rule.primitives[0].entries.length).toBe(324);
+});
+
+test("load azik romantable rule", () => {
+  const rule = loadPresetRuleAzikRomantable(loadPresetKeyboardLayoutQwertyJis());
+  expect(rule.primitives[0].entries.length).toBeGreaterThan(500);
 });
 
 test("load jis kana rule", () => {
