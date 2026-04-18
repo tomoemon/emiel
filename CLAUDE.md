@@ -2,7 +2,7 @@
 
 ## Project Overview
 
-emiel - 日本語タイピングゲーム用ライブラリ（純粋TypeScript、外部依存なし）
+emiel - 日本語タイピングゲーム用ライブラリ
 
 ## Commands
 
