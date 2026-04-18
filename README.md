@@ -39,6 +39,7 @@ npm install emiel
 import {
   build,
   activate,
+  createDirectInputRule,
   detectKeyboardLayout,
   loadPresetRuleRoman,
 } from "emiel";
@@ -46,8 +47,14 @@ import {
 // キーボードレイアウトを自動検出
 const layout = await detectKeyboardLayout(window);
 
-// ローマ字入力ルールとオートマトンを作成
-const rule = loadPresetRuleRoman(layout);
+// ローマ字入力ルールを作成
+const romanRule = loadPresetRuleRoman(layout);
+// 英数字の直接入力ルールを作成
+// （"hello" のように英字・記号のみのワードや、"aから@" のように混ざるケースに対応）
+// かなの入力しかさせない場合はルールの合成は不要
+const directInputRule = createDirectInputRule(layout);
+// ２つのルールを合成してオートマトンを作成
+const rule = romanRule.compose(directInputRule);
 const automaton = build(rule, "かった");
 
 // キーボードイベントを購読
