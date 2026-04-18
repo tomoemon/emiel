@@ -4,8 +4,7 @@ import {
   type PhysicalKeyboardLayout,
 } from "../physicalKeyboardLayout";
 
-let cached: PhysicalKeyboardLayout | undefined;
-
+/** 英語 101 キーボードの物理レイアウト (US 101) を返す。 */
 export function loadPresetPhysicalKeyboardLayoutUs101(): PhysicalKeyboardLayout {
-  return (cached ??= loadJsonPhysicalKeyboardLayout(us101));
+  return loadJsonPhysicalKeyboardLayout(us101);
 }

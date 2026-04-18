@@ -2,8 +2,7 @@ import nicolaGuide from "../../assets/keyboard_guides/nicola.json";
 import type { KeyboardGuide } from "../keyboardGuide";
 import { loadJsonKeyboardGuide } from "../keyboardGuideLoader";
 
-let cached: KeyboardGuide | undefined;
-
+/** NICOLA (親指シフト) 用のプリセット `KeyboardGuide` を返す。 */
 export function loadPresetKeyboardGuideNicola(): KeyboardGuide {
-  return (cached ??= loadJsonKeyboardGuide(nicolaGuide));
+  return loadJsonKeyboardGuide(nicolaGuide);
 }

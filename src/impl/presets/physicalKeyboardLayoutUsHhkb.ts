@@ -4,8 +4,7 @@ import {
   type PhysicalKeyboardLayout,
 } from "../physicalKeyboardLayout";
 
-let cached: PhysicalKeyboardLayout | undefined;
-
+/** HHKB (US 配列) 相当の物理レイアウトを返す。 */
 export function loadPresetPhysicalKeyboardLayoutUsHhkb(): PhysicalKeyboardLayout {
-  return (cached ??= loadJsonPhysicalKeyboardLayout(usHhkb));
+  return loadJsonPhysicalKeyboardLayout(usHhkb);
 }
