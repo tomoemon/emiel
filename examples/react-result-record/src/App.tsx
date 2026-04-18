@@ -28,18 +28,8 @@ function TypingRoot(props: { layout: KeyboardLayout }) {
   const [wordIndex, setWordIndex] = useState(0);
   const [wordRecords, setWordRecords] = useState<WordRecordValue[]>([]);
   const onWordFinished = (a: Automaton, displayedAt: DOMHighResTimeStamp) => {
-    setWordRecords((wordRecords) => [
-      ...wordRecords,
-      {
-        automaton: a,
-        displayedAt,
-        firstInputtedAt: a.getFirstSucceededInputTime(),
-        finishedAt: a.getLastSucceededInputTime(),
-      },
-    ]);
-    setWordIndex((current) => {
-      return current + 1;
-    });
+    setWordRecords((wordRecords) => [...wordRecords, { automaton: a, displayedAt }]);
+    setWordIndex((current) => current + 1);
   };
   return wordIndex >= automatons.length ? (
     <Record wordRecords={wordRecords} />

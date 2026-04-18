@@ -1,5 +1,5 @@
 import type { InputStroke, KeyboardLayout } from "emiel";
-import { activate, backspaceExtension, build, loadPresetRuleRoman, VirtualKeys } from "emiel";
+import { activate, build, loadPresetRuleRoman, VirtualKeys } from "emiel";
 import { useEffect, useMemo, useState } from "react";
 import { MissCountingAutomaton } from "./MissCountingAutomaton";
 
@@ -10,7 +10,7 @@ export function MissCountingApp(props: { layout: KeyboardLayout }) {
   const [lastInputKey, setLastInputKey] = useState<InputStroke | undefined>();
 
   const wrappers = useMemo(
-    () => words.map((w) => new MissCountingAutomaton(build(romanRule, w).with(backspaceExtension))),
+    () => words.map((w) => new MissCountingAutomaton(build(romanRule, w))),
     [romanRule, words],
   );
   const wrapper = wrappers[index];
@@ -26,30 +26,31 @@ export function MissCountingApp(props: { layout: KeyboardLayout }) {
     });
   }, [wrapper, words]);
 
+  const view = wrapper.currentView();
   return (
     <>
       <h1>
         <div style={{ display: "flex", justifyContent: "center" }}>
-          <div style={{ color: "gray" }}>{wrapper.getFinishedWord()}</div>
+          <div style={{ color: "gray" }}>{view.finishedWord}</div>
           <div
             style={{
-              marginLeft: wrapper.getFinishedWord() ? "0.5rem" : "0",
+              marginLeft: view.finishedWord ? "0.5rem" : "0",
             }}
           >
-            {wrapper.getPendingWord()}
+            {view.pendingWord}
           </div>
         </div>
       </h1>
       <h1>
         <div style={{ display: "flex", justifyContent: "center" }}>
-          <div style={{ color: "gray" }}>{wrapper.getFinishedRoman()}</div>
+          <div style={{ color: "gray" }}>{view.finishedRoman}</div>
           <div
             style={{
-              marginLeft: wrapper.getFinishedRoman() ? "0.5rem" : "0",
+              marginLeft: view.finishedRoman ? "0.5rem" : "0",
               textAlign: "left",
             }}
           >
-            {wrapper.getPendingRoman()}
+            {view.pendingRoman}
             <br />
             <span style={{ color: "yellow" }}>
               {wrapper.failedInputs

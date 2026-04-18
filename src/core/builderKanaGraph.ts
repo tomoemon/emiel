@@ -99,15 +99,6 @@ export class KanaEdge {
 export type BuildKanaNodeResult = {
   startNode: KanaNode;
   endNode: KanaNode;
-  /**
-   * 各 kanaIndex (= 正規化後の文字列上の位置) で、その位置からの入力を開始するエントリを
-   * 1つ以上寄与した RulePrimitive を合成順に unique 化した配列。
-   *
-   * 例: NICOLA + directInput の合成で "ABCマート" を build した場合
-   *   rulesByKanaIndex[0..2] = [directInput]  (A, B, C)
-   *   rulesByKanaIndex[3..6] = [nicola]        (マ, ー, ト)
-   */
-  rulesByKanaIndex: readonly (readonly RulePrimitive[])[];
 };
 
 /**
@@ -125,13 +116,9 @@ export function buildKanaNode(
   const kanaNodes = [...normalizedKanaText].map((_, i) => new KanaNode(i, [], []));
   const endNode = new KanaNode(normalizedKanaText.length, [], []); // 終端ノード
   const kanaNodesWithEnd = [...kanaNodes, endNode];
-  const rulesByKanaIndex: Set<RulePrimitive>[] = Array.from(
-    { length: normalizedKanaText.length + 1 },
-    () => new Set<RulePrimitive>(),
-  );
   if (normalizedKanaText.length === 0) {
     // 空文字列の場合は終端ノードのみを返す
-    return { startNode: endNode, endNode, rulesByKanaIndex: [] };
+    return { startNode: endNode, endNode };
   }
   /*
   kanaText: あいうえお
@@ -154,7 +141,6 @@ export function buildKanaNode(
         );
         if (kanaPrefix.endsWith(normalizedEntryOutput)) {
           const previousNode = kanaNodesWithEnd[kanaPrefix.length - entry.output.length];
-          rulesByKanaIndex[previousNode.startIndex].add(r);
           if (entry.hasNextInput) {
             // 「次の入力」を持つエントリの場合、「次の入力」の値が次の KanaNode と組み合わせ可能な場合のみ連結する
             nextNode.connectEdgesWithNextInput(previousNode, entry);
@@ -178,8 +164,47 @@ export function buildKanaNode(
   return {
     startNode: kanaNodes[0],
     endNode,
-    rulesByKanaIndex: rulesByKanaIndex.map((s) => Array.from(s)),
   };
+}
+
+/**
+ * 剪定済み KanaNode グラフを走査し、各 kanaIndex で適用可能な RulePrimitive 集合を計算する。
+ * 合成順（rule.primitives の順序）を保ったまま unique 化する。
+ *
+ * 例: NICOLA + directInput の合成で "ABCマート" を build した場合
+ *   rulesByKanaIndex[0..2] = [directInput]  (A, B, C)
+ *   rulesByKanaIndex[3..6] = [nicola]       (マ, ー, ト)
+ */
+export function computeRulesByKanaIndex(
+  startNode: KanaNode,
+  kanaLength: number,
+  rule: Rule,
+): readonly (readonly RulePrimitive[])[] {
+  if (kanaLength === 0) return [];
+  const entryToPrimitive = new Map<RuleEntry, RulePrimitive>();
+  for (const p of rule.primitives) {
+    for (const e of p.entries) entryToPrimitive.set(e, p);
+  }
+  const result: Set<RulePrimitive>[] = Array.from(
+    { length: kanaLength + 1 },
+    () => new Set<RulePrimitive>(),
+  );
+  const visited = new Set<KanaNode>();
+  const queue: KanaNode[] = [startNode];
+  for (let i = 0; i < queue.length; i++) {
+    const node = queue[i];
+    if (visited.has(node)) continue;
+    visited.add(node);
+    for (const edge of node.nextEdges) {
+      for (const entry of edge.entries) {
+        const p = entryToPrimitive.get(entry);
+        if (p) result[node.startIndex].add(p);
+      }
+      queue.push(edge.next);
+    }
+  }
+  // 合成順を保つため、rule.primitives の順で並び直す
+  return result.map((s) => rule.primitives.filter((p) => s.has(p)));
 }
 
 /**

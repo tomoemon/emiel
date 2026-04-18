@@ -46,6 +46,7 @@ function Typing(props: { layout: KeyboardLayout }) {
     });
   }, [index, automatons]);
   const automaton = automatons[index];
+  const view = automaton.currentView();
 
   return (
     <>
@@ -54,12 +55,10 @@ function Typing(props: { layout: KeyboardLayout }) {
         {automaton.getPendingMixedSubstr()}
       </h1>
       <h1>
-        <span style={{ color: "gray" }}>{automaton.getFinishedWord()}</span>{" "}
-        {automaton.getPendingWord()}
+        <span style={{ color: "gray" }}>{view.finishedWord}</span> {view.pendingWord}
       </h1>
       <h1>
-        <span style={{ color: "gray" }}>{automaton.getFinishedRoman()}</span>{" "}
-        {automaton.getPendingRoman()}
+        <span style={{ color: "gray" }}>{view.finishedRoman}</span> {view.pendingRoman}
       </h1>
       <h2>
         Key:{" "}

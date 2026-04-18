@@ -54,19 +54,18 @@ export function TypingGraph(props: {
     });
   }, [props]);
 
-  const finishedRomanSubstr = automaton.getFinishedRoman();
-  const pendingRomanSubstr = automaton.getPendingRoman();
+  const view = automaton.currentView();
+  const finishedRomanSubstr = view.finishedRoman;
+  const pendingRomanSubstr = view.pendingRoman;
   return (
     <>
       <h2>{props.ruleName}</h2>
       <h1>
-        <span style={{ color: "gray" }}>{automaton.getFinishedWord()}</span>{" "}
-        {automaton.getPendingWord()}
+        <span style={{ color: "gray" }}>{view.finishedWord}</span> {view.pendingWord}
       </h1>
       {finishedRomanSubstr || pendingRomanSubstr ? (
         <h1>
-          <span style={{ color: "gray" }}>{automaton.getFinishedRoman()}</span>{" "}
-          {automaton.getPendingRoman()}
+          <span style={{ color: "gray" }}>{finishedRomanSubstr}</span> {pendingRomanSubstr}
         </h1>
       ) : (
         <></>

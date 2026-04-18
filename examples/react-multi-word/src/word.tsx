@@ -2,7 +2,7 @@ import type * as emiel from "emiel";
 
 export function Word(props: { automaton: emiel.Automaton }) {
   console.log("Word", props.automaton.word);
-  const automaton = props.automaton;
+  const view = props.automaton.currentView();
   return (
     <div
       style={{
@@ -12,12 +12,10 @@ export function Word(props: { automaton: emiel.Automaton }) {
       }}
     >
       <h2>
-        <span style={{ color: "gray" }}>{automaton.getFinishedWord()}</span>{" "}
-        {automaton.getPendingWord()}
+        <span style={{ color: "gray" }}>{view.finishedWord}</span> {view.pendingWord}
       </h2>
       <h2>
-        <span style={{ color: "gray" }}>{automaton.getFinishedRoman()}</span>{" "}
-        {automaton.getPendingRoman()}
+        <span style={{ color: "gray" }}>{view.finishedRoman}</span> {view.pendingRoman}
       </h2>
     </div>
   );

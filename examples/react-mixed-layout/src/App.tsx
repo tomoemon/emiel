@@ -33,17 +33,15 @@ function App() {
       }
     });
   }, [wordIndex, automatons]);
-  const automaton = automatons[wordIndex];
+  const view = automatons[wordIndex].currentView();
   return (
     <>
       <p>かな: Qwerty JIS ローマ字 / 英字: Dvorak</p>
       <h1>
-        <span style={{ color: "gray" }}>{automaton.getFinishedWord()}</span>{" "}
-        {automaton.getPendingWord()}
+        <span style={{ color: "gray" }}>{view.finishedWord}</span> {view.pendingWord}
       </h1>
       <h1>
-        <span style={{ color: "gray" }}>{automaton.getFinishedRoman()}</span>{" "}
-        {automaton.getPendingRoman()}
+        <span style={{ color: "gray" }}>{view.finishedRoman}</span> {view.pendingRoman}
       </h1>
       <h2>
         Key:{" "}

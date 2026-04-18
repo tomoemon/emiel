@@ -45,12 +45,12 @@ export function withMixedText(automaton: Automaton, mixedText: MixedText) {
     getFinishedMixedSubstr(): string {
       return mixedText.mixedText.substring(
         0,
-        mixedText.mixedTextIndex[automaton.getFinishedWord().length],
+        mixedText.mixedTextIndex[automaton.currentView().finishedWord.length],
       );
     },
     getPendingMixedSubstr(): string {
       return mixedText.mixedText.substring(
-        mixedText.mixedTextIndex[automaton.getFinishedWord().length],
+        mixedText.mixedTextIndex[automaton.currentView().finishedWord.length],
       );
     },
   });

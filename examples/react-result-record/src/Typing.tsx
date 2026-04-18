@@ -19,18 +19,17 @@ export function Typing(props: {
       }
     });
   }, [automaton]);
+  const view = automaton.currentView();
   return (
     <>
       <h1>
-        <span style={{ color: "gray" }}>{automaton.getFinishedWord()}</span>{" "}
-        {automaton.getPendingWord()}
+        <span style={{ color: "gray" }}>{view.finishedWord}</span> {view.pendingWord}
       </h1>
       <h1>
-        <span style={{ color: "gray" }}>{automaton.getFinishedRoman()}</span>{" "}
-        {automaton.getPendingRoman()}
+        <span style={{ color: "gray" }}>{view.finishedRoman}</span> {view.pendingRoman}
       </h1>
       <h2>
-        Miss: <code>{automaton.getFailedInputCount()}</code>
+        Miss: <code>{automaton.eventsView().failedCount}</code>
       </h2>
       <h2>
         Key:{" "}

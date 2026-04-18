@@ -1,4 +1,4 @@
-import type { Automaton, BackspaceExtensionType, InputEvent } from "emiel";
+import type { Automaton, CurrentView, InputEvent } from "emiel";
 import { InputResult } from "emiel";
 
 /**
@@ -10,11 +10,8 @@ import { InputResult } from "emiel";
  */
 export class MissAccumulatingAutomaton {
   private _failedInputs: InputEvent[] = [];
-  private readonly automaton: Automaton & BackspaceExtensionType;
 
-  constructor(automaton: Automaton & BackspaceExtensionType) {
-    this.automaton = automaton;
-  }
+  constructor(private readonly automaton: Automaton) {}
 
   get failedInputs(): readonly InputEvent[] {
     return this._failedInputs;
@@ -52,31 +49,15 @@ export class MissAccumulatingAutomaton {
     this._failedInputs = [];
   }
 
-  getFinishedWord(): string {
-    return this.automaton.getFinishedWord();
+  currentView(): CurrentView {
+    return this.automaton.currentView();
   }
 
-  getPendingWord(): string {
-    return this.automaton.getPendingWord();
+  get succeededCount(): number {
+    return this.automaton.eventsView().succeededCount;
   }
 
-  getFinishedRoman(): string {
-    return this.automaton.getFinishedRoman();
-  }
-
-  getPendingRoman(): string {
-    return this.automaton.getPendingRoman();
-  }
-
-  getEffectiveEdgesCount(): number {
-    return this.automaton.getEffectiveEdges().length;
-  }
-
-  getFailedInputCount(): number {
-    return this.automaton.getFailedInputCount();
-  }
-
-  getEffectiveFailedInputCount(): number {
-    return this.automaton.getEffectiveFailedInputCount();
+  get failedCount(): number {
+    return this.automaton.eventsView().failedCount;
   }
 }

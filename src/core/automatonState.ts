@@ -28,7 +28,7 @@ export type InputHistoryEntry = {
 
 /**
  * back() メソッド呼び出しの履歴エントリ。
- * getEffectiveEdges のスタック処理で直前の成功遷移を1つ打ち消す。
+ * currentView() / eventsView() のスタック処理で直前の成功遷移を1つ打ち消す。
  *
  * InputHistoryEntry(result.isBack) は backspace キーマッチの記録であり、
  * 実際に back() を呼ぶかはライブラリ利用者の判断に委ねられる。

@@ -1,4 +1,4 @@
-import type { Automaton, BackspaceExtensionType, InputEvent } from "emiel";
+import type { Automaton, CurrentView, InputEvent } from "emiel";
 import { InputResult } from "emiel";
 
 /**
@@ -7,11 +7,8 @@ import { InputResult } from "emiel";
  */
 export class MissCountingAutomaton {
   private _failedInputs: InputEvent[] = [];
-  private readonly automaton: Automaton & BackspaceExtensionType;
 
-  constructor(automaton: Automaton & BackspaceExtensionType) {
-    this.automaton = automaton;
-  }
+  constructor(private readonly automaton: Automaton) {}
 
   get failedInputs(): readonly InputEvent[] {
     return this._failedInputs;
@@ -47,19 +44,7 @@ export class MissCountingAutomaton {
     this._failedInputs = [];
   }
 
-  getFinishedWord(): string {
-    return this.automaton.getFinishedWord();
-  }
-
-  getPendingWord(): string {
-    return this.automaton.getPendingWord();
-  }
-
-  getFinishedRoman(): string {
-    return this.automaton.getFinishedRoman();
-  }
-
-  getPendingRoman(): string {
-    return this.automaton.getPendingRoman();
+  currentView(): CurrentView {
+    return this.automaton.currentView();
   }
 }

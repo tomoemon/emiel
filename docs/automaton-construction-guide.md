@@ -229,9 +229,10 @@ window.addEventListener("keydown", (e) => {
   const result = automaton.input(inputEvent);
   
   if (result.isSucceeded) {
+    const view = automaton.currentView();
     console.log("正解！");
-    console.log("完了:", automaton.getFinishedWord());
-    console.log("残り:", automaton.getPendingWord());
+    console.log("完了:", view.finishedWord);
+    console.log("残り:", view.pendingWord);
   }
 });
 ```
