@@ -70,8 +70,8 @@ export function Record(props: { wordRecords: WordRecordValue[] }) {
         {records.map((r, index) => {
           return (
             <li key={index}>
-              {r.word} latency:{r.latency}ms kpm:{r.kpm} rkpm:{r.rkpm} acc:
-              {(r.accuracy * 100).toFixed(2)}%
+              {r.word} latency:{Math.trunc(r.latency)}ms kpm:{Math.trunc(r.kpm)} rkpm:
+              {Math.trunc(r.rkpm)} acc:{(r.accuracy * 100).toFixed(2)}%
             </li>
           );
         })}
