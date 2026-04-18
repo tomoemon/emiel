@@ -34,22 +34,24 @@ export function Record(props: { wordRecords: WordRecordValue[] }) {
       <h1>Finished!</h1>
       <div style={{ display: "flex", justifyContent: "center" }}>
         <table style={{ border: "0" }}>
-          <tr>
-            <td>inputs</td>
-            <td>{totalSucceededCount}</td>
-          </tr>
-          <tr>
-            <td>miss</td>
-            <td>{totalFailedCount}</td>
-          </tr>
-          <tr>
-            <td>avg latency</td>
-            <td>{Math.trunc(totalLatency / records.length)}ms</td>
-          </tr>
-          <tr>
-            <td>accuracy</td>
-            <td>{(totalAccuracy * 100).toFixed(2)} %</td>
-          </tr>
+          <tbody>
+            <tr>
+              <td>inputs</td>
+              <td>{totalSucceededCount}</td>
+            </tr>
+            <tr>
+              <td>miss</td>
+              <td>{totalFailedCount}</td>
+            </tr>
+            <tr>
+              <td>avg latency</td>
+              <td>{Math.trunc(totalLatency / records.length)}ms</td>
+            </tr>
+            <tr>
+              <td>accuracy</td>
+              <td>{(totalAccuracy * 100).toFixed(2)} %</td>
+            </tr>
+          </tbody>
         </table>
       </div>
       <ul>
