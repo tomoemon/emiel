@@ -48,3 +48,5 @@ export {
 
 export { build, type Automaton, type BaseExtensionType } from "./impl/buildAutomaton";
 export { type CurrentView, type EventsView } from "./impl/automatonView";
+
+export { logging, type Logger, type LogHandler, type LogRecord } from "./core/logger";

@@ -1,8 +1,14 @@
 import type { KeyEventType } from "../core/inputEvent";
 import { InputEvent, InputStroke } from "../core/inputEvent";
 import { KeyboardState } from "../core/keyboardState";
+import { logging } from "../core/logger";
 import type { VirtualKey } from "../core/virtualKey";
 import { VirtualKeys } from "../core/virtualKey";
+
+const logActivate = logging.getLogger("keyboard.activate");
+const logDeactivate = logging.getLogger("keyboard.deactivate");
+const logKeyDown = logging.getLogger("keyboard.keydown");
+const logKeyUp = logging.getLogger("keyboard.keyup");
 
 /**
  * @param target addEventListener,removeEventListener を持つ Window object のような型
@@ -22,6 +28,13 @@ export function activate(
     const keyboardEvent = evt as KeyboardEvent;
     const keyStroke = toInputKeyStrokeFromKeyboardEvent("keydown", keyboardEvent, keyMap);
     keyboardState.keydown(keyStroke.key);
+    if (logKeyDown.enabled) {
+      logKeyDown.log({
+        code: keyboardEvent.code,
+        key: keyStroke.key,
+        downedKeys: [...keyboardState.downedKeys],
+      });
+    }
     keyEventHandler(
       new InputEvent(
         keyStroke,
@@ -37,6 +50,13 @@ export function activate(
     const keyboardEvent = evt as KeyboardEvent;
     const keyStroke = toInputKeyStrokeFromKeyboardEvent("keyup", keyboardEvent, keyMap);
     keyboardState.keyup(keyStroke.key);
+    if (logKeyUp.enabled) {
+      logKeyUp.log({
+        code: keyboardEvent.code,
+        key: keyStroke.key,
+        downedKeys: [...keyboardState.downedKeys],
+      });
+    }
     keyEventHandler(
       new InputEvent(
         keyStroke,
@@ -48,9 +68,11 @@ export function activate(
   };
   target.addEventListener("keydown", keyDownEventHandler);
   target.addEventListener("keyup", keyUpEventHandler);
+  logActivate.log({ keyMapSize: keyMap.size });
   return () => {
     target.removeEventListener("keydown", keyDownEventHandler);
     target.removeEventListener("keyup", keyUpEventHandler);
+    logDeactivate.log();
   };
 }
 

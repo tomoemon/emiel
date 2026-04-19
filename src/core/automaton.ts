@@ -7,8 +7,13 @@ import {
 } from "./committer";
 import type { InputEvent } from "./inputEvent";
 import { InputResult } from "./inputResult";
+import { logging } from "./logger";
 import type { Rule, RulePrimitive } from "./rule";
 import type { VirtualKey } from "./virtualKey";
+
+const logInput = logging.getLogger("automaton.input");
+const logBack = logging.getLogger("automaton.back");
+const logReset = logging.getLogger("automaton.reset");
 
 /**
  * タイピング状態機械の実装本体。`build(rule, word)` 経由で生成し、
@@ -66,6 +71,7 @@ export class AutomatonImpl implements AutomatonState {
    * ワードを最初から入力し直す場合に使用する。
    */
   reset(): void {
+    logReset.log({ word: this.word });
     this.currentNode = this.startNode;
     this.inputHistory = [];
     this.committer.reset();
@@ -79,7 +85,10 @@ export class AutomatonImpl implements AutomatonState {
    * 成功 edge を skip しながら、最初に見つかった未取り消しの成功 edge を取り消す。
    */
   back(): void {
-    if (this.currentNode === this.startNode) return;
+    if (this.currentNode === this.startNode) {
+      logBack.log("ignored (at startNode)", { kanaIndex: this.currentNode.kanaIndex });
+      return;
+    }
     let skip = 0;
     for (let i = this.inputHistory.length - 1; i >= 0; i--) {
       const entry = this.inputHistory[i];
@@ -94,6 +103,10 @@ export class AutomatonImpl implements AutomatonState {
         }
         this.inputHistory.push({ back: true, undoneEdge: entry.edge });
         this.currentNode = entry.edge.previous;
+        logBack.log("undone", {
+          kanaIndex: this.currentNode.kanaIndex,
+          undoneEdge: entry.edge,
+        });
         break;
       }
     }
@@ -142,19 +155,27 @@ export class AutomatonImpl implements AutomatonState {
           result: inputResult,
           edge: result.stroke.edge,
         });
+        logInput.log("committed", {
+          event: result.stroke.triggerEvent,
+          result: inputResult.toString(),
+        });
         return inputResult;
       }
       case "backspace":
         this.inputHistory.push({ event: stroke, result: InputResult.BACK });
+        logInput.log("backspace", { event: stroke });
         return InputResult.BACK;
       case "pending":
         this.inputHistory.push({ event: stroke, result: InputResult.PENDING });
+        logInput.log("pending", { event: stroke });
         return InputResult.PENDING;
       case "failed":
         this.inputHistory.push({ event: result.event, result: InputResult.FAILED });
+        logInput.log("failed", { event: result.event });
         return InputResult.FAILED;
       case "ignored":
         this.inputHistory.push({ event: stroke, result: InputResult.IGNORED });
+        logInput.log("ignored", { event: stroke });
         return InputResult.IGNORED;
     }
   }
