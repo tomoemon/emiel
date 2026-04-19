@@ -6,9 +6,12 @@ import {
   loadPresetKeyboardLayoutDvorak,
   loadPresetKeyboardLayoutQwertyJis,
   loadPresetRuleRoman,
+  logging,
 } from "emiel";
 import { useEffect, useMemo, useState } from "react";
 import "./App.css";
+
+logging.enable("keyboard.*", "automaton.*");
 
 const words = ["おをひく", "apple", "docomoとau"];
 

@@ -8,10 +8,13 @@ import {
   loadPresetRuleNaginatashikiV15,
   loadPresetRuleNicola,
   loadPresetRuleRoman,
+  logging,
 } from "emiel";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import "./App.css";
 import { TypingGraph } from "./typingGraph";
+
+logging.enable("keyboard.*", "automaton.*");
 
 // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
 cytoscape.use(dagre);

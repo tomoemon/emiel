@@ -1,10 +1,18 @@
 import type { Automaton, KeyboardLayout } from "emiel";
-import { build, createDirectInputRule, detectKeyboardLayout, loadPresetRuleRoman } from "emiel";
+import {
+  build,
+  createDirectInputRule,
+  detectKeyboardLayout,
+  loadPresetRuleRoman,
+  logging,
+} from "emiel";
 import { useEffect, useMemo, useState } from "react";
 import "./App.css";
 import type { WordRecordValue } from "./Record";
 import { Record } from "./Record";
 import { Typing } from "./Typing";
+
+logging.enable("keyboard.*", "automaton.*");
 
 function App() {
   const [layout, setLayout] = useState<KeyboardLayout | undefined>();

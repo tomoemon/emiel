@@ -5,10 +5,13 @@ import {
   detectKeyboardLayout,
   loadPresetRuleJisKana,
   loadPresetRuleRoman,
+  logging,
   VirtualKeys,
 } from "emiel";
 import { useEffect, useMemo, useState } from "react";
 import "./App.css";
+
+logging.enable("keyboard.*", "automaton.*");
 
 type ActiveKey = "roman" | "kana";
 const ALL_ACTIVES: ReadonlySet<ActiveKey> = new Set(["roman", "kana"]);
