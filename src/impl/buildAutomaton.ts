@@ -1,9 +1,12 @@
 import { AutomatonImpl } from "../core/automaton";
 import { buildKanaNode, computeRulesByKanaIndex } from "../core/builderKanaGraph";
 import { buildStrokeNode } from "../core/builderStrokeGraph";
+import { logging } from "../core/logger";
 import type { normalizerFunc, Rule } from "../core/rule";
 import * as AutomatonView from "./automatonView";
 import { defaultComposedNormalize } from "./charNormalizer";
+
+const logBuild = logging.getLogger("builder.build");
 
 /**
  * 入力ルールとお題かな文字列から `Automaton` を構築する、emiel の中心 API。
@@ -20,9 +23,11 @@ export function build(
   kanaText: string,
   normalize: normalizerFunc = defaultComposedNormalize,
 ): Automaton {
+  logBuild.log("start", { kanaText });
   const { startNode: kanaStartNode, endNode } = buildKanaNode(rule, kanaText, normalize);
   const rulesByKanaIndex = computeRulesByKanaIndex(kanaStartNode, endNode.startIndex, rule);
   const automaton = new AutomatonImpl(kanaText, buildStrokeNode(endNode), rule, rulesByKanaIndex);
+  logBuild.log("done", { kanaText, endIndex: endNode.startIndex });
   return automaton.with(baseExtension);
 }
 

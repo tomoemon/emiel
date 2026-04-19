@@ -16,9 +16,12 @@ import {
   loadPresetPhysicalKeyboardLayoutJis106,
   loadPresetPhysicalKeyboardLayoutUs101,
   loadPresetPhysicalKeyboardLayoutUsHhkb,
+  logging,
   placeKeyboardGuide,
 } from "emiel";
 import { useEffect, useMemo, useState } from "react";
+
+logging.enable("keyboard.*", "automaton.*");
 
 type LayoutName = "qwerty-jis" | "qwerty-us" | "dvorak";
 type PhysicalLayoutName = "jis_106" | "us_101" | "us_hhkb";

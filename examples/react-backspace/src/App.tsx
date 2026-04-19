@@ -1,10 +1,12 @@
 import type { KeyboardLayout } from "emiel";
-import { detectKeyboardLayout } from "emiel";
+import { detectKeyboardLayout, logging } from "emiel";
 import { useEffect, useState } from "react";
 import "./App.css";
 import { MissAccumulatingApp } from "./MissAccumulatingApp";
 import { MissClearingApp } from "./MissClearingApp";
 import { MissCountingApp } from "./MissCountingApp";
+
+logging.enable("keyboard.*", "automaton.*");
 
 type TabId = "clearing" | "counting" | "accumulating";
 

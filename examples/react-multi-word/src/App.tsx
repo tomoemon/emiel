@@ -1,9 +1,18 @@
 import type { Automaton, InputStroke, KeyboardLayout } from "emiel";
-import { activate, build, detectKeyboardLayout, loadPresetRuleRoman, VirtualKeys } from "emiel";
+import {
+  activate,
+  build,
+  detectKeyboardLayout,
+  loadPresetRuleRoman,
+  logging,
+  VirtualKeys,
+} from "emiel";
 import { useEffect, useMemo, useState } from "react";
 import "./App.css";
 import { MultiWordState } from "./multiWordState";
 import { Word } from "./word";
+
+logging.enable("keyboard.*", "automaton.*");
 
 // 繰り返し次のワードを生成するジェネレータ
 const wordGen = (function* wordGenerator(): Generator<string, string> {

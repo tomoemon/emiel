@@ -5,10 +5,13 @@ import {
   createDirectInputRule,
   detectKeyboardLayout,
   loadPresetRuleRoman,
+  logging,
 } from "emiel";
 import { useEffect, useMemo, useState } from "react";
 import "./App.css";
 import { MixedText, withMixedText } from "./MixedText";
+
+logging.enable("keyboard.*", "automaton.*");
 
 function App() {
   const [layout, setLayout] = useState<KeyboardLayout | undefined>();

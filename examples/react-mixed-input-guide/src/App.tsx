@@ -8,10 +8,13 @@ import {
   loadPresetKeyboardLayoutQwertyJis,
   loadPresetPhysicalKeyboardLayoutJis106,
   loadPresetRuleJisKana,
+  logging,
   placeKeyboardGuide,
 } from "emiel";
 import { useEffect, useMemo, useReducer, useRef, useState } from "react";
 import { KeyboardGuideView } from "./KeyboardGuideView";
+
+logging.enable("keyboard.*", "automaton.*");
 
 const WORDS = [
   "こんにちはHello",

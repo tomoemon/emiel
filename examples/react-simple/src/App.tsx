@@ -5,9 +5,12 @@ import {
   createDirectInputRule,
   detectKeyboardLayout,
   loadPresetRuleRoman,
+  logging,
 } from "emiel";
 import { useEffect, useMemo, useState } from "react";
 import "./App.css";
+
+logging.enable("keyboard.*", "automaton.*");
 
 function App() {
   const [layout, setLayout] = useState<KeyboardLayout | undefined>();
@@ -38,7 +41,6 @@ function Typing(props: { layout: KeyboardLayout }) {
     return activate(window, (e) => {
       setLastInputKey(e.input);
       const result = automatons[wordIndex].input(e);
-      console.log(e.input.key.toString(), e.input.type, result);
       if (result.isFinished) {
         automatons[wordIndex].reset();
         setWordIndex((current) => (current + 1) % words.length);
