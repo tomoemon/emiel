@@ -1,5 +1,26 @@
-import { RuleEntry } from "./rule";
+import { RuleEntry, type RulePrimitive } from "./rule";
 import type { RuleStroke } from "./ruleStroke";
+
+function unionSources(
+  a: readonly RulePrimitive[],
+  b: readonly RulePrimitive[],
+): readonly RulePrimitive[] {
+  const seen = new Set<RulePrimitive>();
+  const result: RulePrimitive[] = [];
+  for (const s of a) {
+    if (!seen.has(s)) {
+      seen.add(s);
+      result.push(s);
+    }
+  }
+  for (const s of b) {
+    if (!seen.has(s)) {
+      seen.add(s);
+      result.push(s);
+    }
+  }
+  return result;
+}
 
 // プレフィックス競合の展開
 //
@@ -42,9 +63,12 @@ import type { RuleStroke } from "./ruleStroke";
 //   ストロークの組み合わせは有限なので必ず停止する。
 
 export function expandPrefixRules(entries: RuleEntry[]): RuleEntry[] {
+  // extendable=true のエントリのみを「競合検出・削除」の対象として渡す。
+  // 結合先候補は resolvePrefixConflicts 内で全 entries から選ばれるので、
+  // unextendable なエントリも結合先として使われうる（元エントリは最終結果に残る）。
   const unextendable = entries.filter((e) => !e.extendCommonPrefixCommonEntry);
   const extendable = entries.filter((e) => e.extendCommonPrefixCommonEntry);
-  return [...unextendable, ...resolvePrefixConflicts(extendable)];
+  return [...unextendable, ...resolvePrefixConflicts(extendable, entries)];
 }
 
 function strokeHash(...strokes: RuleStroke[]): string {
@@ -63,69 +87,113 @@ function strokeHash(...strokes: RuleStroke[]): string {
 }
 
 // Map 内で最初に見つかったプレフィックス競合を返す。
+// 同一 strokeHash に複数エントリが属しうるため、Map<string, RuleEntry[]> を使う。
 // takenStrokes: 競合エントリの次の位置で使われているストロークと自身の先頭ストロークの集合。
 // これらのストロークで始まるエントリは結合先にできない。
-function findPrefixConflict(entryMap: Map<string, RuleEntry>): {
-  entry: RuleEntry;
+function findPrefixConflict(groups: Map<string, RuleEntry[]>): {
   hash: string;
   takenStrokes: Set<string>;
 } | null {
-  for (const [hash, entry] of entryMap) {
+  for (const [hash, entries] of groups) {
+    if (entries.length === 0) continue;
+    const inputLength = entries[0].input.length;
     const takenStrokes = new Set<string>();
     let hasConflict = false;
-    for (const other of entryMap.values()) {
-      if (other.input.length <= entry.input.length) continue;
-      if (strokeHash(...other.input.slice(0, entry.input.length)) === hash) {
-        takenStrokes.add(strokeHash(other.input[entry.input.length]));
-        hasConflict = true;
+    for (const otherGroup of groups.values()) {
+      for (const other of otherGroup) {
+        if (other.input.length <= inputLength) continue;
+        if (strokeHash(...other.input.slice(0, inputLength)) === hash) {
+          takenStrokes.add(strokeHash(other.input[inputLength]));
+          hasConflict = true;
+        }
       }
     }
     if (hasConflict) {
-      takenStrokes.add(strokeHash(entry.input[0]));
-      return { entry, hash, takenStrokes };
+      takenStrokes.add(strokeHash(entries[0].input[0]));
+      return { hash, takenStrokes };
     }
   }
   return null;
 }
 
-function resolvePrefixConflicts(entries: RuleEntry[]): RuleEntry[] {
-  const entryMap = new Map<string, RuleEntry>();
+/**
+ * groups に newEntry を追加する。既に equals で一致するエントリがある場合は
+ * sources を union した新エントリで置き換える（重複エントリの sources 併合）。
+ */
+function addOrMergeEntry(groups: Map<string, RuleEntry[]>, newEntry: RuleEntry): void {
+  const key = strokeHash(...newEntry.input);
+  const arr = groups.get(key);
+  if (!arr) {
+    groups.set(key, [newEntry]);
+    return;
+  }
+  const existingIdx = arr.findIndex((e) => e.equals(newEntry));
+  if (existingIdx >= 0) {
+    const existing = arr[existingIdx];
+    const merged = new RuleEntry(
+      existing.input,
+      existing.output,
+      existing.nextInput,
+      existing.extendCommonPrefixCommonEntry,
+      unionSources(existing.sources, newEntry.sources),
+    );
+    arr[existingIdx] = merged;
+    return;
+  }
+  arr.push(newEntry);
+}
+
+function resolvePrefixConflicts(entries: RuleEntry[], allEntries: RuleEntry[]): RuleEntry[] {
+  // 同一 strokeHash に複数エントリが属すケース（出力違いなど）に対応するため
+  // Map<string, RuleEntry[]> で保持する。equals で一致するエントリは sources を union して重複を回避。
+  const groups = new Map<string, RuleEntry[]>();
   for (const e of entries) {
-    entryMap.set(strokeHash(...e.input), e);
+    addOrMergeEntry(groups, e);
   }
 
   while (true) {
-    const conflict = findPrefixConflict(entryMap);
+    const conflict = findPrefixConflict(groups);
     if (!conflict) break;
 
-    const { entry, hash, takenStrokes } = conflict;
+    const { hash, takenStrokes } = conflict;
+    const conflictEntries = groups.get(hash) ?? [];
+    // このハッシュに属する全エントリを削除
+    groups.delete(hash);
 
-    // 取られたストロークで始まらないエントリを結合先として集める
-    const availableEntries = [...entryMap.values()].filter(
-      (e) => !takenStrokes.has(strokeHash(e.input[0])),
-    );
+    // 結合先候補 (全 allEntries から、取られたストロークで始まらないもの)
+    const availableEntries = allEntries.filter((e) => !takenStrokes.has(strokeHash(e.input[0])));
 
-    // 競合エントリを削除し、結合先ごとに拡張エントリを生成
-    entryMap.delete(hash);
-
-    for (const avail of availableEntries) {
-      if (avail.input.length === 1) {
-        // 1ストロークの結合先: output を結合する
-        const newInput = [...entry.input, ...avail.input];
-        entryMap.set(
-          strokeHash(...newInput),
-          new RuleEntry(newInput, entry.output + avail.output, avail.nextInput, true),
-        );
-      } else {
-        // 複数ストロークの結合先: 先頭1ストロークだけ取り、nextInput として戻す
-        const newInput = [...entry.input, avail.input[0]];
-        entryMap.set(
-          strokeHash(...newInput),
-          new RuleEntry(newInput, entry.output, [avail.input[0]], true),
-        );
+    // 各競合エントリ × 各結合先で新エントリを生成
+    for (const entry of conflictEntries) {
+      for (const avail of availableEntries) {
+        let newEntry: RuleEntry;
+        if (avail.input.length === 1) {
+          // 1ストロークの結合先: output を結合する
+          const newInput = [...entry.input, ...avail.input];
+          newEntry = new RuleEntry(
+            newInput,
+            entry.output + avail.output,
+            avail.nextInput,
+            true,
+            unionSources(entry.sources, avail.sources),
+          );
+        } else {
+          // 複数ストロークの結合先: 先頭1ストロークだけ取り、nextInput として戻す
+          const newInput = [...entry.input, avail.input[0]];
+          newEntry = new RuleEntry(
+            newInput,
+            entry.output,
+            [avail.input[0]],
+            true,
+            unionSources(entry.sources, avail.sources),
+          );
+        }
+        addOrMergeEntry(groups, newEntry);
       }
     }
   }
 
-  return [...entryMap.values()];
+  const result: RuleEntry[] = [];
+  for (const group of groups.values()) result.push(...group);
+  return result;
 }

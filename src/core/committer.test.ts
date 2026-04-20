@@ -305,7 +305,7 @@ describe("StrokeCommitter jis_kana (単打 + Shift modifier)", () => {
 
 describe("StrokeCommitter tentative failure は元キーの keyup でのみ発火", () => {
   const layout = loadPresetKeyboardLayoutQwertyJis();
-  const rule = loadPresetRuleNaginatashikiV15().compose(createDirectInputRule(layout));
+  const rule = loadPresetRuleNaginatashikiV15().merge(createDirectInputRule(layout));
 
   test("Space+U は backspace ではなく failed (さ の方が具体的)", () => {
     // naginata "お" = N+Space。Space 先押し後に U を押すと、"さ" (Space+U, keyCount=2)

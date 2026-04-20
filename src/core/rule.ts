@@ -4,7 +4,7 @@ import { emptyMetadata } from "./metadata";
 import { AndModifier } from "./modifier";
 import { expandPrefixRules } from "./ruleExtender";
 import { SingleStroke, ruleStrokeKeys, type RuleStroke } from "./ruleStroke";
-import { type VirtualKey, VirtualKeys } from "./virtualKey";
+import { VirtualKeys, type VirtualKey } from "./virtualKey";
 
 /**
  * ワード文字列を内部比較用に正規化する関数のシグネチャ。
@@ -28,6 +28,12 @@ export class RuleEntry {
     readonly nextInput: RuleStroke[],
     /** 共通プレフィックスエントリを展開するかどうか */
     readonly extendCommonPrefixCommonEntry: boolean,
+    /**
+     * このエントリの構成に寄与した RulePrimitive 群。
+     * RulePrimitive コンストラクタ内で自動的にタグ付けされる。
+     * `merge` による結合エントリでは結合元 2 entries の sources を union して保持する。
+     */
+    readonly sources: readonly RulePrimitive[] = [],
   ) {}
   /** nextInput が空でない（＝確定後に次のエントリへ打ち継ぐ） */
   get hasNextInput(): boolean {
@@ -98,35 +104,44 @@ nk/ん/k
 */
 
 /**
- * 入力ルールを表す公開 interface。1 つの primitive な定義 (RulePrimitive) か、
- * 複数の primitive を合成したもの (内部 RuleSet) のいずれかが実装する。
- *
- * entriesByKey / entriesByModifier は `primitives` 全体を事前マージした結果を返す契約。
- * RulePrimitive 実装は自身の entries のみ、合成実装は全 parts の union を返す。
+ * 入力ルールを表す公開 interface。唯一の実装クラスは `RulePrimitive`。
+ * `merge` は両辺の生エントリ (`rawEntries`) を統合した単一 `RulePrimitive` を返す。
  */
 export interface Rule {
   /** ルール名称や参照 URL 等 */
   readonly metadata: Metadata;
   /** backspace として扱うストローク群 */
   readonly backspaceStrokes: readonly RuleStroke[];
-  /** このルールを構成する RulePrimitive 列（単一ルールなら [this]） */
-  readonly primitives: readonly RulePrimitive[];
-  /** 入力キーを先頭とするエントリ一覧（primitives を事前マージ済み） */
+  /** 共通プレフィックス展開後のエントリ一覧 */
+  readonly entries: readonly RuleEntry[];
+  /**
+   * 展開前の生エントリ（sources タグ付け済み）。
+   * `merge` 時に他 Rule の rawEntries と union されて新しい RulePrimitive の入力になる。
+   */
+  readonly rawEntries: readonly RuleEntry[];
+  /** 入力キーを先頭とするエントリ一覧 */
   entriesByKey(key: VirtualKey): readonly RuleEntry[];
   /** 先頭ストロークの修飾キーにマッチするエントリ一覧 */
   entriesByModifier(key: VirtualKey): readonly RuleEntry[];
-  /** このルールと other を合成した新しい Rule を返す */
-  compose(other: Rule): Rule;
+  /**
+   * このルールと other を統合した新しい RulePrimitive を返す。
+   * 両 Rule の rawEntries を union してプレフィックス展開を 1 回走らせるため、
+   * primitive をまたいだ結合エントリ（例: ローマ字の `n/ん` ＋ direct input の `space/ `）
+   * も自動生成される。metadata と backspaceStrokes は this のものを採用する。
+   */
+  merge(other: Rule): RulePrimitive;
 }
 
 /**
- * 1 つの primitive な入力定義。entries と自身のメタデータ (name, backspaceStrokes)
- * を持ち、自身の entries に対するキー引きインデックスを事前構築する。位置に依存
- * しない再利用可能な定義。
+ * 1 つの primitive な入力定義。エントリと自身のメタデータを持つ。
  *
- * 2 つの Rule を合成する場合は `a.compose(b)` を使うと内部で RuleSet が生成される。
+ * コンストラクタは引数 entries のうち `sources` が未設定 (空配列) のものに自身をタグ付けし、
+ * 展開済みエントリ (`entries`) とキー引きインデックスを事前構築する。
+ * 2 つの Rule を統合する場合は `a.merge(b)` を使う。戻り値は統合済みの新 `RulePrimitive`。
  */
 export class RulePrimitive implements Rule {
+  /** 展開前の生エントリ（sources タグ付け済み）。merge の入力に使う */
+  readonly rawEntries: readonly RuleEntry[];
   /** 共通プレフィックス展開後のエントリ一覧 */
   readonly entries: readonly RuleEntry[];
   /**
@@ -141,21 +156,26 @@ export class RulePrimitive implements Rule {
   readonly backspaceStrokes: readonly RuleStroke[];
   readonly metadata: Metadata;
 
-  /** @internal 同ファイル内の RuleSet が合成時に直接マージするため公開している */
-  readonly ownByKey: ReadonlyMap<VirtualKey, readonly RuleEntry[]>;
-  /** @internal */
-  readonly ownByModifier: ReadonlyMap<VirtualKey, readonly RuleEntry[]>;
+  private readonly ownByKey: ReadonlyMap<VirtualKey, readonly RuleEntry[]>;
+  private readonly ownByModifier: ReadonlyMap<VirtualKey, readonly RuleEntry[]>;
 
   constructor(
     entries: RuleEntry[],
     metadata: Metadata = emptyMetadata(),
     backspaceStrokes?: readonly RuleStroke[],
   ) {
-    this.entries = expandPrefixRules(entries);
     this.metadata = metadata;
     this.backspaceStrokes = backspaceStrokes ?? [
       new SingleStroke(VirtualKeys.Backspace, AndModifier.empty),
     ];
+    // sources が未設定のエントリに自身を source としてタグ付けする。
+    // merge 経由で既に sources が設定されている entries はそのまま残す。
+    this.rawEntries = entries.map((e) =>
+      e.sources.length > 0
+        ? e
+        : new RuleEntry(e.input, e.output, e.nextInput, e.extendCommonPrefixCommonEntry, [this]),
+    );
+    this.entries = expandPrefixRules([...this.rawEntries]);
 
     const byKey = new Map<VirtualKey, RuleEntry[]>();
     const byModifier = new Map<VirtualKey, RuleEntry[]>();
@@ -179,11 +199,6 @@ export class RulePrimitive implements Rule {
     this.ownByModifier = byModifier;
   }
 
-  /** 自身 1 つを要素とする配列を返す（Rule インターフェースを満たすため） */
-  get primitives(): readonly RulePrimitive[] {
-    return [this];
-  }
-
   /** 入力キーを先頭とするエントリ一覧を返す（事前キャッシュ引き） */
   entriesByKey(inputKey: VirtualKey): readonly RuleEntry[] {
     return this.ownByKey.get(inputKey) ?? [];
@@ -194,75 +209,14 @@ export class RulePrimitive implements Rule {
     return this.ownByModifier.get(modifierKey) ?? [];
   }
 
-  /** このルールと other を合成した Rule を返す */
-  compose(other: Rule): Rule {
-    return composeRules(this, other);
+  /**
+   * このルールと other を統合した新しい RulePrimitive を返す。
+   * 両辺の rawEntries を union してプレフィックス展開を 1 回走らせるため、
+   * primitive をまたいだ結合エントリも生成される。
+   * metadata と backspaceStrokes は this のものを採用する。
+   */
+  merge(other: Rule): RulePrimitive {
+    const union = [...this.rawEntries, ...other.rawEntries];
+    return new RulePrimitive(union, this.metadata, this.backspaceStrokes);
   }
-}
-
-/**
- * 複数の RulePrimitive を合成したルール。head/tail 採用ポリシー (最初の primitive を
- * 合成全体の代表とする) はここの getter dispatch に閉じ、RulePrimitive 側には非対称性を
- * 持ち込まない。
- *
- * 外部からは直接 `new RuleSet(...)` せず `a.compose(b)` 経由で生成する。
- */
-class RuleSet implements Rule {
-  private readonly parts: readonly RulePrimitive[];
-  private readonly mergedByKey: ReadonlyMap<VirtualKey, readonly RuleEntry[]>;
-  private readonly mergedByModifier: ReadonlyMap<VirtualKey, readonly RuleEntry[]>;
-
-  constructor(parts: readonly RulePrimitive[]) {
-    if (parts.length === 0) {
-      throw new Error("RuleSet requires at least one primitive");
-    }
-    this.parts = parts;
-    const byKey = new Map<VirtualKey, RuleEntry[]>();
-    const byModifier = new Map<VirtualKey, RuleEntry[]>();
-    for (const p of parts) {
-      for (const [key, entries] of p.ownByKey) {
-        setDefault(byKey, key, []).push(...entries);
-      }
-      for (const [modKey, entries] of p.ownByModifier) {
-        setDefault(byModifier, modKey, []).push(...entries);
-      }
-    }
-    this.mergedByKey = byKey;
-    this.mergedByModifier = byModifier;
-  }
-
-  get metadata(): Metadata {
-    return this.parts[0].metadata;
-  }
-  get backspaceStrokes(): readonly RuleStroke[] {
-    return this.parts[0].backspaceStrokes;
-  }
-  get primitives(): readonly RulePrimitive[] {
-    return this.parts;
-  }
-
-  entriesByKey(inputKey: VirtualKey): readonly RuleEntry[] {
-    return this.mergedByKey.get(inputKey) ?? [];
-  }
-
-  entriesByModifier(modifierKey: VirtualKey): readonly RuleEntry[] {
-    return this.mergedByModifier.get(modifierKey) ?? [];
-  }
-
-  compose(other: Rule): Rule {
-    return composeRules(this, other);
-  }
-}
-
-/**
- * 2 つの Rule を合成して新しい Rule を返す。
- *
- * - 入力の primitives を linear 化して並べるだけで、入れ子は発生しない
- *   (RulePrimitive.primitives は [this]、RuleSet.primitives は parts を返すため)。
- * - 同じ RulePrimitive インスタンスを 2 度合成した場合は重複が並ぶ。重複排除は行わない
- *   (利用者責任)。
- */
-function composeRules(a: Rule, b: Rule): Rule {
-  const flattened: RulePrimitive[] = [...a.primitives, ...b.primitives];
-  return new RuleSet(flattened);
 }

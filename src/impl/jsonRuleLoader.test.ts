@@ -35,17 +35,19 @@ test("simple 1 entry", () => {
     ],
   });
   expect(rule.entries.length).toBe(1);
-  expect(rule.entries[0]).toEqual(
-    new RuleEntry(
-      [
-        new SingleStroke(VirtualKeys.A, AndModifier.empty),
-        new SingleStroke(VirtualKeys.B, AndModifier.empty),
-      ],
-      "あ",
-      [],
-      false,
+  expect(
+    rule.entries[0].equals(
+      new RuleEntry(
+        [
+          new SingleStroke(VirtualKeys.A, AndModifier.empty),
+          new SingleStroke(VirtualKeys.B, AndModifier.empty),
+        ],
+        "あ",
+        [],
+        false,
+      ),
     ),
-  );
+  ).toBe(true);
 });
 
 test("simple 2 entries with modifier (unnecessary modifier)", () => {
@@ -85,30 +87,36 @@ test("simple 2 entries with modifier (unnecessary modifier)", () => {
     ],
   });
   expect(rule.entries.length).toBe(3);
-  expect(rule.entries[0]).toEqual(
-    new RuleEntry(
-      [
-        new SingleStroke(
-          VirtualKeys.A,
-          new AndModifier(new ModifierGroup(["ShiftLeft", "ShiftRight"])),
-        ),
-      ],
-      "あ",
-      [],
-      false,
+  expect(
+    rule.entries[0].equals(
+      new RuleEntry(
+        [
+          new SingleStroke(
+            VirtualKeys.A,
+            new AndModifier(new ModifierGroup(["ShiftLeft", "ShiftRight"])),
+          ),
+        ],
+        "あ",
+        [],
+        false,
+      ),
     ),
-  );
-  expect(rule.entries[1]).toEqual(
-    new RuleEntry([new SingleStroke(VirtualKeys.I, AndModifier.empty)], "い", [], false),
-  );
-  expect(rule.entries[2]).toEqual(
-    new RuleEntry(
-      [new SingleStroke(VirtualKeys.U, new AndModifier(new ModifierGroup(["ShiftLeft"])))],
-      "う",
-      [],
-      false,
+  ).toBe(true);
+  expect(
+    rule.entries[1].equals(
+      new RuleEntry([new SingleStroke(VirtualKeys.I, AndModifier.empty)], "い", [], false),
     ),
-  );
+  ).toBe(true);
+  expect(
+    rule.entries[2].equals(
+      new RuleEntry(
+        [new SingleStroke(VirtualKeys.U, new AndModifier(new ModifierGroup(["ShiftLeft"])))],
+        "う",
+        [],
+        false,
+      ),
+    ),
+  ).toBe(true);
 });
 
 test("simultaneous stroke, 1 entry, no modifier", () => {
@@ -129,9 +137,11 @@ test("simultaneous stroke, 1 entry, no modifier", () => {
   });
   // 新仕様: 複数キーは SimultaneousStroke 1 個として読み込まれる (相互モディファイア展開はしない)
   expect(rule.entries.length).toBe(1);
-  expect(rule.entries[0]).toEqual(
-    new RuleEntry([new SimultaneousStroke([VirtualKeys.A, VirtualKeys.B])], "あ", [], false),
-  );
+  expect(
+    rule.entries[0].equals(
+      new RuleEntry([new SimultaneousStroke([VirtualKeys.A, VirtualKeys.B])], "あ", [], false),
+    ),
+  ).toBe(true);
 });
 
 test("simultaneous stroke with modifier: 同時押し + 先押し modifier", () => {
@@ -153,19 +163,21 @@ test("simultaneous stroke with modifier: 同時押し + 先押し modifier", () 
     ],
   });
   expect(rule.entries.length).toBe(1);
-  expect(rule.entries[0]).toEqual(
-    new RuleEntry(
-      [
-        new SimultaneousStroke(
-          [VirtualKeys.A, VirtualKeys.B],
-          new AndModifier(new ModifierGroup([VirtualKeys.Space])),
-        ),
-      ],
-      "あ",
-      [],
-      false,
+  expect(
+    rule.entries[0].equals(
+      new RuleEntry(
+        [
+          new SimultaneousStroke(
+            [VirtualKeys.A, VirtualKeys.B],
+            new AndModifier(new ModifierGroup([VirtualKeys.Space])),
+          ),
+        ],
+        "あ",
+        [],
+        false,
+      ),
     ),
-  );
+  ).toBe(true);
 });
 
 test("simultaneous stroke followed by single-key stroke, 1 entry", () => {
@@ -190,17 +202,19 @@ test("simultaneous stroke followed by single-key stroke, 1 entry", () => {
   });
   // 新仕様: SimultaneousStroke と SingleStroke を並べた 1 エントリ
   expect(rule.entries.length).toBe(1);
-  expect(rule.entries[0]).toEqual(
-    new RuleEntry(
-      [
-        new SimultaneousStroke([VirtualKeys.A, VirtualKeys.B]),
-        new SingleStroke(VirtualKeys.C, AndModifier.empty),
-      ],
-      "あ",
-      [],
-      false,
+  expect(
+    rule.entries[0].equals(
+      new RuleEntry(
+        [
+          new SimultaneousStroke([VirtualKeys.A, VirtualKeys.B]),
+          new SingleStroke(VirtualKeys.C, AndModifier.empty),
+        ],
+        "あ",
+        [],
+        false,
+      ),
     ),
-  );
+  ).toBe(true);
 });
 
 describe("validation errors", () => {

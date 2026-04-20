@@ -45,7 +45,7 @@ function App() {
   const layout = useMemo(() => loadPresetKeyboardLayoutQwertyJis(), []);
   const physicalLayout = useMemo(() => loadPresetPhysicalKeyboardLayoutJis106(), []);
   const rule = useMemo(
-    () => loadPresetRuleJisKana().compose(createDirectInputRule(layout)),
+    () => loadPresetRuleJisKana().merge(createDirectInputRule(layout)),
     [layout],
   );
   const guideJisKana = useMemo(() => loadPresetKeyboardGuideJisKana(), []);

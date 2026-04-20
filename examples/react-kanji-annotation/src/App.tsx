@@ -23,7 +23,7 @@ function App() {
 
 function Typing(props: { layout: KeyboardLayout }) {
   const romanRule = useMemo(
-    () => loadPresetRuleRoman(props.layout).compose(createDirectInputRule(props.layout)),
+    () => loadPresetRuleRoman(props.layout).merge(createDirectInputRule(props.layout)),
     [props.layout],
   );
   const words = [

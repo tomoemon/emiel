@@ -10,11 +10,12 @@ import { build, type Automaton } from "../impl/buildAutomaton";
 import type { AutomatonState, HistoryEntry, InputHistoryEntry } from "./automatonState";
 import { InputEvent, InputStroke } from "./inputEvent";
 import { KeyboardState } from "./keyboardState";
+import type { Rule } from "./rule";
 import { VirtualKeys } from "./virtualKey";
 
 describe("Automaton with extensions", () => {
   const layout = loadPresetKeyboardLayoutQwertyJis();
-  const rule = loadPresetRuleRoman(layout).compose(createDirectInputRule(layout));
+  const rule = loadPresetRuleRoman(layout).merge(createDirectInputRule(layout));
 
   it("should work with default extension after build", () => {
     const automaton = build(rule, "こんにちは");
@@ -414,7 +415,7 @@ describe("Automaton currentRules with chained rule", () => {
   // ローマ字 rule と directInput rule を合成することで、"ABCあ" のような
   // 混在ワードを build すると位置ごとの rule が切り替わる。
   const layout = loadPresetKeyboardLayoutQwertyJis();
-  const romanRule = loadPresetRuleRoman(layout).compose(createDirectInputRule(layout));
+  const romanRule = loadPresetRuleRoman(layout).merge(createDirectInputRule(layout));
 
   test("returns origin rules that match the character type at each position", () => {
     const automaton = build(romanRule, "ABCあ");
@@ -472,5 +473,137 @@ describe("Roman rule with append preserves n/ん longest match", () => {
       { key: VirtualKeys.A, type: "keyup" },
     ]);
     expect(result2[0]).toBe("finished");
+  });
+});
+
+describe("RuleEntry.sources tagging on RulePrimitive", () => {
+  const layout = loadPresetKeyboardLayoutQwertyJis();
+
+  test("roman 単独の rule で build した automaton の全エッジの entry.sources は roman primitive のみ", () => {
+    const romanRule = loadPresetRuleRoman(layout);
+    const automaton = build(romanRule, "な");
+    const sourcesSet = new Set<unknown>();
+    const queue = [automaton.currentNode];
+    const visited = new Set();
+    while (queue.length > 0) {
+      const node = queue.shift();
+      if (!node || visited.has(node)) continue;
+      visited.add(node);
+      for (const edge of node.nextEdges) {
+        if (!edge.entry) continue;
+        for (const src of edge.entry.sources) sourcesSet.add(src);
+        queue.push(edge.next);
+      }
+    }
+    expect(sourcesSet.size).toBe(1);
+    expect(sourcesSet.has(romanRule)).toBe(true);
+  });
+
+  test("direct input 単独の rule で build した automaton の全エッジの entry.sources は direct input primitive のみ", () => {
+    const directRule = createDirectInputRule(layout);
+    const automaton = build(directRule, "A");
+    for (const edge of automaton.currentNode.nextEdges) {
+      expect(edge.entry?.sources).toEqual([directRule]);
+    }
+  });
+});
+
+describe("merge produces n+space merged edge across primitives", () => {
+  const layout = loadPresetKeyboardLayoutQwertyJis();
+  const romanRule = loadPresetRuleRoman(layout);
+  const directRule = createDirectInputRule(layout);
+  const composed = romanRule.merge(directRule);
+
+  test("'キャンペーン ' が N→Space の 2 打で完了する (n+space 結合エッジ)", () => {
+    const automaton = build(composed, "キャンペーン ");
+    const results = runInputsOn(automaton, [
+      { key: VirtualKeys.K, type: "keydown" },
+      { key: VirtualKeys.K, type: "keyup" },
+      { key: VirtualKeys.Y, type: "keydown" },
+      { key: VirtualKeys.Y, type: "keyup" },
+      { key: VirtualKeys.A, type: "keydown" },
+      { key: VirtualKeys.A, type: "keyup" },
+      { key: VirtualKeys.N, type: "keydown" },
+      { key: VirtualKeys.N, type: "keyup" },
+      { key: VirtualKeys.P, type: "keydown" },
+      { key: VirtualKeys.P, type: "keyup" },
+      { key: VirtualKeys.E, type: "keydown" },
+      { key: VirtualKeys.E, type: "keyup" },
+      { key: VirtualKeys.Minus, type: "keydown" },
+      { key: VirtualKeys.Minus, type: "keyup" },
+      // ここから末尾「ン 」を N + Space の 2 打で消化
+      { key: VirtualKeys.N, type: "keydown" },
+      { key: VirtualKeys.N, type: "keyup" },
+      { key: VirtualKeys.Space, type: "keydown" },
+      { key: VirtualKeys.Space, type: "keyup" },
+    ]);
+    expect(automaton.currentNode.isFinished).toBe(true);
+    // 最後の打鍵 (Space keyup) の直前 (Space keydown) で finished
+    expect(results[results.length - 2]).toBe("finished");
+  });
+
+  test("'キャンペーン ' は nn→Space の 3 打経路でも完了する (既存経路の維持)", () => {
+    const automaton = build(composed, "キャンペーン ");
+    runInputsOn(automaton, [
+      { key: VirtualKeys.K, type: "keydown" },
+      { key: VirtualKeys.K, type: "keyup" },
+      { key: VirtualKeys.Y, type: "keydown" },
+      { key: VirtualKeys.Y, type: "keyup" },
+      { key: VirtualKeys.A, type: "keydown" },
+      { key: VirtualKeys.A, type: "keyup" },
+      { key: VirtualKeys.N, type: "keydown" },
+      { key: VirtualKeys.N, type: "keyup" },
+      { key: VirtualKeys.P, type: "keydown" },
+      { key: VirtualKeys.P, type: "keyup" },
+      { key: VirtualKeys.E, type: "keydown" },
+      { key: VirtualKeys.E, type: "keyup" },
+      { key: VirtualKeys.Minus, type: "keydown" },
+      { key: VirtualKeys.Minus, type: "keyup" },
+      // 末尾「ン 」を nn + space の 3 打で消化
+      { key: VirtualKeys.N, type: "keydown" },
+      { key: VirtualKeys.N, type: "keyup" },
+      { key: VirtualKeys.N, type: "keydown" },
+      { key: VirtualKeys.N, type: "keyup" },
+      { key: VirtualKeys.Space, type: "keydown" },
+      { key: VirtualKeys.Space, type: "keyup" },
+    ]);
+    expect(automaton.currentNode.isFinished).toBe(true);
+  });
+
+  test("n+space 結合エッジの entry.sources は roman と direct input の両 primitive を含む", () => {
+    const automaton = build(composed, "ン ");
+    // 先頭ノードから出るエッジの中に「N+Space で ン  を1 entry で消化する」edge があるはず
+    const firstEdge = automaton.currentNode.nextEdges.find(
+      (e) => e.input.kind === "single" && e.input.key === VirtualKeys.N,
+    );
+    expect(firstEdge).toBeDefined();
+    if (!firstEdge) return;
+    // その先のエッジ (Space) の entry が合成エッジ (ん ) であることを確認
+    const spaceEdge = firstEdge.next.nextEdges.find(
+      (e) => e.input.kind === "single" && e.input.key === VirtualKeys.Space,
+    );
+    expect(spaceEdge).toBeDefined();
+    if (!spaceEdge) return;
+    // sources に両 primitive 含まれる
+    const sources = new Set<Rule>(spaceEdge.entry?.sources ?? []);
+    expect(sources.has(romanRule)).toBe(true);
+    expect(sources.has(directRule)).toBe(true);
+  });
+
+  test("automaton.inputHistory の完了打鍵の edge.entry.sources で由来を追跡できる", () => {
+    const automaton = build(composed, "ン ");
+    runInputsOn(automaton, [
+      { key: VirtualKeys.N, type: "keydown" },
+      { key: VirtualKeys.N, type: "keyup" },
+      { key: VirtualKeys.Space, type: "keydown" },
+      { key: VirtualKeys.Space, type: "keyup" },
+    ]);
+    expect(automaton.currentNode.isFinished).toBe(true);
+    const edgeEntries = inputEntries(automaton).filter((e) => e.edge);
+    expect(edgeEntries.length).toBeGreaterThan(0);
+    const lastEdge = edgeEntries[edgeEntries.length - 1].edge;
+    const sources = new Set<Rule>(lastEdge?.entry?.sources ?? []);
+    expect(sources.has(romanRule)).toBe(true);
+    expect(sources.has(directRule)).toBe(true);
   });
 });

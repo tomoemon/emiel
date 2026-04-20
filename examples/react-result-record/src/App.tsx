@@ -24,7 +24,7 @@ function App() {
 
 function TypingRoot(props: { layout: KeyboardLayout }) {
   const rule = useMemo(
-    () => loadPresetRuleRoman(props.layout).compose(createDirectInputRule(props.layout)),
+    () => loadPresetRuleRoman(props.layout).merge(createDirectInputRule(props.layout)),
     [props.layout],
   );
   const automatons = useMemo(() => {

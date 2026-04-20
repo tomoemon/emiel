@@ -1,5 +1,5 @@
 import { AutomatonImpl } from "../core/automaton";
-import { buildKanaNode, computeRulesByKanaIndex } from "../core/builderKanaGraph";
+import { buildKanaNode } from "../core/builderKanaGraph";
 import { buildStrokeNode } from "../core/builderStrokeGraph";
 import { logging } from "../core/logger";
 import type { normalizerFunc, Rule } from "../core/rule";
@@ -24,9 +24,8 @@ export function build(
   normalize: normalizerFunc = defaultComposedNormalize,
 ): Automaton {
   logBuild.log("start", { kanaText });
-  const { startNode: kanaStartNode, endNode } = buildKanaNode(rule, kanaText, normalize);
-  const rulesByKanaIndex = computeRulesByKanaIndex(kanaStartNode, endNode.startIndex, rule);
-  const automaton = new AutomatonImpl(kanaText, buildStrokeNode(endNode), rule, rulesByKanaIndex);
+  const { endNode } = buildKanaNode(rule, kanaText, normalize);
+  const automaton = new AutomatonImpl(kanaText, buildStrokeNode(endNode), rule);
   logBuild.log("done", { kanaText, endIndex: endNode.startIndex });
   return automaton.with(baseExtension);
 }

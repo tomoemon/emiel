@@ -25,9 +25,9 @@ const words = ["おをひく", "こんとん", "がっこう", "aから@"];
 function Typing(props: { layout: KeyboardLayout }) {
   // loadPresetRuleRoman は「ローマ字 → かな変換」だけの素の Rule を返す。
   // words に英字・記号（例: "aから@"）が含まれる場合は、直接入力 Rule を
-  // createDirectInputRule(layout) で作って compose する必要がある。
+  // createDirectInputRule(layout) で作って merge する必要がある。
   const romanRule = useMemo(
-    () => loadPresetRuleRoman(props.layout).compose(createDirectInputRule(props.layout)),
+    () => loadPresetRuleRoman(props.layout).merge(createDirectInputRule(props.layout)),
     [props.layout],
   );
   const [automatons] = useState(
