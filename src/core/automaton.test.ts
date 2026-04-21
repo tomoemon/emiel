@@ -607,3 +607,64 @@ describe("merge produces n+space merged edge across primitives", () => {
     expect(sources.has(directRule)).toBe(true);
   });
 });
+
+describe("merge: ん の直後が literal 'n' のときは 1 打短縮されない", () => {
+  // ruleExtender が n/ん を展開する際、takenStrokes に n 自身が含まれるため
+  // 先頭ストロークが n である direct input 'n' は結合候補にならない。
+  // よって「ん + literal n」は n 1 打では消化できず、nn/xn + n の計 3 打が必要。
+  const layout = loadPresetKeyboardLayoutQwertyJis();
+  const romanRule = loadPresetRuleRoman(layout);
+  const directRule = createDirectInputRule(layout);
+  const composed = romanRule.merge(directRule);
+
+  test("'ぱんn' は pa + nn + n の 5 打で完了する", () => {
+    const automaton = build(composed, "ぱんn");
+    const results = runInputsOn(automaton, [
+      { key: VirtualKeys.P, type: "keydown" },
+      { key: VirtualKeys.P, type: "keyup" },
+      { key: VirtualKeys.A, type: "keydown" },
+      { key: VirtualKeys.A, type: "keyup" },
+      { key: VirtualKeys.N, type: "keydown" },
+      { key: VirtualKeys.N, type: "keyup" },
+      { key: VirtualKeys.N, type: "keydown" },
+      { key: VirtualKeys.N, type: "keyup" },
+      { key: VirtualKeys.N, type: "keydown" },
+      { key: VirtualKeys.N, type: "keyup" },
+    ]);
+    expect(automaton.currentNode.isFinished).toBe(true);
+    expect(results.filter((r) => r === "failed").length).toBe(0);
+  });
+
+  test("'ぱんn' は pa + xn + n の 5 打でも完了する", () => {
+    const automaton = build(composed, "ぱんn");
+    const results = runInputsOn(automaton, [
+      { key: VirtualKeys.P, type: "keydown" },
+      { key: VirtualKeys.P, type: "keyup" },
+      { key: VirtualKeys.A, type: "keydown" },
+      { key: VirtualKeys.A, type: "keyup" },
+      { key: VirtualKeys.X, type: "keydown" },
+      { key: VirtualKeys.X, type: "keyup" },
+      { key: VirtualKeys.N, type: "keydown" },
+      { key: VirtualKeys.N, type: "keyup" },
+      { key: VirtualKeys.N, type: "keydown" },
+      { key: VirtualKeys.N, type: "keyup" },
+    ]);
+    expect(automaton.currentNode.isFinished).toBe(true);
+    expect(results.filter((r) => r === "failed").length).toBe(0);
+  });
+
+  test("'ぱんn' は pa + n + n の 4 打では完了しない (ん を 1 打では消化できない)", () => {
+    const automaton = build(composed, "ぱんn");
+    runInputsOn(automaton, [
+      { key: VirtualKeys.P, type: "keydown" },
+      { key: VirtualKeys.P, type: "keyup" },
+      { key: VirtualKeys.A, type: "keydown" },
+      { key: VirtualKeys.A, type: "keyup" },
+      { key: VirtualKeys.N, type: "keydown" },
+      { key: VirtualKeys.N, type: "keyup" },
+      { key: VirtualKeys.N, type: "keydown" },
+      { key: VirtualKeys.N, type: "keyup" },
+    ]);
+    expect(automaton.currentNode.isFinished).toBe(false);
+  });
+});
