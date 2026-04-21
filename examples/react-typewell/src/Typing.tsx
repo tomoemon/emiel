@@ -1,34 +1,35 @@
 import * as emiel from "emiel";
 import { useEffect, useState } from "react";
 import "./App.css";
+import type { WordAutomaton } from "./wordAutomaton";
 
-export function Typing(props: {
-  logicalWords: string[];
-  currentIndex: number;
-  automaton: emiel.Automaton;
-  onWordFinished: (a: emiel.Automaton, displayedAt: DOMHighResTimeStamp) => void;
-}) {
+export function Typing(props: { automaton: WordAutomaton; onFinished: () => void }) {
+  const { automaton, onFinished } = props;
   const [lastInputKey, setLastInputKey] = useState<emiel.InputStroke | undefined>();
-  const automaton = props.automaton;
   useEffect(() => {
-    const wordDisplayedAt = performance.now();
     return emiel.activate(window, (e) => {
-      setLastInputKey(e.input);
+      // keyup ごとの再レンダは不要（表示は keydown で更新済み）
+      if (e.input.type === "keydown") setLastInputKey(e.input);
       const result = automaton.input(e);
-      if (result.isFinished) {
-        props.onWordFinished(automaton, wordDisplayedAt);
-      }
+      if (result.isFinished) onFinished();
     });
+    // onFinished は親がインライン関数で渡すため毎レンダ参照が変わる。 automaton の
+    // 寿命中は同じ動作で良いのでクロージャに捕まえた初期参照で問題ない。
+    // biome-ignore lint/correctness/useExhaustiveDependencies: see comment above
   }, [automaton]);
+
   const view = automaton.currentView();
-  const currentFinished = view.finishedWord;
-  const currentPending = view.pendingWord.trimEnd();
+  const ranges = automaton.wordRanges();
+  const words = automaton.words();
+  const currentIndex = automaton.currentWordIndex();
+  const finishedLen = view.finishedWord.length;
 
   return (
     <>
       <h1 style={{ letterSpacing: "0.05em" }}>
-        {props.logicalWords.map((w, i) => {
-          if (i < props.currentIndex) {
+        {words.map((w, i) => {
+          const r = ranges[i];
+          if (i < currentIndex) {
             return (
               <span key={i} style={{ color: "#666" }}>
                 {i > 0 ? " " : ""}
@@ -36,18 +37,26 @@ export function Typing(props: {
               </span>
             );
           }
-          if (i === props.currentIndex) {
+          if (i === currentIndex) {
+            const localFinishedLen = Math.max(0, finishedLen - r.start);
+            const localFinished = w.slice(0, localFinishedLen);
+            const localPending = w.slice(localFinishedLen);
             return (
               <span key={i}>
                 {i > 0 ? " " : ""}
-                <span style={{ color: "#888" }}>{currentFinished}</span>
+                <span style={{ color: "#888" }}>{localFinished}</span>
                 <span style={{ color: "#f5a623", textDecoration: "underline" }}>
-                  {currentPending}
+                  {localPending}
                 </span>
               </span>
             );
           }
-          return <span key={i}> {w}</span>;
+          return (
+            <span key={i}>
+              {i > 0 ? " " : ""}
+              {w}
+            </span>
+          );
         })}
       </h1>
       <h2>

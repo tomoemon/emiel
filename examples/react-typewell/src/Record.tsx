@@ -1,68 +1,24 @@
-import type { Automaton, EventsView, InputEvent } from "emiel";
-import { getAccuracy, getKpm, getRkpm } from "emiel";
+import { getAccuracy, getKpm } from "emiel";
+import type { WordAutomaton } from "./wordAutomaton";
 
-export type WordRecordValue = {
-  automaton: Automaton;
-  displayedAt: DOMHighResTimeStamp;
-  logicalWord: string;
-};
-
-// 末尾スペース付きで build されたワード用。eventsView() の末尾成功打鍵
-// （= 末尾スペース確定打鍵、もしくは `n+space` edge の 2 打目 space）
-// を除外した集計を返す。
-// 末尾スペースの有無は `automaton.word` から自動判定する。
-function computeWordStats(automaton: Automaton): EventsView {
-  const base = automaton.eventsView();
-  if (!automaton.word.endsWith(" ")) return base;
-
-  const history = automaton.inputHistory;
-  let seenSucceeded = 0;
-  let newLastSucceeded: InputEvent | undefined;
-  for (let i = history.length - 1; i >= 0; i--) {
-    const entry = history[i];
-    if ("back" in entry) continue;
-    if (entry.result.isSucceeded) {
-      seenSucceeded++;
-      if (seenSucceeded === 2) {
-        newLastSucceeded = entry.event;
-        break;
-      }
-    }
-  }
-
-  if (!newLastSucceeded) return base;
-
-  return {
-    ...base,
-    succeededCount: base.succeededCount - 1,
-    lastSucceeded: newLastSucceeded,
-  };
-}
-
-export function Record(props: { wordRecords: WordRecordValue[] }) {
-  const records = props.wordRecords.map((record) => {
-    const events = computeWordStats(record.automaton);
-    const firstSucceededAt = events.firstSucceeded?.timestamp ?? 0;
-    const lastSucceededAt = events.lastSucceeded?.timestamp ?? 0;
-    const latency = firstSucceededAt - record.displayedAt;
-    const time = lastSucceededAt - firstSucceededAt;
-    const rkpm = getRkpm(events.succeededCount, firstSucceededAt, lastSucceededAt);
-    const kpm = getKpm(events.succeededCount, record.displayedAt, lastSucceededAt);
-    const accuracy = getAccuracy(events.failedCount, events.totalCount);
+export function Record(props: { automaton: WordAutomaton }) {
+  const words = props.automaton.words();
+  const perWord = props.automaton.eventsPerWord();
+  const records = perWord.map((w, i) => {
+    const firstTs = w.firstSucceeded?.timestamp ?? 0;
+    const lastTs = w.lastSucceeded?.timestamp ?? 0;
+    const time = lastTs - firstTs;
+    const kpm = time > 0 ? getKpm(w.succeededCount, firstTs, lastTs) : 0;
     return {
-      latency,
+      word: words[i],
       time,
       kpm,
-      rkpm,
-      events,
-      accuracy,
-      word: record.logicalWord,
+      miss: w.failedCount,
     };
   });
-  const totalLatency = records.reduce((acc, r) => acc + r.latency, 0);
-  const totalSucceededCount = records.reduce((acc, r) => acc + r.events.succeededCount, 0);
-  const totalFailedCount = records.reduce((acc, r) => acc + r.events.failedCount, 0);
-  const totalAccuracy = getAccuracy(totalFailedCount, totalSucceededCount);
+  const totalSucceeded = perWord.reduce((acc, w) => acc + w.succeededCount, 0);
+  const totalFailed = perWord.reduce((acc, w) => acc + w.failedCount, 0);
+  const totalAccuracy = getAccuracy(totalFailed, totalSucceeded);
   return (
     <div>
       <h1>Finished!</h1>
@@ -71,15 +27,11 @@ export function Record(props: { wordRecords: WordRecordValue[] }) {
           <tbody>
             <tr>
               <td>inputs</td>
-              <td>{totalSucceededCount}</td>
+              <td>{totalSucceeded}</td>
             </tr>
             <tr>
               <td>miss</td>
-              <td>{totalFailedCount}</td>
-            </tr>
-            <tr>
-              <td>avg latency</td>
-              <td>{Math.trunc(totalLatency / records.length)}ms</td>
+              <td>{totalFailed}</td>
             </tr>
             <tr>
               <td>accuracy</td>
@@ -89,14 +41,11 @@ export function Record(props: { wordRecords: WordRecordValue[] }) {
         </table>
       </div>
       <ul>
-        {records.map((r, index) => {
-          return (
-            <li key={index}>
-              {r.word} time:{Math.trunc(r.time)}ms kpm:{Math.trunc(r.kpm)} rkpm:
-              {Math.trunc(r.rkpm)} miss:{r.events.failedCount}
-            </li>
-          );
-        })}
+        {records.map((r, index) => (
+          <li key={index}>
+            {r.word} time:{Math.trunc(r.time)}ms kpm:{Math.trunc(r.kpm)} miss:{r.miss}
+          </li>
+        ))}
       </ul>
     </div>
   );

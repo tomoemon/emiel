@@ -1,20 +1,15 @@
-import type { Automaton, KeyboardLayout } from "emiel";
-import {
-  build,
-  createDirectInputRule,
-  detectKeyboardLayout,
-  loadPresetRuleRoman,
-  logging,
-} from "emiel";
+import type { KeyboardLayout } from "emiel";
+import { createDirectInputRule, detectKeyboardLayout, loadPresetRuleRoman, logging } from "emiel";
 import { useEffect, useMemo, useState } from "react";
 import "./App.css";
-import type { WordRecordValue } from "./Record";
 import { Record } from "./Record";
 import { Typing } from "./Typing";
+import { buildWords } from "./wordAutomaton";
 
 logging.enable("keyboard.*", "automaton.*");
 
-const LOGICAL_WORDS = ["キャンペーン", "かった", "hello", "pocket", "the Sun"];
+const LOGICAL_WORDS = ["キャンペーン", "かった", "pocket", "the Sun"];
+const SEPARATOR = " ";
 
 function App() {
   const [layout, setLayout] = useState<KeyboardLayout | undefined>();
@@ -29,31 +24,12 @@ function TypingRoot(props: { layout: KeyboardLayout }) {
     () => loadPresetRuleRoman(props.layout).merge(createDirectInputRule(props.layout)),
     [props.layout],
   );
-  const automatons = useMemo(() => {
-    return LOGICAL_WORDS.map((w, i) => {
-      const isLast = i === LOGICAL_WORDS.length - 1;
-      return build(rule, isLast ? w : `${w} `);
-    });
-  }, [rule]);
-  const [wordIndex, setWordIndex] = useState(0);
-  const [wordRecords, setWordRecords] = useState<WordRecordValue[]>([]);
-  const onWordFinished = (a: Automaton, displayedAt: DOMHighResTimeStamp) => {
-    const index = wordRecords.length;
-    setWordRecords((prev) => [
-      ...prev,
-      { automaton: a, displayedAt, logicalWord: LOGICAL_WORDS[index] },
-    ]);
-    setWordIndex((current) => current + 1);
-  };
-  return wordIndex >= automatons.length ? (
-    <Record wordRecords={wordRecords} />
+  const automaton = useMemo(() => buildWords(rule, LOGICAL_WORDS, SEPARATOR), [rule]);
+  const [finished, setFinished] = useState(false);
+  return finished ? (
+    <Record automaton={automaton} />
   ) : (
-    <Typing
-      logicalWords={LOGICAL_WORDS}
-      currentIndex={wordIndex}
-      automaton={automatons[wordIndex]}
-      onWordFinished={onWordFinished}
-    />
+    <Typing automaton={automaton} onFinished={() => setFinished(true)} />
   );
 }
 
