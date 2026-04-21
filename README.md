@@ -52,8 +52,8 @@ const romanRule = loadPresetRuleRoman(layout);
 // （"hello" のように英字・記号のみのワードや、"aから@" のように混ざるケースに対応）
 // かなの入力しかさせない場合はルールの合成は不要
 const directInputRule = createDirectInputRule(layout);
-// ２つのルールを合成してオートマトンを作成
-const rule = romanRule.compose(directInputRule);
+// ２つのルールを統合してオートマトンを作成
+const rule = romanRule.merge(directInputRule);
 const automaton = build(rule, "かった");
 
 // キーボードイベントを購読

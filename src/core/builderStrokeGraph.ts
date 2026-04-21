@@ -1,5 +1,6 @@
 import { setDefault } from "../utils/map";
 import type { KanaNode } from "./builderKanaGraph";
+import type { RuleEntry } from "./rule";
 import type { RuleStroke } from "./ruleStroke";
 
 /**
@@ -46,6 +47,12 @@ export class StrokeEdge {
     readonly previous: StrokeNode,
     /** 遷移先のノード */
     readonly next: StrokeNode,
+    /**
+     * この辺が由来する RuleEntry。
+     * 通常の edge では必ず設定される。backspace 用の sentinel edge のみ undefined。
+     * `edge.entry?.sources` で由来 RulePrimitive を辿れる。
+     */
+    readonly entry?: RuleEntry,
   ) {}
 }
 
@@ -89,7 +96,12 @@ export function buildStrokeNode(endKanaNode: KanaNode): StrokeNode {
               index === edgeInputs.length - 1
                 ? nextKanaStrokeNode
                 : new StrokeNode(edgeInputs[index + 1].kanaIndex, [], []);
-            const strokeEdge = new StrokeEdge(input.input, previousStrokeNode, nextStrokeNode);
+            const strokeEdge = new StrokeEdge(
+              input.input,
+              previousStrokeNode,
+              nextStrokeNode,
+              input.entry,
+            );
             previousStrokeNode.nextEdges.push(strokeEdge);
             nextStrokeNode.previousEdges.push(strokeEdge);
             previousStrokeNode = nextStrokeNode;

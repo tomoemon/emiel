@@ -21,7 +21,7 @@ function App() {
     const kanaLayout = loadPresetKeyboardLayoutQwertyJis();
     // 直接入力（英字・記号）は Dvorak 配列で物理キーに解決する。
     const alphaLayout = loadPresetKeyboardLayoutDvorak();
-    return loadPresetRuleRoman(kanaLayout).compose(createDirectInputRule(alphaLayout));
+    return loadPresetRuleRoman(kanaLayout).merge(createDirectInputRule(alphaLayout));
   }, []);
   const [automatons] = useState(words.map((w) => build(rule, w)));
   const [wordIndex, setWordIndex] = useState(0);

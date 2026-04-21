@@ -25,13 +25,11 @@ export class AutomatonImpl implements AutomatonState {
    * @param word かな文字列（配列定義 Rule で使用可能な文字で構成される文字列）
    * @param startNode 打鍵を受け付ける開始ノード
    * @param rule このAutomatonを生成した入力ルール
-   * @param rulesByKanaIndex 各 kanaIndex で適用可能な primitive 集合（剪定済みグラフから算出）
    */
   constructor(
     readonly word: string,
     readonly startNode: StrokeNode,
     readonly rule: Rule,
-    private readonly rulesByKanaIndex: readonly (readonly RulePrimitive[])[],
   ) {
     this.currentNode = startNode;
     this.committer = new BackspaceAwareCommitter(rule.backspaceStrokes);
@@ -57,13 +55,23 @@ export class AutomatonImpl implements AutomatonState {
     return this.committer.pendingKeys;
   }
   /**
-   * 現在の入力位置 (currentNode.kanaIndex) で適用可能なルール一覧。
-   * 合成された Rule では、この位置から入力を始めるエントリを提供した構成ルールが
-   * 合成順で列挙される。剪定済みグラフから算出されるので、実際にこの位置から
-   * 辿れるエッジを持つルールのみが含まれる。候補がない位置 (ワード完了後など) では空配列。
+   * 現在の入力位置で次に受理できる打鍵を提供するルール一覧。
+   * `currentNode.nextEdges[*].entry.sources` を union した、合成順 (merge 順) を
+   * 保つ unique 配列を返す。候補がない位置 (ワード完了後など) では空配列。
    */
   get currentRules(): readonly RulePrimitive[] {
-    return this.rulesByKanaIndex[this.currentNode.kanaIndex] ?? [];
+    const seen = new Set<RulePrimitive>();
+    const ordered: RulePrimitive[] = [];
+    for (const edge of this.currentNode.nextEdges) {
+      if (!edge.entry) continue;
+      for (const src of edge.entry.sources) {
+        if (!seen.has(src)) {
+          seen.add(src);
+          ordered.push(src);
+        }
+      }
+    }
+    return ordered;
   }
   /**
    * 入力状態をリセットする。
