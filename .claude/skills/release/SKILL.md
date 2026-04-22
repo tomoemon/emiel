@@ -1,8 +1,7 @@
 ---
 name: release
 description: リリース用のバージョン bump コミット + PR 作成を一括で行う
-argument-hint: [optional next-version like "0.4.0"]
-allowed-tools: Bash, Read, Edit, AskUserQuestion
+argument-hint: "[next-version] (例: 0.5.0)"
 ---
 
 # Release
