@@ -1,3 +1,44 @@
+# リリース手順
+
+emiel は `package.json` の version bump 経由でリリースする。 main に push されたタイミングで `package.json` の version に対応するタグが存在しない場合、 `.github/workflows/release-tag.yaml` が自動でタグを打ち GitHub release を作成する。 GitHub release が publish されると `.github/workflows/release.yaml` が npm publish を実行する。
+
+## 手順
+
+1. 作業ブランチで `package.json` の `version` を次のバージョンに書き換える
+   - `feat` が入っていれば minor bump (0.x 系では major 相当の破壊的変更でも minor)
+   - `fix` のみなら patch bump
+2. 「chore: release vX.Y.Z」コミットを作り push、PR を作成する
+3. CI (main branch workflow) が緑になったらマージする
+4. マージ後、 `release-tag` workflow がタグ作成 + GitHub release 作成を自動実行する
+5. release publish をトリガーに `release` workflow が npm publish を自動実行する
+
+## Claude Code の skill から行う場合
+
+`/release` skill (`.claude/skills/release/SKILL.md`) を使うと、ブランチ作成 → version bump → コミット → push → PR 作成までを一括で行える。
+
+## 注意
+
+- `release-tag` workflow は `package.json` の変更が main に到達した時にのみ発火する。 README など他ファイルの変更を同じ PR に混ぜても問題ないが、 1 リリース = 1 PR を推奨する
+- すでに同じバージョンのタグが存在する場合、 workflow は何もしない
+
+# コミットメッセージ
+
+Conventional Commits 形式を用いる:
+
+```
+<type>(<scope>)!: <subject>
+```
+
+- `type`: `feat` / `fix` / `chore` / `docs` / `refactor` / `test` / `perf` / `build` / `ci`
+- `scope`: 任意 (例: `rule`, `automaton`, `examples`)
+- `!`: 破壊的変更を示す
+- `subject`: 変更内容の短い説明 (日本語可)
+
+例:
+- `feat(rule)!: compose を merge にリネーム`
+- `fix(eventsView): first を keydown イベントに限定する`
+- `docs(readme): Examples に react-typewell を追加`
+
 # ローカルでの examples の動作確認
 
 pnpm workspace を使って、examples 側からローカルの emiel を参照しています。
