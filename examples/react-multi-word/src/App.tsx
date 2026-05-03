@@ -2,6 +2,7 @@ import type { Automaton, InputStroke, KeyboardLayout } from "emiel";
 import {
   activate,
   build,
+  createDirectInputRule,
   detectKeyboardLayout,
   loadPresetRuleRoman,
   logging,
@@ -44,7 +45,10 @@ function App() {
 }
 
 function Typing(props: { layout: KeyboardLayout }) {
-  const romanRule = useMemo(() => loadPresetRuleRoman(props.layout), [props.layout]);
+  const romanRule = useMemo(
+    () => loadPresetRuleRoman(props.layout).merge(createDirectInputRule(props.layout)),
+    [props.layout],
+  );
   const [selector, setSelector] = useState(
     () =>
       new MultiWordState(
@@ -81,7 +85,7 @@ function Typing(props: { layout: KeyboardLayout }) {
 
   return (
     <>
-      <ul style={{ display: "flex", gap: "2rem", listStyle: "none" }}>
+      <ul style={{ display: "flex", flexWrap: "wrap", gap: "2rem", listStyle: "none", padding: 0 }}>
         {[...selector.items]
           .sort((a, b) => a.getPosition() - b.getPosition())
           .map((a, i) => (
