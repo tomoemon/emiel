@@ -1,3 +1,5 @@
+[![Open in StackBlitz](https://developer.stackblitz.com/img/open_in_stackblitz.svg)](https://stackblitz.com/github/tomoemon/emiel/tree/stackblitz/examples/react-roman-or-kana)
+
 # 概要
 
 1 つのワードをローマ字入力とかな入力のどちらで入力することもできる例。

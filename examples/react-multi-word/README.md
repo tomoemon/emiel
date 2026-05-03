@@ -1,3 +1,5 @@
+[![Open in StackBlitz](https://developer.stackblitz.com/img/open_in_stackblitz.svg)](https://stackblitz.com/github/tomoemon/emiel/tree/stackblitz/examples/react-multi-word)
+
 # 概要
 
 複数のワードが同時に表示されて、任意のワードを打つことができる例。

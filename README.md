@@ -92,16 +92,22 @@ activate(window, (event) => {
 
 ## Examples
 
-- <a href="./examples/react-simple">react-simple</a> - 単語を次々と入力するシンプルなタイピング練習
-- <a href="./examples/react-backspace">react-backspace</a> - バックスペースの3つの実装パターン比較（全クリア/カウント/入力戻し）
-- <a href="./examples/react-roman-or-kana">react-roman-or-kana</a> - ローマ字入力とJISかな入力の両対応デュアル入力モード
-- <a href="./examples/react-mixed-guide">react-mixed-guide</a> - 漢字かな混じりテキストのローマ字入力
-- <a href="./examples/react-multi-word">react-multi-word</a> - 複数単語を同時表示するマルチターゲットタイピング
-- <a href="./examples/react-result-record">react-result-record</a> - タイピング成績（タイム・入力数）の記録・表示
-- <a href="./examples/react-typewell">react-typewell</a> - タイプウェル風の連続ワード入力（末尾「ん」1 打確定・ワード単位の KPM 集計）
-- <a href="./examples/react-keyboardguide">react-keyboardguide</a> - 物理キーボード配列・入力ガイドのビジュアライザー
-- <a href="./examples/react-stroke-graph">react-stroke-graph</a> - キー入力の状態遷移をグラフで可視化
-- <a href="./examples/cli">cli</a> - Node.js 環境でのオートマトン直接操作
+"Open in StackBlitz" をクリックすると、インストール不要でブラウザ上でコードを編集・実行できるオンライン環境が開きます。
+
+| Example | 説明 | |
+|---|---|:---:|
+| [react-simple](./examples/react-simple) | 単語を次々と入力するシンプルなタイピング練習 | [![Open in StackBlitz](https://developer.stackblitz.com/img/open_in_stackblitz_small.svg)](https://stackblitz.com/github/tomoemon/emiel/tree/stackblitz/examples/react-simple) |
+| [react-backspace](./examples/react-backspace) | バックスペースの3つの実装パターン比較（全クリア/カウント/入力戻し）| [![Open in StackBlitz](https://developer.stackblitz.com/img/open_in_stackblitz_small.svg)](https://stackblitz.com/github/tomoemon/emiel/tree/stackblitz/examples/react-backspace) |
+| [react-roman-or-kana](./examples/react-roman-or-kana) | ローマ字入力とJISかな入力の両対応デュアル入力モード | [![Open in StackBlitz](https://developer.stackblitz.com/img/open_in_stackblitz_small.svg)](https://stackblitz.com/github/tomoemon/emiel/tree/stackblitz/examples/react-roman-or-kana) |
+| [react-kanji-annotation](./examples/react-kanji-annotation) | 漢字かな混じりテキストのローマ字入力 | [![Open in StackBlitz](https://developer.stackblitz.com/img/open_in_stackblitz_small.svg)](https://stackblitz.com/github/tomoemon/emiel/tree/stackblitz/examples/react-kanji-annotation) |
+| [react-multi-word](./examples/react-multi-word) | 複数単語を同時表示するマルチターゲットタイピング | [![Open in StackBlitz](https://developer.stackblitz.com/img/open_in_stackblitz_small.svg)](https://stackblitz.com/github/tomoemon/emiel/tree/stackblitz/examples/react-multi-word) |
+| [react-result-record](./examples/react-result-record) | タイピング成績（タイム・入力数）の記録・表示 | [![Open in StackBlitz](https://developer.stackblitz.com/img/open_in_stackblitz_small.svg)](https://stackblitz.com/github/tomoemon/emiel/tree/stackblitz/examples/react-result-record) |
+| [react-typewell](./examples/react-typewell) | タイプウェル風の連続ワード入力（末尾「ん」1 打確定・ワード単位の KPM 集計）| [![Open in StackBlitz](https://developer.stackblitz.com/img/open_in_stackblitz_small.svg)](https://stackblitz.com/github/tomoemon/emiel/tree/stackblitz/examples/react-typewell) |
+| [react-keyboardguide](./examples/react-keyboardguide) | 物理キーボード配列・入力ガイドのビジュアライザー | [![Open in StackBlitz](https://developer.stackblitz.com/img/open_in_stackblitz_small.svg)](https://stackblitz.com/github/tomoemon/emiel/tree/stackblitz/examples/react-keyboardguide) |
+| [react-stroke-graph](./examples/react-stroke-graph) | キー入力の状態遷移をグラフで可視化 | [![Open in StackBlitz](https://developer.stackblitz.com/img/open_in_stackblitz_small.svg)](https://stackblitz.com/github/tomoemon/emiel/tree/stackblitz/examples/react-stroke-graph) |
+| [react-mixed-layout](./examples/react-mixed-layout) | かなと英字で異なるキーボードレイアウトを使う混在構成 | [![Open in StackBlitz](https://developer.stackblitz.com/img/open_in_stackblitz_small.svg)](https://stackblitz.com/github/tomoemon/emiel/tree/stackblitz/examples/react-mixed-layout) |
+| [react-mixed-input-guide](./examples/react-mixed-input-guide) | かな・英字混在ワードのキーボードガイド表示 | [![Open in StackBlitz](https://developer.stackblitz.com/img/open_in_stackblitz_small.svg)](https://stackblitz.com/github/tomoemon/emiel/tree/stackblitz/examples/react-mixed-input-guide) |
+| [cli](./examples/cli) | Node.js 環境でのオートマトン直接操作 | |
 
 # 特徴
 

@@ -1,3 +1,5 @@
+[![Open in StackBlitz](https://developer.stackblitz.com/img/open_in_stackblitz.svg)](https://stackblitz.com/github/tomoemon/emiel/tree/stackblitz/examples/react-kanji-annotation)
+
 # 概要
 
 課題文のかな文字とキー列だけでなく、漢字かな交じりの文の入力状態も表示する例。

@@ -1,3 +1,5 @@
+[![Open in StackBlitz](https://developer.stackblitz.com/img/open_in_stackblitz.svg)](https://stackblitz.com/github/tomoemon/emiel/tree/stackblitz/examples/react-result-record)
+
 # 概要
 
 入力した結果のリザルトを表示する例。

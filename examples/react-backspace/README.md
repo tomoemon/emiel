@@ -1,3 +1,5 @@
+[![Open in StackBlitz](https://developer.stackblitz.com/img/open_in_stackblitz.svg)](https://stackblitz.com/github/tomoemon/emiel/tree/stackblitz/examples/react-backspace)
+
 # 概要
 
 入力ミスがあったときに、ミスした分の入力を Backspace で消すまで次の正しい入力をさせない例。
