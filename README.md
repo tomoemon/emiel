@@ -121,7 +121,8 @@ activate(window, (event) => {
 | [react-stroke-graph](./examples/react-stroke-graph) | キー入力の状態遷移をグラフで可視化 | [![Open in StackBlitz](https://developer.stackblitz.com/img/open_in_stackblitz_small.svg)](https://stackblitz.com/github/tomoemon/emiel/tree/stackblitz/examples/react-stroke-graph) |
 | [react-mixed-layout](./examples/react-mixed-layout) | かなと英字で異なるキーボードレイアウトを使う混在構成 | [![Open in StackBlitz](https://developer.stackblitz.com/img/open_in_stackblitz_small.svg)](https://stackblitz.com/github/tomoemon/emiel/tree/stackblitz/examples/react-mixed-layout) |
 | [react-mixed-input-guide](./examples/react-mixed-input-guide) | かな・英字混在ワードのキーボードガイド表示 | [![Open in StackBlitz](https://developer.stackblitz.com/img/open_in_stackblitz_small.svg)](https://stackblitz.com/github/tomoemon/emiel/tree/stackblitz/examples/react-mixed-input-guide) |
-| [cli](./examples/cli) | Node.js 環境でのオートマトン直接操作 | |
+| [cli-simple](./examples/cli-simple) | ターミナルで実際にキーを叩いて遊べる対話型タイピングデモ | |
+| [cli-test](./examples/cli-test) | CLI で InputEvent を自前で作成してオートマトンを操作する例 | |
 
 # 特徴
 
