@@ -1,3 +1,5 @@
+[![Open in StackBlitz](https://developer.stackblitz.com/img/open_in_stackblitz.svg)](https://stackblitz.com/github/tomoemon/emiel/tree/stackblitz/examples/react-simple)
+
 # 概要
 
 シンプルなローマ字入力の例。
