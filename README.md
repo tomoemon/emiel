@@ -38,7 +38,6 @@ npm install emiel
 import {
   build,
   activate,
-  createDirectInputRule,
   detectKeyboardLayout,
   loadPresetRuleRoman,
 } from "emiel";
@@ -47,13 +46,7 @@ import {
 const layout = await detectKeyboardLayout(window);
 
 // ローマ字入力ルールを作成
-const romanRule = loadPresetRuleRoman(layout);
-// 英数字の直接入力ルールを作成
-// （"hello" のように英字・記号のみのワードや、"aから@" のように混ざるケースに対応）
-// かなの入力しかさせない場合はルールの合成は不要
-const directInputRule = createDirectInputRule(layout);
-// ２つのルールを統合してオートマトンを作成
-const rule = romanRule.merge(directInputRule);
+const rule = loadPresetRuleRoman(layout);
 const automaton = build(rule, "かった");
 
 // キーボードイベントを購読
@@ -65,6 +58,27 @@ activate(window, (event) => {
     console.log("入力完了!");
   }
 });
+```
+
+## 英字・記号を含むワードへの対応
+
+`"hello"` のように英字のみのワードや、`"webぺーじ"` のように英字とかなが混在するワードを扱う場合は、`createDirectInputRule` で作成した直接入力ルールをローマ字ルールに合成します。
+
+```typescript
+import {
+  build,
+  createDirectInputRule,
+  detectKeyboardLayout,
+  loadPresetRuleRoman,
+} from "emiel";
+
+const layout = await detectKeyboardLayout(window);
+
+const romanRule = loadPresetRuleRoman(layout);
+const directInputRule = createDirectInputRule(layout);
+const rule = romanRule.merge(directInputRule);
+const automaton = build(rule, "webぺーじ");
+// activate 以降は同じ
 ```
 
 ## レイテンシの計測
