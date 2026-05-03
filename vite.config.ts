@@ -16,7 +16,6 @@ export default defineConfig({
       formats: ["es"],
     },
     rolldownOptions: {
-      external: ["@base2/pretty-print-object"],
       output: {
         preserveModules: true,
         preserveModulesRoot: "src",
