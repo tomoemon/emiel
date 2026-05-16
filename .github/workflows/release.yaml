@@ -24,6 +24,7 @@ jobs:
         run: npm install -g npm@latest
       - run: pnpm i --frozen-lockfile
       - run: pnpm run lint
+      - run: pnpm run fmt:check
       - run: pnpm run test
       - run: pnpm run build
       - name: Sync package.json version with release tag
