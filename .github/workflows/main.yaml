@@ -23,5 +23,6 @@ jobs:
       - uses: pnpm/action-setup@b307475762933b98ed359c036b0e51f26b63b74b # v5.0.0
       - run: pnpm i
       - run: pnpm run lint
+      - run: pnpm run fmt:check
       - run: pnpm run test
       - run: pnpm run build:all
