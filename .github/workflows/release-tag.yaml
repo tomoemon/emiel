@@ -10,6 +10,9 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
+    outputs:
+      version: ${{ steps.version.outputs.value }}
+      created: ${{ steps.tag-check.outputs.exists == 'false' }}
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
@@ -34,3 +37,31 @@ jobs:
           git tag "v$VERSION"
           git push origin "v$VERSION"
           gh release create "v$VERSION" --title "v$VERSION" --generate-notes
+
+  publish:
+    needs: release-tag
+    # 新しいタグを作成した場合のみ publish する。GITHUB_TOKEN が起こした
+    # release イベントは別 workflow をトリガーしないため、publish は別
+    # workflow ではなく同一 workflow の後続ジョブとして実行する。
+    if: needs.release-tag.outputs.created == 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - name: Setup Node.js 24.x
+        uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6.3.0
+        with:
+          node-version: 24.x
+          registry-url: https://registry.npmjs.org
+      - uses: pnpm/action-setup@b307475762933b98ed359c036b0e51f26b63b74b # v5.0.0
+      - name: Upgrade npm for Trusted Publishing
+        run: npm install -g npm@latest
+      - run: pnpm i --frozen-lockfile
+      - run: pnpm run lint
+      - run: pnpm run fmt:check
+      - run: pnpm run test
+      - run: pnpm run build
+      - name: Publish to npm
+        run: npm publish --provenance --access public
