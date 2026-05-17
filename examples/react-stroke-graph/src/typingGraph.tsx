@@ -4,16 +4,29 @@ import type { Automaton, InputStroke } from "emiel";
 import { activate } from "emiel";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { buildGraphData } from "./graphData";
-import { cyStylesheet } from "./grpahStyle";
+import { getCyStylesheet } from "./grpahStyle";
 
 // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
 cytoscape.use(dagre);
+
+// OS のカラースキーム（ライト / ダーク）を監視し、変更に追従する
+function usePrefersDark() {
+  const [dark, setDark] = useState(() => window.matchMedia("(prefers-color-scheme: dark)").matches);
+  useEffect(() => {
+    const mql = window.matchMedia("(prefers-color-scheme: dark)");
+    const onChange = (e: MediaQueryListEvent) => setDark(e.matches);
+    mql.addEventListener("change", onChange);
+    return () => mql.removeEventListener("change", onChange);
+  }, []);
+  return dark;
+}
 
 export function TypingGraph(props: { automaton: Automaton; onFinished: () => void }) {
   const { automaton, onFinished } = props;
   const graphData = useMemo(() => buildGraphData(automaton.startNode), [automaton]);
   const htmlElem = useRef(null);
   const [, setLastInputKey] = useState<InputStroke | undefined>();
+  const dark = usePrefersDark();
   useEffect(() => {
     if (htmlElem.current === null) {
       return;
@@ -23,7 +36,7 @@ export function TypingGraph(props: { automaton: Automaton; onFinished: () => voi
       // @ts-expect-error rankDir is not defined in cytoscape
       layout: { name: "dagre", rankDir: "LR" },
       userZoomingEnabled: false,
-      style: cyStylesheet,
+      style: getCyStylesheet(dark),
     });
     cy.remove(cy.elements());
     cy.add([...graphData.nodes, ...graphData.edges]);
@@ -48,7 +61,7 @@ export function TypingGraph(props: { automaton: Automaton; onFinished: () => voi
         }
       }
     });
-  }, [automaton, graphData, onFinished]);
+  }, [automaton, graphData, onFinished, dark]);
 
   const view = automaton.currentView();
   return (
@@ -61,7 +74,7 @@ export function TypingGraph(props: { automaton: Automaton; onFinished: () => voi
         style={{
           width: "600px",
           height: "300px",
-          border: "1px solid white",
+          border: "1px solid #888",
           margin: "0 auto",
         }}
       />

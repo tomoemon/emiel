@@ -6,7 +6,7 @@ export function Word(props: { automaton: emiel.Automaton }) {
   return (
     <div
       style={{
-        border: "2px solid yellow",
+        border: "2px solid #888",
         paddingLeft: "3rem",
         paddingRight: "3rem",
       }}

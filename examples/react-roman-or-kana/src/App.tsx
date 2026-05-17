@@ -2,13 +2,14 @@ import type { Automaton, InputEvent, InputStroke, KeyboardLayout, Rule } from "e
 import {
   activate,
   build,
+  createDirectInputRule,
   detectKeyboardLayout,
   loadPresetRuleJisKana,
   loadPresetRuleRoman,
   logging,
   VirtualKeys,
 } from "emiel";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import "./App.css";
 
 logging.enable("keyboard.*", "automaton.*");
@@ -86,16 +87,27 @@ function App() {
 
 function Typing(props: { layout: KeyboardLayout }) {
   const words = ["おをひく", "こんとん", "がっこう", "aから@"];
-  const romanRule = useMemo(() => loadPresetRuleRoman(props.layout), [props.layout]);
-  const kanaRule = useMemo(() => loadPresetRuleJisKana(), []);
+  const directInputRule = useMemo(() => createDirectInputRule(props.layout), [props.layout]);
+  const romanRule = useMemo(
+    () => loadPresetRuleRoman(props.layout).merge(directInputRule),
+    [props.layout, directInputRule],
+  );
+  const kanaRule = useMemo(() => loadPresetRuleJisKana().merge(directInputRule), [directInputRule]);
   const [selectors, setSelectors] = useState<WordCandidates[]>(() =>
     words.map((w) => createCandidates(w, romanRule, kanaRule)),
   );
   const [lastInputKey, setLastInputKey] = useState<InputStroke | undefined>();
   const [wordIndex, setWordIndex] = useState(0);
+  // activate を打鍵ごとに再登録すると、その内部 KeyboardState がリセットされ、
+  // Shift など押しっぱなしの修飾キーの押下状態が失われてしまう（例: Shift を押した状態で
+  // 0 を打鍵しても「を」が修飾なし入力として failed になる）。
+  // そのためハンドラはマウント時に一度だけ登録し、最新の state は ref 経由で参照する。
+  const stateRef = useRef({ selectors, wordIndex });
+  stateRef.current = { selectors, wordIndex };
   useEffect(() => {
     return activate(window, (e) => {
       setLastInputKey(e.input);
+      const { selectors, wordIndex } = stateRef.current;
       if (e.input.key === VirtualKeys.Escape) {
         const reset = resetCandidates(selectors[wordIndex]);
         setSelectors((prev) => prev.map((c, i) => (i === wordIndex ? reset : c)));
@@ -126,7 +138,9 @@ function Typing(props: { layout: KeyboardLayout }) {
         setSelectors((prev) => prev.map((c, i) => (i === wordIndex ? next : c)));
       }
     });
-  }, [wordIndex, selectors, words.length]);
+    // マウント時に一度だけ登録する（依存配列は空）
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const wordCandidates = selectors[wordIndex];
   // finishedWord / pendingWord は word ベース表示で roman/kana どちらから
