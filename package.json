@@ -2,7 +2,7 @@
   "name": "emiel",
   "author": "tomoemon",
   "packageManager": "pnpm@11.1.2",
-  "version": "0.4.1",
+  "version": "0.4.2",
   "type": "module",
   "license": "MIT",
   "repository": {
