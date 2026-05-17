@@ -15,6 +15,7 @@ export { loadPresetKeyboardLayoutQwertyJis } from "./keyboardLayoutQwertyJis";
 export { loadPresetKeyboardLayoutQwertyUs } from "./keyboardLayoutQwertyUs";
 export { loadPresetKeyboardLayoutTomisukeJis } from "./keyboardLayoutTomisukeJis";
 export { loadPresetRuleAsuka123 } from "./ruleAsuka123";
+export { loadPresetRuleAsuka290 } from "./ruleAsuka290";
 export { loadPresetRuleAzikRomantable } from "./ruleAzikRomantable";
 export { loadPresetRuleJisKana } from "./ruleJisKana";
 export { loadPresetRuleNaginatashikiV15 } from "./ruleNaginatashikiV15";

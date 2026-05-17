@@ -2,6 +2,7 @@ import { expect, test } from "vitest";
 import {
   loadPresetKeyboardLayoutQwertyJis,
   loadPresetRuleAsuka123,
+  loadPresetRuleAsuka290,
   loadPresetRuleAzikRomantable,
   loadPresetRuleJisKana,
   loadPresetRuleNicola,
@@ -36,6 +37,11 @@ test("load nicola rule", () => {
 test("load asuka 123 rule", () => {
   const rule = loadPresetRuleAsuka123();
   expect(rule.entries.length).toBeGreaterThan(80);
+});
+
+test("load asuka 290 rule", () => {
+  const rule = loadPresetRuleAsuka290();
+  expect(rule.entries.length).toBeGreaterThan(100);
 });
 
 test("load shingeta rule", () => {
