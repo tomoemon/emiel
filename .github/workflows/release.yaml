@@ -3,6 +3,10 @@ name: release
 on:
   release:
     types: [published]
+  # release-tag workflow は GITHUB_TOKEN で GitHub release を作成するが、
+  # GITHUB_TOKEN が起こしたイベントは他の workflow をトリガーしない仕様の
+  # ため、上の release: published では起動しない。手動で publish できるよう
+  # workflow_dispatch を用意している。
   workflow_dispatch:
 
 jobs:
