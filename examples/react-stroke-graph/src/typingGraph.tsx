@@ -2,20 +2,16 @@ import cytoscape from "cytoscape";
 import dagre from "cytoscape-dagre";
 import type { Automaton, InputStroke } from "emiel";
 import { activate } from "emiel";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { buildGraphData } from "./graphData";
 import { cyStylesheet } from "./grpahStyle";
 
 // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
 cytoscape.use(dagre);
 
-export function TypingGraph(props: {
-  automaton: Automaton;
-  ruleName: string;
-  onFinished: () => void;
-}) {
-  const automaton = props.automaton;
-  const graphData = buildGraphData(automaton.startNode);
+export function TypingGraph(props: { automaton: Automaton; onFinished: () => void }) {
+  const { automaton, onFinished } = props;
+  const graphData = useMemo(() => buildGraphData(automaton.startNode), [automaton]);
   const htmlElem = useRef(null);
   const [, setLastInputKey] = useState<InputStroke | undefined>();
   useEffect(() => {
@@ -39,7 +35,7 @@ export function TypingGraph(props: {
       const result = automaton.input(e);
       console.log(e.input.key.toString(), e.input.type, result);
       if (result.isFinished) {
-        props.onFinished();
+        onFinished();
       } else if (result.isSucceeded) {
         const nodeId = graphData.nodesMap.get(automaton.currentNode);
         if (nodeId !== undefined) {
@@ -52,25 +48,23 @@ export function TypingGraph(props: {
         }
       }
     });
-  }, [props]);
+  }, [automaton, graphData, onFinished]);
 
   const view = automaton.currentView();
-  const finishedRomanSubstr = view.finishedRoman;
-  const pendingRomanSubstr = view.pendingRoman;
   return (
     <>
-      <h2>{props.ruleName}</h2>
-      <h1>
+      <p className="target-word">
         <span style={{ color: "gray" }}>{view.finishedWord}</span> {view.pendingWord}
-      </h1>
-      {finishedRomanSubstr || pendingRomanSubstr ? (
-        <h1>
-          <span style={{ color: "gray" }}>{finishedRomanSubstr}</span> {pendingRomanSubstr}
-        </h1>
-      ) : (
-        <></>
-      )}
-      <div ref={htmlElem} style={{ width: "600px", height: "300px", border: "1px solid white" }} />
+      </p>
+      <div
+        ref={htmlElem}
+        style={{
+          width: "600px",
+          height: "300px",
+          border: "1px solid white",
+          margin: "0 auto",
+        }}
+      />
     </>
   );
 }
