@@ -11,7 +11,7 @@
   "dependencies": {
     "cytoscape": "3.33.1",
     "cytoscape-dagre": "^2.5.0",
-    "emiel": "workspace:*",
+    "emiel": "^0.4.2",
     "react": "^19.2.4",
     "react-dom": "^19.2.4"
   },

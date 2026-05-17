@@ -8,7 +8,7 @@
     "dev": "node index.ts"
   },
   "dependencies": {
-    "emiel": "workspace:*"
+    "emiel": "^0.4.2"
   },
   "devDependencies": {
     "@types/node": "^22.0.0"
