@@ -3,6 +3,7 @@ import { createDirectInputRule } from "../impl/directInputRule";
 import { loadJsonRule } from "../impl/jsonRuleLoader";
 import {
   loadPresetKeyboardLayoutQwertyJis,
+  loadPresetRuleAsuka290,
   loadPresetRuleNaginatashikiV15,
   loadPresetRuleRoman,
 } from "../impl/presets";
@@ -605,6 +606,73 @@ describe("merge produces n+space merged edge across primitives", () => {
     const sources = new Set<Rule>(lastEdge?.entry?.sources ?? []);
     expect(sources.has(romanRule)).toBe(true);
     expect(sources.has(directRule)).toBe(true);
+  });
+});
+
+/**
+ * テストヘルパ: runInputsOn と同じだが、各 InputEvent に「その打鍵時点の
+ * KeyboardState のスナップショット」を渡す。browser/eventHandler.ts が
+ * `new KeyboardState([...keyboardState.downedKeys])` でコピーを渡しているのと
+ * 同じ挙動を再現する。
+ */
+function runInputsWithSnapshotOn(
+  automaton: Automaton,
+  events: { key: (typeof VirtualKeys)[keyof typeof VirtualKeys]; type: "keydown" | "keyup" }[],
+): string[] {
+  const state = new KeyboardState();
+  const results: string[] = [];
+  for (const ev of events) {
+    if (ev.type === "keydown") {
+      state.keydown(ev.key);
+    } else {
+      state.keyup(ev.key);
+    }
+    const result = automaton.input(
+      new InputEvent(
+        new InputStroke(ev.key, ev.type),
+        new KeyboardState([...state.downedKeys]),
+        performance.now(),
+      ),
+    );
+    results.push(result.toString());
+  }
+  return results;
+}
+
+describe("Automaton modifier 押しっぱなしでの連続入力 (飛鳥290 回帰)", () => {
+  const rule = loadPresetRuleAsuka290();
+
+  test("LangRight を押しっぱなしで S を 1 回打鍵すると 'お' が入力できる", () => {
+    const automaton = build(rule, "お");
+    const results = runInputsWithSnapshotOn(automaton, [
+      { key: VirtualKeys.LangRight, type: "keydown" },
+      { key: VirtualKeys.S, type: "keydown" },
+      { key: VirtualKeys.S, type: "keyup" },
+      { key: VirtualKeys.LangRight, type: "keyup" },
+    ]);
+    // LangRight を modifier として S 打鍵で「お」が確定する
+    expect(results[1]).toBe("finished");
+    expect(automaton.currentView().finishedWord).toBe("お");
+  });
+
+  test("LangRight を押しっぱなしで S を 2 回打鍵すると 'おお' が入力できる", () => {
+    const automaton = build(rule, "おお");
+    const results = runInputsWithSnapshotOn(automaton, [
+      { key: VirtualKeys.LangRight, type: "keydown" },
+      { key: VirtualKeys.S, type: "keydown" }, // 1 文字目の「お」
+      { key: VirtualKeys.S, type: "keyup" },
+      { key: VirtualKeys.S, type: "keydown" }, // 2 文字目の「お」
+      { key: VirtualKeys.S, type: "keyup" },
+      { key: VirtualKeys.LangRight, type: "keyup" },
+    ]);
+    // 1 回目の S keydown で 1 文字目の「お」が確定
+    expect(results[1]).toBe("kana_succeeded");
+    // 2 回目の S keydown で 2 文字目の「お」が確定し、ワードが完了する。
+    // LangRight を押しっぱなしのまま 2 回目の S を打鍵しても pending にならず
+    // 「お」が入力できることを確認する。
+    expect(results[3]).toBe("finished");
+    expect(automaton.currentNode.isFinished).toBe(true);
+    expect(automaton.currentView().finishedWord).toBe("おお");
   });
 });
 

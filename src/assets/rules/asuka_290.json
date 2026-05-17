@@ -1,8 +1,17 @@
 {
   "metadata": {
-    "name": "飛鳥123",
-    "url": "https://w.atwiki.jp/asuka-kana-layout/pages/23.html"
+    "name": "飛鳥290",
+    "url": "http://www.eurus.dti.ne.jp/~yfi/aska_arrangement/"
   },
+  "backspaces": [
+    {
+      "keys": ["Backslash"]
+    },
+    {
+      "keys": ["Backslash"],
+      "modifiers": [["LangRight"]]
+    }
+  ],
   "entries": [
     {
       "input": [{ "keys": ["Q"] }],
@@ -13,8 +22,24 @@
       "output": "ー"
     },
     {
+      "input": [{ "keys": ["E"] }],
+      "output": "じ"
+    },
+    {
       "input": [{ "keys": ["R"] }],
-      "output": "び"
+      "output": "ぴ"
+    },
+    {
+      "input": [{ "keys": ["T"] }],
+      "output": "％"
+    },
+    {
+      "input": [{ "keys": ["Y"] }],
+      "output": "−"
+    },
+    {
+      "input": [{ "keys": ["U"] }],
+      "output": "・"
     },
     {
       "input": [{ "keys": ["I"] }],
@@ -26,11 +51,15 @@
     },
     {
       "input": [{ "keys": ["P"] }],
-      "output": "ぽ"
+      "output": "へ"
     },
     {
       "input": [{ "keys": ["BracketLeft"] }],
       "output": "」"
+    },
+    {
+      "input": [{ "keys": ["BracketRight"] }],
+      "output": "￥"
     },
     {
       "input": [{ "keys": ["A"] }],
@@ -74,31 +103,27 @@
     },
     {
       "input": [{ "keys": ["Quote"] }],
-      "output": "ほ"
-    },
-    {
-      "input": [{ "keys": ["Backslash"] }],
-      "output": "・"
+      "output": "け"
     },
     {
       "input": [{ "keys": ["Z"] }],
-      "output": "じ"
+      "output": "ほ"
     },
     {
       "input": [{ "keys": ["X"] }],
-      "output": "ち"
+      "output": "せ"
     },
     {
       "input": [{ "keys": ["C"] }],
-      "output": "に"
+      "output": "み"
     },
     {
       "input": [{ "keys": ["V"] }],
-      "output": "り"
+      "output": "ぶ"
     },
     {
       "input": [{ "keys": ["B"] }],
-      "output": "ぶ"
+      "output": "び"
     },
     {
       "input": [{ "keys": ["N"] }],
@@ -118,31 +143,23 @@
     },
     {
       "input": [{ "keys": ["Slash"] }],
-      "output": "さ"
+      "output": "め"
     },
     {
-      "input": [{ "keys": ["Digit5"], "modifiers": [["LangLeft"]] }],
-      "output": "゛"
-    },
-    {
-      "input": [{ "keys": ["Digit7"], "modifiers": [["LangLeft"]] }],
-      "output": "’"
-    },
-    {
-      "input": [{ "keys": ["Digit9"], "modifiers": [["LangLeft"]] }],
-      "output": "￥"
+      "input": [{ "keys": ["JpnRo"] }],
+      "output": "，"
     },
     {
       "input": [{ "keys": ["Q"], "modifiers": [["LangLeft"]] }],
-      "output": "ぃ"
+      "output": "ざ"
     },
     {
       "input": [{ "keys": ["W"], "modifiers": [["LangLeft"]] }],
-      "output": "ひ"
+      "output": "ね"
     },
     {
       "input": [{ "keys": ["E"], "modifiers": [["LangLeft"]] }],
-      "output": "け"
+      "output": "え"
     },
     {
       "input": [{ "keys": ["R"], "modifiers": [["LangLeft"]] }],
@@ -154,7 +171,11 @@
     },
     {
       "input": [{ "keys": ["Y"], "modifiers": [["LangLeft"]] }],
-      "output": "ヴ"
+      "output": "ぇ"
+    },
+    {
+      "input": [{ "keys": ["U"], "modifiers": [["LangLeft"]] }],
+      "output": "ぃ"
     },
     {
       "input": [{ "keys": ["I"], "modifiers": [["LangLeft"]] }],
@@ -166,7 +187,15 @@
     },
     {
       "input": [{ "keys": ["P"], "modifiers": [["LangLeft"]] }],
-      "output": "へ"
+      "output": "！"
+    },
+    {
+      "input": [{ "keys": ["BracketLeft"], "modifiers": [["LangLeft"]] }],
+      "output": "）"
+    },
+    {
+      "input": [{ "keys": ["BracketRight"], "modifiers": [["LangLeft"]] }],
+      "output": "＿"
     },
     {
       "input": [{ "keys": ["A"], "modifiers": [["LangLeft"]] }],
@@ -174,19 +203,19 @@
     },
     {
       "input": [{ "keys": ["S"], "modifiers": [["LangLeft"]] }],
-      "output": "あ"
+      "output": "さ"
     },
     {
       "input": [{ "keys": ["D"], "modifiers": [["LangLeft"]] }],
-      "output": "が"
+      "output": "あ"
     },
     {
       "input": [{ "keys": ["F"], "modifiers": [["LangLeft"]] }],
-      "output": "ば"
+      "output": "り"
     },
     {
       "input": [{ "keys": ["G"], "modifiers": [["LangLeft"]] }],
-      "output": "ぇ"
+      "output": "ぉ"
     },
     {
       "input": [{ "keys": ["H"], "modifiers": [["LangLeft"]] }],
@@ -218,19 +247,19 @@
     },
     {
       "input": [{ "keys": ["X"], "modifiers": [["LangLeft"]] }],
-      "output": "ね"
+      "output": "ひ"
     },
     {
       "input": [{ "keys": ["C"], "modifiers": [["LangLeft"]] }],
-      "output": "せ"
+      "output": "ち"
     },
     {
       "input": [{ "keys": ["V"], "modifiers": [["LangLeft"]] }],
-      "output": "ぴ"
+      "output": "ば"
     },
     {
       "input": [{ "keys": ["B"], "modifiers": [["LangLeft"]] }],
-      "output": "ぉ"
+      "output": "ヴ"
     },
     {
       "input": [{ "keys": ["N"], "modifiers": [["LangLeft"]] }],
@@ -238,7 +267,7 @@
     },
     {
       "input": [{ "keys": ["M"], "modifiers": [["LangLeft"]] }],
-      "output": "え"
+      "output": "が"
     },
     {
       "input": [{ "keys": ["Comma"], "modifiers": [["LangLeft"]] }],
@@ -249,12 +278,16 @@
       "output": "。"
     },
     {
-      "input": [{ "keys": ["Digit2"], "modifiers": [["LangRight"]] }],
-      "output": "”"
+      "input": [{ "keys": ["Slash"], "modifiers": [["LangLeft"]] }],
+      "output": "？"
     },
     {
-      "input": [{ "keys": ["Digit8"], "modifiers": [["LangRight"]] }],
-      "output": "゜"
+      "input": [{ "keys": ["JpnRo"], "modifiers": [["LangLeft"]] }],
+      "output": "￥"
+    },
+    {
+      "input": [{ "keys": ["Q"], "modifiers": [["LangRight"]] }],
+      "output": "（"
     },
     {
       "input": [{ "keys": ["W"], "modifiers": [["LangRight"]] }],
@@ -269,20 +302,24 @@
       "output": "ぺ"
     },
     {
+      "input": [{ "keys": ["T"], "modifiers": [["LangRight"]] }],
+      "output": "＆"
+    },
+    {
       "input": [{ "keys": ["Y"], "modifiers": [["LangRight"]] }],
       "output": "ぢ"
     },
     {
       "input": [{ "keys": ["U"], "modifiers": [["LangRight"]] }],
-      "output": "ぬ"
+      "output": "〜"
     },
     {
       "input": [{ "keys": ["I"], "modifiers": [["LangRight"]] }],
-      "output": "ど"
+      "output": "そ"
     },
     {
       "input": [{ "keys": ["O"], "modifiers": [["LangRight"]] }],
-      "output": "め"
+      "output": "こ"
     },
     {
       "input": [{ "keys": ["P"], "modifiers": [["LangRight"]] }],
@@ -310,11 +347,11 @@
     },
     {
       "input": [{ "keys": ["G"], "modifiers": [["LangRight"]] }],
-      "output": "ぷ"
+      "output": "ぬ"
     },
     {
       "input": [{ "keys": ["H"], "modifiers": [["LangRight"]] }],
-      "output": "づ"
+      "output": "ぼ"
     },
     {
       "input": [{ "keys": ["J"], "modifiers": [["LangRight"]] }],
@@ -326,11 +363,11 @@
     },
     {
       "input": [{ "keys": ["L"], "modifiers": [["LangRight"]] }],
-      "output": "こ"
+      "output": "つ"
     },
     {
       "input": [{ "keys": ["Semicolon"], "modifiers": [["LangRight"]] }],
-      "output": "そ"
+      "output": "に"
     },
     {
       "input": [{ "keys": ["Quote"], "modifiers": [["LangRight"]] }],
@@ -338,7 +375,7 @@
     },
     {
       "input": [{ "keys": ["Z"], "modifiers": [["LangRight"]] }],
-      "output": "ぱ"
+      "output": "ぷ"
     },
     {
       "input": [{ "keys": ["X"], "modifiers": [["LangRight"]] }],
@@ -346,11 +383,15 @@
     },
     {
       "input": [{ "keys": ["C"], "modifiers": [["LangRight"]] }],
-      "output": "み"
+      "output": "ぱ"
     },
     {
       "input": [{ "keys": ["V"], "modifiers": [["LangRight"]] }],
-      "output": "ざ"
+      "output": "づ"
+    },
+    {
+      "input": [{ "keys": ["B"], "modifiers": [["LangRight"]] }],
+      "output": "＊"
     },
     {
       "input": [{ "keys": ["N"], "modifiers": [["LangRight"]] }],
@@ -362,7 +403,7 @@
     },
     {
       "input": [{ "keys": ["Comma"], "modifiers": [["LangRight"]] }],
-      "output": "つ"
+      "output": "ど"
     },
     {
       "input": [{ "keys": ["Period"], "modifiers": [["LangRight"]] }],
@@ -370,7 +411,11 @@
     },
     {
       "input": [{ "keys": ["Slash"], "modifiers": [["LangRight"]] }],
-      "output": "ぼ"
+      "output": "ぽ"
+    },
+    {
+      "input": [{ "keys": ["JpnRo"], "modifiers": [["LangRight"]] }],
+      "output": "／"
     }
   ]
 }
