@@ -38,11 +38,13 @@ jobs:
           git push origin "v$VERSION"
           gh release create "v$VERSION" --title "v$VERSION" --generate-notes
 
+  # GITHUB_TOKEN が起こした release イベントは別 workflow をトリガーしない
+  # ため、release 後に走らせたい処理 (publish / stackblitz 更新) はいずれも
+  # 別 workflow ではなく同一 workflow の後続ジョブとして実行する。
+
   publish:
     needs: release-tag
-    # 新しいタグを作成した場合のみ publish する。GITHUB_TOKEN が起こした
-    # release イベントは別 workflow をトリガーしないため、publish は別
-    # workflow ではなく同一 workflow の後続ジョブとして実行する。
+    # 新しいタグを作成した場合のみ publish する。
     if: needs.release-tag.outputs.created == 'true'
     runs-on: ubuntu-latest
     permissions:
@@ -65,3 +67,30 @@ jobs:
       - run: pnpm run build
       - name: Publish to npm
         run: npm publish --provenance --access public
+
+  update-stackblitz:
+    needs: release-tag
+    # 新しいタグを作成した場合のみ stackblitz 用ブランチを更新する。
+    if: needs.release-tag.outputs.created == 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    env:
+      VERSION: ${{ needs.release-tag.outputs.version }}
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - name: Update examples package.json
+        run: |
+          for pkg in examples/*/package.json; do
+            sed -i 's/"emiel": "workspace:\*"/"emiel": "^'"$VERSION"'"/' "$pkg"
+          done
+      - name: Remove pnpm-lock.yaml from examples
+        run: find examples -maxdepth 2 -name "pnpm-lock.yaml" -delete
+      - name: Push to stackblitz branch
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git checkout -B stackblitz
+          git add examples/
+          git commit -m "chore: prepare examples for stackblitz (v$VERSION)"
+          git push origin stackblitz --force
