@@ -66,6 +66,23 @@
 .controls button {
   padding: 0.15rem 0.6rem;
   font-size: 0.875rem;
+  border: 1px solid #646cff;
+  border-radius: 4px;
+  background-color: #646cff;
+  color: #fff;
+  cursor: pointer;
+}
+
+.controls button:hover:not(:disabled) {
+  background-color: #535bf2;
+  border-color: #535bf2;
+}
+
+.controls button:disabled {
+  border-color: #444;
+  background-color: #2a2a2a;
+  color: #777;
+  cursor: not-allowed;
 }
 
 /* 単語欄を改行して 1 段下に配置し、全単語が見える幅を確保する */
