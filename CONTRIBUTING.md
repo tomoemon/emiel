@@ -1,6 +1,6 @@
 # リリース手順
 
-emiel は `package.json` の version bump 経由でリリースする。 main に push されたタイミングで `package.json` の version に対応するタグが存在しない場合、 `.github/workflows/release-tag.yaml` が自動でタグを打ち GitHub release を作成する。 GitHub release が publish されると `.github/workflows/release.yaml` が npm publish を実行する。
+emiel は `package.json` の version bump 経由でリリースする。 main に push されたタイミングで `package.json` の version に対応するタグが存在しない場合、 `.github/workflows/release-tag.yaml` が自動でタグを打ち GitHub release を作成する。 GitHub release が publish されると `.github/workflows/npm-publish.yaml` が npm publish を実行する。
 
 ## 手順
 
