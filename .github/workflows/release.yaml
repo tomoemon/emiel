@@ -3,6 +3,7 @@ name: release
 on:
   release:
     types: [published]
+  workflow_dispatch:
 
 jobs:
   publish:
@@ -13,7 +14,12 @@ jobs:
       id-token: write
 
     steps:
+      # release イベントはタグを、workflow_dispatch は実行対象ブランチ
+      # (通常は main) をチェックアウトする。publish するバージョンは
+      # どちらの場合もチェックアウトした package.json から取得する。
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          ref: ${{ github.event.release.tag_name || github.ref }}
       - name: Setup Node.js 24.x
         uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6.3.0
         with:
@@ -27,10 +33,6 @@ jobs:
       - run: pnpm run fmt:check
       - run: pnpm run test
       - run: pnpm run build
-      - name: Sync package.json version with release tag
-        run: |
-          VERSION="${GITHUB_REF_NAME#v}"
-          npm version "$VERSION" --no-git-tag-version --allow-same-version
       - name: Publish to npm
-        if: github.event.release.prerelease == false
+        if: github.event_name == 'workflow_dispatch' || github.event.release.prerelease == false
         run: npm publish --provenance --access public
