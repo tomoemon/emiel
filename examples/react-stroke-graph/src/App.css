@@ -1,7 +1,7 @@
 #root {
   max-width: 1280px;
   margin: 0 auto;
-  padding: 2rem;
+  padding: 0.5rem 2rem;
   text-align: center;
 }
 
@@ -39,6 +39,60 @@
 
 .read-the-docs {
   color: #888;
+}
+
+.controls {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.25rem 1rem;
+  margin-bottom: 0.5rem;
+}
+
+/* 入力対象ワードの表示 */
+.target-word {
+  margin: 0.25rem 0;
+  font-size: 1.5rem;
+  font-weight: bold;
+}
+
+.controls label {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: 0.875rem;
+}
+
+.controls button {
+  padding: 0.15rem 0.6rem;
+  font-size: 0.875rem;
+  border: 1px solid #646cff;
+  border-radius: 4px;
+  background-color: #646cff;
+  color: #fff;
+  cursor: pointer;
+}
+
+.controls button:hover:not(:disabled) {
+  background-color: #535bf2;
+  border-color: #535bf2;
+}
+
+.controls button:disabled {
+  border-color: #444;
+  background-color: #2a2a2a;
+  color: #777;
+  cursor: not-allowed;
+}
+
+/* 単語欄を改行して 1 段下に配置し、全単語が見える幅を確保する */
+.controls .words-field {
+  flex-basis: 100%;
+  justify-content: center;
+}
+
+.controls .words-field input {
+  width: 24rem;
 }
 
 h1 {
