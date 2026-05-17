@@ -9,8 +9,8 @@ argument-hint: "[next-version] (例: 0.5.0)"
 emiel のリリース手順 (`CONTRIBUTING.md` の「リリース手順」) に沿って、
 `package.json` の version bump → release コミット → push → PR 作成 を一括で行う。
 
-PR がマージされると `.github/workflows/release-tag.yaml` が自動でタグと GitHub release を作成し、
-続いて `.github/workflows/npm-publish.yaml` が npm publish を実行する。
+PR がマージされると `.github/workflows/release.yaml` が自動でタグと GitHub release を作成し、
+続いて同一 workflow 内で npm publish と stackblitz ブランチ更新を実行する。
 
 ## 1. 事前チェック
 
@@ -94,10 +94,10 @@ v<version> リリース準備。 `package.json` の version を <old> → <new> 
 
 ## リリースフロー
 
-マージ後、以下が自動で走る:
+マージ後、`release` workflow が以下を自動で実行する:
 
-1. `release-tag` workflow がタグ `v<version>` を作成し GitHub release を生成
-2. `release` workflow が GitHub release の publish を検知して npm publish を実行
+1. タグ `v<version>` を作成し GitHub release を生成
+2. 後続ジョブで npm publish と stackblitz ブランチ更新を実行
 
 🤖 Generated with [Claude Code](https://claude.com/claude-code)
 ```
