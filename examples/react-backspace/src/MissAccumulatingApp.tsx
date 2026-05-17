@@ -1,17 +1,20 @@
 import type { InputStroke, KeyboardLayout } from "emiel";
-import { activate, build, loadPresetRuleRoman, VirtualKeys } from "emiel";
+import { activate, build, createDirectInputRule, loadPresetRuleRoman, VirtualKeys } from "emiel";
 import { useEffect, useMemo, useState } from "react";
 import { MissAccumulatingAutomaton } from "./MissAccumulatingAutomaton";
 
 export function MissAccumulatingApp(props: { layout: KeyboardLayout }) {
-  const romanRule = useMemo(() => loadPresetRuleRoman(props.layout), [props.layout]);
+  const rule = useMemo(
+    () => loadPresetRuleRoman(props.layout).merge(createDirectInputRule(props.layout)),
+    [props.layout],
+  );
   const words = useMemo(() => ["おをひく", "こんとん", "がっこう", "aから@"], []);
   const [index, setIndex] = useState(0);
   const [lastInputKey, setLastInputKey] = useState<InputStroke | undefined>();
 
   const wrappers = useMemo(
-    () => words.map((w) => new MissAccumulatingAutomaton(build(romanRule, w))),
-    [romanRule, words],
+    () => words.map((w) => new MissAccumulatingAutomaton(build(rule, w))),
+    [rule, words],
   );
   const wrapper = wrappers[index];
 
@@ -52,7 +55,7 @@ export function MissAccumulatingApp(props: { layout: KeyboardLayout }) {
           >
             {view.pendingRoman}
             <br />
-            <span style={{ color: "yellow" }}>
+            <span style={{ color: "#e5484d" }}>
               {wrapper.failedInputs
                 .map((f) =>
                   props.layout

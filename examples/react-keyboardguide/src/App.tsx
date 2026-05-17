@@ -232,10 +232,11 @@ function KeyCode(props: { placement: KeyPlacement; isKeyDowned: boolean }) {
         fontSize: "12pt",
         left: `${rect.x}px`,
         top: `${rect.y}px`,
-        border: "1px yellow solid",
+        border: "1px #888 solid",
         width: `${rect.width}px`,
         height: `${rect.height}px`,
-        backgroundColor: props.isKeyDowned ? "yellow" : "",
+        backgroundColor: props.isKeyDowned ? "#ffd000" : "",
+        color: props.isKeyDowned ? "#000" : undefined,
       }}
     >
       <span style={{ textAlign: "center", wordBreak: "break-all" }}>
@@ -259,10 +260,11 @@ function KeyWithLabel(props: { placement: KeyPlacement; isKeyDowned: boolean }) 
         fontSize: "12pt",
         left: `${rect.x}px`,
         top: `${rect.y}px`,
-        border: "1px yellow solid",
+        border: "1px #888 solid",
         width: `${rect.width}px`,
         height: `${rect.height}px`,
-        backgroundColor: props.isKeyDowned ? "yellow" : "",
+        backgroundColor: props.isKeyDowned ? "#ffd000" : "",
+        color: props.isKeyDowned ? "#000" : undefined,
       }}
     >
       <div
