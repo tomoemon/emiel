@@ -66,11 +66,11 @@ tt	っ	t
 ```typescript
 // 処理例: "ka" → RuleEntry
 const inputs: RuleStroke[][] = [...cols[0]].map((c) => 
-  toStrokesFromChar(layout, c)  // "k", "a" それぞれをRuleStrokeに変換
+  layout.getStrokesByChar(c)  // "k", "a" それぞれをRuleStrokeに変換
 );
 const output = cols[1];  // "か"
 const nextInput: RuleStroke[] = [...cols[2]].map((c) => 
-  toStrokesFromChar(layout, c)[0]
+  layout.getStrokesByChar(c)[0]
 );
 ```
 

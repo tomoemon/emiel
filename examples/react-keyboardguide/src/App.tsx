@@ -30,16 +30,13 @@ type GuideName = "direct_input" | "jis_106_jis_kana" | "jis_106_nicola";
 const KEY_SIZE = { keyWidth: 50, keyHeight: 50, gapX: 10, gapY: 10 };
 
 function App() {
-  const [keyboardState, setKeyboardState] = useState<KeyboardStateReader>(new KeyboardState([]));
+  const [keyboardState, setKeyboardState] = useState<KeyboardStateReader>(
+    () => new KeyboardState([]),
+  );
   useEffect(() => {
-    activate(window, (evt) => {
-      if (evt.input.type === "keydown") {
-        console.log("down", evt.input.key);
-        setKeyboardState(evt.keyboardState);
-      } else {
-        console.log("up", evt.input.key);
-        setKeyboardState(evt.keyboardState);
-      }
+    return activate(window, (evt) => {
+      console.log(evt.input.type === "keydown" ? "down" : "up", evt.input.key);
+      setKeyboardState(evt.keyboardState);
     });
   }, []);
   const [physicalLayoutName, setPhysicalLayoutName] = useState<PhysicalLayoutName>("jis_106");
@@ -50,9 +47,36 @@ function App() {
     <>
       <h1>Keyboard Guide</h1>
       <div style={{ height: "20px" }}></div>
-      <PhysicalLayoutSelector onLayoutChange={setPhysicalLayoutName} />
-      <LayoutSelector onLayoutChange={(layoutName: LayoutName) => setLayoutName(layoutName)} />
-      <GuideSelector onGuideChange={setGuideName} />
+      <Selector
+        title="物理配列"
+        options={[
+          { value: "jis_106", label: "JIS-106" },
+          { value: "us_101", label: "US-101" },
+          { value: "us_hhkb", label: "US-HHKB" },
+        ]}
+        value={physicalLayoutName}
+        onChange={setPhysicalLayoutName}
+      />
+      <Selector
+        title="英字配列"
+        options={[
+          { value: "qwerty-jis", label: "Qwerty-JIS" },
+          { value: "qwerty-us", label: "Qwerty-US" },
+          { value: "dvorak", label: "Dvorak" },
+        ]}
+        value={layoutName}
+        onChange={setLayoutName}
+      />
+      <Selector
+        title="配列ガイド"
+        options={[
+          { value: "direct_input", label: "英数字" },
+          { value: "jis_106_jis_kana", label: "JISかな" },
+          { value: "jis_106_nicola", label: "NICOLA" },
+        ]}
+        value={guideName}
+        onChange={setGuideName}
+      />
       <label>
         <input type="checkbox" onClick={(e) => setShowVirtualKeyCodes(e.currentTarget.checked)} />
         仮想キーコードの表示
@@ -69,92 +93,25 @@ function App() {
   );
 }
 
-function PhysicalLayoutSelector(props: {
-  onLayoutChange: (physicalLayoutName: PhysicalLayoutName) => void;
+function Selector<T extends string>(props: {
+  title: string;
+  options: { value: T; label: string }[];
+  value: T;
+  onChange: (value: T) => void;
 }) {
-  const [selected, setSelected] = useState(0);
   return (
-    <>
-      <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
-        <h3>物理配列</h3>
+    <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
+      <h3>{props.title}</h3>
+      {props.options.map((o) => (
         <button
-          className={selected === 0 ? "selected" : ""}
-          onClick={() => (props.onLayoutChange("jis_106"), setSelected(0))}
+          key={o.value}
+          className={props.value === o.value ? "selected" : ""}
+          onClick={() => props.onChange(o.value)}
         >
-          JIS-106
+          {o.label}
         </button>
-        <button
-          className={selected === 1 ? "selected" : ""}
-          onClick={() => (props.onLayoutChange("us_101"), setSelected(1))}
-        >
-          US-101
-        </button>
-        <button
-          className={selected === 2 ? "selected" : ""}
-          onClick={() => (props.onLayoutChange("us_hhkb"), setSelected(2))}
-        >
-          US-HHKB
-        </button>
-      </div>
-    </>
-  );
-}
-
-function LayoutSelector(props: { onLayoutChange: (layoutName: LayoutName) => void }) {
-  const [selected, setSelected] = useState(0);
-  return (
-    <>
-      <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
-        <h3>英字配列</h3>
-        <button
-          className={selected === 0 ? "selected" : ""}
-          onClick={() => (props.onLayoutChange("qwerty-jis"), setSelected(0))}
-        >
-          Qwerty-JIS
-        </button>
-        <button
-          className={selected === 1 ? "selected" : ""}
-          onClick={() => (props.onLayoutChange("qwerty-us"), setSelected(1))}
-        >
-          Qwerty-US
-        </button>
-        <button
-          className={selected === 2 ? "selected" : ""}
-          onClick={() => (props.onLayoutChange("dvorak"), setSelected(2))}
-        >
-          Dvorak
-        </button>
-      </div>
-    </>
-  );
-}
-
-function GuideSelector(props: { onGuideChange: (guideName: GuideName) => void }) {
-  const [selected, setSelected] = useState(0);
-  return (
-    <>
-      <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
-        <h3>配列ガイド</h3>
-        <button
-          className={selected === 0 ? "selected" : ""}
-          onClick={() => (props.onGuideChange("direct_input"), setSelected(0))}
-        >
-          英数字
-        </button>
-        <button
-          className={selected === 1 ? "selected" : ""}
-          onClick={() => (props.onGuideChange("jis_106_jis_kana"), setSelected(1))}
-        >
-          JISかな
-        </button>
-        <button
-          className={selected === 2 ? "selected" : ""}
-          onClick={() => (props.onGuideChange("jis_106_nicola"), setSelected(2))}
-        >
-          NICOLA
-        </button>
-      </div>
-    </>
+      ))}
+    </div>
   );
 }
 

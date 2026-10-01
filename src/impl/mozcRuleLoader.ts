@@ -21,9 +21,7 @@ export function loadMozcRule(
     ta	た
     tt	っ	t
     */
-  text = text.replace(/\r\n/g, "\n");
-  text = text.replace(/\r/g, "\n");
-  const lines = text.split("\n");
+  const lines = text.split(/\r\n?|\n/);
   const entries: RuleEntry[] = [];
   for (let line of lines) {
     line = line.trim();
@@ -38,9 +36,9 @@ export function loadMozcRule(
       cols.push("");
     }
     // キーボードレイアウトによっては1つの文字を打つために複数のキー候補がありえる
-    const inputs: RuleStroke[][] = [...cols[0]].map((c) => toStrokesFromChar(layout, c));
+    const inputs: RuleStroke[][] = [...cols[0]].map((c) => layout.getStrokesByChar(c));
     const output = cols[1];
-    const nextInput: RuleStroke[] = [...cols[2]].map((c) => toStrokesFromChar(layout, c)[0]);
+    const nextInput: RuleStroke[] = [...cols[2]].map((c) => layout.getStrokesByChar(c)[0]);
     Array.from(product(inputs)).forEach((input) => {
       entries.push(
         new RuleEntry(input, output, nextInput, !Array.from(output).some((v) => layout.hasChar(v))),
@@ -48,12 +46,4 @@ export function loadMozcRule(
     });
   }
   return new RulePrimitive(entries, metadata, undefined);
-}
-
-function toStrokesFromChar(layout: KeyboardLayout, key: string): RuleStroke[] {
-  const strokes = layout.getStrokesByChar(key);
-  if (!strokes) {
-    throw new Error("invalid key: " + key);
-  }
-  return strokes;
 }

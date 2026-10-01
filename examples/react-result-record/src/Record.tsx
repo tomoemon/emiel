@@ -15,7 +15,7 @@ export function Record(props: { wordRecords: WordRecordValue[] }) {
     const latency = firstSucceededAt - record.displayedAt;
     const rkpm = getRkpm(events.succeededCount, firstSucceededAt, lastSucceededAt);
     const kpm = getKpm(events.succeededCount, record.displayedAt, lastSucceededAt);
-    const accuracy = getAccuracy(events.failedCount, events.totalCount);
+    const accuracy = getAccuracy(events.failedCount, events.succeededCount);
     return {
       latency,
       kpm,

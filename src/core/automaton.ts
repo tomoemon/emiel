@@ -1,10 +1,10 @@
-import type { AutomatonState, HistoryEntry } from "./automatonState";
-import type { StrokeEdge, StrokeNode } from "./builderStrokeGraph";
 import {
-  BackspaceAwareCommitter,
-  type BackspaceAwareResult,
-  type CommittedStroke,
-} from "./committer";
+  type AutomatonState,
+  type HistoryEntry,
+  effectiveSucceededEntries,
+} from "./automatonState";
+import type { StrokeEdge, StrokeNode } from "./builderStrokeGraph";
+import { BackspaceAwareCommitter, type BackspaceAwareResult } from "./committer";
 import type { InputEvent } from "./inputEvent";
 import { InputResult } from "./inputResult";
 import { logging } from "./logger";
@@ -60,18 +60,7 @@ export class AutomatonImpl implements AutomatonState {
    * 保つ unique 配列を返す。候補がない位置 (ワード完了後など) では空配列。
    */
   get currentRules(): readonly RulePrimitive[] {
-    const seen = new Set<RulePrimitive>();
-    const ordered: RulePrimitive[] = [];
-    for (const edge of this.currentNode.nextEdges) {
-      if (!edge.entry) continue;
-      for (const src of edge.entry.sources) {
-        if (!seen.has(src)) {
-          seen.add(src);
-          ordered.push(src);
-        }
-      }
-    }
-    return ordered;
+    return [...new Set(this.currentNode.nextEdges.flatMap((edge) => edge.entry?.sources ?? []))];
   }
   /**
    * 入力状態をリセットする。
@@ -89,34 +78,18 @@ export class AutomatonImpl implements AutomatonState {
    * inputHistory に BackHistoryEntry を追記する（履歴は削除しない）。
    * startNode にいる場合は何もしない。
    *
-   * 実装: inputHistory を末尾から逆順に走査し、既出の back() で取り消し済みの
-   * 成功 edge を skip しながら、最初に見つかった未取り消しの成功 edge を取り消す。
+   * 実装: back() で取り消されていない成功 edge のうち最後のものを取り消す。
    */
   back(): void {
     if (this.currentNode === this.startNode) {
       logBack.log("ignored (at startNode)", { kanaIndex: this.currentNode.kanaIndex });
       return;
     }
-    let skip = 0;
-    for (let i = this.inputHistory.length - 1; i >= 0; i--) {
-      const entry = this.inputHistory[i];
-      if ("back" in entry) {
-        skip++;
-        continue;
-      }
-      if (entry.edge) {
-        if (skip > 0) {
-          skip--;
-          continue;
-        }
-        this.inputHistory.push({ back: true, undoneEdge: entry.edge });
-        this.currentNode = entry.edge.previous;
-        logBack.log("undone", {
-          kanaIndex: this.currentNode.kanaIndex,
-          undoneEdge: entry.edge,
-        });
-        break;
-      }
+    const undoneEdge = effectiveSucceededEntries(this.inputHistory).at(-1)?.edge;
+    if (undoneEdge) {
+      this.inputHistory.push({ back: true, undoneEdge });
+      this.currentNode = undoneEdge.previous;
+      logBack.log("undone", { kanaIndex: this.currentNode.kanaIndex, undoneEdge });
     }
     this.committer.reset();
   }
@@ -155,41 +128,22 @@ export class AutomatonImpl implements AutomatonState {
    */
   input(stroke: InputEvent): InputResult {
     const result = this.committer.feed(stroke, this.currentNode.nextEdges, this.rule);
-    switch (result.type) {
-      case "committed": {
-        const inputResult = this.consume(result.stroke);
-        this.inputHistory.push({
-          event: result.stroke.triggerEvent,
-          result: inputResult,
-          edge: result.stroke.edge,
-        });
-        logInput.log("committed", {
-          event: result.stroke.triggerEvent,
-          result: inputResult.toString(),
-        });
-        return inputResult;
-      }
-      case "backspace":
-        this.inputHistory.push({ event: stroke, result: InputResult.BACK });
-        logInput.log("backspace", { event: stroke });
-        return InputResult.BACK;
-      case "pending":
-        this.inputHistory.push({ event: stroke, result: InputResult.PENDING });
-        logInput.log("pending", { event: stroke });
-        return InputResult.PENDING;
-      case "failed":
-        this.inputHistory.push({ event: result.event, result: InputResult.FAILED });
-        logInput.log("failed", { event: result.event });
-        return InputResult.FAILED;
-      case "ignored":
-        this.inputHistory.push({ event: stroke, result: InputResult.IGNORED });
-        logInput.log("ignored", { event: stroke });
-        return InputResult.IGNORED;
+    const inputResult = this.resultToInputResult(result);
+    if (result.type === "committed") {
+      const { edge, triggerEvent: event } = result.stroke;
+      this.currentNode = edge.next;
+      this.inputHistory.push({ event, result: inputResult, edge });
+      logInput.log("committed", { event, result: inputResult.toString() });
+      return inputResult;
     }
+    const event = result.type === "failed" ? result.event : stroke;
+    this.inputHistory.push({ event, result: inputResult });
+    logInput.log(result.type, { event });
+    return inputResult;
   }
 
   /**
-   * CommitResult を副作用なしに InputResult へ変換する (testInput 用)。
+   * CommitResult を副作用なしに InputResult へ変換する。
    */
   private resultToInputResult(result: BackspaceAwareResult): InputResult {
     switch (result.type) {
@@ -204,16 +158,6 @@ export class AutomatonImpl implements AutomatonState {
       case "ignored":
         return InputResult.IGNORED;
     }
-  }
-
-  /**
-   * 確定したストロークを Automaton の状態に反映する。
-   */
-  private consume(committed: CommittedStroke): InputResult {
-    const edge = committed.edge;
-    const resultType = this.edgeToResultType(this.currentNode.kanaIndex, edge);
-    this.currentNode = edge.next;
-    return resultType;
   }
 
   private edgeToResultType(currentKanaIndex: number, acceptedEdge: StrokeEdge): InputResult {
@@ -242,7 +186,7 @@ export class AutomatonImpl implements AutomatonState {
   ): this & { [K in keyof T]: () => ReturnType<T[K]> } {
     const proxy = new Proxy(this, {
       get: (target, prop) => {
-        if (prop in extension) {
+        if (Object.hasOwn(extension, prop)) {
           return () => extension[prop as keyof T](this);
         }
         return target[prop as keyof typeof target];

@@ -31,10 +31,6 @@ export class KanaNode {
     const newNodes = this.nextEdges.filter((edge) => edge.next !== targetNode);
     this.nextEdges.splice(0, this.nextEdges.length, ...newNodes);
   }
-  /** このノードから先へ遷移する辺がないか（＝終端かどうか） */
-  isEnd(): boolean {
-    return this.nextEdges.length === 0;
-  }
 }
 
 /**
@@ -117,7 +113,11 @@ export function buildKanaNode(
 ): BuildKanaNodeResult {
   const normalizedKanaText = normalize(kanaText);
   // かなテキスト1文字1文字に対応する KanaNode を作成する
-  const kanaNodes = [...normalizedKanaText].map((_, i) => new KanaNode(i, [], []));
+  // (位置は substring / length と同じく UTF-16 コード単位で数える)
+  const kanaNodes = Array.from(
+    { length: normalizedKanaText.length },
+    (_, i) => new KanaNode(i, [], []),
+  );
   const endNode = new KanaNode(normalizedKanaText.length, [], []); // 終端ノード
   const kanaNodesWithEnd = [...kanaNodes, endNode];
   if (normalizedKanaText.length === 0) {

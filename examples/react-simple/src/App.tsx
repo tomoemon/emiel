@@ -30,11 +30,7 @@ function Typing(props: { layout: KeyboardLayout }) {
     () => loadPresetRuleRoman(props.layout).merge(createDirectInputRule(props.layout)),
     [props.layout],
   );
-  const [automatons] = useState(
-    words.map((w) => {
-      return build(romanRule, w);
-    }),
-  );
+  const [automatons] = useState(() => words.map((w) => build(romanRule, w)));
   const [wordIndex, setWordIndex] = useState(0);
   const [lastInputKey, setLastInputKey] = useState<InputStroke | undefined>();
   useEffect(() => {

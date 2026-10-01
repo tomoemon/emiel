@@ -13,6 +13,13 @@ import { MixedText, withMixedText } from "./MixedText";
 
 logging.enable("keyboard.*", "automaton.*");
 
+const words = [
+  new MixedText("お,を,ひ,く", "尾,を,引,く"),
+  new MixedText("こん,とん", "混,沌"),
+  new MixedText("がっ,こう", "学,校"),
+  new MixedText("a,か,ら,@", "a,か,ら,@"),
+];
+
 function App() {
   const [layout, setLayout] = useState<KeyboardLayout | undefined>();
   useEffect(() => {
@@ -26,13 +33,9 @@ function Typing(props: { layout: KeyboardLayout }) {
     () => loadPresetRuleRoman(props.layout).merge(createDirectInputRule(props.layout)),
     [props.layout],
   );
-  const words = [
-    new MixedText("お,を,ひ,く", "尾,を,引,く"),
-    new MixedText("こん,とん", "混,沌"),
-    new MixedText("がっ,こう", "学,校"),
-    new MixedText("a,か,ら,@", "a,か,ら,@"),
-  ];
-  const [automatons] = useState(words.map((w) => withMixedText(build(romanRule, w.kanaText), w)));
+  const [automatons] = useState(() =>
+    words.map((w) => withMixedText(build(romanRule, w.kanaText), w)),
+  );
   const [index, setIndex] = useState(0);
   const [lastInputKey, setLastInputKey] = useState<InputStroke | undefined>();
   useEffect(() => {

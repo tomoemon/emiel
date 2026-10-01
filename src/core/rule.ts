@@ -107,7 +107,7 @@ nk/ん/k
  * 入力ルールを表す公開 interface。唯一の実装クラスは `RulePrimitive`。
  * `merge` は両辺の生エントリ (`rawEntries`) を統合した単一 `RulePrimitive` を返す。
  */
-export interface Rule {
+export type Rule = {
   /** ルール名称や参照 URL 等 */
   readonly metadata: Metadata;
   /** backspace として扱うストローク群 */
@@ -130,7 +130,7 @@ export interface Rule {
    * も自動生成される。metadata と backspaceStrokes は this のものを採用する。
    */
   merge(other: Rule): RulePrimitive;
-}
+};
 
 /**
  * 1 つの primitive な入力定義。エントリと自身のメタデータを持つ。

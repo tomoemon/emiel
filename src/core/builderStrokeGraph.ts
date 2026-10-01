@@ -1,4 +1,4 @@
-import { setDefault } from "../utils/map";
+import { setDefaultFunc } from "../utils/map";
 import type { KanaNode } from "./builderKanaGraph";
 import type { RuleEntry } from "./rule";
 import type { RuleStroke } from "./ruleStroke";
@@ -70,15 +70,15 @@ export function buildStrokeNode(endKanaNode: KanaNode): StrokeNode {
       // console.log("searching", kanaNode.startIndex);
       kanaNode.previousEdges.forEach((edge) => {
         // console.log( edge.next.startIndex, "->", edge.previous.startIndex, edge.inputs);
-        const nextKanaStrokeNode = setDefault(
+        const nextKanaStrokeNode = setDefaultFunc(
           kanaStrokeNodeMap,
           kanaNode.startIndex,
-          new StrokeNode(kanaNode.startIndex, [], []),
+          () => new StrokeNode(kanaNode.startIndex, [], []),
         );
-        const previousKanaStrokeNode = setDefault(
+        const previousKanaStrokeNode = setDefaultFunc(
           kanaStrokeNodeMap,
           edge.previous.startIndex,
-          new StrokeNode(edge.previous.startIndex, [], []),
+          () => new StrokeNode(edge.previous.startIndex, [], []),
         );
         const edgeInputs = edge.inputs;
         // このエッジを経由して前のかなノードに到達した場合のコスト
@@ -122,5 +122,6 @@ export function buildStrokeNode(endKanaNode: KanaNode): StrokeNode {
     strokeNode.nextEdges.sort((a, b) => a.next.getCost() - b.next.getCost());
   });
 
-  return kanaStrokeNodeMap.get(0) as StrokeNode;
+  // 空文字列のワードではかなグラフに辺がないため、終端ノードのみの StrokeNode を返す
+  return setDefaultFunc(kanaStrokeNodeMap, 0, () => new StrokeNode(0, [], []));
 }

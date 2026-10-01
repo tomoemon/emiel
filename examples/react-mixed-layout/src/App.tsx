@@ -23,7 +23,7 @@ function App() {
     const alphaLayout = loadPresetKeyboardLayoutDvorak();
     return loadPresetRuleRoman(kanaLayout).merge(createDirectInputRule(alphaLayout));
   }, []);
-  const [automatons] = useState(words.map((w) => build(rule, w)));
+  const [automatons] = useState(() => words.map((w) => build(rule, w)));
   const [wordIndex, setWordIndex] = useState(0);
   const [lastInputKey, setLastInputKey] = useState<InputStroke | undefined>();
   useEffect(() => {

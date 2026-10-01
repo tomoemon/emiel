@@ -8,7 +8,7 @@ import {
   logging,
   VirtualKeys,
 } from "emiel";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import "./App.css";
 import { MultiWordState } from "./multiWordState";
 import { Word } from "./word";
@@ -57,13 +57,22 @@ function Typing(props: { layout: KeyboardLayout }) {
       ),
   );
   const [lastInputKey, setLastInputKey] = useState<InputStroke | undefined>();
+  // selector は打鍵ごとに作り直されるが、それを依存配列に入れて activate を再登録すると
+  // activate 内部の KeyboardState がリセットされ、押しっぱなしの Shift 等が失われる。
+  // そのためハンドラは一度だけ登録し、最新の selector は ref 経由で参照する。
+  const selectorRef = useRef(selector);
   useEffect(() => {
+    const update = (next: MultiWordState<PositionAutomaton>) => {
+      selectorRef.current = next;
+      setSelector(next);
+    };
     return activate(window, (e) => {
+      const selector = selectorRef.current;
       setLastInputKey(e.input);
       console.log("input:", e);
       if (e.input.key === VirtualKeys.Escape) {
         console.log("reset");
-        setSelector(selector.reset());
+        update(selector.reset());
         return;
       }
       const { next, succeeded, finished, failed } = selector.input(e);
@@ -79,9 +88,9 @@ function Typing(props: { layout: KeyboardLayout }) {
         const newAutomaton = withPosition(build(romanRule, wordGen.next().value), a.getPosition());
         result = result.replaced(a, newAutomaton);
       }
-      setSelector(result);
+      update(result);
     });
-  }, [selector, romanRule]);
+  }, [romanRule]);
 
   return (
     <>

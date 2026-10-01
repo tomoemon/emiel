@@ -1,15 +1,9 @@
 import * as v from "valibot";
 import { KeyboardLayout } from "../core/keyboardLayout";
+import { metadataSchema } from "../core/metadata";
 import { AndModifier, ModifierGroup } from "../core/modifier";
 import { SingleStroke } from "../core/ruleStroke";
 import { VirtualKeys, virtualKeySchema } from "../core/virtualKey";
-
-const metadataSchema = v.optional(
-  v.object({
-    name: v.optional(v.string()),
-    url: v.optional(v.string()),
-  }),
-);
 
 const jsonKeyboardLayoutSchema = v.object({
   metadata: metadataSchema,
