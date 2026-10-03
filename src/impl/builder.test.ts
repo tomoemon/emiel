@@ -1,6 +1,7 @@
 import { expect, test } from "vitest";
 import { VirtualKeys } from "..";
 import { buildKanaNode } from "../core/builderKanaGraph";
+import { build } from "./buildAutomaton";
 import type { SingleStroke } from "../core/ruleStroke";
 import { loadMozcRule } from "./mozcRuleLoader";
 import { loadPresetKeyboardLayoutQwertyJis } from "./presets";
@@ -45,4 +46,12 @@ x	あいう
   expect(startNode.nextEdges.length).toBe(1);
   expect((startNode.nextEdges[0].entries[0].input[0] as SingleStroke).key).toBe(VirtualKeys.X);
   expect(startNode.nextEdges[0].next).toBe(endNode);
+});
+
+test("空文字列のワードは入力完了状態の Automaton になる", () => {
+  const rule = loadMozcRule("a\tあ", loadPresetKeyboardLayoutQwertyJis());
+  const automaton = build(rule, "");
+  expect(automaton.currentNode.isFinished).toBe(true);
+  expect(automaton.currentView().finishedWord).toBe("");
+  expect(automaton.currentView().pendingWord).toBe("");
 });

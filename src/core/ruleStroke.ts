@@ -64,13 +64,7 @@ export class SimultaneousStroke {
       );
     }
     // 重複除去（集合意味論）
-    const dedup: VirtualKey[] = [];
-    for (const k of keys) {
-      if (!dedup.includes(k)) {
-        dedup.push(k);
-      }
-    }
-    this.keys = dedup;
+    this.keys = [...new Set(keys)];
   }
   /** 同種 (SimultaneousStroke) かつ keys 集合と requiredModifier が一致するとき true（順不同） */
   equals(other: RuleStroke): boolean {
@@ -88,25 +82,10 @@ export class SimultaneousStroke {
   }
 }
 
-/** RuleStroke が SingleStroke かどうかを判定する型ガード。 */
-export function isSingleStroke(stroke: RuleStroke): stroke is SingleStroke {
-  return stroke.kind === "single";
-}
-
-/** RuleStroke が SimultaneousStroke かどうかを判定する型ガード。 */
-export function isSimultaneousStroke(stroke: RuleStroke): stroke is SimultaneousStroke {
-  return stroke.kind === "simultaneous";
-}
-
 /** RuleStroke の種別を問わず、ルートとなるキー群（single: 主キー1つ / simultaneous: 全キー）を返す。 */
 export function ruleStrokeKeys(stroke: RuleStroke): readonly VirtualKey[] {
   if (stroke.kind === "single") {
     return [stroke.key];
   }
   return stroke.keys;
-}
-
-/** RuleStroke の romanChar を取得する。 */
-export function ruleStrokeRomanChar(stroke: RuleStroke): string {
-  return stroke.romanChar;
 }

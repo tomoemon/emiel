@@ -112,7 +112,7 @@ export const VirtualKey = {
    * 文字列から VirtualKey を取得する。未知のキー名を渡した場合は例外を投げる。
    */
   getFromString: (key: string) => {
-    if (key in VirtualKeys) {
+    if (Object.hasOwn(VirtualKeys, key)) {
       return key as VirtualKey;
     }
     throw new Error(`invalid key: ${key}`);
@@ -122,5 +122,5 @@ export const VirtualKey = {
 /** JSON ローダ等で VirtualKey を検証するための valibot スキーマ。 */
 export const virtualKeySchema = v.pipe(
   v.string(),
-  v.check((key) => key in VirtualKeys, "unknown virtual key"),
+  v.check((key) => Object.hasOwn(VirtualKeys, key), "unknown virtual key"),
 ) as v.GenericSchema<string, VirtualKey>;

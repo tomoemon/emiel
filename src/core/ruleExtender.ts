@@ -5,21 +5,7 @@ function unionSources(
   a: readonly RulePrimitive[],
   b: readonly RulePrimitive[],
 ): readonly RulePrimitive[] {
-  const seen = new Set<RulePrimitive>();
-  const result: RulePrimitive[] = [];
-  for (const s of a) {
-    if (!seen.has(s)) {
-      seen.add(s);
-      result.push(s);
-    }
-  }
-  for (const s of b) {
-    if (!seen.has(s)) {
-      seen.add(s);
-      result.push(s);
-    }
-  }
-  return result;
+  return [...new Set([...a, ...b])];
 }
 
 // プレフィックス競合の展開
@@ -71,19 +57,44 @@ export function expandPrefixRules(entries: RuleEntry[]): RuleEntry[] {
   return [...unextendable, ...resolvePrefixConflicts(extendable, entries)];
 }
 
-function strokeHash(...strokes: RuleStroke[]): string {
-  return strokes
-    .map((s) => {
-      if (s.kind === "single") {
-        return `sg:${s.key.toString()}/${s.requiredModifier.toString()}`;
-      }
-      // simultaneous: 順不同なのでキーをソートしてハッシュ化
-      return `sm:${[...s.keys]
-        .map((k) => k.toString())
-        .sort()
-        .join("+")}`;
-    })
-    .join("-");
+// 展開中は同じ RuleStroke / RuleEntry のハッシュを何度も参照するのでキャッシュする
+const strokeHashCache = new WeakMap<RuleStroke, string>();
+const prefixHashesCache = new WeakMap<RuleEntry, readonly string[]>();
+
+function strokeHash(s: RuleStroke): string {
+  let hash = strokeHashCache.get(s);
+  if (hash === undefined) {
+    hash =
+      s.kind === "single"
+        ? `sg:${s.key.toString()}/${s.requiredModifier.toString()}`
+        : // simultaneous: 順不同なのでキーをソートしてハッシュ化。
+          // requiredModifier が異なる同時押しを区別するため modifier も含める
+          `sm:${[...s.keys]
+            .map((k) => k.toString())
+            .sort()
+            .join("+")}/${s.requiredModifier.toString()}`;
+    strokeHashCache.set(s, hash);
+  }
+  return hash;
+}
+
+// entry.input の長さ n のプレフィックスのハッシュを [n - 1] に持つ配列を返す。
+// 末尾要素が input 全体のハッシュ。
+function prefixHashes(entry: RuleEntry): readonly string[] {
+  let hashes = prefixHashesCache.get(entry);
+  if (hashes === undefined) {
+    const acc: string[] = [];
+    for (const s of entry.input) {
+      acc.push(acc.length === 0 ? strokeHash(s) : `${acc[acc.length - 1]}-${strokeHash(s)}`);
+    }
+    hashes = acc;
+    prefixHashesCache.set(entry, hashes);
+  }
+  return hashes;
+}
+
+function inputHash(entry: RuleEntry): string {
+  return prefixHashes(entry)[entry.input.length - 1];
 }
 
 // Map 内で最初に見つかったプレフィックス競合を返す。
@@ -94,21 +105,26 @@ function findPrefixConflict(groups: Map<string, RuleEntry[]>): {
   hash: string;
   takenStrokes: Set<string>;
 } | null {
-  for (const [hash, entries] of groups) {
-    if (entries.length === 0) continue;
-    const inputLength = entries[0].input.length;
-    const takenStrokes = new Set<string>();
-    let hasConflict = false;
-    for (const otherGroup of groups.values()) {
-      for (const other of otherGroup) {
-        if (other.input.length <= inputLength) continue;
-        if (strokeHash(...other.input.slice(0, inputLength)) === hash) {
-          takenStrokes.add(strokeHash(other.input[inputLength]));
-          hasConflict = true;
+  // 全エントリの真のプレフィックス → その直後のストロークの集合
+  const nextStrokesByPrefix = new Map<string, Set<string>>();
+  for (const entries of groups.values()) {
+    for (const entry of entries) {
+      const hashes = prefixHashes(entry);
+      for (let n = 1; n < entry.input.length; n++) {
+        let nextStrokes = nextStrokesByPrefix.get(hashes[n - 1]);
+        if (!nextStrokes) {
+          nextStrokes = new Set();
+          nextStrokesByPrefix.set(hashes[n - 1], nextStrokes);
         }
+        nextStrokes.add(strokeHash(entry.input[n]));
       }
     }
-    if (hasConflict) {
+  }
+  for (const [hash, entries] of groups) {
+    if (entries.length === 0) continue;
+    const nextStrokes = nextStrokesByPrefix.get(hash);
+    if (nextStrokes) {
+      const takenStrokes = new Set(nextStrokes);
       takenStrokes.add(strokeHash(entries[0].input[0]));
       return { hash, takenStrokes };
     }
@@ -121,7 +137,7 @@ function findPrefixConflict(groups: Map<string, RuleEntry[]>): {
  * sources を union した新エントリで置き換える（重複エントリの sources 併合）。
  */
 function addOrMergeEntry(groups: Map<string, RuleEntry[]>, newEntry: RuleEntry): void {
-  const key = strokeHash(...newEntry.input);
+  const key = inputHash(newEntry);
   const arr = groups.get(key);
   if (!arr) {
     groups.set(key, [newEntry]);

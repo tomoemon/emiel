@@ -14,7 +14,6 @@ export class KeyboardLayout {
   /** 文字から、その文字を入力しうる SingleStroke 候補の一覧を引くインデックス */
   readonly strokesByChar: Map<string, SingleStroke[]>;
   private readonly charByStroke: Map<string, string>;
-  private readonly charByStrokeWithoutShift: Map<string, string>;
   constructor(
     /** レイアウトの名前や URL 等の付随情報 */
     readonly metadata: Metadata = emptyMetadata(),
@@ -25,11 +24,9 @@ export class KeyboardLayout {
   ) {
     this.strokesByChar = new Map();
     this.charByStroke = new Map();
-    this.charByStrokeWithoutShift = new Map();
     mapping.forEach(([char, stroke]) => {
       setDefault(this.strokesByChar, char, []).push(stroke);
-      setDefault(this.charByStroke, strokeToString(stroke, false, this.shiftKeys), char);
-      setDefault(this.charByStrokeWithoutShift, strokeToString(stroke, true, this.shiftKeys), char);
+      setDefault(this.charByStroke, strokeToString(stroke, this.shiftKeys), char);
     });
   }
   /**
@@ -57,7 +54,7 @@ export class KeyboardLayout {
    * SingleStroke に対応する文字を返す。定義がない場合は例外を投げる。
    */
   getCharByStroke(stroke: SingleStroke): string {
-    const char = this.charByStroke.get(strokeToString(stroke, false, this.shiftKeys));
+    const char = this.charByStroke.get(strokeToString(stroke, this.shiftKeys));
     if (char) {
       return char;
     }
@@ -71,14 +68,7 @@ export class KeyboardLayout {
   }
 }
 
-function strokeToString(
-  stroke: SingleStroke,
-  ignoreShift: boolean,
-  shiftKeys: VirtualKey[],
-): string {
-  if (ignoreShift) {
-    return stroke.key.toString();
-  }
+function strokeToString(stroke: SingleStroke, shiftKeys: VirtualKey[]): string {
   const mod = stroke.requiredModifier;
   return stroke.key.toString() + "\0" + shiftKeys.some((k) => mod.has(k));
 }

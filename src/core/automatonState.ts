@@ -88,3 +88,26 @@ export type AutomatonState = {
    */
   readonly inputHistory: ReadonlyArray<HistoryEntry>;
 };
+
+/** 遷移に使用された edge を持つ (= 成功した) InputHistoryEntry */
+export type SucceededHistoryEntry = InputHistoryEntry & { readonly edge: StrokeEdge };
+
+/**
+ * inputHistory から、back() で取り消されていない成功エントリを時系列順に導出する。
+ * - InputHistoryEntry(edge あり) → push
+ * - BackHistoryEntry → pop（直前の成功を取り消す）
+ * - それ以外 → 影響しない
+ */
+export function effectiveSucceededEntries(
+  history: ReadonlyArray<HistoryEntry>,
+): SucceededHistoryEntry[] {
+  const stack: SucceededHistoryEntry[] = [];
+  for (const entry of history) {
+    if ("back" in entry) {
+      stack.pop();
+    } else if (entry.edge) {
+      stack.push({ ...entry, edge: entry.edge });
+    }
+  }
+  return stack;
+}

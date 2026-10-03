@@ -1,8 +1,8 @@
 import { expect, test } from "vitest";
-import { AndModifier } from "./modifier";
+import { AndModifier, ModifierGroup } from "./modifier";
 import { RuleEntry } from "./rule";
 import { expandPrefixRules } from "./ruleExtender";
-import { SingleStroke } from "./ruleStroke";
+import { SimultaneousStroke, SingleStroke } from "./ruleStroke";
 import type { VirtualKey } from "./virtualKey";
 import { VirtualKeys } from "./virtualKey";
 
@@ -202,5 +202,23 @@ test("展開先候補がない場合は元エントリが削除される", () =>
   expect(n.length).toBe(0);
 
   // na, ni, nu はそのまま残る
+  expect(result.length).toBe(3);
+});
+
+test("requiredModifier が異なる同時押しはプレフィックス競合とみなさない", () => {
+  // [A+J] と Space 先押しの [A+J] は別ストローク。前者が後者を先頭に持つエントリの
+  // プレフィックスとして誤検出されると、[A+J] → ぎ が展開で消えてしまう
+  const aj = new SimultaneousStroke([VirtualKeys.A, VirtualKeys.J]);
+  const spaceAj = new SimultaneousStroke(
+    [VirtualKeys.A, VirtualKeys.J],
+    new AndModifier(new ModifierGroup([VirtualKeys.Space])),
+  );
+  const entries = [
+    new RuleEntry([aj], "ぎ", [], true),
+    new RuleEntry([spaceAj, s(VirtualKeys.K)], "ぜか", [], true),
+    new RuleEntry([s(VirtualKeys.K)], "か", [], true),
+  ];
+  const result = expandPrefixRules(entries);
+  expect(findByOutput(result, "ぎ").length).toBe(1);
   expect(result.length).toBe(3);
 });

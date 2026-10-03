@@ -1,9 +1,43 @@
-import type { InputStroke, KeyboardLayout } from "emiel";
-import { activate, build, createDirectInputRule, loadPresetRuleRoman, VirtualKeys } from "emiel";
+import type {
+  Automaton,
+  CurrentView,
+  InputEvent,
+  InputResult,
+  InputStroke,
+  KeyboardLayout,
+} from "emiel";
+import { activate, build, createDirectInputRule, loadPresetRuleRoman } from "emiel";
 import { useEffect, useMemo, useState } from "react";
-import { MissCountingAutomaton } from "./MissCountingAutomaton";
 
-export function MissCountingApp(props: { layout: KeyboardLayout }) {
+/** Miss*Automaton が共通で持つインターフェース */
+export type MissAutomaton = {
+  readonly failedInputs: readonly InputEvent[];
+  input(stroke: InputEvent): InputResult;
+  reset(): void;
+  currentView(): CurrentView;
+};
+
+/**
+ * ミス入力を表示用の文字に変換する。Shift+Space のように layout に定義のない組み合わせでは
+ * getCharByKey が例外を投げるので、Shift なしの文字 → キー名の順にフォールバックする。
+ */
+function failedInputChar(layout: KeyboardLayout, event: InputEvent): string {
+  const shifted = event.keyboardState.isAnyKeyDowned(...layout.shiftKeys);
+  for (const s of shifted ? [true, false] : [false]) {
+    try {
+      return layout.getCharByKey(event.input.key, s);
+    } catch {
+      // 次の候補を試す
+    }
+  }
+  return event.input.key.toString();
+}
+
+export function MissApp(props: {
+  layout: KeyboardLayout;
+  createWrapper: (automaton: Automaton) => MissAutomaton;
+}) {
+  const { createWrapper } = props;
   const rule = useMemo(
     () => loadPresetRuleRoman(props.layout).merge(createDirectInputRule(props.layout)),
     [props.layout],
@@ -13,8 +47,8 @@ export function MissCountingApp(props: { layout: KeyboardLayout }) {
   const [lastInputKey, setLastInputKey] = useState<InputStroke | undefined>();
 
   const wrappers = useMemo(
-    () => words.map((w) => new MissCountingAutomaton(build(rule, w))),
-    [rule, words],
+    () => words.map((w) => createWrapper(build(rule, w))),
+    [rule, words, createWrapper],
   );
   const wrapper = wrappers[index];
 
@@ -57,14 +91,7 @@ export function MissCountingApp(props: { layout: KeyboardLayout }) {
             <br />
             <span style={{ color: "#e5484d" }}>
               {wrapper.failedInputs
-                .map((f) =>
-                  props.layout
-                    .getCharByKey(
-                      f.input.key,
-                      f.keyboardState.isAnyKeyDowned(VirtualKeys.ShiftLeft, VirtualKeys.ShiftRight),
-                    )
-                    .replace(" ", "_"),
-                )
+                .map((f) => failedInputChar(props.layout, f).replace(" ", "_"))
                 .join("")}
             </span>
           </div>

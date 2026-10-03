@@ -1,5 +1,4 @@
-import type { AutomatonState } from "../core/automatonState";
-import type { StrokeEdge } from "../core/builderStrokeGraph";
+import { type AutomatonState, effectiveSucceededEntries } from "../core/automatonState";
 import type { InputEvent } from "../core/inputEvent";
 import type { RuleStroke } from "../core/ruleStroke";
 
@@ -49,31 +48,13 @@ export type EventsView = {
   totalCount: number;
 };
 
-/**
- * inputHistory からスタック的に有効な edge 列を導出する内部ヘルパー。
- * - InputHistoryEntry(edge あり) → push
- * - BackHistoryEntry → pop（直前の成功を取り消す）
- * - それ以外 → スタックに影響しない
- */
-function getEffectiveEdges(state: AutomatonState): StrokeEdge[] {
-  const stack: StrokeEdge[] = [];
-  for (const entry of state.inputHistory) {
-    if ("back" in entry) {
-      stack.pop();
-    } else if (entry.edge) {
-      stack.push(entry.edge);
-    }
-  }
-  return stack;
-}
-
 export function currentView(state: AutomatonState): CurrentView {
   const finishedWord = state.word.substring(0, state.currentNode.kanaIndex);
   const pendingWord = state.word.substring(state.currentNode.kanaIndex);
 
   const finishedStroke: RuleStroke[] = [];
   let finishedRoman = "";
-  for (const edge of getEffectiveEdges(state)) {
+  for (const { edge } of effectiveSucceededEntries(state.inputHistory)) {
     finishedStroke.push(edge.input);
     finishedRoman += edge.input.romanChar;
   }
@@ -99,50 +80,26 @@ export function currentView(state: AutomatonState): CurrentView {
 }
 
 export function eventsView(state: AutomatonState): EventsView {
-  // back() で取消された履歴位置を 1 パスで検出する
-  const backed = new Set<number>();
-  const successStack: number[] = [];
-  for (let i = 0; i < state.inputHistory.length; i++) {
-    const entry = state.inputHistory[i];
-    if ("back" in entry) {
-      const popped = successStack.pop();
-      if (popped !== undefined) {
-        for (let j = popped; j <= i; j++) {
-          backed.add(j);
-        }
-      }
-    } else if (entry.edge) {
-      successStack.push(i);
-    }
-  }
+  // 成功系は back() で取消されていないエントリだけを数える
+  const succeeded = effectiveSucceededEntries(state.inputHistory);
 
   let first: InputEvent | undefined;
   let last: InputEvent | undefined;
-  let firstSucceeded: InputEvent | undefined;
-  let lastSucceeded: InputEvent | undefined;
-  let succeededCount = 0;
   let failedCount = 0;
-  for (let i = 0; i < state.inputHistory.length; i++) {
-    const entry = state.inputHistory[i];
+  for (const entry of state.inputHistory) {
     if ("back" in entry) continue;
     if (!first && entry.event.input.type === "keydown") first = entry.event;
     last = entry.event;
-    if (entry.result.isFailed) {
-      failedCount++;
-    } else if (entry.result.isSucceeded && !backed.has(i)) {
-      succeededCount++;
-      if (!firstSucceeded) firstSucceeded = entry.event;
-      lastSucceeded = entry.event;
-    }
+    if (entry.result.isFailed) failedCount++;
   }
 
   return {
     first,
     last,
-    firstSucceeded,
-    lastSucceeded,
-    succeededCount,
+    firstSucceeded: succeeded[0]?.event,
+    lastSucceeded: succeeded.at(-1)?.event,
+    succeededCount: succeeded.length,
     failedCount,
-    totalCount: succeededCount + failedCount,
+    totalCount: succeeded.length + failedCount,
   };
 }

@@ -1,6 +1,6 @@
 import * as v from "valibot";
 import type { Metadata } from "../core/metadata";
-import { emptyMetadata } from "../core/metadata";
+import { emptyMetadata, metadataSchema } from "../core/metadata";
 import { AndModifier, ModifierGroup } from "../core/modifier";
 import { RuleEntry, RulePrimitive } from "../core/rule";
 import { SingleStroke, type RuleStroke, SimultaneousStroke } from "../core/ruleStroke";
@@ -30,13 +30,6 @@ const commentOnlyEntrySchema = v.object({
 });
 
 const entrySchema = v.union([entryWithInputSchema, commentOnlyEntrySchema]);
-
-const metadataSchema = v.optional(
-  v.object({
-    name: v.optional(v.string()),
-    url: v.optional(v.string()),
-  }),
-);
 
 /** `loadJsonRule` が受け付けるルール JSON の valibot スキーマ。 */
 export const jsonRuleSchema = v.object({
@@ -88,7 +81,7 @@ function loadStroke(jsonStroke: Stroke): RuleStroke {
  *    output: [SingleStroke(A, shift)]
  */
 function loadInput(input: Stroke[]): RuleStroke[] {
-  return input.map((v) => loadStroke(v));
+  return input.map(loadStroke);
 }
 
 function loadEntries(
@@ -108,7 +101,7 @@ function loadEntries(
         input,
         output,
         nextInput,
-        v.extendCommonPrefixEntry ?? jsonExtendablePrefixCommon ?? false,
+        v.extendCommonPrefixEntry ?? jsonExtendablePrefixCommon,
       ),
     );
   });
@@ -130,9 +123,7 @@ export function loadJsonRule(
   const entries = loadEntries(validated.entries, validated.extendCommonPrefixEntry ?? false);
   // JSON に backspaces フィールドが無い場合は undefined を渡して RulePrimitive 側のデフォルト
   // (VirtualKeys.Backspace 単独打鍵) を適用する。空配列を指定した場合は backspace 無効
-  const backspaceStrokes: RuleStroke[] | undefined = validated.backspaces?.map((s) =>
-    loadStroke(s),
-  );
+  const backspaceStrokes: RuleStroke[] | undefined = validated.backspaces?.map(loadStroke);
   // パラメータの metadata が空なら JSON 内の metadata を使用
   const resolvedMetadata: Metadata = {
     name: metadata.name || validated.metadata?.name || "",

@@ -1,3 +1,5 @@
+import * as v from "valibot";
+
 /**
  * ルールやキーボードレイアウト等に付与する、名称と参照 URL のメタデータ。
  */
@@ -12,3 +14,11 @@ export type Metadata = {
 export function emptyMetadata(): Metadata {
   return { name: "", url: "" };
 }
+
+/** JSON 定義ファイル内の metadata フィールドのスキーマ (name, url ともに省略可)。 */
+export const metadataSchema = v.optional(
+  v.object({
+    name: v.optional(v.string()),
+    url: v.optional(v.string()),
+  }),
+);

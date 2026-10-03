@@ -1,7 +1,7 @@
 import { StrokeEdge, StrokeNode } from "./builderStrokeGraph";
 import type { InputEvent } from "./inputEvent";
 import type { Rule } from "./rule";
-import type { RuleStroke, SimultaneousStroke } from "./ruleStroke";
+import type { RuleStroke } from "./ruleStroke";
 import type { VirtualKey } from "./virtualKey";
 
 /**
@@ -132,23 +132,10 @@ export class StrokeCommitter {
     const simFull: StrokeEdge[] = [];
     const simPartial: StrokeEdge[] = [];
     for (const edge of edges) {
-      if (edge.input.kind !== "simultaneous") {
-        continue;
-      }
-      // modifier が先押しされていなければこの sim は候補外
-      if (!edge.input.requiredModifier.accept(event.keyboardState)) {
-        continue;
-      }
-      const simKeys = edge.input.keys;
-      const nonModifierPending = pendingDown.filter(
-        (k) => !(edge.input as SimultaneousStroke).requiredModifier.has(k),
-      );
-      if (simKeys.length === nonModifierPending.length && isSubset(nonModifierPending, simKeys)) {
+      const match = matchSimultaneous(edge.input, pendingDown, event);
+      if (match === "full") {
         simFull.push(edge);
-      } else if (
-        nonModifierPending.length < simKeys.length &&
-        isSubset(nonModifierPending, simKeys)
-      ) {
+      } else if (match === "partial") {
         simPartial.push(edge);
       }
     }
@@ -161,8 +148,6 @@ export class StrokeCommitter {
       .filter((m) => m.result.type === "matched")
       .map((m) => ({ edge: m.edge, keyCount: m.result.keyCount }));
     const singleHasModified = singleResults.some((m) => m.result.type === "modified");
-
-    const otherMatched = matchOtherEdge(event, rule, edges);
 
     // (1) 同時押しの候補がまだ延長されうる (partial) 場合は pending
     //     単打の commit 候補があれば、keyup で救済するため tentative としてステージする
@@ -182,6 +167,7 @@ export class StrokeCommitter {
     }
 
     // (3) 以降は同時押しが関わらないケース。SingleStroke の旧ロジックを踏襲する
+    const otherMatched = matchOtherEdge(event, rule, edges);
     if (singleMatched.length > 0) {
       const top = singleMatched[0];
       // 他ルートがより強くマッチする場合は失敗
@@ -239,18 +225,11 @@ export class StrokeCommitter {
 
     // (A) 同時押しの完全一致判定 (リリース直前の状態で)
     //     requiredModifier を考慮して pendingDown から modifier キーを除いた集合で比較する
-    for (const edge of edges) {
-      if (edge.input.kind !== "simultaneous") {
-        continue;
-      }
-      const sim = edge.input;
-      if (!sim.requiredModifier.accept(event.keyboardState)) {
-        continue;
-      }
-      const nonModifierPending = preReleasePending.filter((k) => !sim.requiredModifier.has(k));
-      if (sim.keys.length === nonModifierPending.length && isSubset(nonModifierPending, sim.keys)) {
-        return this.commit(edge, event, preReleasePending);
-      }
+    const simFull = edges.find(
+      (edge) => matchSimultaneous(edge.input, preReleasePending, event) === "full",
+    );
+    if (simFull) {
+      return this.commit(simFull, event, preReleasePending);
     }
 
     // (B) SingleStroke の曖昧さ解消用 tentative を keyup で確定
@@ -289,12 +268,11 @@ export class StrokeCommitter {
     event: InputEvent,
     pendingDown: readonly VirtualKey[],
   ): { result: CommitResult; nextState: CommitterState } {
-    let remaining: readonly VirtualKey[];
-    if (edge.input.kind === "simultaneous") {
-      remaining = pendingDown.filter((k) => !(edge.input as SimultaneousStroke).keys.includes(k));
-    } else {
-      remaining = removeFirstOccurrence(pendingDown, edge.input.key);
-    }
+    const stroke = edge.input;
+    const remaining =
+      stroke.kind === "simultaneous"
+        ? pendingDown.filter((k) => !stroke.keys.includes(k))
+        : removeFirstOccurrence(pendingDown, stroke.key);
     return {
       result: {
         type: "committed",
@@ -305,13 +283,27 @@ export class StrokeCommitter {
   }
 }
 
-function isSubset(smaller: readonly VirtualKey[], larger: readonly VirtualKey[]): boolean {
-  for (const k of smaller) {
-    if (!larger.includes(k)) {
-      return false;
-    }
+/**
+ * SimultaneousStroke と押下中キー集合を照合する。SingleStroke は常に "none"。
+ * - full: requiredModifier が先押しされ、modifier キーを除いた pending が keys と集合一致
+ * - partial: requiredModifier が先押しされ、modifier キーを除いた pending が keys の真部分集合
+ */
+function matchSimultaneous(
+  stroke: RuleStroke,
+  pendingDown: readonly VirtualKey[],
+  event: InputEvent,
+): "full" | "partial" | "none" {
+  if (stroke.kind !== "simultaneous" || !stroke.requiredModifier.accept(event.keyboardState)) {
+    return "none";
   }
-  return true;
+  const nonModifierPending = pendingDown.filter((k) => !stroke.requiredModifier.has(k));
+  if (!nonModifierPending.every((k) => stroke.keys.includes(k))) {
+    return "none";
+  }
+  if (nonModifierPending.length === stroke.keys.length) {
+    return "full";
+  }
+  return nonModifierPending.length < stroke.keys.length ? "partial" : "none";
 }
 
 function removeFirstOccurrence(

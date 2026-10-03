@@ -205,31 +205,16 @@ const directInputNormalizeBaseMap = {
   "　": " ",
 };
 
-const kanaNormalizeMap = Object.assign(
-  {},
-  kanaNormalizeBaseMap,
-  Object.fromEntries(Object.values(kanaNormalizeBaseMap).map((v) => [v, v])),
-);
-
-const directInputNormalizeMap = Object.assign(
-  {},
-  directInputNormalizeBaseMap,
-  Object.fromEntries(Object.values(directInputNormalizeBaseMap).map((v) => [v, v])),
-);
+function normalizeWith(map: Record<string, string>, value: string): string {
+  return Array.from(value, (c) => (Object.hasOwn(map, c) ? map[c] : c)).join("");
+}
 
 /**
  * ひらがな／カタカナ混在の文字列をカタカナに寄せる正規化。
  * 他のかな文字はそのまま残す。`build()` の `normalize` 引数に利用できる。
  */
 export function defaultKanaNormalize(value: string): string {
-  return Array.from(value)
-    .map((c) => {
-      if (!(c in kanaNormalizeMap)) {
-        return c;
-      }
-      return kanaNormalizeMap[c];
-    })
-    .join("");
+  return normalizeWith(kanaNormalizeBaseMap, value);
 }
 
 /**
@@ -237,14 +222,7 @@ export function defaultKanaNormalize(value: string): string {
  * 直接入力ルールで「全角 A も半角 A も同じ打鍵で入力可能」とするために使用する。
  */
 export function defaultDirectInputNormalize(value: string): string {
-  return Array.from(value)
-    .map((c) => {
-      if (!(c in directInputNormalizeMap)) {
-        return c;
-      }
-      return directInputNormalizeMap[c];
-    })
-    .join("");
+  return normalizeWith(directInputNormalizeBaseMap, value);
 }
 
 /**

@@ -1,7 +1,7 @@
 import type { KeyEventType } from "../core/inputEvent";
 import { InputEvent, InputStroke } from "../core/inputEvent";
 import { KeyboardState } from "../core/keyboardState";
-import { logging } from "../core/logger";
+import { type Logger, logging } from "../core/logger";
 import type { VirtualKey } from "../core/virtualKey";
 import { VirtualKeys } from "../core/virtualKey";
 
@@ -24,12 +24,14 @@ export function activate(
   keyMap: Map<VirtualKey, VirtualKey> = new Map<VirtualKey, VirtualKey>(),
 ) {
   const keyboardState = new KeyboardState();
-  const keyDownEventHandler = (evt: Event) => {
+  const makeHandler = (evtType: KeyEventType, logger: Logger) => (evt: Event) => {
     const keyboardEvent = evt as KeyboardEvent;
-    const keyStroke = toInputKeyStrokeFromKeyboardEvent("keydown", keyboardEvent, keyMap);
-    keyboardState.keydown(keyStroke.key);
-    if (logKeyDown.enabled) {
-      logKeyDown.log({
+    const keyStroke = toInputKeyStrokeFromKeyboardEvent(evtType, keyboardEvent, keyMap);
+    // 矢印キー等、VirtualKey に対応しないキーは無視する（リスナー内で例外を投げない）
+    if (!keyStroke) return;
+    keyboardState[evtType](keyStroke.key);
+    if (logger.enabled) {
+      logger.log({
         code: keyboardEvent.code,
         key: keyStroke.key,
         downedKeys: [...keyboardState.downedKeys],
@@ -46,32 +48,21 @@ export function activate(
       ),
     );
   };
-  const keyUpEventHandler = (evt: Event) => {
-    const keyboardEvent = evt as KeyboardEvent;
-    const keyStroke = toInputKeyStrokeFromKeyboardEvent("keyup", keyboardEvent, keyMap);
-    keyboardState.keyup(keyStroke.key);
-    if (logKeyUp.enabled) {
-      logKeyUp.log({
-        code: keyboardEvent.code,
-        key: keyStroke.key,
-        downedKeys: [...keyboardState.downedKeys],
-      });
-    }
-    keyEventHandler(
-      new InputEvent(
-        keyStroke,
-        // キー入力ごとのその時点での KeyboardState を渡す
-        new KeyboardState([...keyboardState.downedKeys]),
-        keyboardEvent.timeStamp,
-      ),
-    );
+  const keyDownEventHandler = makeHandler("keydown", logKeyDown);
+  const keyUpEventHandler = makeHandler("keyup", logKeyUp);
+  // フォーカスを失うと押下中キーの keyup が届かないため、押下状態をクリアする
+  // (Shift 等が押しっぱなし扱いのまま残ると、以降の打鍵が修飾付きと判定されてしまう)
+  const blurHandler = () => {
+    for (const key of keyboardState.downedKeys) keyboardState.keyup(key);
   };
   target.addEventListener("keydown", keyDownEventHandler);
   target.addEventListener("keyup", keyUpEventHandler);
+  target.addEventListener("blur", blurHandler);
   logActivate.log({ keyMapSize: keyMap.size });
   return () => {
     target.removeEventListener("keydown", keyDownEventHandler);
     target.removeEventListener("keyup", keyUpEventHandler);
+    target.removeEventListener("blur", blurHandler);
     logDeactivate.log();
   };
 }
@@ -80,14 +71,20 @@ function toInputKeyStrokeFromKeyboardEvent(
   evtType: KeyEventType,
   evt: KeyboardEvent,
   keyMap: Map<VirtualKey, VirtualKey>,
-): InputStroke {
-  const vkey = toVirtualKeyFromEventCode(evt.code);
+): InputStroke | undefined {
+  const vkey = lookupVirtualKey(evt.code);
+  if (vkey === undefined) return undefined;
   const replaced = keyMap.get(vkey) ?? vkey;
   return new InputStroke(replaced, evtType);
 }
 
-function toVirtualKeyFromEventCode(code: string): VirtualKey {
-  const key = codeToVirtualKey[code];
+function lookupVirtualKey(code: string): VirtualKey | undefined {
+  return Object.hasOwn(codeToVirtualKey, code) ? codeToVirtualKey[code] : undefined;
+}
+
+/** KeyboardEvent.code を VirtualKey に変換する。未知の code の場合は例外を投げる。 */
+export function toVirtualKeyFromEventCode(code: string): VirtualKey {
+  const key = lookupVirtualKey(code);
   if (key === undefined) {
     throw new Error("invalid code: " + code);
   }
@@ -159,6 +156,21 @@ const codeToVirtualKey: { [key: string]: VirtualKey } = {
   Slash: VirtualKeys.Slash,
   IntlRo: VirtualKeys.JpnRo,
   Tab: VirtualKeys.Tab,
+  Backquote: VirtualKeys.Backquote,
+  Numpad0: VirtualKeys.Numpad0,
+  Numpad1: VirtualKeys.Numpad1,
+  Numpad2: VirtualKeys.Numpad2,
+  Numpad3: VirtualKeys.Numpad3,
+  Numpad4: VirtualKeys.Numpad4,
+  Numpad5: VirtualKeys.Numpad5,
+  Numpad6: VirtualKeys.Numpad6,
+  Numpad7: VirtualKeys.Numpad7,
+  Numpad8: VirtualKeys.Numpad8,
+  Numpad9: VirtualKeys.Numpad9,
+  NumpadDecimal: VirtualKeys.NumpadDecimal,
+  NumpadSubtract: VirtualKeys.NumpadSubtract,
+  NumpadAdd: VirtualKeys.NumpadAdd,
+  NumpadMultiply: VirtualKeys.NumpadMultiply,
   ShiftLeft: VirtualKeys.ShiftLeft,
   ShiftRight: VirtualKeys.ShiftRight,
   ControlLeft: VirtualKeys.ControlLeft,
