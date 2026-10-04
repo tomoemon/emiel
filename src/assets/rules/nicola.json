@@ -535,7 +535,7 @@
     {
       "input": [
         {
-          "keys": ["Semicolon", "LangRight"]
+          "keys": ["Comma", "LangRight"]
         }
       ],
       "output": "む"
@@ -751,7 +751,7 @@
     {
       "input": [
         {
-          "keys": ["Semicolon", "LangLeft"]
+          "keys": ["Comma", "LangLeft"]
         }
       ],
       "output": "ぺ"
