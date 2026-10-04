@@ -42,8 +42,7 @@
     "show-layout": "npx tsx scripts/show-layout.ts",
     "convert:yab": "npx tsx scripts/yab-to-json-rule.ts",
     "convert:dvorakj": "npx tsx scripts/dvorakj-to-json-rule.ts",
-    "show-rule": "npx tsx scripts/show-rule.ts",
-    "check:charset": "pnpm run build && npx tsx scripts/check-core-charset.ts"
+    "show-rule": "npx tsx scripts/show-rule.ts"
   },
   "devDependencies": {
     "@types/estree": "^1.0.9",
