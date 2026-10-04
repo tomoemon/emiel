@@ -47,6 +47,7 @@ export {
 } from "./impl/charNormalizer";
 
 export { build, type Automaton, type BaseExtensionType } from "./impl/buildAutomaton";
+export { coreCharset, findUntypableChars, findUntypableWords } from "./impl/charsetCoverage";
 export { type CurrentView, type EventsView } from "./impl/automatonView";
 
 export { logging, type Logger, type LogHandler, type LogRecord } from "./core/logger";
