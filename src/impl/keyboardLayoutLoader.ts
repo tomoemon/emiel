@@ -10,7 +10,7 @@ const jsonKeyboardLayoutSchema = v.object({
   entries: v.array(
     v.object({
       // キー押下で出力される文字
-      output: v.string(),
+      output: v.pipe(v.string(), v.minLength(1)),
       input: v.object({
         // 物理キー
         key: virtualKeySchema,

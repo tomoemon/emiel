@@ -32,6 +32,14 @@ describe("validation errors", () => {
     ).toThrow(v.ValiError);
   });
 
+  test("output is empty", () => {
+    expect(() =>
+      loadJsonKeyboardLayout({
+        entries: [{ output: "", input: { key: "A", shift: false } }],
+      }),
+    ).toThrow(v.ValiError);
+  });
+
   test("unknown virtual key", () => {
     expect(() =>
       loadJsonKeyboardLayout({

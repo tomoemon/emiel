@@ -17,7 +17,7 @@ const entryWithInputSchema = v.object({
   // 打鍵列
   input: v.array(strokeSchema),
   // 入力結果として出力されるかな文字列
-  output: v.string(),
+  output: v.pipe(v.string(), v.minLength(1)),
   // 次の入力の先頭として扱う打鍵列
   nextInput: v.optional(v.array(strokeSchema)),
   // 共通プレフィックスを持つエントリを自動拡張するか
