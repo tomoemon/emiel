@@ -26,6 +26,10 @@ function sourcesOf(entries: readonly RuleEntry[]): Set<RulePrimitive> {
   return set;
 }
 
+test("output が空の RuleEntry は作れない", () => {
+  expect(() => makeEntry("A", "")).toThrow();
+});
+
 describe("RulePrimitive", () => {
   test("rawEntries の sources に自身がタグ付けされる", () => {
     const r = makePrimitive({ entries: [makeEntry("A", "あ")], name: "r1" });

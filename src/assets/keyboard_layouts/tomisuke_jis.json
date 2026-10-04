@@ -495,13 +495,6 @@
       }
     },
     {
-      "output": "",
-      "input": {
-        "key": "Digit7",
-        "shift": true
-      }
-    },
-    {
       "output": "(",
       "input": {
         "key": "Digit8",
@@ -512,13 +505,6 @@
       "output": ")",
       "input": {
         "key": "Digit9",
-        "shift": true
-      }
-    },
-    {
-      "output": "",
-      "input": {
-        "key": "Digit0",
         "shift": true
       }
     },

@@ -17,6 +17,8 @@ export type normalizerFunc = (value: string) => string;
  * @property input 受け入れ可能なキー入力列
  * @property output 出力文字列
  * @property nextInput 次の入力として自動入力されるキー入力列
+ * @throws output が空文字列の場合。出力のないエントリはどの位置にも当てはまり、
+ *   Automaton の構築が停止しなくなるため受け付けない。
  */
 export class RuleEntry {
   constructor(
@@ -34,7 +36,11 @@ export class RuleEntry {
      * `merge` による結合エントリでは結合元 2 entries の sources を union して保持する。
      */
     readonly sources: readonly RulePrimitive[] = [],
-  ) {}
+  ) {
+    if (output.length === 0) {
+      throw new Error("RuleEntry output must not be empty");
+    }
+  }
   /** nextInput が空でない（＝確定後に次のエントリへ打ち継ぐ） */
   get hasNextInput(): boolean {
     return this.nextInput.length > 0;
