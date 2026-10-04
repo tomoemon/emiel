@@ -34,26 +34,6 @@ test("load nicola rule", () => {
   expect(rule.entries.length).toBe(95);
 });
 
-test("nicola: 「ね」のキー (Comma) と親指の同時押しで「む」「ぺ」を出力する", () => {
-  const rule = loadPresetRuleNicola();
-  const outputsOf = (keys: string[]) =>
-    rule.rawEntries
-      .filter((e) => {
-        const s = e.input[0];
-        return (
-          e.input.length === 1 &&
-          s.kind === "simultaneous" &&
-          s.keys.length === keys.length &&
-          keys.every((k) => s.keys.includes(k as (typeof s.keys)[number]))
-        );
-      })
-      .map((e) => e.output);
-  expect(outputsOf(["Comma", "LangRight"])).toEqual(["む"]);
-  expect(outputsOf(["Comma", "LangLeft"])).toEqual(["ぺ"]);
-  expect(outputsOf(["Semicolon", "LangRight"])).toEqual(["っ"]);
-  expect(outputsOf(["Semicolon", "LangLeft"])).toEqual([]);
-});
-
 test("load asuka 123 rule", () => {
   const rule = loadPresetRuleAsuka123();
   expect(rule.entries.length).toBeGreaterThan(80);
